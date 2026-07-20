@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/primaryColor">
+    <!-- Include header layout -->
+    <include layout="@layout/header"/>
+
+    <!-- Title TextView -->
+
+
+    <!-- Main container -->
+    <com.google.android.material.button.MaterialButton
+        style="@style/Widget.MaterialComponents.Button"
+        android:layout_width="wrap_content"
+        android:layout_height="94dp"
+        android:layout_gravity="center"
+        android:padding="16dp"
+        android:text="Select Your Class"
+        android:backgroundTint="@color/primary_green_light"
+        android:textSize="22sp"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="417dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="@color/primary_blue">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnClass9"
+            android:layout_width="157dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:backgroundTint="@color/ic_launcher_background"
+            android:text="9th Class"
+            android:textColor="@color/white" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnClass10"
+            android:layout_width="152dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:backgroundTint="@color/ic_launcher_background"
+            android:text="10th Class"
+            android:textColor="@color/white" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnClass11"
+            android:layout_width="152dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:backgroundTint="@color/ic_launcher_background"
+            android:text="11th Class"
+            android:textColor="@color/white" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnClass12"
+            android:layout_width="152dp"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/ic_launcher_background"
+            android:text="12th Class"
+            android:textColor="@color/white" />
+    </LinearLayout>
+
+
+</LinearLayout> <!-- End Main container -->

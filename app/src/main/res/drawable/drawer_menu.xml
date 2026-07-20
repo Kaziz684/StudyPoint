@@ -1,0 +1,28 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_home"
+        android:title="Home"
+        android:icon="@drawable/ic_home"/>
+
+    <item
+        android:id="@+id/nav_notes"
+        android:title="Notes"
+        android:icon="@drawable/ic_notes"/>
+
+    <item
+        android:id="@+id/nav_mcqs"
+        android:title="MCQs"
+        android:icon="@drawable/ic_quiz"/>
+
+    <item
+        android:id="@+id/nav_papers"
+        android:title="Past Papers"
+        android:icon="@drawable/ic_paper"/>
+
+    <item
+        android:id="@+id/nav_settings"
+        android:title="Settings"
+        android:icon="@drawable/ic_settings"/>
+
+</menu>

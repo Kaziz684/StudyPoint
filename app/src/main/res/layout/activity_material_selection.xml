@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:background="@color/white"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal">
+
+    <!-- Header -->
+    <include layout="@layout/header"/>
+
+    <!-- Title Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSelectMaterial"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Select Your Material"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="24dp"
+        android:backgroundTint="?attr/colorPrimary"
+        android:textColor="?attr/colorOnPrimary"
+        app:cornerRadius="20dp"
+        app:elevation="6dp" />
+
+    <!-- Options -->
+    <LinearLayout
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnNotes"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:text="Notes"
+            android:backgroundTint="@color/primaryColor"
+            android:textColor="@color/white"
+            app:cornerRadius="20dp"
+            app:elevation="4dp"
+            android:layout_marginBottom="12dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnHandwritten"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:text="Handwritten Notes"
+            android:backgroundTint="@color/primaryColor"
+            android:textColor="@color/white"
+            app:cornerRadius="20dp"
+            app:elevation="4dp"
+            android:layout_marginBottom="12dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnBook"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:text="Book"
+            android:backgroundTint="@color/primaryColor"
+            android:textColor="@color/white"
+            app:cornerRadius="20dp"
+            app:elevation="4dp"
+            android:layout_marginBottom="12dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnKeyBook"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:text="Key Book"
+            android:backgroundTint="@color/primaryColor"
+            android:textColor="@color/white"
+            app:cornerRadius="20dp"
+            app:elevation="4dp"/>
+    </LinearLayout>
+</LinearLayout>

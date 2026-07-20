@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@color/white"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <include layout="@layout/header"/>
+
+        <TextView
+            android:id="@+id/tvNotesTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Chapters"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_gravity="center"
+            android:padding="16dp"/>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!-- 9 chapter buttons -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCh1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Chapter 1"
+                android:backgroundTint="@color/primaryVariant"
+                android:textColor="@color/white"
+                android:layout_marginBottom="10dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCh2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Chapter 2"
+                android:backgroundTint="@color/primaryVariant"
+                android:textColor="@color/white"
+                android:layout_marginBottom="10dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCh3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Chapter 3"
+                android:backgroundTint="@color/primaryVariant"
+                android:textColor="@color/white"
+                android:layout_marginBottom="10dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCh4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Chapter 4"
+                android:backgroundTint="@color/primaryVariant"
+                android:textColor="@color/white"
+                android:layout_marginBottom="10dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCh5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Chapter 5"
+                android:backgroundTint="@color/primaryVariant"
+                android:textColor="@color/white"
+                android:layout_marginBottom="10dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCh6"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Chapter 6"
+                android:backgroundTint="@color/primaryVariant"
+                android:textColor="@color/white"
+                android:layout_marginBottom="10dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCh7"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Chapter 7"
+                android:backgroundTint="@color/primaryVariant"
+                android:textColor="@color/white"
+                android:layout_marginBottom="10dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCh8"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Chapter 8"
+                android:backgroundTint="@color/primaryVariant"
+                android:textColor="@color/white"
+                android:layout_marginBottom="10dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCh9"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Chapter 9"
+                android:backgroundTint="@color/primaryVariant"
+                android:textColor="@color/white"/>
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

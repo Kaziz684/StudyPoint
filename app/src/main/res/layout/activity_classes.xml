@@ -1,0 +1,27 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="@drawable/gradient_bg"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/tvClassTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="📚 Select Your Class"
+        android:textColor="@android:color/white"
+        android:textSize="22sp"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:padding="14dp" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/classRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:clipToPadding="false"/>
+
+</LinearLayout>

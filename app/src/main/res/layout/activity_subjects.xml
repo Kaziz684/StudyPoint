@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@color/white"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <include layout="@layout/header"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Select Your Subject"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_gravity="center"
+            android:padding="16dp"/>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnMath"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Mathematics"
+                android:backgroundTint="@color/primaryColor"
+                android:textColor="@color/white"
+                android:layout_marginBottom="12dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPhysics"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Physics"
+                android:backgroundTint="@color/primaryColor"
+                android:textColor="@color/white"
+                android:layout_marginBottom="12dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnChem"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Chemistry"
+                android:backgroundTint="@color/primaryColor"
+                android:textColor="@color/white"
+                android:layout_marginBottom="12dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnBio"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Biology"
+                android:backgroundTint="@color/primaryColor"
+                android:textColor="@color/white"
+                android:layout_marginBottom="12dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCS"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Computer"
+                android:backgroundTint="@color/primaryColor"
+                android:textColor="@color/white"
+                android:layout_marginBottom="12dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnEnglish"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="English"
+                android:backgroundTint="@color/primaryColor"
+                android:textColor="@color/white"
+                android:layout_marginBottom="12dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnUrdu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Urdu"
+                android:backgroundTint="@color/primaryColor"
+                android:textColor="@color/white"
+                android:layout_marginBottom="12dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnIsl"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Islamiat"
+                android:backgroundTint="@color/primaryColor"
+                android:textColor="@color/white"/>
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

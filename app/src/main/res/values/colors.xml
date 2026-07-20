@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary Colors for Dark Mode -->
+    <color name="primary_green">#4CAF50</color>
+    <color name="primary_green_dark">#2E7D32</color>
+    <color name="primary_green_light">#81C784</color>
+
+    <!-- Added missing primary_blue color and related blue colors -->
+    <color name="primary_blue">#2196F3</color>
+    <color name="primary_blue_dark">#1976D2</color>
+    <color name="primary_blue_light">#64B5F6</color>
+
+    <!-- Secondary Colors for Dark Mode -->
+    <color name="secondary_gold">#FFB74D</color>
+    <color name="secondary_light">#1E3A1E</color>
+
+    <!-- Text Colors for Dark Mode -->
+    <color name="text_primary">#E0E0E0</color>
+    <color name="text_secondary">#B0B0B0</color>
+    <color name="text_on_primary">#000000</color>
+
+    <!-- Background Colors for Dark Mode -->
+    <color name="background_light">#121212</color>
+    <color name="surface_light">#1E1E1E</color>
+
+    <!-- Added missing dark theme color references -->
+    <color name="background_dark">#121212</color>
+    <color name="surface_dark">#1E1E1E</color>
+    <color name="text_primary_dark">#E0E0E0</color>
+
+    <!-- Added primaryColor for Firebase notification compatibility -->
+    <color name="primaryColor">#4CAF50</color>
+    <color name="primaryVariant">#2E7D32</color>
+    <color name="secondaryColor">#FFB74D</color>
+
+    <!-- Added missing white and black colors for button text -->
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+
+    <!-- Added missing gray_light color for header background -->
+    <color name="gray_light">#424242</color>
+
+    <!-- WhatsApp Brand Color -->
+    <color name="whatsapp_green">#25D366</color>
+
+    <!-- Added error color for logout button -->
+    <color name="error_red">#F44336</color>
+    <color name="error_red_dark">#D32F2F</color>
+    <color name="error_red_light">#EF5350</color>
+
+    <!-- Added missing launcher background color for dark theme -->
+    <color name="ic_launcher_background">#1E1E1E</color>
+</resources>

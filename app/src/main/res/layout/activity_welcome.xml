@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/gradient_bg"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="32dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- App Logo -->
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@mipmap/ic_logo_studypoint"
+            android:layout_marginBottom="24dp"
+            android:contentDescription="StudyPoint Logo" />
+
+        <!-- Islamic Greeting -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="﷽"
+            android:textSize="32sp"
+            android:textColor="@color/primary_green"
+            android:gravity="center"
+            android:layout_marginBottom="16dp"
+            android:fontFamily="serif" />
+
+        <!-- Added user welcome TextView -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tvWelcomeUser"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Welcome, Student!"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/primary_blue"
+            android:gravity="center"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Welcome Message -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Welcome to StudyPoint"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:gravity="center"
+            android:fontFamily="sans-serif-medium"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Subtitle -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Your Complete Study Companion"
+            android:textSize="16sp"
+            android:textColor="@color/text_secondary"
+            android:gravity="center"
+            android:layout_marginBottom="40dp"/>
+
+        <!-- Buttons -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnStart"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text=" Start Learning"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            style="@style/Widget.Material3.Button.UnelevatedButton"
+            android:backgroundTint="@color/primary_green"
+            android:textColor="@color/white"
+            android:layout_marginBottom="16dp"
+            app:cornerRadius="12dp"/>
+
+        <!-- Added logout button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnLogout"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text=" Logout"
+            android:textSize="16sp"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:strokeColor="@color/error_red"
+            android:textColor="@color/error_red"
+            android:layout_marginBottom="16dp"
+            app:cornerRadius="12dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnFeedback"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text=" Send Feedback"
+            android:textSize="16sp"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:strokeColor="@color/primary_green"
+            android:textColor="@color/primary_green"
+            android:layout_marginBottom="16dp"
+            app:cornerRadius="12dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnWhatsapp"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="WhatsApp Channel"
+            android:textSize="16sp"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:strokeColor="@color/whatsapp_green"
+            android:textColor="@color/whatsapp_green"
+            android:layout_marginBottom="16dp"
+            app:cornerRadius="12dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnShare"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text=" Share App"
+            android:textSize="16sp"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:backgroundTint="@color/secondary_light"
+            android:textColor="@color/primary_green"
+            app:cornerRadius="12dp"/>
+
+        <!-- Footer -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Made By ASA for Students - Version 1.1"
+            android:textSize="14sp"
+            android:textColor="@color/text_secondary"
+            android:gravity="center"
+            android:layout_marginTop="32dp"/>
+
+    </LinearLayout>
+</ScrollView>

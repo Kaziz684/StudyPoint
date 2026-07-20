@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Fixed night theme attributes to use correct Material3 names -->
+    <style name="Theme.StudyPoint" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/primary_green</item>
+        <item name="colorPrimaryVariant">@color/primary_green_dark</item>
+        <item name="colorSecondary">@color/secondary_gold</item>
+        <item name="colorSurface">@color/surface_dark</item>
+        <item name="android:colorBackground">@color/background_dark</item>
+        <item name="colorOnPrimary">@color/text_on_primary</item>
+        <item name="colorOnSurface">@color/text_primary_dark</item>
+        <item name="android:statusBarColor">@color/primary_green_dark</item>
+        <item name="android:navigationBarColor">@color/surface_dark</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>

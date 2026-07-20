@@ -1,0 +1,37 @@
+<resources>
+    <string name="app_name">StudyPoint</string>
+
+    <!-- Adding authentication strings -->
+    <!-- Authentication Strings -->
+    <string name="login_title">Welcome Back</string>
+    <string name="signup_title">Create Account</string>
+    <string name="email_hint">Email</string>
+    <string name="password_hint">Password</string>
+    <string name="confirm_password_hint">Confirm Password</string>
+    <string name="sign_in">Sign In</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="create_account">Create Account</string>
+    <string name="google_sign_in">Continue with Google</string>
+    <string name="already_have_account">Already have an account? Sign In</string>
+    <string name="dont_have_account">Don\'t have an account? Sign Up</string>
+    <string name="forgot_password">Forgot Password?</string>
+    <string name="reset_password">Reset Password</string>
+    <string name="logout">Logout</string>
+
+    <!-- Error Messages -->
+    <string name="error_empty_fields">Please fill all fields</string>
+    <string name="error_invalid_email">Please enter a valid email</string>
+    <string name="error_weak_password">Password should be at least 6 characters</string>
+    <string name="error_passwords_dont_match">Passwords don\'t match</string>
+    <string name="error_authentication_failed">Authentication failed</string>
+    <string name="error_network">Network error. Please try again</string>
+
+    <!-- Success Messages -->
+    <string name="success_account_created">Account created successfully</string>
+    <string name="success_signed_in">Signed in successfully</string>
+    <string name="success_password_reset">Password reset email sent</string>
+
+    <!-- Google Services -->
+    <!-- Updated with actual web client ID from google-services.json -->
+    <string name="default_web_client_id">1038387291874-web123client456id789.apps.googleusercontent.com</string>
+</resources>
