@@ -2029,66 +2029,6 @@ fun SocialMediaHubSection(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Primary Highlight Card: Facebook Official Page / Group
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onFacebookClick() },
-                shape = RoundedCornerShape(14.dp),
-                color = Color(0xFFEFF6FF)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(14.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(44.dp)
-                            .background(Color.White, CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_facebook),
-                            contentDescription = "Facebook",
-                            tint = Color.Unspecified,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.width(12.dp))
-
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "Official Facebook Page",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp,
-                            color = Color(0xFF1E3A8A)
-                        )
-                        Text(
-                            text = "Latest Date Sheets, Guess Papers & Discussion",
-                            fontSize = 11.sp,
-                            color = Color(0xFF3B82F6)
-                        )
-                    }
-
-                    Surface(
-                        shape = RoundedCornerShape(10.dp),
-                        color = Color(0xFF1877F2)
-                    ) {
-                        Text(
-                            text = "Visit Page",
-                            color = Color.White,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
 
             // Grid Row 1: WhatsApp Support & Telegram Group
             Row(
@@ -2142,6 +2082,25 @@ fun SocialMediaHubSection(
                     textColor = Color(0xFF9D174D),
                     onClick = onInstagramClick
                 )
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // Grid Row 3: Facebook (compact chip, like WhatsApp)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                SocialActionChip(
+                    modifier = Modifier.weight(1f),
+                    title = "Facebook",
+                    subtitle = "Official Page",
+                    iconRes = R.drawable.ic_facebook,
+                    bgColor = Color(0xFFEFF6FF),
+                    textColor = Color(0xFF1E3A8A),
+                    onClick = onFacebookClick
+                )
+                Spacer(modifier = Modifier.weight(1f))
             }
         }
     }
