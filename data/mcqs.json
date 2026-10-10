@@ -1,0 +1,1970 @@
+{
+ "9th": [
+  {
+   "id": 1,
+   "subject": "Math",
+   "chapter": "Chapter 1: Matrices and Determinants",
+   "question": "The order of a matrix with 2 rows and 3 columns is:",
+   "options": [
+    "2 x 2",
+    "3 x 2",
+    "2 x 3",
+    "3 x 3"
+   ],
+   "answer": 2,
+   "explanation": "Order is written as rows x columns, so it is 2 x 3."
+  },
+  {
+   "id": 2,
+   "subject": "Math",
+   "chapter": "Chapter 1: Matrices and Determinants",
+   "question": "If A is a 2 x 3 matrix and B is a 3 x 2 matrix, the order of AB is:",
+   "options": [
+    "2 x 2",
+    "3 x 3",
+    "2 x 3",
+    "3 x 2"
+   ],
+   "answer": 0,
+   "explanation": "The product of a (2 x 3) and a (3 x 2) matrix is a 2 x 2 matrix."
+  },
+  {
+   "id": 3,
+   "subject": "Math",
+   "chapter": "Chapter 1: Matrices and Determinants",
+   "question": "The determinant of the matrix [[a, b], [c, d]] is:",
+   "options": [
+    "ad + bc",
+    "ad - bc",
+    "ab - cd",
+    "ac - bd"
+   ],
+   "answer": 1,
+   "explanation": "For a 2 x 2 matrix, |A| = ad - bc."
+  },
+  {
+   "id": 4,
+   "subject": "Math",
+   "chapter": "Chapter 1: Matrices and Determinants",
+   "question": "A square matrix A is singular if:",
+   "options": [
+    "|A| = 1",
+    "|A| = 0",
+    "|A| is not equal to 0",
+    "A is a zero matrix"
+   ],
+   "answer": 1,
+   "explanation": "A matrix is singular when its determinant is zero."
+  },
+  {
+   "id": 5,
+   "subject": "Math",
+   "chapter": "Chapter 2: Real and Complex Numbers",
+   "question": "The conjugate of 3 - 4i is:",
+   "options": [
+    "3 + 4i",
+    "-3 + 4i",
+    "3 - 4i",
+    "-3 - 4i"
+   ],
+   "answer": 0,
+   "explanation": "The conjugate changes the sign of the imaginary part only."
+  },
+  {
+   "id": 6,
+   "subject": "Math",
+   "chapter": "Chapter 2: Real and Complex Numbers",
+   "question": "Which of the following is a rational number?",
+   "options": [
+    "root 2",
+    "pi",
+    "0.5",
+    "e"
+   ],
+   "answer": 2,
+   "explanation": "0.5 = 1/2 can be written as p/q, so it is rational."
+  },
+  {
+   "id": 7,
+   "subject": "Math",
+   "chapter": "Chapter 2: Real and Complex Numbers",
+   "question": "The value of i raised to the power 4 is:",
+   "options": [
+    "i",
+    "-1",
+    "-i",
+    "1"
+   ],
+   "answer": 3,
+   "explanation": "i^2 = -1, so i^4 = (i^2)^2 = (-1)^2 = 1."
+  },
+  {
+   "id": 8,
+   "subject": "Math",
+   "chapter": "Chapter 2: Real and Complex Numbers",
+   "question": "The imaginary part of 5 - 2i is:",
+   "options": [
+    "5",
+    "-2",
+    "2i",
+    "-2i"
+   ],
+   "answer": 1,
+   "explanation": "The imaginary part is the real coefficient of i, which is -2."
+  },
+  {
+   "id": 9,
+   "subject": "Math",
+   "chapter": "Chapter 3: Logarithms",
+   "question": "log(a x b) is equal to:",
+   "options": [
+    "log a + log b",
+    "log a - log b",
+    "log a x log b",
+    "(log a)/(log b)"
+   ],
+   "answer": 0,
+   "explanation": "By the product law of logarithms: log(mn) = log m + log n."
+  },
+  {
+   "id": 10,
+   "subject": "Math",
+   "chapter": "Chapter 3: Logarithms",
+   "question": "If log base 10 of x = 2, then x is:",
+   "options": [
+    "2",
+    "20",
+    "100",
+    "200"
+   ],
+   "answer": 2,
+   "explanation": "log10(x) = 2 means x = 10^2 = 100."
+  },
+  {
+   "id": 11,
+   "subject": "Math",
+   "chapter": "Chapter 3: Logarithms",
+   "question": "The value of log 1 (any valid base) is:",
+   "options": [
+    "1",
+    "0",
+    "10",
+    "undefined"
+   ],
+   "answer": 1,
+   "explanation": "Since any non-zero number raised to 0 is 1, log 1 = 0."
+  },
+  {
+   "id": 12,
+   "subject": "Math",
+   "chapter": "Chapter 3: Logarithms",
+   "question": "The characteristic of log 472.5 is:",
+   "options": [
+    "2",
+    "3",
+    "4",
+    "47"
+   ],
+   "answer": 0,
+   "explanation": "472.5 = 4.725 x 10^2, so the characteristic is 2."
+  },
+  {
+   "id": 13,
+   "subject": "Math",
+   "chapter": "Chapter 4: Algebraic Expressions and Algebraic Formulas",
+   "question": "(a + b)^2 equals:",
+   "options": [
+    "a^2 + b^2",
+    "a^2 + 2ab + b^2",
+    "a^2 - 2ab + b^2",
+    "2a + 2b"
+   ],
+   "answer": 1,
+   "explanation": "Squaring a binomial: (a + b)^2 = a^2 + 2ab + b^2."
+  },
+  {
+   "id": 14,
+   "subject": "Math",
+   "chapter": "Chapter 4: Algebraic Expressions and Algebraic Formulas",
+   "question": "(a - b)(a + b) equals:",
+   "options": [
+    "a^2 + b^2",
+    "a^2 - 2ab + b^2",
+    "a^2 - b^2",
+    "(a + b)^2"
+   ],
+   "answer": 2,
+   "explanation": "The product of sum and difference gives the difference of squares."
+  },
+  {
+   "id": 15,
+   "subject": "Math",
+   "chapter": "Chapter 4: Algebraic Expressions and Algebraic Formulas",
+   "question": "If x + 1/x = 5, then x^2 + 1/x^2 equals:",
+   "options": [
+    "25",
+    "23",
+    "27",
+    "10"
+   ],
+   "answer": 1,
+   "explanation": "(x + 1/x)^2 = x^2 + 2 + 1/x^2, so 25 - 2 = 23."
+  },
+  {
+   "id": 16,
+   "subject": "Math",
+   "chapter": "Chapter 4: Algebraic Expressions and Algebraic Formulas",
+   "question": "(a + b)^3 equals:",
+   "options": [
+    "a^3 + b^3",
+    "a^3 + 3a^2 b + 3a b^2 + b^3",
+    "a^3 - 3a^2 b + 3a b^2 - b^3",
+    "3(a + b)"
+   ],
+   "answer": 1,
+   "explanation": "Cube of a binomial expands to a^3 + 3a^2 b + 3a b^2 + b^3."
+  },
+  {
+   "id": 17,
+   "subject": "Math",
+   "chapter": "Chapter 4: Algebraic Expressions and Algebraic Formulas",
+   "question": "The value of (a^2 - b^2)/(a - b), where a is not equal to b, is:",
+   "options": [
+    "a - b",
+    "a + b",
+    "ab",
+    "1"
+   ],
+   "answer": 1,
+   "explanation": "Factor the numerator: (a - b)(a + b)/(a - b) = a + b."
+  },
+  {
+   "id": 18,
+   "subject": "Math",
+   "chapter": "Chapter 5: Factorization",
+   "question": "The factors of x^2 + 5x + 6 are:",
+   "options": [
+    "(x + 2)(x + 3)",
+    "(x + 1)(x + 6)",
+    "(x - 2)(x - 3)",
+    "(x + 5)(x + 1)"
+   ],
+   "answer": 0,
+   "explanation": "Two numbers with sum 5 and product 6 are 2 and 3."
+  },
+  {
+   "id": 19,
+   "subject": "Math",
+   "chapter": "Chapter 5: Factorization",
+   "question": "a^3 - b^3 factorises as:",
+   "options": [
+    "(a - b)(a^2 + ab + b^2)",
+    "(a - b)(a^2 - ab + b^2)",
+    "(a + b)(a^2 - ab + b^2)",
+    "(a - b)^3"
+   ],
+   "answer": 0,
+   "explanation": "Difference of cubes: a^3 - b^3 = (a - b)(a^2 + ab + b^2)."
+  },
+  {
+   "id": 20,
+   "subject": "Math",
+   "chapter": "Chapter 5: Factorization",
+   "question": "The complete factorization of 4x^2 - 12x is:",
+   "options": [
+    "4x(x - 3)",
+    "x(4x - 12)",
+    "4(x^2 - 3)",
+    "2(2x^2 - 6x)"
+   ],
+   "answer": 0,
+   "explanation": "Take out the greatest common factor 4x: 4x(x - 3)."
+  },
+  {
+   "id": 21,
+   "subject": "Math",
+   "chapter": "Chapter 5: Factorization",
+   "question": "x^2 - 2x + 1 factorises as:",
+   "options": [
+    "(x - 1)^2",
+    "(x + 1)^2",
+    "(x - 1)(x + 1)",
+    "x(x - 2)"
+   ],
+   "answer": 0,
+   "explanation": "It is a perfect square: x^2 - 2x + 1 = (x - 1)^2."
+  },
+  {
+   "id": 22,
+   "subject": "Math",
+   "chapter": "Chapter 6: Algebraic Manipulation",
+   "question": "The L.C.M. of x^2 - 1 and x + 1 is:",
+   "options": [
+    "(x + 1)",
+    "(x - 1)",
+    "(x + 1)(x - 1)",
+    "(x + 1)^2"
+   ],
+   "answer": 2,
+   "explanation": "x^2 - 1 = (x + 1)(x - 1), so the L.C.M. is (x + 1)(x - 1)."
+  },
+  {
+   "id": 23,
+   "subject": "Math",
+   "chapter": "Chapter 6: Algebraic Manipulation",
+   "question": "The H.C.F. of 6x^2 and 9x is:",
+   "options": [
+    "3x^2",
+    "9x",
+    "3x",
+    "18x^2"
+   ],
+   "answer": 2,
+   "explanation": "The greatest common divisor of the coefficients 6 and 9 is 3, and of x^2 and x is x."
+  },
+  {
+   "id": 24,
+   "subject": "Math",
+   "chapter": "Chapter 6: Algebraic Manipulation",
+   "question": "On simplification, (x^2 - 4)/(x - 2) equals (x is not equal to 2):",
+   "options": [
+    "x - 2",
+    "x + 2",
+    "x^2 + 2",
+    "2x"
+   ],
+   "answer": 1,
+   "explanation": "Factor the numerator: (x - 2)(x + 2)/(x - 2) = x + 2."
+  },
+  {
+   "id": 25,
+   "subject": "Math",
+   "chapter": "Chapter 6: Algebraic Manipulation",
+   "question": "1/(x + 1) + 1/(x - 1) equals:",
+   "options": [
+    "2/(x^2 - 1)",
+    "2x/(x^2 - 1)",
+    "2x/(x^2 + 1)",
+    "1/(x^2 - 1)"
+   ],
+   "answer": 1,
+   "explanation": "Common denominator (x^2 - 1): [(x - 1) + (x + 1)]/(x^2 - 1) = 2x/(x^2 - 1)."
+  },
+  {
+   "id": 26,
+   "subject": "Math",
+   "chapter": "Chapter 6: Algebraic Manipulation",
+   "question": "The square root of x^2 is equal to:",
+   "options": [
+    "x",
+    "|x|",
+    "x^2",
+    "plus-minus x"
+   ],
+   "answer": 1,
+   "explanation": "The principal square root of x^2 is the absolute value of x."
+  },
+  {
+   "id": 27,
+   "subject": "Math",
+   "chapter": "Chapter 7: Linear Equations and Inequalities",
+   "question": "The solution of x/3 = 4 is:",
+   "options": [
+    "7",
+    "12",
+    "1",
+    "4/3"
+   ],
+   "answer": 1,
+   "explanation": "Multiply both sides by 3: x = 12."
+  },
+  {
+   "id": 28,
+   "subject": "Math",
+   "chapter": "Chapter 7: Linear Equations and Inequalities",
+   "question": "If x > 3, then -x is:",
+   "options": [
+    "greater than -3",
+    "less than -3",
+    "equal to -3",
+    "greater than 3"
+   ],
+   "answer": 1,
+   "explanation": "Multiplying an inequality by a negative number reverses the sign."
+  },
+  {
+   "id": 29,
+   "subject": "Math",
+   "chapter": "Chapter 7: Linear Equations and Inequalities",
+   "question": "The solution set of |x| = 5 is:",
+   "options": [
+    "{5}",
+    "{-5}",
+    "{-5, 5}",
+    "{0}"
+   ],
+   "answer": 2,
+   "explanation": "Absolute value 5 means x = 5 or x = -5."
+  },
+  {
+   "id": 30,
+   "subject": "Math",
+   "chapter": "Chapter 7: Linear Equations and Inequalities",
+   "question": "Which of the following is a linear equation in one variable?",
+   "options": [
+    "x^2 + 2x = 0",
+    "2x + 3 = 0",
+    "xy = 5",
+    "1/x = 2"
+   ],
+   "answer": 1,
+   "explanation": "A linear equation in one variable has the form ax + b = 0 with a not equal to 0."
+  },
+  {
+   "id": 31,
+   "subject": "Math",
+   "chapter": "Chapter 8: Linear Graphs and Their Application",
+   "question": "The graph of y = 2x + 1 is a:",
+   "options": [
+    "straight line",
+    "parabola",
+    "circle",
+    "hyperbola"
+   ],
+   "answer": 0,
+   "explanation": "An equation of degree 1 in x and y always graphs as a straight line."
+  },
+  {
+   "id": 32,
+   "subject": "Math",
+   "chapter": "Chapter 8: Linear Graphs and Their Application",
+   "question": "The slope of the line y = 3x - 2 is:",
+   "options": [
+    "-2",
+    "2",
+    "3",
+    "1/3"
+   ],
+   "answer": 2,
+   "explanation": "In y = mx + c, the coefficient of x (3) is the slope."
+  },
+  {
+   "id": 33,
+   "subject": "Math",
+   "chapter": "Chapter 8: Linear Graphs and Their Application",
+   "question": "The point (2, -3) lies in the:",
+   "options": [
+    "first quadrant",
+    "second quadrant",
+    "third quadrant",
+    "fourth quadrant"
+   ],
+   "answer": 3,
+   "explanation": "x is positive and y is negative, which is the fourth quadrant."
+  },
+  {
+   "id": 34,
+   "subject": "Math",
+   "chapter": "Chapter 8: Linear Graphs and Their Application",
+   "question": "The x-intercept of the line 2x + 3y = 6 is:",
+   "options": [
+    "(0, 2)",
+    "(3, 0)",
+    "(0, 3)",
+    "(2, 0)"
+   ],
+   "answer": 1,
+   "explanation": "Put y = 0: 2x = 6, so x = 3, giving the point (3, 0)."
+  },
+  {
+   "id": 35,
+   "subject": "Math",
+   "chapter": "Chapter 8: Linear Graphs and Their Application",
+   "question": "The graph of the equation x = 5 is a:",
+   "options": [
+    "horizontal line",
+    "vertical line",
+    "line through the origin",
+    "parabola"
+   ],
+   "answer": 1,
+   "explanation": "x = constant is a line parallel to the y-axis (vertical)."
+  },
+  {
+   "id": 36,
+   "subject": "Math",
+   "chapter": "Chapter 9: Introduction to Coordinate Geometry",
+   "question": "The distance between (0, 0) and (3, 4) is:",
+   "options": [
+    "5",
+    "7",
+    "12",
+    "25"
+   ],
+   "answer": 0,
+   "explanation": "Distance = root((3-0)^2 + (4-0)^2) = root(25) = 5."
+  },
+  {
+   "id": 37,
+   "subject": "Math",
+   "chapter": "Chapter 9: Introduction to Coordinate Geometry",
+   "question": "The midpoint of the segment joining (2, 4) and (6, 8) is:",
+   "options": [
+    "(4, 6)",
+    "(3, 6)",
+    "(4, 12)",
+    "(8, 12)"
+   ],
+   "answer": 0,
+   "explanation": "Midpoint = ((2+6)/2, (4+8)/2) = (4, 6)."
+  },
+  {
+   "id": 38,
+   "subject": "Math",
+   "chapter": "Chapter 9: Introduction to Coordinate Geometry",
+   "question": "The distance between points (x1, y1) and (x2, y2) is:",
+   "options": [
+    "|x2 - x1| + |y2 - y1|",
+    "root((x2-x1)^2 + (y2-y1)^2)",
+    "(x2-x1)(y2-y1)",
+    "|x2 + x1| + |y2 + y1|"
+   ],
+   "answer": 1,
+   "explanation": "This is the distance formula derived from Pythagoras' theorem."
+  },
+  {
+   "id": 39,
+   "subject": "Math",
+   "chapter": "Chapter 9: Introduction to Coordinate Geometry",
+   "question": "The point (-2, 3) lies in the:",
+   "options": [
+    "first quadrant",
+    "second quadrant",
+    "third quadrant",
+    "fourth quadrant"
+   ],
+   "answer": 1,
+   "explanation": "x is negative and y is positive, which is the second quadrant."
+  },
+  {
+   "id": 40,
+   "subject": "Math",
+   "chapter": "Chapter 9: Introduction to Coordinate Geometry",
+   "question": "The coordinates of the origin are:",
+   "options": [
+    "(1, 1)",
+    "(0, 0)",
+    "(1, 0)",
+    "(0, 1)"
+   ],
+   "answer": 1,
+   "explanation": "The origin is the point where both axes meet: (0, 0)."
+  },
+  {
+   "id": 41,
+   "subject": "Math",
+   "chapter": "Chapter 10: Congruent Triangles",
+   "question": "SSS in triangle congruence stands for:",
+   "options": [
+    "side-side-side",
+    "side-angle-side",
+    "angle-side-angle",
+    "hypotenuse-leg"
+   ],
+   "answer": 0,
+   "explanation": "SSS means all three corresponding sides are equal."
+  },
+  {
+   "id": 42,
+   "subject": "Math",
+   "chapter": "Chapter 10: Congruent Triangles",
+   "question": "If triangle ABC is congruent to triangle DEF, then:",
+   "options": [
+    "all corresponding sides and angles are equal",
+    "only sides are equal",
+    "only angles are equal",
+    "perimeters are different"
+   ],
+   "answer": 0,
+   "explanation": "Congruent figures are identical in shape and size."
+  },
+  {
+   "id": 43,
+   "subject": "Math",
+   "chapter": "Chapter 10: Congruent Triangles",
+   "question": "If triangle ABC is congruent to triangle DEF and AB = 5 cm, then DE equals:",
+   "options": [
+    "5 cm",
+    "10 cm",
+    "2.5 cm",
+    "cannot be determined"
+   ],
+   "answer": 0,
+   "explanation": "Corresponding sides of congruent triangles are equal."
+  },
+  {
+   "id": 44,
+   "subject": "Math",
+   "chapter": "Chapter 10: Congruent Triangles",
+   "question": "The ASA postulate of congruence requires:",
+   "options": [
+    "two sides and the included angle",
+    "three sides",
+    "two angles and the included side",
+    "hypotenuse and a leg"
+   ],
+   "answer": 2,
+   "explanation": "ASA: two angles and the side between them must be equal."
+  },
+  {
+   "id": 45,
+   "subject": "Math",
+   "chapter": "Chapter 10: Congruent Triangles",
+   "question": "Two triangles are congruent if their corresponding sides are:",
+   "options": [
+    "proportional",
+    "equal",
+    "parallel",
+    "perpendicular"
+   ],
+   "answer": 1,
+   "explanation": "Congruence requires equality, not just proportionality."
+  },
+  {
+   "id": 46,
+   "subject": "Math",
+   "chapter": "Chapter 11: Parallelograms and Triangles",
+   "question": "The opposite sides of a parallelogram are:",
+   "options": [
+    "perpendicular",
+    "parallel and equal",
+    "unequal",
+    "intersecting"
+   ],
+   "answer": 1,
+   "explanation": "By definition, opposite sides of a parallelogram are parallel and equal."
+  },
+  {
+   "id": 47,
+   "subject": "Math",
+   "chapter": "Chapter 11: Parallelograms and Triangles",
+   "question": "The diagonals of a rectangle are:",
+   "options": [
+    "perpendicular",
+    "unequal",
+    "equal",
+    "parallel"
+   ],
+   "answer": 2,
+   "explanation": "A property of rectangles: both diagonals are equal in length."
+  },
+  {
+   "id": 48,
+   "subject": "Math",
+   "chapter": "Chapter 11: Parallelograms and Triangles",
+   "question": "A rhombus with all angles equal is a:",
+   "options": [
+    "rectangle",
+    "square",
+    "trapezium",
+    "kite"
+   ],
+   "answer": 1,
+   "explanation": "Equal angles in a rhombus (90 degrees each) make it a square."
+  },
+  {
+   "id": 49,
+   "subject": "Math",
+   "chapter": "Chapter 11: Parallelograms and Triangles",
+   "question": "The diagonals of a parallelogram:",
+   "options": [
+    "bisect each other",
+    "are equal",
+    "are perpendicular",
+    "do not intersect"
+   ],
+   "answer": 0,
+   "explanation": "The diagonals of every parallelogram bisect each other."
+  },
+  {
+   "id": 50,
+   "subject": "Math",
+   "chapter": "Chapter 11: Parallelograms and Triangles",
+   "question": "The sum of the interior angles of a quadrilateral is:",
+   "options": [
+    "180 degrees",
+    "270 degrees",
+    "360 degrees",
+    "540 degrees"
+   ],
+   "answer": 2,
+   "explanation": "A quadrilateral divides into two triangles: 2 x 180 = 360 degrees."
+  },
+  {
+   "id": 51,
+   "subject": "Math",
+   "chapter": "Chapter 12: Line Bisectors and Angle Bisectors",
+   "question": "The perpendicular bisector of a line segment:",
+   "options": [
+    "passes through the midpoint at 90 degrees",
+    "passes through an endpoint",
+    "divides the segment in a 2:1 ratio",
+    "is parallel to the segment"
+   ],
+   "answer": 0,
+   "explanation": "It cuts the segment at its midpoint at right angles."
+  },
+  {
+   "id": 52,
+   "subject": "Math",
+   "chapter": "Chapter 12: Line Bisectors and Angle Bisectors",
+   "question": "Any point on the perpendicular bisector of a segment is:",
+   "options": [
+    "equidistant from its endpoints",
+    "at the midpoint",
+    "on the segment",
+    "at a fixed distance of 1 cm"
+   ],
+   "answer": 0,
+   "explanation": "This is the defining property of the perpendicular bisector."
+  },
+  {
+   "id": 53,
+   "subject": "Math",
+   "chapter": "Chapter 12: Line Bisectors and Angle Bisectors",
+   "question": "An angle bisector divides an angle into:",
+   "options": [
+    "two unequal parts",
+    "two equal parts",
+    "three equal parts",
+    "four equal parts"
+   ],
+   "answer": 1,
+   "explanation": "By definition, a bisector divides an angle into two equal parts."
+  },
+  {
+   "id": 54,
+   "subject": "Math",
+   "chapter": "Chapter 12: Line Bisectors and Angle Bisectors",
+   "question": "The point where the angle bisectors of a triangle meet is called the:",
+   "options": [
+    "circumcenter",
+    "incenter",
+    "centroid",
+    "orthocenter"
+   ],
+   "answer": 1,
+   "explanation": "The incenter is the point of concurrency of the three angle bisectors."
+  },
+  {
+   "id": 55,
+   "subject": "Math",
+   "chapter": "Chapter 12: Line Bisectors and Angle Bisectors",
+   "question": "The angle bisectors of a triangle are concurrent at the:",
+   "options": [
+    "circumcenter",
+    "centroid",
+    "incenter",
+    "midpoint of the longest side"
+   ],
+   "answer": 2,
+   "explanation": "The three angle bisectors meet at the incenter, the centre of the inscribed circle."
+  },
+  {
+   "id": 56,
+   "subject": "Math",
+   "chapter": "Chapter 13: Sides and Angles of a Triangle",
+   "question": "The sum of the interior angles of a triangle is:",
+   "options": [
+    "90 degrees",
+    "180 degrees",
+    "270 degrees",
+    "360 degrees"
+   ],
+   "answer": 1,
+   "explanation": "The angle-sum property of a triangle is 180 degrees."
+  },
+  {
+   "id": 57,
+   "subject": "Math",
+   "chapter": "Chapter 13: Sides and Angles of a Triangle",
+   "question": "A triangle with one angle of 90 degrees is called:",
+   "options": [
+    "acute-angled",
+    "right-angled",
+    "obtuse-angled",
+    "equilateral"
+   ],
+   "answer": 1,
+   "explanation": "A triangle containing a right angle is right-angled."
+  },
+  {
+   "id": 58,
+   "subject": "Math",
+   "chapter": "Chapter 13: Sides and Angles of a Triangle",
+   "question": "An exterior angle of a triangle is equal to:",
+   "options": [
+    "the adjacent interior angle",
+    "the sum of the two opposite interior angles",
+    "180 degrees",
+    "the difference of the two opposite interior angles"
+   ],
+   "answer": 1,
+   "explanation": "Exterior angle theorem: it equals the sum of the two non-adjacent interior angles."
+  },
+  {
+   "id": 59,
+   "subject": "Math",
+   "chapter": "Chapter 13: Sides and Angles of a Triangle",
+   "question": "In a triangle, the longest side lies opposite the:",
+   "options": [
+    "smallest angle",
+    "largest angle",
+    "right angle",
+    "base"
+   ],
+   "answer": 1,
+   "explanation": "Greater side is opposite the greater angle."
+  },
+  {
+   "id": 60,
+   "subject": "Math",
+   "chapter": "Chapter 13: Sides and Angles of a Triangle",
+   "question": "An isosceles triangle has:",
+   "options": [
+    "three equal sides",
+    "two equal sides",
+    "no equal sides",
+    "two right angles"
+   ],
+   "answer": 1,
+   "explanation": "An isosceles triangle has two equal sides (and two equal base angles)."
+  },
+  {
+   "id": 61,
+   "subject": "Math",
+   "chapter": "Chapter 14: Ratio and Proportion",
+   "question": "If a:b = 2:3 and b = 12, then a equals:",
+   "options": [
+    "6",
+    "8",
+    "18",
+    "24"
+   ],
+   "answer": 1,
+   "explanation": "a/12 = 2/3 gives a = 8."
+  },
+  {
+   "id": 62,
+   "subject": "Math",
+   "chapter": "Chapter 14: Ratio and Proportion",
+   "question": "The fourth proportional of 2, 3 and 8 is:",
+   "options": [
+    "6",
+    "10",
+    "12",
+    "16"
+   ],
+   "answer": 2,
+   "explanation": "2/3 = 8/x gives x = 12."
+  },
+  {
+   "id": 63,
+   "subject": "Math",
+   "chapter": "Chapter 14: Ratio and Proportion",
+   "question": "The mean proportional between 4 and 9 is:",
+   "options": [
+    "6",
+    "13",
+    "36",
+    "5"
+   ],
+   "answer": 0,
+   "explanation": "Mean proportional = root(4 x 9) = root(36) = 6."
+  },
+  {
+   "id": 64,
+   "subject": "Math",
+   "chapter": "Chapter 14: Ratio and Proportion",
+   "question": "If x/5 = 3/15, then x equals:",
+   "options": [
+    "3",
+    "5",
+    "1",
+    "25"
+   ],
+   "answer": 2,
+   "explanation": "Cross-multiplying: 15x = 15, so x = 1."
+  },
+  {
+   "id": 65,
+   "subject": "Math",
+   "chapter": "Chapter 14: Ratio and Proportion",
+   "question": "The duplicate ratio of 2:3 is:",
+   "options": [
+    "4:6",
+    "4:9",
+    "8:27",
+    "3:2"
+   ],
+   "answer": 1,
+   "explanation": "Duplicate ratio squares each term: 2^2 : 3^2 = 4:9."
+  },
+  {
+   "id": 66,
+   "subject": "Math",
+   "chapter": "Chapter 15: Pythagoras' Theorem",
+   "question": "In a right-angled triangle with hypotenuse c and other sides a, b:",
+   "options": [
+    "c = a + b",
+    "c^2 = a^2 + b^2",
+    "c^2 = a^2 - b^2",
+    "a^2 = b^2 + c^2"
+   ],
+   "answer": 1,
+   "explanation": "Pythagoras' theorem: the square of the hypotenuse equals the sum of the squares of the other two sides."
+  },
+  {
+   "id": 67,
+   "subject": "Math",
+   "chapter": "Chapter 15: Pythagoras' Theorem",
+   "question": "The hypotenuse of a right triangle with legs 6 cm and 8 cm is:",
+   "options": [
+    "10 cm",
+    "12 cm",
+    "14 cm",
+    "48 cm"
+   ],
+   "answer": 0,
+   "explanation": "c = root(36 + 64) = root(100) = 10 cm."
+  },
+  {
+   "id": 68,
+   "subject": "Math",
+   "chapter": "Chapter 15: Pythagoras' Theorem",
+   "question": "A triangle with sides 3 cm, 4 cm and 5 cm is:",
+   "options": [
+    "acute-angled",
+    "right-angled",
+    "obtuse-angled",
+    "equilateral"
+   ],
+   "answer": 1,
+   "explanation": "3^2 + 4^2 = 5^2 (9 + 16 = 25), so it satisfies Pythagoras' theorem."
+  },
+  {
+   "id": 69,
+   "subject": "Math",
+   "chapter": "Chapter 15: Pythagoras' Theorem",
+   "question": "Pythagoras' theorem applies to:",
+   "options": [
+    "all triangles",
+    "right-angled triangles",
+    "equilateral triangles",
+    "isosceles triangles"
+   ],
+   "answer": 1,
+   "explanation": "It is valid only for triangles containing a right angle."
+  },
+  {
+   "id": 70,
+   "subject": "Math",
+   "chapter": "Chapter 15: Pythagoras' Theorem",
+   "question": "The side opposite the right angle in a triangle is called the:",
+   "options": [
+    "base",
+    "perpendicular",
+    "hypotenuse",
+    "median"
+   ],
+   "answer": 2,
+   "explanation": "The hypotenuse is the longest side, opposite the right angle."
+  },
+  {
+   "id": 71,
+   "subject": "Math",
+   "chapter": "Chapter 16: Theorems Related with Area",
+   "question": "Triangles on the same base and between the same parallels have:",
+   "options": [
+    "equal perimeters",
+    "equal areas",
+    "equal heights only",
+    "equal bases only"
+   ],
+   "answer": 1,
+   "explanation": "Same base and same height means equal area."
+  },
+  {
+   "id": 72,
+   "subject": "Math",
+   "chapter": "Chapter 16: Theorems Related with Area",
+   "question": "The area of a triangle with base b and height h is:",
+   "options": [
+    "b x h",
+    "(1/2) x b x h",
+    "2 x b x h",
+    "b + h"
+   ],
+   "answer": 1,
+   "explanation": "Area of a triangle = half the product of base and height."
+  },
+  {
+   "id": 73,
+   "subject": "Math",
+   "chapter": "Chapter 16: Theorems Related with Area",
+   "question": "Parallelograms on the same base and between the same parallels are:",
+   "options": [
+    "congruent",
+    "equal in area",
+    "similar",
+    "perpendicular"
+   ],
+   "answer": 1,
+   "explanation": "They share the same base and height, so their areas are equal."
+  },
+  {
+   "id": 74,
+   "subject": "Math",
+   "chapter": "Chapter 16: Theorems Related with Area",
+   "question": "The area of a rectangle of length l and width w is:",
+   "options": [
+    "2(l + w)",
+    "l x w",
+    "l + w",
+    "(1/2)lw"
+   ],
+   "answer": 1,
+   "explanation": "Area of a rectangle = length x width."
+  },
+  {
+   "id": 75,
+   "subject": "Math",
+   "chapter": "Chapter 16: Theorems Related with Area",
+   "question": "If two triangles have equal bases and equal altitudes, their areas are:",
+   "options": [
+    "equal",
+    "in the ratio 2:1",
+    "in the ratio 1:2",
+    "cannot be compared"
+   ],
+   "answer": 0,
+   "explanation": "Equal base and equal height give equal area."
+  },
+  {
+   "id": 76,
+   "subject": "Math",
+   "chapter": "Chapter 17: Practical Geometry - Triangles",
+   "question": "To construct a triangle, at least how many elements are needed, one of which must be a side?",
+   "options": [
+    "2",
+    "3",
+    "4",
+    "6"
+   ],
+   "answer": 1,
+   "explanation": "Three independent elements including at least one side are needed."
+  },
+  {
+   "id": 77,
+   "subject": "Math",
+   "chapter": "Chapter 17: Practical Geometry - Triangles",
+   "question": "For SSS construction of a triangle we need:",
+   "options": [
+    "three angles",
+    "three sides",
+    "two sides and an angle",
+    "hypotenuse and a side"
+   ],
+   "answer": 1,
+   "explanation": "SSS means all three sides are given."
+  },
+  {
+   "id": 78,
+   "subject": "Math",
+   "chapter": "Chapter 17: Practical Geometry - Triangles",
+   "question": "A triangle with sides 2 cm, 3 cm and 6 cm:",
+   "options": [
+    "can be constructed",
+    "cannot be constructed",
+    "is right-angled",
+    "is equilateral"
+   ],
+   "answer": 1,
+   "explanation": "2 + 3 < 6 violates the triangle inequality, so it cannot be constructed."
+  },
+  {
+   "id": 79,
+   "subject": "Math",
+   "chapter": "Chapter 17: Practical Geometry - Triangles",
+   "question": "In triangle construction, RHS stands for:",
+   "options": [
+    "right angle-hypotenuse-side",
+    "right hand side",
+    "ratio-hypotenuse-sum",
+    "rectangular-hypotenuse-square"
+   ],
+   "answer": 0,
+   "explanation": "RHS is the right angle, hypotenuse and one side criterion."
+  },
+  {
+   "id": 80,
+   "subject": "Math",
+   "chapter": "Chapter 17: Practical Geometry - Triangles",
+   "question": "An angle of 60 degrees is constructed using a compass by drawing:",
+   "options": [
+    "an equilateral triangle",
+    "a square",
+    "a perpendicular bisector",
+    "a circle with double radius"
+   ],
+   "answer": 0,
+   "explanation": "Each angle of an equilateral triangle is 60 degrees."
+  }
+ ],
+ "10th": [
+  {
+   "id": 1,
+   "subject": "Math",
+   "chapter": "Chapter 1",
+   "question": "Standard form of a quadratic equation is:",
+   "options": [
+    "ax + b = 0",
+    "ax^2 + bx + c = 0",
+    "ax^3 = 0",
+    "ax + ny = c"
+   ],
+   "answer": 1,
+   "explanation": "An equation of degree 2 in standard form is ax^2 + bx + c = 0."
+  },
+  {
+   "id": 2,
+   "subject": "Math",
+   "chapter": "Chapter 2: Theory of Quadratic Equations",
+   "question": "If discriminant b^2 - 4ac = 0, roots are:",
+   "options": [
+    "Real and equal",
+    "Real and unequal",
+    "Imaginary",
+    "Irrational"
+   ],
+   "answer": 0,
+   "explanation": "A zero discriminant implies identical real roots."
+  },
+  {
+   "id": 3,
+   "subject": "Math",
+   "chapter": "Chapter 3: Variations",
+   "question": "If y varies directly as x (y ∝ x), then:",
+   "options": [
+    "y = k/x",
+    "y = kx",
+    "xy = k",
+    "y = k + x"
+   ],
+   "answer": 1,
+   "explanation": "Direct variation is expressed as y = kx where k is constant."
+  },
+  {
+   "id": 4,
+   "subject": "Physics",
+   "chapter": "Chapter 10: Simple Harmonic Motion",
+   "question": "The time period of a simple pendulum depends on its:",
+   "options": [
+    "Mass",
+    "Amplitude",
+    "Length",
+    "Material"
+   ],
+   "answer": 2,
+   "explanation": "Period T = 2π√(l/g), depending directly on pendulum length l."
+  },
+  {
+   "id": 5,
+   "subject": "Physics",
+   "chapter": "Chapter 11: Sound",
+   "question": "Sound waves are examples of:",
+   "options": [
+    "Transverse waves",
+    "Electromagnetic waves",
+    "Longitudinal waves",
+    "Radio waves"
+   ],
+   "answer": 2,
+   "explanation": "Sound moves via compression and rarefaction as longitudinal mechanical waves."
+  },
+  {
+   "id": 6,
+   "subject": "Physics",
+   "chapter": "Chapter 12: Geometrical Optics",
+   "question": "The mirror formula is:",
+   "options": [
+    "1/f = 1/p + 1/q",
+    "f = p + q",
+    "1/f = p - q",
+    "f = 1/p"
+   ],
+   "answer": 0,
+   "explanation": "The focal length relation to object/image distance is 1/f = 1/p + 1/q."
+  },
+  {
+   "id": 7,
+   "subject": "Chemistry",
+   "chapter": "Chapter 9: Chemical Equilibrium",
+   "question": "At chemical equilibrium, the rate of forward and reverse reactions:",
+   "options": [
+    "Becomes zero",
+    "Becomes equal",
+    "Becomes unequal",
+    "Decreases"
+   ],
+   "answer": 1,
+   "explanation": "Dynamic equilibrium occurs when forward and reverse reaction speeds balance."
+  },
+  {
+   "id": 8,
+   "subject": "Chemistry",
+   "chapter": "Chapter 10: Acids, Bases and Salts",
+   "question": "pH of pure water at 25°C is:",
+   "options": [
+    "0",
+    "7",
+    "14",
+    "1"
+   ],
+   "answer": 1,
+   "explanation": "Pure water is neutral with a pH value of 7."
+  },
+  {
+   "id": 9,
+   "subject": "Chemistry",
+   "chapter": "Chapter 11: Organic Chemistry",
+   "question": "Hydrocarbons containing only single bonds are called:",
+   "options": [
+    "Alkenes",
+    "Alkynes",
+    "Alkanes",
+    "Aromatics"
+   ],
+   "answer": 2,
+   "explanation": "Alkanes are saturated hydrocarbons with single covalent bonds."
+  },
+  {
+   "id": 10,
+   "subject": "Computer Science",
+   "chapter": "Chapter 1: Programming Basics",
+   "question": "A C program compilation converts source code into:",
+   "options": [
+    "Assembly code",
+    "Machine code",
+    "Web code",
+    "Text file"
+   ],
+   "answer": 1,
+   "explanation": "Compilers translate high-level source code into binary machine code."
+  },
+  {
+   "id": 11,
+   "subject": "Computer Science",
+   "chapter": "Chapter 2: Input / Output Handling",
+   "question": "Which function is used for formatted output in C language?",
+   "options": [
+    "scanf()",
+    "printf()",
+    "gets()",
+    "puts()"
+   ],
+   "answer": 1,
+   "explanation": "printf() is used to display output on the standard screen in C."
+  },
+  {
+   "id": 12,
+   "subject": "Computer Science",
+   "chapter": "Chapter 3: Control Structures",
+   "question": "Which loop executes at least once regardless of condition?",
+   "options": [
+    "for loop",
+    "while loop",
+    "do-while loop",
+    "nested loop"
+   ],
+   "answer": 2,
+   "explanation": "do-while checks condition at the end, guaranteeing at least one execution."
+  },
+  {
+   "id": 13,
+   "subject": "Math",
+   "chapter": "Chapter 4: Partial Fractions",
+   "question": "The partial fraction decomposition of 1/[x(x + 1)] is:",
+   "options": [
+    "1/x + 1/(x+1)",
+    "1/x - 1/(x+1)",
+    "(x+1)/x",
+    "x/(x+1)"
+   ],
+   "answer": 1,
+   "explanation": "1/[x(x+1)] = (x+1 - x)/[x(x+1)] = 1/x - 1/(x+1)."
+  },
+  {
+   "id": 14,
+   "subject": "Math",
+   "chapter": "Chapter 5: Sets and Functions",
+   "question": "If A = {1, 2}, then the number of elements in the power set P(A) is:",
+   "options": [
+    "2",
+    "3",
+    "4",
+    "5"
+   ],
+   "answer": 2,
+   "explanation": "A set with n elements has 2^n subsets; here 2^2 = 4."
+  },
+  {
+   "id": 15,
+   "subject": "Physics",
+   "chapter": "Chapter 13: Electrostatics",
+   "question": "Two like electric charges:",
+   "options": [
+    "Attract each other",
+    "Repel each other",
+    "Neither attract nor repel",
+    "First attract then repel"
+   ],
+   "answer": 1,
+   "explanation": "Like charges repel each other, while unlike charges attract."
+  },
+  {
+   "id": 16,
+   "subject": "Physics",
+   "chapter": "Chapter 14: Current Electricity",
+   "question": "The SI unit of electric current is the:",
+   "options": [
+    "Volt",
+    "Ampere",
+    "Ohm",
+    "Watt"
+   ],
+   "answer": 1,
+   "explanation": "Electric current is measured in amperes (A)."
+  },
+  {
+   "id": 17,
+   "subject": "Chemistry",
+   "chapter": "Chapter 12: Hydrocarbons",
+   "question": "The general formula of alkenes is:",
+   "options": [
+    "CnH2n+2",
+    "CnH2n",
+    "CnH2n-2",
+    "CnHn"
+   ],
+   "answer": 1,
+   "explanation": "Alkenes contain one double bond and follow the general formula CnH2n."
+  },
+  {
+   "id": 18,
+   "subject": "Chemistry",
+   "chapter": "Chapter 13: Biochemistry",
+   "question": "The basic building blocks (monomers) of proteins are:",
+   "options": [
+    "Glucose units",
+    "Fatty acids",
+    "Amino acids",
+    "Nucleotides"
+   ],
+   "answer": 2,
+   "explanation": "Proteins are polymers of amino acids joined by peptide bonds."
+  },
+  {
+   "id": 19,
+   "subject": "Computer Science",
+   "chapter": "Chapter 4: Functions in C",
+   "question": "A function that calls itself is called a:",
+   "options": [
+    "Recursive function",
+    "Library function",
+    "Main function",
+    "Nested function"
+   ],
+   "answer": 0,
+   "explanation": "Recursion occurs when a function calls itself directly or indirectly."
+  },
+  {
+   "id": 20,
+   "subject": "Computer Science",
+   "chapter": "Chapter 5: File Handling in C",
+   "question": "Which header file is required for printf() and scanf() in C?",
+   "options": [
+    "conio.h",
+    "stdlib.h",
+    "stdio.h",
+    "math.h"
+   ],
+   "answer": 2,
+   "explanation": "The standard input-output functions are declared in stdio.h."
+  }
+ ],
+ "11th": [
+  {
+   "id": 1,
+   "subject": "Math",
+   "chapter": "Chapter 1: Complex Numbers",
+   "question": "The value of i^2 (iota squared) is equal to:",
+   "options": [
+    "1",
+    "-1",
+    "i",
+    "-i"
+   ],
+   "answer": 1,
+   "explanation": "By definition, iota is √(-1), so i^2 = -1."
+  },
+  {
+   "id": 2,
+   "subject": "Math",
+   "chapter": "Chapter 2: Sets, Functions and Groups",
+   "question": "A function f: A -> B is one-one if:",
+   "options": [
+    "Distinct elements have distinct images",
+    "Range = Codomain",
+    "It is onto",
+    "Every element has two images"
+   ],
+   "answer": 0,
+   "explanation": "In injective (one-one) functions, no two domain elements map to the same image."
+  },
+  {
+   "id": 3,
+   "subject": "Math",
+   "chapter": "Chapter 3: Matrices and Determinants",
+   "question": "If determinant |A| = 0, then matrix A is:",
+   "options": [
+    "Singular",
+    "Non-singular",
+    "Identity",
+    "Symmetric"
+   ],
+   "answer": 0,
+   "explanation": "A matrix with zero determinant cannot be inverted and is singular."
+  },
+  {
+   "id": 4,
+   "subject": "Physics",
+   "chapter": "Chapter 1: Measurements",
+   "question": "The dimensions of force are:",
+   "options": [
+    "[M L T^-1]",
+    "[M L T^-2]",
+    "[M L^2 T^-2]",
+    "[M L^-1 T^-1]"
+   ],
+   "answer": 1,
+   "explanation": "Force = Mass × Acceleration -> [M] × [L T^-2] = [M L T^-2]."
+  },
+  {
+   "id": 5,
+   "subject": "Physics",
+   "chapter": "Chapter 2: Vectors and Equilibrium",
+   "question": "Dot product of two perpendicular vectors is:",
+   "options": [
+    "Maximum",
+    "Zero",
+    "One",
+    "Negative"
+   ],
+   "answer": 1,
+   "explanation": "A · B = AB cos(90°) = 0."
+  },
+  {
+   "id": 6,
+   "subject": "Physics",
+   "chapter": "Chapter 3: Motion and Force",
+   "question": "Rate of change of momentum is equal to:",
+   "options": [
+    "Work",
+    "Energy",
+    "Applied Force",
+    "Impulse"
+   ],
+   "answer": 2,
+   "explanation": "Newton's 2nd law states F = dp/dt."
+  },
+  {
+   "id": 7,
+   "subject": "Chemistry",
+   "chapter": "Chapter 1: Basic Concepts",
+   "question": "One mole of any gas at STP occupies a volume of:",
+   "options": [
+    "22.414 dm3",
+    "24.0 dm3",
+    "11.2 dm3",
+    "100 dm3"
+   ],
+   "answer": 0,
+   "explanation": "Standard molar volume of an ideal gas at STP is 22.414 dm3."
+  },
+  {
+   "id": 8,
+   "subject": "Chemistry",
+   "chapter": "Chapter 2: Experimental Techniques",
+   "question": "Filtration through a gooch crucible is done under:",
+   "options": [
+    "High pressure",
+    "Suction / Reduced pressure",
+    "Heating",
+    "Gravity only"
+   ],
+   "answer": 1,
+   "explanation": "Gooch crucibles use suction to speed up filtration process."
+  },
+  {
+   "id": 9,
+   "subject": "Chemistry",
+   "chapter": "Chapter 3: Gases",
+   "question": "Boyle's Law states that at constant temperature, volume is inversely proportional to:",
+   "options": [
+    "Temperature",
+    "Pressure",
+    "Number of moles",
+    "Density"
+   ],
+   "answer": 1,
+   "explanation": "Boyle's Law establishes P ∝ 1/V at constant T."
+  },
+  {
+   "id": 10,
+   "subject": "Computer Science",
+   "chapter": "Chapter 1: Overview of Computer System",
+   "question": "Which system memory is volatile?",
+   "options": [
+    "ROM",
+    "Hard Disk",
+    "RAM",
+    "Flash Memory"
+   ],
+   "answer": 2,
+   "explanation": "RAM loses all stored data when power is turned off."
+  },
+  {
+   "id": 11,
+   "subject": "Computer Science",
+   "chapter": "Chapter 2: Information Networks",
+   "question": "In Star Topology, all nodes are connected to a central device called:",
+   "options": [
+    "Router",
+    "Repeater",
+    "Hub/Switch",
+    "Gateway"
+   ],
+   "answer": 2,
+   "explanation": "Star networks channel traffic through a central hub or switch."
+  },
+  {
+   "id": 12,
+   "subject": "Computer Science",
+   "chapter": "Chapter 3: Data Communications",
+   "question": "The transmission mode where data flows in both directions simultaneously is:",
+   "options": [
+    "Simplex",
+    "Half-Duplex",
+    "Full-Duplex",
+    "Bandwidth"
+   ],
+   "answer": 2,
+   "explanation": "Full-Duplex allows two-way simultaneous communication like a telephone call."
+  },
+  {
+   "id": 13,
+   "subject": "Math",
+   "chapter": "Chapter 4: Sequences and Series",
+   "question": "The 5th term of the arithmetic sequence 2, 5, 8, ... is:",
+   "options": [
+    "11",
+    "13",
+    "14",
+    "17"
+   ],
+   "answer": 2,
+   "explanation": "With a = 2 and d = 3, the nth term is a + (n-1)d = 2 + 4(3) = 14."
+  },
+  {
+   "id": 14,
+   "subject": "Math",
+   "chapter": "Chapter 5: Quadratic Equations",
+   "question": "For ax^2 + bx + c = 0, the sum of the roots is:",
+   "options": [
+    "-b/a",
+    "b/a",
+    "c/a",
+    "-c/a"
+   ],
+   "answer": 0,
+   "explanation": "By Vieta's formulas, the sum of the roots equals -b/a."
+  },
+  {
+   "id": 15,
+   "subject": "Physics",
+   "chapter": "Chapter 4: Work and Energy",
+   "question": "Work done by a force is maximum when the angle between force and displacement is:",
+   "options": [
+    "0°",
+    "45°",
+    "90°",
+    "180°"
+   ],
+   "answer": 0,
+   "explanation": "W = Fd cos(theta); cos(theta) is maximum (1) when theta = 0°."
+  },
+  {
+   "id": 16,
+   "subject": "Physics",
+   "chapter": "Chapter 5: Circular Motion",
+   "question": "The direction of the centripetal force on a body in uniform circular motion is:",
+   "options": [
+    "Away from the centre",
+    "Towards the centre",
+    "Tangent to the circle",
+    "Along the velocity"
+   ],
+   "answer": 1,
+   "explanation": "Centripetal force always acts towards the centre of the circular path."
+  },
+  {
+   "id": 17,
+   "subject": "Chemistry",
+   "chapter": "Chapter 4: Liquids and Solids",
+   "question": "Evaporation of a liquid takes place:",
+   "options": [
+    "Only at the boiling point",
+    "At all temperatures",
+    "Only below 0°C",
+    "Only in a vacuum"
+   ],
+   "answer": 1,
+   "explanation": "Evaporation is a surface phenomenon that occurs at all temperatures."
+  },
+  {
+   "id": 18,
+   "subject": "Chemistry",
+   "chapter": "Chapter 5: Atomic Structure",
+   "question": "Which quantum number describes the shape of an orbital?",
+   "options": [
+    "Principal (n)",
+    "Azimuthal (l)",
+    "Magnetic (m)",
+    "Spin (s)"
+   ],
+   "answer": 1,
+   "explanation": "The azimuthal quantum number l determines the subshell and the shape of the orbital."
+  },
+  {
+   "id": 19,
+   "subject": "Computer Science",
+   "chapter": "Chapter 4: Data Representation",
+   "question": "The binary equivalent of the decimal number 10 is:",
+   "options": [
+    "1001",
+    "1010",
+    "1100",
+    "1000"
+   ],
+   "answer": 1,
+   "explanation": "10 in decimal = 8 + 2 = 1010 in binary."
+  },
+  {
+   "id": 20,
+   "subject": "Computer Science",
+   "chapter": "Chapter 5: Logic Gates",
+   "question": "Which logic gate gives output 1 only when all its inputs are 1?",
+   "options": [
+    "OR gate",
+    "AND gate",
+    "NOT gate",
+    "NAND gate"
+   ],
+   "answer": 1,
+   "explanation": "An AND gate outputs 1 only if every input is 1."
+  }
+ ],
+ "12th": [
+  {
+   "id": 1,
+   "subject": "Math",
+   "chapter": "Chapter 1: Functions and Limits",
+   "question": "The value of limit (x->0) sin(x)/x is:",
+   "options": [
+    "0",
+    "1",
+    "Infinity",
+    "Undefined"
+   ],
+   "answer": 1,
+   "explanation": "By standard calculus limit theorem, lim(x->0) sin(x)/x = 1."
+  },
+  {
+   "id": 2,
+   "subject": "Math",
+   "chapter": "Chapter 2: Differentiation",
+   "question": "The derivative of d/dx (sin x) is:",
+   "options": [
+    "cos x",
+    "-cos x",
+    "tan x",
+    "sec^2 x"
+   ],
+   "answer": 0,
+   "explanation": "The basic trigonometric derivative of sin(x) is cos(x)."
+  },
+  {
+   "id": 3,
+   "subject": "Math",
+   "chapter": "Chapter 3: Integration",
+   "question": "The integral ∫ (1/x) dx is:",
+   "options": [
+    "x^2 / 2",
+    "ln|x| + c",
+    "-1/x^2",
+    "e^x"
+   ],
+   "answer": 1,
+   "explanation": "Antiderivative of 1/x is the natural logarithm ln|x| + c."
+  },
+  {
+   "id": 4,
+   "subject": "Physics",
+   "chapter": "Chapter 12: Electrostatics",
+   "question": "Coulomb's Law constant 'k' in vacuum is equal to:",
+   "options": [
+    "8.99 x 10^9 N m^2 C^-2",
+    "9 x 10^-9 N m^2 C^-2",
+    "1.6 x 10^-19 C",
+    "8.85 x 10^-12 F/m"
+   ],
+   "answer": 0,
+   "explanation": "Coulomb constant k = 1 / (4πε₀) ≈ 8.99 × 10^9 N m^2 C^-2."
+  },
+  {
+   "id": 5,
+   "subject": "Physics",
+   "chapter": "Chapter 13: Current Electricity",
+   "question": "Ohm's law is valid when temperature remains:",
+   "options": [
+    "Variable",
+    "Constant",
+    "Zero",
+    "Extremely high"
+   ],
+   "answer": 1,
+   "explanation": "Ohm's law requires physical conditions like temperature to remain constant."
+  },
+  {
+   "id": 6,
+   "subject": "Physics",
+   "chapter": "Chapter 14: Electromagnetism",
+   "question": "The SI unit of magnetic flux density (B) is:",
+   "options": [
+    "Weber",
+    "Tesla",
+    "Henry",
+    "Gauss"
+   ],
+   "answer": 1,
+   "explanation": "Magnetic field strength B is measured in Tesla (T)."
+  },
+  {
+   "id": 7,
+   "subject": "Chemistry",
+   "chapter": "Chapter 1: Periodic Classification",
+   "question": "The element with the highest electronegativity is:",
+   "options": [
+    "Chlorine",
+    "Fluorine",
+    "Oxygen",
+    "Cesium"
+   ],
+   "answer": 1,
+   "explanation": "Fluorine is the most electronegative element with a value of 4.0."
+  },
+  {
+   "id": 8,
+   "subject": "Chemistry",
+   "chapter": "Chapter 2: s-Block Elements",
+   "question": "Which alkali metal gives a crimson red flame test?",
+   "options": [
+    "Sodium",
+    "Potassium",
+    "Lithium",
+    "Calcium"
+   ],
+   "answer": 2,
+   "explanation": "Lithium salts impart a distinctive crimson red color to flame."
+  },
+  {
+   "id": 9,
+   "subject": "Chemistry",
+   "chapter": "Chapter 7: Fundamental Principles of Organic Chem",
+   "question": "Functional group present in alcohols is:",
+   "options": [
+    "-COOH",
+    "-OH",
+    "-CHO",
+    "-CO-"
+   ],
+   "answer": 1,
+   "explanation": "Alcohols are characterized by the hydroxyl (-OH) functional group."
+  },
+  {
+   "id": 10,
+   "subject": "Computer Science",
+   "chapter": "Chapter 1: Data Basics",
+   "question": "A collection of raw, unprocessed facts and figures is called:",
+   "options": [
+    "Information",
+    "Data",
+    "Knowledge",
+    "Database"
+   ],
+   "answer": 1,
+   "explanation": "Data consists of unorganized facts that are processed into information."
+  },
+  {
+   "id": 11,
+   "subject": "Computer Science",
+   "chapter": "Chapter 2: Basic Concepts and Terminology of DB",
+   "question": "A primary key that consists of two or more attributes is called:",
+   "options": [
+    "Foreign key",
+    "Composite key",
+    "Candidate key",
+    "Alternate key"
+   ],
+   "answer": 1,
+   "explanation": "A composite key combines multiple fields to uniquely identify a record."
+  },
+  {
+   "id": 12,
+   "subject": "Computer Science",
+   "chapter": "Chapter 3: Table Handling in MS Access",
+   "question": "Which view in MS Access is used to define table structure and fields?",
+   "options": [
+    "Datasheet View",
+    "Design View",
+    "Form View",
+    "Layout View"
+   ],
+   "answer": 1,
+   "explanation": "Design View allows editing field names, data types, and properties."
+  },
+  {
+   "id": 13,
+   "subject": "Math",
+   "chapter": "Chapter 4: Introduction to Analytic Geometry",
+   "question": "The distance between the points (0, 0) and (3, 4) is:",
+   "options": [
+    "5",
+    "6",
+    "7",
+    "25"
+   ],
+   "answer": 0,
+   "explanation": "Distance = sqrt((3-0)^2 + (4-0)^2) = sqrt(25) = 5."
+  },
+  {
+   "id": 14,
+   "subject": "Math",
+   "chapter": "Chapter 5: Linear Inequalities and Linear Programming",
+   "question": "The region satisfying x > 0 and y > 0 lies in the:",
+   "options": [
+    "First quadrant",
+    "Second quadrant",
+    "Third quadrant",
+    "Fourth quadrant"
+   ],
+   "answer": 0,
+   "explanation": "Both coordinates are positive only in the first quadrant."
+  },
+  {
+   "id": 15,
+   "subject": "Physics",
+   "chapter": "Chapter 15: Electromagnetic Induction",
+   "question": "The production of induced emf in a coil due to a changing magnetic flux is called:",
+   "options": [
+    "Electromagnetic induction",
+    "Self induction only",
+    "Mutual induction only",
+    "Electrostatics"
+   ],
+   "answer": 0,
+   "explanation": "Faraday's law describes electromagnetic induction through a changing magnetic flux."
+  },
+  {
+   "id": 16,
+   "subject": "Physics",
+   "chapter": "Chapter 16: Alternating Current",
+   "question": "The SI unit of inductance is the:",
+   "options": [
+    "Farad",
+    "Henry",
+    "Tesla",
+    "Weber"
+   ],
+   "answer": 1,
+   "explanation": "Inductance is measured in henrys (H), named after Joseph Henry."
+  },
+  {
+   "id": 17,
+   "subject": "Chemistry",
+   "chapter": "Chapter 3: Group IIIA and IVA Elements",
+   "question": "The chemical formula of borax is:",
+   "options": [
+    "Na2B4O7.10H2O",
+    "Na2CO3.10H2O",
+    "CaSO4.2H2O",
+    "NaHCO3"
+   ],
+   "answer": 0,
+   "explanation": "Borax (sodium tetraborate) is Na2B4O7.10H2O."
+  },
+  {
+   "id": 18,
+   "subject": "Chemistry",
+   "chapter": "Chapter 4: Group VA and VIA Elements",
+   "question": "The strongest oxidising agent among the halogens is:",
+   "options": [
+    "Chlorine",
+    "Bromine",
+    "Iodine",
+    "Fluorine"
+   ],
+   "answer": 3,
+   "explanation": "Fluorine is the most electronegative element and the strongest oxidising halogen."
+  },
+  {
+   "id": 19,
+   "subject": "Computer Science",
+   "chapter": "Chapter 4: Queries and Reports in MS Access",
+   "question": "In MS Access, a query is mainly used to:",
+   "options": [
+    "Design table structure",
+    "Retrieve and filter data from tables",
+    "Create input forms",
+    "Secure the database"
+   ],
+   "answer": 1,
+   "explanation": "Queries extract specific data from tables based on given criteria."
+  },
+  {
+   "id": 20,
+   "subject": "Computer Science",
+   "chapter": "Chapter 5: Introduction to SQL",
+   "question": "SQL stands for:",
+   "options": [
+    "Simple Query Language",
+    "Structured Query Language",
+    "Standard Question List",
+    "System Query Logic"
+   ],
+   "answer": 1,
+   "explanation": "SQL stands for Structured Query Language, used to manage relational databases."
+  }
+ ]
+}

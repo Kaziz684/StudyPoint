@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudyPoint — MCQ Quiz (Class 9–12)</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="app-header">
+  <div class="logo">📚 StudyPoint</div>
+  <div class="tagline">Punjab Board MCQs • Class 9–12</div>
+</header>
+
+<main id="app">
+
+  <!-- HOME / SETUP -->
+  <section id="screen-home" class="screen active">
+    <h2>Start a Quiz</h2>
+    <label class="field-label">Select Class</label>
+    <div id="class-grid" class="chip-grid"></div>
+
+    <label class="field-label">Select Subject</label>
+    <div id="subject-grid" class="chip-grid"></div>
+
+    <label class="field-label">Questions</label>
+    <div id="count-grid" class="chip-grid">
+      <button class="chip" data-count="10">10</button>
+      <button class="chip selected" data-count="20">20</button>
+      <button class="chip" data-count="0">All</button>
+    </div>
+
+    <button id="btn-start" class="btn-primary" disabled>Select class &amp; subject</button>
+    <p id="bank-info" class="muted"></p>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="screen-quiz" class="screen">
+    <div class="quiz-top">
+      <div class="progress"><div id="progress-fill"></div></div>
+      <div class="quiz-meta"><span id="q-counter"></span><span id="q-subject" class="muted"></span></div>
+    </div>
+    <div class="card">
+      <p id="q-chapter" class="muted small"></p>
+      <h3 id="q-text"></h3>
+      <div id="options"></div>
+      <div id="explanation" class="explanation hidden"></div>
+      <button id="btn-next" class="btn-primary hidden">Next →</button>
+    </div>
+  </section>
+
+  <!-- RESULT -->
+  <section id="screen-result" class="screen">
+    <h2>Result</h2>
+    <div class="card result-card">
+      <div id="score-big"></div>
+      <p id="score-detail" class="muted"></p>
+      <div id="score-bar"><div id="score-fill"></div></div>
+      <p id="score-msg"></p>
+    </div>
+    <h3>Review</h3>
+    <div id="review-list"></div>
+    <button id="btn-retry" class="btn-primary">Try Again</button>
+    <button id="btn-home" class="btn-ghost">Choose Another Quiz</button>
+  </section>
+
+</main>
+
+<footer class="app-footer muted small">StudyPoint • Al Samad Academy • Punjab Board (PCTB) syllabus</footer>
+<script src="app.js"></script>
+</body>
+</html>
