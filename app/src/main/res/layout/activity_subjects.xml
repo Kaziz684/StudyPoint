@@ -66,7 +66,7 @@
                 android:id="@+id/btnCS"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Computer"
+                android:text="Computer Science"
                 android:backgroundTint="@color/primaryColor"
                 android:textColor="@color/white"
                 android:layout_marginBottom="12dp"/>
@@ -93,7 +93,25 @@
                 android:id="@+id/btnIsl"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Islamiat"
+                android:text="Islamiyat"
+                android:backgroundTint="@color/primaryColor"
+                android:textColor="@color/white"
+                android:layout_marginBottom="12dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPakStudies"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Pak Studies"
+                android:backgroundTint="@color/primaryColor"
+                android:textColor="@color/white"
+                android:layout_marginBottom="12dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnTarjuma"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tarjuma-tul-Quran"
                 android:backgroundTint="@color/primaryColor"
                 android:textColor="@color/white"/>
         </LinearLayout>

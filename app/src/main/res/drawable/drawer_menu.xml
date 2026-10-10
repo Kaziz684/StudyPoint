@@ -12,17 +12,14 @@
 
     <item
         android:id="@+id/nav_mcqs"
-        android:title="MCQs"
-        android:icon="@drawable/ic_quiz"/>
+        android:title="MCQs" />
 
     <item
         android:id="@+id/nav_papers"
-        android:title="Past Papers"
-        android:icon="@drawable/ic_paper"/>
+        android:title="Past Papers" />
 
     <item
         android:id="@+id/nav_settings"
-        android:title="Settings"
-        android:icon="@drawable/ic_settings"/>
+        android:title="Settings"/>
 
 </menu>

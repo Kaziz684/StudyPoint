@@ -10,8 +10,8 @@
     <ImageView
         android:layout_width="72dp"
         android:layout_height="72dp"
-        android:src="@mipmap/ic_launcher_round"
-        android:background="@drawable/circle_bg"
+
+        android:background="@drawable/class_bg"
         android:padding="6dp"/>
 
     <TextView

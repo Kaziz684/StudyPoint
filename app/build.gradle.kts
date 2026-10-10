@@ -1,9 +1,20 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     kotlin("android")
-    id("org.jetbrains.kotlin.plugin.compose")
     id("com.google.gms.google-services")
 }
+
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(FileInputStream(localPropertiesFile))
+}
+
+val youtubeApiKey: String = localProperties.getProperty("YOUTUBE_API_KEY") ?: ""
+val youtubeChannelId: String = localProperties.getProperty("YOUTUBE_CHANNEL_ID") ?: ""
 
 android {
     namespace = "com.example.studypoint"
@@ -15,10 +26,14 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
+
+        buildConfigField("String", "YOUTUBE_API_KEY", "\"$youtubeApiKey\"")
+        buildConfigField("String", "YOUTUBE_CHANNEL_ID", "\"$youtubeChannelId\"")
     }
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     composeOptions {
@@ -50,6 +65,9 @@ dependencies {
     implementation("com.google.firebase:firebase-storage")
     implementation("com.google.firebase:firebase-database")
     implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-firestore")
+
+    implementation("androidx.viewpager2:viewpager2:1.1.0")
 
     implementation("com.google.android.gms:play-services-auth:21.2.0")
 
@@ -66,4 +84,22 @@ dependencies {
     implementation("com.github.mhiew:android-pdf-viewer:3.2.0-beta.1")
     implementation("androidx.compose.material:material-icons-extended:1.6.8")
 
+    //networking
+    implementation("com.squareup.okhttp3:okhttp:4.11.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+    //Lifecycle ViewModel & LiveData
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.4")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.4")
+
+    //JSON
+    implementation("com.google.code.gson:gson:2.10.1")
+
+    // Coil for Compose image loading (YouTube thumbnails)
+    implementation("io.coil-kt:coil-compose:2.6.0")
+
+    // AndroidX Browser for Custom Tabs and social links
+    implementation("androidx.browser:browser:1.8.0")
 }

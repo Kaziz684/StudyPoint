@@ -36,32 +36,10 @@
         android:gravity="center_horizontal">
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnNotes"
-            android:layout_width="250dp"
-            android:layout_height="wrap_content"
-            android:text="Notes"
-            android:backgroundTint="@color/primaryColor"
-            android:textColor="@color/white"
-            app:cornerRadius="20dp"
-            app:elevation="4dp"
-            android:layout_marginBottom="12dp"/>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnHandwritten"
-            android:layout_width="250dp"
-            android:layout_height="wrap_content"
-            android:text="Handwritten Notes"
-            android:backgroundTint="@color/primaryColor"
-            android:textColor="@color/white"
-            app:cornerRadius="20dp"
-            app:elevation="4dp"
-            android:layout_marginBottom="12dp"/>
-
-        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnBook"
             android:layout_width="250dp"
             android:layout_height="wrap_content"
-            android:text="Book"
+            android:text="Textbook"
             android:backgroundTint="@color/primaryColor"
             android:textColor="@color/white"
             app:cornerRadius="20dp"
@@ -69,10 +47,32 @@
             android:layout_marginBottom="12dp"/>
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnKeyBook"
+            android:id="@+id/btnNotes"
             android:layout_width="250dp"
             android:layout_height="wrap_content"
-            android:text="Key Book"
+            android:text="Solved Notes"
+            android:backgroundTint="@color/primaryColor"
+            android:textColor="@color/white"
+            app:cornerRadius="20dp"
+            app:elevation="4dp"
+            android:layout_marginBottom="12dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPastPapers"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:text="Past Papers"
+            android:backgroundTint="@color/primaryColor"
+            android:textColor="@color/white"
+            app:cornerRadius="20dp"
+            app:elevation="4dp"
+            android:layout_marginBottom="12dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnMCQs"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:text="MCQs Practice"
             android:backgroundTint="@color/primaryColor"
             android:textColor="@color/white"
             app:cornerRadius="20dp"

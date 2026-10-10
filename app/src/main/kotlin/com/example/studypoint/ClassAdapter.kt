@@ -31,6 +31,7 @@ class ClassAdapter(
 
         holder.cardView.setOnClickListener {
             val intent = Intent(context, SubjectsActivity::class.java)
+            intent.putExtra("grade", className)
             intent.putExtra("class", className)
             context.startActivity(intent)
         }

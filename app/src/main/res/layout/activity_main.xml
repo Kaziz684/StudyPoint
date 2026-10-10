@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:title="StudyPoint"
-            app:navigationIcon="@drawable/ic_menu"/>
+            />
 
         <FrameLayout
             android:id="@+id/fragmentContainer"
@@ -31,7 +31,6 @@
         android:layout_width="280dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        app:menu="@menu/drawer_menu"
         app:headerLayout="@layout/drawer_header"/>
 
 </androidx.drawerlayout.widget.DrawerLayout>

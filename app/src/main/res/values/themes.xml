@@ -2,15 +2,17 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Fixed night theme attributes to use correct Material3 names -->
     <style name="Theme.StudyPoint" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/primary_green</item>
-        <item name="colorPrimaryVariant">@color/primary_green_dark</item>
-        <item name="colorSecondary">@color/secondary_gold</item>
-        <item name="colorSurface">@color/surface_dark</item>
-        <item name="android:colorBackground">@color/background_dark</item>
-        <item name="colorOnPrimary">@color/text_on_primary</item>
-        <item name="colorOnSurface">@color/text_primary_dark</item>
-        <item name="android:statusBarColor">@color/primary_green_dark</item>
-        <item name="android:navigationBarColor">@color/surface_dark</item>
-        <item name="android:windowLightStatusBar">false</item>
+        <item name="colorPrimary">@color/edu_navy</item>
+        <item name="colorSecondary">@color/edu_blue</item>
+        <item name="colorTertiary">@color/edu_emerald</item>
+        <item name="android:windowBackground">@color/edu_bg</item>
+        <item name="colorSurface">@color/edu_card_bg</item>
+        <item name="android:statusBarColor">@color/edu_navy</item>
+        <item name="android:navigationBarColor">@color/edu_navy</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
+    </style>
+
+    <style name="ShapeAppearance.StudyPoint.MediumComponent" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerSize">12dp</item>
     </style>
 </resources>

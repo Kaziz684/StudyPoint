@@ -21,8 +21,13 @@ class SplashActivity : AppCompatActivity() {
     private fun checkAuthAndNavigate() {
         val currentUser = FirebaseAuth.getInstance().currentUser
         if (currentUser != null) {
-            // User is signed in, go to Welcome screen
-            startActivity(Intent(this, WelcomeActivity::class.java))
+            // Check if user is verified via email OR logged in via phone
+            if (currentUser.isEmailVerified || currentUser.phoneNumber != null) {
+                startActivity(Intent(this, HomeActivity::class.java))
+            } else {
+                // User logged in via email but NOT verified
+                startActivity(Intent(this, EmailVerificationActivity::class.java))
+            }
         } else {
             // User is not signed in, go to Login screen
             startActivity(Intent(this, LoginActivity::class.java))

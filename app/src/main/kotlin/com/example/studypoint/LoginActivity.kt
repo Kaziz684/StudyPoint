@@ -2,306 +2,164 @@ package com.example.studypoint
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import android.util.Patterns
-import android.widget.Toast
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.unit.dp
-import com.example.studypoint.ui.theme.StudyPointTheme
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.ApiException
+import android.view.View
+import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.button.MaterialButtonToggleGroup
+import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.UserProfileChangeRequest
 
-class LoginActivity : ComponentActivity() {
+class LoginActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
-    private lateinit var googleSignInClient: GoogleSignInClient
-
-    private val googleSignInLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-        try {
-            val account = task.getResult(ApiException::class.java)!!
-            firebaseAuthWithGoogle(account.idToken!!)
-        } catch (e: ApiException) {
-            Log.w("LoginActivity", "Google sign in failed", e)
-            Toast.makeText(this, "Google Sign-In failed: ${e.message}", Toast.LENGTH_SHORT).show()
-        }
-    }
+    private var isPhoneMode = false
+    private var isSignupMode = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_login)
 
         auth = FirebaseAuth.getInstance()
 
-        // Google Sign-In
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id))
-            .requestEmail()
-            .build()
-        googleSignInClient = GoogleSignIn.getClient(this, gso)
-
-        // Already signed in
-        if (auth.currentUser != null) {
-            navigateToMain()
-            return
+        // Auto-login
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            if (currentUser.isEmailVerified || currentUser.phoneNumber != null) {
+                startActivity(Intent(this, HomeActivity::class.java))
+                finish()
+                return
+            } else {
+                startActivity(Intent(this, EmailVerificationActivity::class.java))
+                finish()
+                return
+            }
         }
 
-        setContent {
-            StudyPointTheme {
-                var isLoginMode by remember { mutableStateOf(true) }
+        val toggleGroup = findViewById<MaterialButtonToggleGroup>(R.id.toggleGroup)
+        val emailSection = findViewById<LinearLayout>(R.id.emailSection)
+        val phoneSection = findViewById<LinearLayout>(R.id.phoneSection)
+        val nameLayout = findViewById<TextInputLayout>(R.id.nameLayout)
+        val tvModeToggle = findViewById<TextView>(R.id.tvModeToggle)
+        val btnPrimary = findViewById<Button>(R.id.btnPrimaryAction)
+        
+        val nameInput = findViewById<EditText>(R.id.nameInput)
+        val emailInput = findViewById<EditText>(R.id.emailInput)
+        val passwordInput = findViewById<EditText>(R.id.passwordInput)
+        val phoneInput = findViewById<EditText>(R.id.phoneInput)
+        val progress = findViewById<ProgressBar>(R.id.loginProgress)
 
-                if (isLoginMode) {
-                    LoginScreen(
-                        onEmailSignInClick = { email, password -> signInWithEmail(email, password) },
-                        onGoogleSignInClick = { signInWithGoogle() },
-                        onSwitchToSignUp = { isLoginMode = false }
-                    )
+        toggleGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (isChecked) {
+                if (checkedId == R.id.btnEmailMode) {
+                    isPhoneMode = false
+                    emailSection.visibility = View.VISIBLE
+                    phoneSection.visibility = View.GONE
+                    updateButtonText()
                 } else {
-                    SignUpScreen(
-                        onEmailSignUpClick = { email, password -> signUpWithEmail(email, password) },
-                        onGoogleSignInClick = { signInWithGoogle() },
-                        onSwitchToLogin = { isLoginMode = true }
-                    )
+                    isPhoneMode = true
+                    emailSection.visibility = View.GONE
+                    phoneSection.visibility = View.VISIBLE
+                    btnPrimary.text = "Send OTP"
                 }
             }
         }
-    }
 
-    private fun signInWithGoogle() {
-        val signInIntent = googleSignInClient.signInIntent
-        googleSignInLauncher.launch(signInIntent)
-    }
+        tvModeToggle.setOnClickListener {
+            isSignupMode = !isSignupMode
+            nameLayout.visibility = if (isSignupMode) View.VISIBLE else View.GONE
+            tvModeToggle.text = if (isSignupMode) "Already have an account? Login" else "Don't have an account? Sign Up"
+            updateButtonText()
+        }
 
-    private fun firebaseAuthWithGoogle(idToken: String) {
-        val credential = GoogleAuthProvider.getCredential(idToken, null)
-        auth.signInWithCredential(credential)
-            .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    Toast.makeText(this, "Welcome ${auth.currentUser?.displayName}!", Toast.LENGTH_SHORT).show()
-                    navigateToMain()
-                } else {
-                    Toast.makeText(this, "Authentication failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+        btnPrimary.setOnClickListener {
+            if (isPhoneMode) {
+                val phone = phoneInput.text.toString().trim()
+                if (phone.length < 10) {
+                    phoneInput.error = "Enter valid number"
+                    return@setOnClickListener
                 }
-            }
-    }
+                startPhoneAuth("+92$phone")
+            } else {
+                val email = emailInput.text.toString().trim()
+                val password = passwordInput.text.toString().trim()
+                
+                if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                    emailInput.error = "Enter valid Gmail"
+                    return@setOnClickListener
+                }
+                if (password.length < 6) {
+                    passwordInput.error = "Password must be 6+ chars"
+                    return@setOnClickListener
+                }
 
-    private fun signInWithEmail(email: String, password: String) {
-        if (email.isBlank() || password.isBlank()) {
-            Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
-            return
-        }
-        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            Toast.makeText(this, "Please enter a valid email", Toast.LENGTH_SHORT).show()
-            return
-        }
-        auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    Toast.makeText(this, "Welcome back!", Toast.LENGTH_SHORT).show()
-                    navigateToMain()
-                } else {
-                    val message = when (task.exception?.message) {
-                        "The email address is badly formatted." -> "Please enter a valid email"
-                        "The password is invalid or the user does not have a password." -> "Invalid email or password"
-                        "There is no user record corresponding to this identifier. The user may have been deleted." -> "No account found with this email"
-                        else -> "Sign in failed: ${task.exception?.message}"
+                if (isSignupMode) {
+                    val name = nameInput.text.toString().trim()
+                    if (name.isEmpty()) {
+                        nameInput.error = "Enter your name"
+                        return@setOnClickListener
                     }
-                    Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-                }
-            }
-    }
-
-    private fun signUpWithEmail(email: String, password: String) {
-        if (email.isBlank() || password.isBlank()) {
-            Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
-            return
-        }
-        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            Toast.makeText(this, "Please enter a valid email", Toast.LENGTH_SHORT).show()
-            return
-        }
-        if (password.length < 6) {
-            Toast.makeText(this, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show()
-            return
-        }
-        auth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    Toast.makeText(this, "Account created successfully!", Toast.LENGTH_SHORT).show()
-                    navigateToMain()
+                    performSignup(email, password, name, progress)
                 } else {
-                    val message = when (task.exception?.message) {
-                        "The email address is already in use by another account." -> "An account with this email already exists"
-                        "The email address is badly formatted." -> "Please enter a valid email"
-                        "The given password is invalid. [ Password should be at least 6 characters ]" -> "Password must be at least 6 characters"
-                        else -> "Sign up failed: ${task.exception?.message}"
-                    }
-                    Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+                    performLogin(email, password, progress)
                 }
             }
+        }
     }
 
-    private fun navigateToMain() {
-        startActivity(Intent(this, WelcomeActivity::class.java))
-        finish()
+    private fun updateButtonText() {
+        if (!isPhoneMode) {
+            findViewById<Button>(R.id.btnPrimaryAction).text = if (isSignupMode) "Create Account" else "Login"
+        }
     }
-}
 
-// ------------------ Composables ------------------
-
-@Composable
-fun LoginScreen(
-    onEmailSignInClick: (String, String) -> Unit,
-    onGoogleSignInClick: () -> Unit,
-    onSwitchToSignUp: () -> Unit
-) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("Login", style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.primary)
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("Email") },
-            singleLine = true,
-            leadingIcon = { Icon(Icons.Filled.Email, contentDescription = "Email Icon") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("Password") },
-            singleLine = true,
-            leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = "Lock Icon") },
-            trailingIcon = {
-                val image = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
-                IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                    Icon(imageVector = image, contentDescription = "Toggle Password Visibility")
+    private fun performSignup(email: String, pass: String, name: String, progress: ProgressBar) {
+        progress.visibility = View.VISIBLE
+        auth.createUserWithEmailAndPassword(email, pass).addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val user = auth.currentUser
+                val profileUpdates = UserProfileChangeRequest.Builder()
+                    .setDisplayName(name)
+                    .build()
+                
+                user?.updateProfile(profileUpdates)?.addOnCompleteListener {
+                    user.sendEmailVerification().addOnCompleteListener {
+                        progress.visibility = View.GONE
+                        startActivity(Intent(this, EmailVerificationActivity::class.java))
+                        finish()
+                    }
                 }
-            },
-            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation()
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Button(
-            onClick = { onEmailSignInClick(email, password) },
-            modifier = Modifier.fillMaxWidth()
-        ) { Text("Login") }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = onGoogleSignInClick,
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
-            modifier = Modifier.fillMaxWidth()
-        ) { Text("Sign in with Google") }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        TextButton(onClick = onSwitchToSignUp) { Text("Don't have an account? Sign Up") }
+            } else {
+                progress.visibility = View.GONE
+                Toast.makeText(this, "Error: ${task.exception?.message}", Toast.LENGTH_LONG).show()
+            }
+        }
     }
-}
 
-@Composable
-fun SignUpScreen(
-    onEmailSignUpClick: (String, String) -> Unit,
-    onGoogleSignInClick: () -> Unit,
-    onSwitchToLogin: () -> Unit
-) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("Sign Up", style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.primary)
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("Email") },
-            singleLine = true,
-            leadingIcon = { Icon(Icons.Filled.Email, contentDescription = "Email Icon") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("Password") },
-            singleLine = true,
-            leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = "Lock Icon") },
-            trailingIcon = {
-                val image = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
-                IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                    Icon(imageVector = image, contentDescription = "Toggle Password Visibility")
+    private fun performLogin(email: String, pass: String, progress: ProgressBar) {
+        progress.visibility = View.VISIBLE
+        auth.signInWithEmailAndPassword(email, pass).addOnCompleteListener { task ->
+            progress.visibility = View.GONE
+            if (task.isSuccessful) {
+                val user = auth.currentUser
+                if (user != null && user.isEmailVerified) {
+                    startActivity(Intent(this, HomeActivity::class.java))
+                    finish()
+                } else {
+                    user?.sendEmailVerification()
+                    startActivity(Intent(this, EmailVerificationActivity::class.java))
+                    finish()
                 }
-            },
-            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation()
-        )
+            } else {
+                Toast.makeText(this, "Login Failed: ${task.exception?.message}", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
 
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Button(
-            onClick = { onEmailSignUpClick(email, password) },
-            modifier = Modifier.fillMaxWidth()
-        ) { Text("Sign Up") }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = onGoogleSignInClick,
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
-            modifier = Modifier.fillMaxWidth()
-        ) { Text("Sign up with Google") }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        TextButton(onClick = onSwitchToLogin) { Text("Already have an account? Login") }
+    private fun startPhoneAuth(phoneNumber: String) {
+        val intent = Intent(this, OtpVerificationActivity::class.java)
+        intent.putExtra("type", "phone")
+        intent.putExtra("target", phoneNumber)
+        startActivity(intent)
     }
 }

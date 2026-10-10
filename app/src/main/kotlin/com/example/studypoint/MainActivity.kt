@@ -12,8 +12,8 @@ class MainActivity : ComponentActivity() {
         // Check authentication status
         val currentUser = FirebaseAuth.getInstance().currentUser
         if (currentUser != null) {
-            // User is signed in, go to welcome screen
-            startActivity(Intent(this, WelcomeActivity::class.java))
+            // User is signed in, go to home screen
+            startActivity(Intent(this, HomeActivity::class.java))
         } else {
             // User is not signed in, go to login screen
             startActivity(Intent(this, LoginActivity::class.java))

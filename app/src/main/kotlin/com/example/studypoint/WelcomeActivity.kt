@@ -30,13 +30,19 @@ class WelcomeActivity : AppCompatActivity() {
 
         // Show user's name or email
         val name = auth.currentUser?.displayName ?: auth.currentUser?.email
-        name?.let {
-            Toast.makeText(this, "Welcome to StudyPoint KR Hub, $it!", Toast.LENGTH_LONG).show()
-        }
+        findViewById<com.google.android.material.textview.MaterialTextView>(R.id.tvWelcomeUser).text = "Welcome, $name!"
 
         // 🔹 Start Button -> Grade Selection
         findViewById<MaterialButton>(R.id.btnStart).setOnClickListener {
             startActivity(Intent(this, GradeSelectionActivity::class.java))
+        }
+
+        // 🔹 Logout Button
+        findViewById<MaterialButton>(R.id.btnLogout).setOnClickListener {
+            auth.signOut()
+            Toast.makeText(this, "You have been logged out!", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, LoginActivity::class.java))
+            finish()
         }
 
         // 🔹 Feedback Button -> Email

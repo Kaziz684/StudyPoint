@@ -4,34 +4,85 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.studypoint.practicetest.QuizActivity
 import com.google.android.material.button.MaterialButton
+import java.util.Locale
 
 class NotesActivity : AppCompatActivity() {
 
-    private fun open(url: String) {
+    private fun isPlaceholderUrl(url: String): Boolean {
+        return url.isBlank() ||
+                !url.startsWith("http") ||
+                url.contains("COMING_SOON") ||
+                url.contains("REPLACE_WITH") ||
+                url.contains("PLACEHOLDER") ||
+                url.contains("_BOOK") ||
+                url.contains("_TEXTBOOK") ||
+                url.contains("_NOTES") ||
+                url.contains("_NOTE") ||
+                url.contains("_KEYBOOK") ||
+                url.contains("_PP") ||
+                url.contains("_MCQ")
+    }
 
-        Log.d("StudyPoint", "Opening PDF URL: $url")
+    // Google Drive URL converter: extracts clean file ID and converts to direct stream link
+    private fun getDirectDriveLink(url: String): String {
+        if (!url.contains("drive.google.com") && !url.contains("docs.google.com")) {
+            return url
+        }
+        val fileId = when {
+            url.contains("/file/d/") -> {
+                url.substringAfter("/file/d/").substringBefore("/").substringBefore("?").substringBefore("&")
+            }
+            url.contains("id=") -> {
+                url.substringAfter("id=").substringBefore("/").substringBefore("&").substringBefore("?")
+            }
+            else -> null
+        }
+        return if (!fileId.isNullOrBlank()) {
+            "https://drive.google.com/uc?export=download&id=$fileId"
+        } else {
+            url
+        }
+    }
 
-        // Check if URL contains placeholder text
-        if (url.contains("REPLACE_WITH") || url.contains("COMING_SOON")) {
-            Log.e("StudyPoint", "File not available yet: $url")
-            Toast.makeText(this, "Coming Soon", Toast.LENGTH_LONG).show()
-            return
+    private fun open(url: String, title: String, grade: String, subject: String): Boolean {
+        Log.d("StudyPoint", "Opening PDF Raw URL: $url")
+        if (isPlaceholderUrl(url)) {
+            Toast.makeText(this, "PDF Coming Soon", Toast.LENGTH_LONG).show()
+            return false
         }
 
-        // Browser kholne ki bajaye PdfViewActivity call karenge
-        val intent = Intent(this, PdfViewActivity::class.java)
-        intent.putExtra("pdfUrl", url)
+        val formattedUrl = getDirectDriveLink(url)
+        Log.d("StudyPoint", "Formatted Direct PDF URL: $formattedUrl")
 
-        try {
-            Log.d("StudyPoint", "Starting PdfViewActivity with URL: $url")
-            startActivity(intent)
-            Log.d("StudyPoint", "Successfully started PdfViewActivity")
-        } catch (e: Exception) {
-            Log.e("StudyPoint", "Error starting PdfViewActivity: ${e.message}", e)
-            Toast.makeText(this, "Error opening PDF: ${e.message}", Toast.LENGTH_LONG).show()
+        val intent = Intent(this, PdfViewActivity::class.java).apply {
+            putExtra("pdfUrl", formattedUrl)
+            putExtra("grade", grade)
+            putExtra("subject", subject)
+            putExtra("title", title)
+        }
+        startActivity(intent)
+        return true
+    }
+
+    private fun normalizeSubject(rawSubject: String): String {
+        val s = rawSubject.trim()
+        return when {
+            s.contains("Tarjuma", ignoreCase = true) || s.contains("Quran", ignoreCase = true) || s.contains("قرآن", ignoreCase = true) -> "Tarjuma-tul-Quran"
+            s.contains("Islamiyat", ignoreCase = true) || s.contains("Islamiat", ignoreCase = true) || s.contains("اسلامیات", ignoreCase = true) -> "Islamiyat"
+            s.contains("Pak Studies", ignoreCase = true) || s.contains("Pakistan Studies", ignoreCase = true) || s.contains("Pak Study", ignoreCase = true) || s.contains("Pak Science", ignoreCase = true) || s.contains("Pakistan Study", ignoreCase = true) || s.contains("مطالعہ پاکستان", ignoreCase = true) || s.contains("پاکستان اسٹڈیز", ignoreCase = true) || s.contains("پاکستان", ignoreCase = true) || s.contains("SST", ignoreCase = true) -> "Pak Studies"
+            s.equals("Mathematics", ignoreCase = true) || s.equals("Maths", ignoreCase = true) || s.equals("Math", ignoreCase = true) || s.contains("ریاضی", ignoreCase = true) -> "Math"
+            s.equals("Computer Science", ignoreCase = true) || s.equals("Computer", ignoreCase = true) || s.contains("کمپیوٹر", ignoreCase = true) -> "Computer"
+            s.contains("Physics", ignoreCase = true) || s.contains("فزکس", ignoreCase = true) -> "Physics"
+            s.contains("Chemistry", ignoreCase = true) || s.contains("کیمسٹری", ignoreCase = true) -> "Chemistry"
+            s.contains("Biology", ignoreCase = true) || s.contains("بائیولوجی", ignoreCase = true) -> "Biology"
+            s.contains("English", ignoreCase = true) || s.contains("انگریزی", ignoreCase = true) -> "English"
+            s.contains("Urdu", ignoreCase = true) || s.contains("اردو", ignoreCase = true) -> "Urdu"
+            else -> s
         }
     }
 
@@ -39,394 +90,659 @@ class NotesActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_notes)
 
-        Log.d("StudyPoint", "NotesActivity onCreate started")
+        findViewById<View>(R.id.btnBack).setOnClickListener { finish() }
 
-        val grade = intent.getStringExtra("grade") ?: ""
-        val subject = intent.getStringExtra("subject") ?: ""
-        val material = intent.getStringExtra("material") ?: "Notes"
+        val rawGrade = intent.getStringExtra("grade") ?: intent.getStringExtra("class") ?: "9"
+        val gradeKey = rawGrade.filter { it.isDigit() }.ifBlank { "9" }
+        val rawSubject = intent.getStringExtra("subject") ?: ""
+        var material = intent.getStringExtra("material") ?: ""
 
-        Log.d("StudyPoint", "Grade: $grade, Subject: $subject, Material: $material")
+        val normalizedSubject = normalizeSubject(rawSubject)
 
-        // 🔹 Links ka Map
-        val notesLinks = mapOf(
-            "9th" to mapOf(
+        // Comprehensive pdfLinks Map with all PCTB Subjects according to curriculum rules:
+        // - All Classes (9th, 10th, 11th, 12th): Must include "Tarjuma-tul-Quran" as a dedicated subject section.
+        // - 9th & 11th Classes: Must include "Islamiyat" compulsory (Pak Studies omitted).
+        // - 10th & 12th Classes: REMOVE "Islamiyat" completely and REPLACE/ADD "Pak Studies" as a dedicated subject section.
+        // - Materials inside each Subject Section: Strictly Textbook, Notes, Past Papers, MCQs (Keybook strictly excluded).
+        val basePdfLinks = mapOf(
+            "9" to mapOf(
+                "English" to mapOf(
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=9_ENGLISH_BOOK",
+                    "Book" to "https://drive.google.com/uc?export=download&id=9_ENGLISH_BOOK",
+                    "Notes" to listOf("https://drive.google.com/uc?export=download&id=119eyVRNCHDIEEzKFVur18_bPed3nn0wY"),
+                    "Past Papers" to mapOf(
+                        "2022" to "https://drive.google.com/uc?export=download&id=9_ENG_PP_2022",
+                        "2023" to "https://drive.google.com/uc?export=download&id=9_ENG_PP_2023",
+                        "2024" to "https://drive.google.com/uc?export=download&id=9_ENG_PP_2024",
+                        "2025" to "https://drive.google.com/uc?export=download&id=9_ENG_PP_2025",
+                        "2026" to "https://drive.google.com/uc?export=download&id=9_ENG_PP_2026"
+                    ),
+                    "MCQs" to "COMING_SOON"
+                ),
                 "Biology" to mapOf(
-                    "Notes" to listOf(
-                        "https://drive.google.com/uc?export=download&id=142qNCvfBp0b5oqfQ_IYUTcKKEZlUAsay",//chapter 1
-                        "https://drive.google.com/uc?export=download&id=14Ak7EUXP5VDcFn-dfAQvBtZuIeGFSVXQ",//chapter 2
-                        "https://drive.google.com/uc?export=download&id=14eL4HHECcG59gdy2nycK4wlqU3iCSE91",//chapter 3
-                        "https://drive.google.com/uc?export=download&id=14QCjlQv62JEBm2f1CUH8HndRMQaqAwgu",//chapter 4
-                        "https://drive.google.com/uc?export=download&id=14QM1omop7MSPxG-sP73HDjSvzZ2SsFTr",//chapter 5
-                        "https://drive.google.com/uc?export=download&id=14GLa3mFvt-H-wuRR1Ngz9_UXpVHWh0Ax",//chapter 6
-                        "https://drive.google.com/uc?export=download&id=14SsrZ8J69wPkydd7FKulYOhQknAD2Vwo",//chapter 7
-                        "https://drive.google.com/uc?export=download&id=14_k3EZQG8f_PGY_51mSrMSyblyPkrEOG",//chapter 8
-                        "https://drive.google.com/uc?export=download&id=14W5RphrsAwR8WJGuupqeqR77xUH-NpRJ",//chapter 9
-
-
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=9_BIO_BOOK",
+                    "Book" to "https://drive.google.com/uc?export=download&id=9_BIO_BOOK",
+                    "Notes" to listOf("https://drive.google.com/uc?export=download&id=9_BIO_NOTE"),
+                    "Past Papers" to mapOf(
+                        "2022" to "https://drive.google.com/uc?export=download&id=9_BIO_PP_2022",
+                        "2023" to "https://drive.google.com/uc?export=download&id=9_BIO_PP_2023",
+                        "2024" to "https://drive.google.com/uc?export=download&id=9_BIO_PP_2024",
+                        "2025" to "https://drive.google.com/uc?export=download&id=9_BIO_PP_2025",
+                        "2026" to "https://drive.google.com/uc?export=download&id=9_BIO_PP_2026"
                     ),
-                    "Book" to listOf(
-                        "https://drive.google.com/uc?export=download&id=1jBfqNH0ssvsZ-uD_Zq1OtzuE-fNSySBb"
+                    "MCQs" to "COMING_SOON"
+                ),
+                "Math" to mapOf(
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=1-RYEohAp3YYXQZPNJNichua3UDmpIHFs",
+                    "Book" to "https://drive.google.com/uc?export=download&id=1-RYEohAp3YYXQZPNJNichua3UDmpIHFs",
+                    "Notes" to listOf("https://drive.google.com/uc?export=download&id=1RtZZ5jE8w-CmLO2tVKbPczp-TO1Fc9Gk"),
+                    "Past Papers" to mapOf(
+                        "2022" to "https://drive.google.com/uc?export=download&id=9_MATH_PP_2022",
+                        "2023" to "https://drive.google.com/uc?export=download&id=9_MATH_PP_2023",
+                        "2024" to "https://drive.google.com/uc?export=download&id=9_MATH_PP_2024",
+                        "2025" to "https://drive.google.com/uc?export=download&id=9_MATH_PP_2025",
+                        "2026" to "https://drive.google.com/uc?export=download&id=9_MATH_PP_2026"
                     ),
-                    "Keybook" to listOf(
-                        "Coming Soon"
-
-                    //"https://drive.google.com/uc?export=download&id=14W5RphrsAwR8WJGuupqeqR77xUH-NpRJ"
+                    "MCQs" to "COMING_SOON"
+                ),
+                "Physics" to mapOf(
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=1Z_WG6Y8wFuvqJu7qdy-xEQQm1KXX_e9r",
+                    "Book" to "https://drive.google.com/uc?export=download&id=1Z_WG6Y8wFuvqJu7qdy-xEQQm1KXX_e9r",
+                    "Notes" to listOf("https://drive.google.com/uc?export=download&id=1afh-_Q1aVnIODgyVPcPesSH1Ei0Gprk2"),
+                    "Past Papers" to mapOf(
+                        "2022" to "https://drive.google.com/uc?export=download&id=9_PHY_PP_2022",
+                        "2023" to "https://drive.google.com/uc?export=download&id=9_PHY_PP_2023",
+                        "2024" to "https://drive.google.com/uc?export=download&id=9_PHY_PP_2024",
+                        "2025" to "https://drive.google.com/uc?export=download&id=9_PHY_PP_2025",
+                        "2026" to "https://drive.google.com/uc?export=download&id=9_PHY_PP_2026"
                     ),
-                    "Handwritten Notes" to listOf(
-                      "Coming Soon"
-                    //"https://drive.google.com/uc?export=download&id=14W5RphrsAwR8WJGuupqeqR77xUH-NpRJ"
-                    )
+                    "MCQs" to "COMING_SOON"
                 ),
                 "Chemistry" to mapOf(
-                    "Notes" to listOf(
-                        "https://drive.google.com/uc?export=download&id=14W5RphrsAwR8WJGuupqeqR77xUH-NpRJ", //ch1
-                        "COMING_SOON", //ch2
-                        "COMING_SOON", //ch3
-                        "COMING_SOON", //ch4
-                        "COMING_SOON", //ch5
-                        "COMING_SOON", //ch6
-                        "COMING_SOON", //ch7
-                        "COMING_SOON", //ch8
-                        "COMING_SOON", //ch9
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=1X5QxTWBgKlwCubCY0OBcjFVlQdsu4kEw",
+                    "Book" to "https://drive.google.com/uc?export=download&id=1X5QxTWBgKlwCubCY0OBcjFVlQdsu4kEw",
+                    "Notes" to listOf("https://drive.google.com/uc?export=download&id=9_CHEM_NOTES"),
+                    "Past Papers" to mapOf(
+                        "2022" to "https://drive.google.com/uc?export=download&id=9_CHEM_PP_2022",
+                        "2023" to "https://drive.google.com/uc?export=download&id=9_CHEM_PP_2023",
+                        "2024" to "https://drive.google.com/uc?export=download&id=9_CHEM_PP_2024",
+                        "2025" to "https://drive.google.com/uc?export=download&id=9_CHEM_PP_2025",
+                        "2026" to "https://drive.google.com/uc?export=download&id=9_CHEM_PP_2026"
                     ),
-                    "Book" to listOf(
-                        "https://drive.google.com/uc?export=download&id=1j8RBN3gh7eHXhYHbhn2ywYcrz3M2visq"
-                    ),
-                    "Keybook" to listOf(
-                        "https://drive.google.com/uc?export=download&id=15zybNRbmjPO7cIn0Te9gefo5GFPG1UeZ"
-                    ),
-                    "Handwritten Notes" to listOf(
-                        "coming soon"
-                    )
+                    "MCQs" to "COMING_SOON"
                 ),
                 "Computer" to mapOf(
-                    "Notes" to listOf(
-                        "https://drive.google.com/uc?export=download&id=1gpHD6s82CwEwa6Y0sFy0RCloDa6Fq29D", //ch1
-                        "https://drive.google.com/uc?export=download&id=15w5O0bmxzP8Z8nR1Y20q_3MJowma-9gd", //ch2
-                        "https://drive.google.com/uc?export=download&id=1VHAjtOd2QoZaP4lSlCYVDWupsOWUaaaa", //ch3
-                        "https://drive.google.com/uc?export=download&id=17fQ06WJ_xA_4VY8kF0oYP_TZJHraDyu2", //ch4
-                        "https://drive.google.com/uc?export=download&id=1j1oUPd7IMDyCrTZaHTdtt_hlbFaUI1Cc", //ch5
-                        "https://drive.google.com/uc?export=download&id=1KXEQhZmDGB0pGHOMaVdBb0Qg5zFLNSFR", //ch6
-                        "COMING_SOON", //ch7
-                        "COMING_SOON", //ch8
-                        "COMING_SOON", //ch9
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=15e8iWFCs2hZqTqQQbBE0gj5Om50B42Vx",
+                    "Book" to "https://drive.google.com/uc?export=download&id=15e8iWFCs2hZqTqQQbBE0gj5Om50B42Vx",
+                    "Notes" to listOf("https://drive.google.com/uc?export=download&id=1suMI7yc4jD8OyXiLbOqqCQixpI_rt-o_"),
+                    "Past Papers" to mapOf(
+                        "2022" to "https://drive.google.com/uc?export=download&id=9_CS_PP_2022",
+                        "2023" to "https://drive.google.com/uc?export=download&id=9_CS_PP_2023",
+                        "2024" to "https://drive.google.com/uc?export=download&id=9_CS_PP_2024",
+                        "2025" to "https://drive.google.com/uc?export=download&id=9_CS_PP_2025",
+                        "2026" to "https://drive.google.com/uc?export=download&id=9_CS_PP_2026"
                     ),
-                    "Book" to listOf(
-                        "https://drive.google.com/uc?export=download&id=1iFNnLpDjBaPoZamzpkj41W2UHiF-zvWD",
-
-                    ),
-                    "Keybook" to listOf(
-                        "https://drive.google.com/uc?export=download&id=15vs4XvyilG4JiH1nNte6HQ0Kl4pYcdyi",
-                    ),
-                    "Handwritten Notes" to listOf(
-                        "https://drive.google.com/uc?export=download&id=1KXEQhZmDGB0pGHOMaVdBb0Qg5zFLNSFR",
-                    )
+                    "MCQs" to "COMING_SOON"
                 ),
-                "Physics" to mapOf(
-                    "Notes" to listOf(
-                        "https://drive.google.com/uc?export=download&id=1BThkZRcZ0fyS4kA0z7N3xghSeIWfPiP3", // Ch 1 - Real ID added
-                        "COMING_SOON" , // Ch 2 - Coming soon
-                        "COMING_SOON" , // Ch 3 - Coming soon
-                        "COMING_SOON" , // Ch 4 - Coming soon
-                        "COMING_SOON" , // Ch 5 - Coming soon
-                        "COMING_SOON" , // Ch 6 - Coming soon
-                        "COMING_SOON" , // Ch 7 - Coming soon
-                        "COMING_SOON" , // Ch 8 - Coming soon
-                        "COMING_SOON" , // Ch 9 - Coming soon
-
+                "Urdu" to mapOf(
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=9_URDU_BOOK",
+                    "Book" to "https://drive.google.com/uc?export=download&id=9_URDU_BOOK",
+                    "Notes" to listOf("COMING_SOON"),
+                    "Past Papers" to mapOf(
+                        "2022" to "https://drive.google.com/uc?export=download&id=9_URDU_PP_2022",
+                        "2023" to "https://drive.google.com/uc?export=download&id=9_URDU_PP_2023",
+                        "2024" to "https://drive.google.com/uc?export=download&id=9_URDU_PP_2024",
+                        "2025" to "https://drive.google.com/uc?export=download&id=9_URDU_PP_2025",
+                        "2026" to "https://drive.google.com/uc?export=download&id=9_URDU_PP_2026"
                     ),
-                    "Book" to listOf(
-                        "https://drive.google.com/uc?export=download&id=1i7lZ9oR2aoqgRp7tMi0lcgLQPsHLa6I1" // ✅ Physics Book - Real ID added
-                    ),
-                    "Keybook" to listOf(
-                        "https://drive.google.com/uc?export=download&id=163NTXZm7xBUo0qVEmJ-S0dUcEyy1__HR" // ✅ Physics Keybook - Real ID added
-                    ),
-                    "Handwritten Notes" to listOf(
-                        "COMING SOON"
-                    )
+                    "MCQs" to "COMING_SOON"
                 ),
-                "Mathematics" to mapOf(
-                    "Notes" to listOf(
-                        "COMING_SOON",
-                        "COMING_SOON",
-                        "COMING_SOON"
+                "Islamiyat" to mapOf(
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=9_ISL_BOOK",
+                    "Book" to "https://drive.google.com/uc?export=download&id=9_ISL_BOOK",
+                    "Notes" to listOf("COMING_SOON"),
+                    "Past Papers" to mapOf(
+                        "2022" to "https://drive.google.com/uc?export=download&id=9_ISL_PP_2022",
+                        "2023" to "https://drive.google.com/uc?export=download&id=9_ISL_PP_2023",
+                        "2024" to "https://drive.google.com/uc?export=download&id=9_ISL_PP_2024",
+                        "2025" to "https://drive.google.com/uc?export=download&id=9_ISL_PP_2025",
+                        "2026" to "https://drive.google.com/uc?export=download&id=9_ISL_PP_2026"
                     ),
-                    "Book" to listOf(
-//                        "https://drive.google.com/uc?export=download&id=16Ea59C8wi_MD8zrv1kuhZZgX7MZaIyC4"
-                    ),
-                    "Keybook" to listOf(
-                        "https://drive.google.com/uc?export=download&id=1RtZZ5jE8w-CmLO2tVKbPczp-TO1Fc9Gk"
-                    )
+                    "MCQs" to "COMING_SOON"
                 ),
-                "English" to mapOf(
-                    "Notes" to listOf(
-//                        "https://drive.google.com/uc?export=download&id=1ADXuBPdSxMrBbnwncCEOtrCfnzORWEK",//chapter 1
-//                        "https://drive.google.com/uc?export=download&id=1AIqOhc2PoEw39g2SFn7wnfph9xMRbpmG",//chapter 2
-//                        "https://drive.google.com/uc?export=download&id=1AHGfjSayeeIDDVqrmgJEiDZ4MPURAdEB",//chapter 3
-//                        "https://drive.google.com/uc?export=download&id=1ADXuBPdSxMrBbnwncCEOtrCfnzORWEK",//chapter 4
-
+                "Tarjuma-tul-Quran" to mapOf(
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=9_TQ_BOOK",
+                    "Book" to "https://drive.google.com/uc?export=download&id=9_TQ_BOOK",
+                    "Notes" to listOf("COMING_SOON"),
+                    "Past Papers" to mapOf(
+                        "2022" to "https://drive.google.com/uc?export=download&id=9_TQ_PP_2022",
+                        "2023" to "https://drive.google.com/uc?export=download&id=9_TQ_PP_2023",
+                        "2024" to "https://drive.google.com/uc?export=download&id=9_TQ_PP_2024",
+                        "2025" to "https://drive.google.com/uc?export=download&id=9_TQ_PP_2025",
+                        "2026" to "https://drive.google.com/uc?export=download&id=9_TQ_PP_2026"
                     ),
-                    "Book" to listOf(
-                        "https://drive.google.com/uc?export=download&id=1iEI7xTL7WQQeEb71swI2_5ujZxsgcp1f"
-                    ),
-                    "Keybook" to listOf(
-                        "COMING_SOON"
-                    )
+                    "MCQs" to "COMING_SOON"
                 )
             ),
-            "10th" to mapOf(
-                "Biology" to mapOf(
-                    "Notes" to listOf(
-                        "COMING_SOON",
-                        "COMING_SOON",
-                        "COMING_SOON"
+            "10" to mapOf(
+                "English" to mapOf(
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=1rwPlvnVuSlaMwCvmq7WPEFqsLFg2xSgi",
+                    "Book" to "https://drive.google.com/uc?export=download&id=1rwPlvnVuSlaMwCvmq7WPEFqsLFg2xSgi",
+                    "Notes" to listOf("https://drive.google.com/uc?export=download&id=1PmSzp3xmU88z597id2SQbEy0ftAbQ9K_"),
+                    "Past Papers" to mapOf(
+                        "2022" to "https://drive.google.com/uc?export=download&id=10_ENG_PP_2022",
+                        "2023" to "https://drive.google.com/uc?export=download&id=10_ENG_PP_2023",
+                        "2024" to "https://drive.google.com/uc?export=download&id=10_ENG_PP_2024",
+                        "2025" to "https://drive.google.com/uc?export=download&id=10_ENG_PP_2025",
+                        "2026" to "https://drive.google.com/uc?export=download&id=10_ENG_PP_2026"
                     ),
-                    "Book" to listOf(
-                        "COMING_SOON"
-                    ),
-                    "Keybook" to listOf(
-                        "COMING_SOON"
-                    )
+                    "MCQs" to "COMING_SOON"
                 ),
-                "Chemistry" to mapOf(
-                    "Notes" to listOf(
-                        "COMING_SOON",
-                        "COMING_SOON",
-                        "COMING_SOON"
+                "Computer" to mapOf(
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=15e8iWFCs2hZqTqQQbBE0gj5Om50B42Vx",
+                    "Book" to "https://drive.google.com/uc?export=download&id=15e8iWFCs2hZqTqQQbBE0gj5Om50B42Vx",
+                    "Notes" to listOf("https://drive.google.com/uc?export=download&id=1suMI7yc4jD8OyXiLbOqqCQixpI_rt-o_"),
+                    "Past Papers" to mapOf(
+                        "2022" to "https://drive.google.com/uc?export=download&id=10_CS_PP_2022",
+                        "2023" to "https://drive.google.com/uc?export=download&id=10_CS_PP_2023",
+                        "2024" to "https://drive.google.com/uc?export=download&id=10_CS_PP_2024",
+                        "2025" to "https://drive.google.com/uc?export=download&id=10_CS_PP_2025",
+                        "2026" to "https://drive.google.com/uc?export=download&id=10_CS_PP_2026"
                     ),
-                    "Book" to listOf(
-                        "COMING_SOON"
+                    "MCQs" to "COMING_SOON"
+                ),
+                "Biology" to mapOf(
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=1mPdYAMYe1iBGLC_2ZCJHVLhZoQxVxxGL",
+                    "Book" to "https://drive.google.com/uc?export=download&id=1mPdYAMYe1iBGLC_2ZCJHVLhZoQxVxxGL",
+                    "Notes" to listOf("COMING_SOON"),
+                    "Past Papers" to mapOf(
+                        "2022" to "https://drive.google.com/uc?export=download&id=10_BIO_PP_2022",
+                        "2023" to "https://drive.google.com/uc?export=download&id=10_BIO_PP_2023",
+                        "2024" to "https://drive.google.com/uc?export=download&id=10_BIO_PP_2024",
+                        "2025" to "https://drive.google.com/uc?export=download&id=10_BIO_PP_2025",
+                        "2026" to "https://drive.google.com/uc?export=download&id=10_BIO_PP_2026"
                     ),
-                    "Keybook" to listOf(
-                        "COMING_SOON"
-                    )
+                    "MCQs" to "COMING_SOON"
                 ),
                 "Physics" to mapOf(
-                    "Notes" to listOf(
-                        "COMING_SOON",
-                        "COMING_SOON",
-                        "COMING_SOON"
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=137liQcICrTidgolg0HrVAvmNzadI7n4y",
+                    "Book" to "https://drive.google.com/uc?export=download&id=137liQcICrTidgolg0HrVAvmNzadI7n4y",
+                    "Notes" to listOf("COMING_SOON"),
+                    "Past Papers" to mapOf(
+                        "2022" to "https://drive.google.com/uc?export=download&id=10_PHY_PP_2022",
+                        "2023" to "https://drive.google.com/uc?export=download&id=10_PHY_PP_2023",
+                        "2024" to "https://drive.google.com/uc?export=download&id=10_PHY_PP_2024",
+                        "2025" to "https://drive.google.com/uc?export=download&id=10_PHY_PP_2025",
+                        "2026" to "https://drive.google.com/uc?export=download&id=10_PHY_PP_2026"
                     ),
-                    "Book" to listOf(
-                        "COMING_SOON"
-                    ),
-                    "Keybook" to listOf(
-                        "COMING_SOON"
-                    )
+                    "MCQs" to "COMING_SOON"
                 ),
-                "Mathematics" to mapOf(
-                    "Notes" to listOf(
-                        "COMING_SOON",
-                        "COMING_SOON",
-                        "COMING_SOON"
+                "Chemistry" to mapOf(
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=1hL9-HeRrPnOQwXGUJCkcldyqTy2y3Kd0",
+                    "Book" to "https://drive.google.com/uc?export=download&id=1hL9-HeRrPnOQwXGUJCkcldyqTy2y3Kd0",
+                    "Notes" to listOf("COMING_SOON"),
+                    "Past Papers" to mapOf(
+                        "2022" to "https://drive.google.com/uc?export=download&id=10_CHEM_PP_2022",
+                        "2023" to "https://drive.google.com/uc?export=download&id=10_CHEM_PP_2023",
+                        "2024" to "https://drive.google.com/uc?export=download&id=10_CHEM_PP_2024",
+                        "2025" to "https://drive.google.com/uc?export=download&id=10_CHEM_PP_2025",
+                        "2026" to "https://drive.google.com/uc?export=download&id=10_CHEM_PP_2026"
                     ),
-                    "Book" to listOf(
-                        "COMING_SOON"
-                    ),
-                    "Keybook" to listOf(
-                        "COMING_SOON"
-                    )
+                    "MCQs" to "COMING_SOON"
                 ),
-                "English" to mapOf(
-                    "Notes" to listOf(
-                        "COMING_SOON",
-                        "COMING_SOON"
+                "Urdu" to mapOf(
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=1YGc4bd5mdSXthR73Hw86pvoewqkvEzYk",
+                    "Book" to "https://drive.google.com/uc?export=download&id=1YGc4bd5mdSXthR73Hw86pvoewqkvEzYk",
+                    "Notes" to listOf("COMING_SOON"),
+                    "Past Papers" to mapOf(
+                        "2022" to "https://drive.google.com/uc?export=download&id=10_URDU_PP_2022",
+                        "2023" to "https://drive.google.com/uc?export=download&id=10_URDU_PP_2023",
+                        "2024" to "https://drive.google.com/uc?export=download&id=10_URDU_PP_2024",
+                        "2025" to "https://drive.google.com/uc?export=download&id=10_URDU_PP_2025",
+                        "2026" to "https://drive.google.com/uc?export=download&id=10_URDU_PP_2026"
                     ),
-                    "Book" to listOf(
-                        "COMING_SOON"
+                    "MCQs" to "COMING_SOON"
+                ),
+                "Math" to mapOf(
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=1TiZFVUnjdmGnZPc5Zsn7Ia-k6-P0gUFN",
+                    "Book" to "https://drive.google.com/uc?export=download&id=1TiZFVUnjdmGnZPc5Zsn7Ia-k6-P0gUFN",
+                    "Notes" to listOf("https://drive.google.com/uc?export=download&id=1pNFnJtsV9_0E60qryeUuMq4FTF_WuYds"),
+                    "Past Papers" to mapOf(
+                        "2022" to "https://drive.google.com/uc?export=download&id=10_MATH_PP_2022",
+                        "2023" to "https://drive.google.com/uc?export=download&id=10_MATH_PP_2023",
+                        "2024" to "https://drive.google.com/uc?export=download&id=10_MATH_PP_2024",
+                        "2025" to "https://drive.google.com/uc?export=download&id=10_MATH_PP_2025",
+                        "2026" to "https://drive.google.com/uc?export=download&id=10_MATH_PP_2026"
                     ),
-                    "Keybook" to listOf(
-                        "COMING_SOON"
-                    )
+                    "MCQs" to "COMING_SOON"
+                ),
+                // Pak Studies replaces Islamiyat in Class 10 (Islamiyat completely removed)
+                "Pak Studies" to mapOf(
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=10_PS_BOOK",
+                    "Book" to "https://drive.google.com/uc?export=download&id=10_PS_BOOK",
+                    "Notes" to listOf("COMING_SOON"),
+                    "Past Papers" to mapOf(
+                        "2022" to "https://drive.google.com/uc?export=download&id=10_PS_PP_2022",
+                        "2023" to "https://drive.google.com/uc?export=download&id=10_PS_PP_2023",
+                        "2024" to "https://drive.google.com/uc?export=download&id=10_PS_PP_2024",
+                        "2025" to "https://drive.google.com/uc?export=download&id=10_PS_PP_2025",
+                        "2026" to "https://drive.google.com/uc?export=download&id=10_PS_PP_2026"
+                    ),
+                    "MCQs" to "COMING_SOON"
+                ),
+                "Tarjuma-tul-Quran" to mapOf(
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=10_TQ_BOOK",
+                    "Book" to "https://drive.google.com/uc?export=download&id=10_TQ_BOOK",
+                    "Notes" to listOf("COMING_SOON"),
+                    "Past Papers" to mapOf(
+                        "2022" to "https://drive.google.com/uc?export=download&id=10_TQ_PP_2022",
+                        "2023" to "https://drive.google.com/uc?export=download&id=10_TQ_PP_2023",
+                        "2024" to "https://drive.google.com/uc?export=download&id=10_TQ_PP_2024",
+                        "2025" to "https://drive.google.com/uc?export=download&id=10_TQ_PP_2025",
+                        "2026" to "https://drive.google.com/uc?export=download&id=10_TQ_PP_2026"
+                    ),
+                    "MCQs" to "COMING_SOON"
                 )
             ),
-            "11th" to mapOf(
-                "Biology" to mapOf(
-                    "Notes" to listOf(
-                        "COMING_SOON",
-                        "COMING_SOON",
-                        "COMING_SOON"
+            "11" to mapOf(
+                "English" to mapOf(
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=11_ENGLISH_BOOK",
+                    "Book" to "https://drive.google.com/uc?export=download&id=11_ENGLISH_BOOK",
+                    "Notes" to listOf("https://drive.google.com/uc?export=download&id=11_ENGLISH_NOTES"),
+                    "Past Papers" to mapOf(
+                        "2022" to "https://drive.google.com/uc?export=download&id=11_ENG_PP_2022",
+                        "2023" to "https://drive.google.com/uc?export=download&id=11_ENG_PP_2023",
+                        "2024" to "https://drive.google.com/uc?export=download&id=11_ENG_PP_2024",
+                        "2025" to "https://drive.google.com/uc?export=download&id=11_ENG_PP_2025",
+                        "2026" to "https://drive.google.com/uc?export=download&id=11_ENG_PP_2026"
                     ),
-                    "Book" to listOf(
-                        "COMING_SOON"
-                    ),
-                    "Keybook" to listOf(
-                        "COMING_SOON"
-                    )
+                    "MCQs" to "COMING_SOON"
                 ),
-                "Chemistry" to mapOf(
-                    "Notes" to listOf(
-                        "COMING_SOON",
-                        "COMING_SOON",
-                        "COMING_SOON"
+                "Urdu" to mapOf(
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=11_URDU_BOOK",
+                    "Book" to "https://drive.google.com/uc?export=download&id=11_URDU_BOOK",
+                    "Notes" to listOf("COMING_SOON"),
+                    "Past Papers" to mapOf(
+                        "2022" to "https://drive.google.com/uc?export=download&id=11_URDU_PP_2022",
+                        "2023" to "https://drive.google.com/uc?export=download&id=11_URDU_PP_2023",
+                        "2024" to "https://drive.google.com/uc?export=download&id=11_URDU_PP_2024",
+                        "2025" to "https://drive.google.com/uc?export=download&id=11_URDU_PP_2025",
+                        "2026" to "https://drive.google.com/uc?export=download&id=11_URDU_PP_2026"
                     ),
-                    "Book" to listOf(
-                        "COMING_SOON"
-                    ),
-                    "Keybook" to listOf(
-                        "COMING_SOON"
-                    )
+                    "MCQs" to "COMING_SOON"
                 ),
                 "Physics" to mapOf(
-                    "Notes" to listOf(
-                        "COMING_SOON",
-                        "COMING_SOON",
-                        "COMING_SOON"
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=11_PHY_BOOK",
+                    "Book" to "https://drive.google.com/uc?export=download&id=11_PHY_BOOK",
+                    "Notes" to listOf("COMING_SOON"),
+                    "Past Papers" to mapOf(
+                        "2022" to "https://drive.google.com/uc?export=download&id=11_PHY_PP_2022",
+                        "2023" to "https://drive.google.com/uc?export=download&id=11_PHY_PP_2023",
+                        "2024" to "https://drive.google.com/uc?export=download&id=11_PHY_PP_2024",
+                        "2025" to "https://drive.google.com/uc?export=download&id=11_PHY_PP_2025",
+                        "2026" to "https://drive.google.com/uc?export=download&id=11_PHY_PP_2026"
                     ),
-                    "Book" to listOf(
-                        "COMING_SOON"
-                    ),
-                    "Keybook" to listOf(
-                        "COMING_SOON"
-                    )
+                    "MCQs" to "COMING_SOON"
                 ),
-                "Mathematics" to mapOf(
-                    "Notes" to listOf(
-                        "COMING_SOON",
-                        "COMING_SOON",
-                        "COMING_SOON"
+                "Chemistry" to mapOf(
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=11_CHEM_BOOK",
+                    "Book" to "https://drive.google.com/uc?export=download&id=11_CHEM_BOOK",
+                    "Notes" to listOf("COMING_SOON"),
+                    "Past Papers" to mapOf(
+                        "2022" to "https://drive.google.com/uc?export=download&id=11_CHEM_PP_2022",
+                        "2023" to "https://drive.google.com/uc?export=download&id=11_CHEM_PP_2023",
+                        "2024" to "https://drive.google.com/uc?export=download&id=11_CHEM_PP_2024",
+                        "2025" to "https://drive.google.com/uc?export=download&id=11_CHEM_PP_2025",
+                        "2026" to "https://drive.google.com/uc?export=download&id=11_CHEM_PP_2026"
                     ),
-                    "Book" to listOf(
-                        "COMING_SOON"
-                    ),
-                    "Keybook" to listOf(
-                        "COMING_SOON"
-                    )
+                    "MCQs" to "COMING_SOON"
                 ),
-                "English" to mapOf(
-                    "Notes" to listOf(
-                        "COMING_SOON",
-                        "COMING_SOON"
+                "Biology" to mapOf(
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=11_BIO_BOOK",
+                    "Book" to "https://drive.google.com/uc?export=download&id=11_BIO_BOOK",
+                    "Notes" to listOf("COMING_SOON"),
+                    "Past Papers" to mapOf(
+                        "2022" to "https://drive.google.com/uc?export=download&id=11_BIO_PP_2022",
+                        "2023" to "https://drive.google.com/uc?export=download&id=11_BIO_PP_2023",
+                        "2024" to "https://drive.google.com/uc?export=download&id=11_BIO_PP_2024",
+                        "2025" to "https://drive.google.com/uc?export=download&id=11_BIO_PP_2025",
+                        "2026" to "https://drive.google.com/uc?export=download&id=11_BIO_PP_2026"
                     ),
-                    "Book" to listOf(
-                        "COMING_SOON"
+                    "MCQs" to "COMING_SOON"
+                ),
+                "Math" to mapOf(
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=11_MATH_BOOK",
+                    "Book" to "https://drive.google.com/uc?export=download&id=11_MATH_BOOK",
+                    "Notes" to listOf("COMING_SOON"),
+                    "Past Papers" to mapOf(
+                        "2022" to "https://drive.google.com/uc?export=download&id=11_MATH_PP_2022",
+                        "2023" to "https://drive.google.com/uc?export=download&id=11_MATH_PP_2023",
+                        "2024" to "https://drive.google.com/uc?export=download&id=11_MATH_PP_2024",
+                        "2025" to "https://drive.google.com/uc?export=download&id=11_MATH_PP_2025",
+                        "2026" to "https://drive.google.com/uc?export=download&id=11_MATH_PP_2026"
                     ),
-                    "Keybook" to listOf(
-                        "COMING_SOON"
-                    )
+                    "MCQs" to "COMING_SOON"
+                ),
+                "Computer" to mapOf(
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=11_CS_BOOK",
+                    "Book" to "https://drive.google.com/uc?export=download&id=11_CS_BOOK",
+                    "Notes" to listOf("COMING_SOON"),
+                    "Past Papers" to mapOf(
+                        "2022" to "https://drive.google.com/uc?export=download&id=11_CS_PP_2022",
+                        "2023" to "https://drive.google.com/uc?export=download&id=11_CS_PP_2023",
+                        "2024" to "https://drive.google.com/uc?export=download&id=11_CS_PP_2024",
+                        "2025" to "https://drive.google.com/uc?export=download&id=11_CS_PP_2025",
+                        "2026" to "https://drive.google.com/uc?export=download&id=11_CS_PP_2026"
+                    ),
+                    "MCQs" to "COMING_SOON"
+                ),
+                "Islamiyat" to mapOf(
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=11_ISL_BOOK",
+                    "Book" to "https://drive.google.com/uc?export=download&id=11_ISL_BOOK",
+                    "Notes" to listOf("COMING_SOON"),
+                    "Past Papers" to mapOf(
+                        "2022" to "https://drive.google.com/uc?export=download&id=11_ISL_PP_2022",
+                        "2023" to "https://drive.google.com/uc?export=download&id=11_ISL_PP_2023",
+                        "2024" to "https://drive.google.com/uc?export=download&id=11_ISL_PP_2024",
+                        "2025" to "https://drive.google.com/uc?export=download&id=11_ISL_PP_2025",
+                        "2026" to "https://drive.google.com/uc?export=download&id=11_ISL_PP_2026"
+                    ),
+                    "MCQs" to "COMING_SOON"
+                ),
+                "Tarjuma-tul-Quran" to mapOf(
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=11_TQ_BOOK",
+                    "Book" to "https://drive.google.com/uc?export=download&id=11_TQ_BOOK",
+                    "Notes" to listOf("COMING_SOON"),
+                    "Past Papers" to mapOf(
+                        "2022" to "https://drive.google.com/uc?export=download&id=11_TQ_PP_2022",
+                        "2023" to "https://drive.google.com/uc?export=download&id=11_TQ_PP_2023",
+                        "2024" to "https://drive.google.com/uc?export=download&id=11_TQ_PP_2024",
+                        "2025" to "https://drive.google.com/uc?export=download&id=11_TQ_PP_2025",
+                        "2026" to "https://drive.google.com/uc?export=download&id=11_TQ_PP_2026"
+                    ),
+                    "MCQs" to "COMING_SOON"
                 )
             ),
-            "12th" to mapOf(
-                "Biology" to mapOf(
-                    "Notes" to listOf(
-                        "COMING_SOON",
-                        "COMING_SOON",
-                        "COMING_SOON"
+            "12" to mapOf(
+                "English" to mapOf(
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=12_ENGLISH_BOOK",
+                    "Book" to "https://drive.google.com/uc?export=download&id=12_ENGLISH_BOOK",
+                    "Notes" to listOf("https://drive.google.com/uc?export=download&id=12_ENGLISH_NOTES"),
+                    "Past Papers" to mapOf(
+                        "2022" to "https://drive.google.com/uc?export=download&id=12_ENG_PP_2022",
+                        "2023" to "https://drive.google.com/uc?export=download&id=12_ENG_PP_2023",
+                        "2024" to "https://drive.google.com/uc?export=download&id=12_ENG_PP_2024",
+                        "2025" to "https://drive.google.com/uc?export=download&id=12_ENG_PP_2025",
+                        "2026" to "https://drive.google.com/uc?export=download&id=12_ENG_PP_2026"
                     ),
-                    "Book" to listOf(
-                        "COMING_SOON"
-                    ),
-                    "Keybook" to listOf(
-                        "COMING_SOON"
-                    )
+                    "MCQs" to "COMING_SOON"
                 ),
-                "Chemistry" to mapOf(
-                    "Notes" to listOf(
-                        "COMING_SOON",
-                        "COMING_SOON",
-                        "COMING_SOON"
+                "Urdu" to mapOf(
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=12_URDU_BOOK",
+                    "Book" to "https://drive.google.com/uc?export=download&id=12_URDU_BOOK",
+                    "Notes" to listOf("COMING_SOON"),
+                    "Past Papers" to mapOf(
+                        "2022" to "https://drive.google.com/uc?export=download&id=12_URDU_PP_2022",
+                        "2023" to "https://drive.google.com/uc?export=download&id=12_URDU_PP_2023",
+                        "2024" to "https://drive.google.com/uc?export=download&id=12_URDU_PP_2024",
+                        "2025" to "https://drive.google.com/uc?export=download&id=12_URDU_PP_2025",
+                        "2026" to "https://drive.google.com/uc?export=download&id=12_URDU_PP_2026"
                     ),
-                    "Book" to listOf(
-                        "COMING_SOON"
-                    ),
-                    "Keybook" to listOf(
-                        "COMING_SOON"
-                    )
+                    "MCQs" to "COMING_SOON"
                 ),
                 "Physics" to mapOf(
-                    "Notes" to listOf(
-                        "COMING_SOON",
-                        "COMING_SOON",
-                        "COMING_SOON"
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=12_PHY_BOOK",
+                    "Book" to "https://drive.google.com/uc?export=download&id=12_PHY_BOOK",
+                    "Notes" to listOf("COMING_SOON"),
+                    "Past Papers" to mapOf(
+                        "2022" to "https://drive.google.com/uc?export=download&id=12_PHY_PP_2022",
+                        "2023" to "https://drive.google.com/uc?export=download&id=12_PHY_PP_2023",
+                        "2024" to "https://drive.google.com/uc?export=download&id=12_PHY_PP_2024",
+                        "2025" to "https://drive.google.com/uc?export=download&id=12_PHY_PP_2025",
+                        "2026" to "https://drive.google.com/uc?export=download&id=12_PHY_PP_2026"
                     ),
-                    "Book" to listOf(
-                        "COMING_SOON"
-                    ),
-                    "Keybook" to listOf(
-                        "COMING_SOON"
-                    )
+                    "MCQs" to "COMING_SOON"
                 ),
-                "Mathematics" to mapOf(
-                    "Notes" to listOf(
-                        "COMING_SOON",
-                        "COMING_SOON",
-                        "COMING_SOON"
+                "Chemistry" to mapOf(
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=12_CHEM_BOOK",
+                    "Book" to "https://drive.google.com/uc?export=download&id=12_CHEM_BOOK",
+                    "Notes" to listOf("COMING_SOON"),
+                    "Past Papers" to mapOf(
+                        "2022" to "https://drive.google.com/uc?export=download&id=12_CHEM_PP_2022",
+                        "2023" to "https://drive.google.com/uc?export=download&id=12_CHEM_PP_2023",
+                        "2024" to "https://drive.google.com/uc?export=download&id=12_CHEM_PP_2024",
+                        "2025" to "https://drive.google.com/uc?export=download&id=12_CHEM_PP_2025",
+                        "2026" to "https://drive.google.com/uc?export=download&id=12_CHEM_PP_2026"
                     ),
-                    "Book" to listOf(
-                        "COMING_SOON"
-                    ),
-                    "Keybook" to listOf(
-                        "COMING_SOON"
-                    )
+                    "MCQs" to "COMING_SOON"
                 ),
-                "English" to mapOf(
-                    "Notes" to listOf(
-                        "COMING_SOON",
-                        "COMING_SOON"
+                "Biology" to mapOf(
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=12_BIO_BOOK",
+                    "Book" to "https://drive.google.com/uc?export=download&id=12_BIO_BOOK",
+                    "Notes" to listOf("COMING_SOON"),
+                    "Past Papers" to mapOf(
+                        "2022" to "https://drive.google.com/uc?export=download&id=12_BIO_PP_2022",
+                        "2023" to "https://drive.google.com/uc?export=download&id=12_BIO_PP_2023",
+                        "2024" to "https://drive.google.com/uc?export=download&id=12_BIO_PP_2024",
+                        "2025" to "https://drive.google.com/uc?export=download&id=12_BIO_PP_2025",
+                        "2026" to "https://drive.google.com/uc?export=download&id=12_BIO_PP_2026"
                     ),
-                    "Book" to listOf(
-                        "COMING_SOON"
+                    "MCQs" to "COMING_SOON"
+                ),
+                "Math" to mapOf(
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=12_MATH_BOOK",
+                    "Book" to "https://drive.google.com/uc?export=download&id=12_MATH_BOOK",
+                    "Notes" to listOf("COMING_SOON"),
+                    "Past Papers" to mapOf(
+                        "2022" to "https://drive.google.com/uc?export=download&id=12_MATH_PP_2022",
+                        "2023" to "https://drive.google.com/uc?export=download&id=12_MATH_PP_2023",
+                        "2024" to "https://drive.google.com/uc?export=download&id=12_MATH_PP_2024",
+                        "2025" to "https://drive.google.com/uc?export=download&id=12_MATH_PP_2025",
+                        "2026" to "https://drive.google.com/uc?export=download&id=12_MATH_PP_2026"
                     ),
-                    "Keybook" to listOf(
-                        "COMING_SOON"
-                    )
+                    "MCQs" to "COMING_SOON"
+                ),
+                "Computer" to mapOf(
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=12_CS_BOOK",
+                    "Book" to "https://drive.google.com/uc?export=download&id=12_CS_BOOK",
+                    "Notes" to listOf("COMING_SOON"),
+                    "Past Papers" to mapOf(
+                        "2022" to "https://drive.google.com/uc?export=download&id=12_CS_PP_2022",
+                        "2023" to "https://drive.google.com/uc?export=download&id=12_CS_PP_2023",
+                        "2024" to "https://drive.google.com/uc?export=download&id=12_CS_PP_2024",
+                        "2025" to "https://drive.google.com/uc?export=download&id=12_CS_PP_2025",
+                        "2026" to "https://drive.google.com/uc?export=download&id=12_CS_PP_2026"
+                    ),
+                    "MCQs" to "COMING_SOON"
+                ),
+                // Pak Studies replaces Islamiyat in Class 12 (Islamiyat completely removed)
+                "Pak Studies" to mapOf(
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=12_PS_BOOK",
+                    "Book" to "https://drive.google.com/uc?export=download&id=12_PS_BOOK",
+                    "Notes" to listOf("COMING_SOON"),
+                    "Past Papers" to mapOf(
+                        "2022" to "https://drive.google.com/uc?export=download&id=12_PS_PP_2022",
+                        "2023" to "https://drive.google.com/uc?export=download&id=12_PS_PP_2023",
+                        "2024" to "https://drive.google.com/uc?export=download&id=12_PS_PP_2024",
+                        "2025" to "https://drive.google.com/uc?export=download&id=12_PS_PP_2025",
+                        "2026" to "https://drive.google.com/uc?export=download&id=12_PS_PP_2026"
+                    ),
+                    "MCQs" to "COMING_SOON"
+                ),
+                "Tarjuma-tul-Quran" to mapOf(
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=12_TQ_BOOK",
+                    "Book" to "https://drive.google.com/uc?export=download&id=12_TQ_BOOK",
+                    "Notes" to listOf("COMING_SOON"),
+                    "Past Papers" to mapOf(
+                        "2022" to "https://drive.google.com/uc?export=download&id=12_TQ_PP_2022",
+                        "2023" to "https://drive.google.com/uc?export=download&id=12_TQ_PP_2023",
+                        "2024" to "https://drive.google.com/uc?export=download&id=12_TQ_PP_2024",
+                        "2025" to "https://drive.google.com/uc?export=download&id=12_TQ_PP_2025",
+                        "2026" to "https://drive.google.com/uc?export=download&id=12_TQ_PP_2026"
+                    ),
+                    "MCQs" to "COMING_SOON"
                 )
             )
         )
 
-        // 🔹 Subject aur material ke links pick karo
-        val gradeKey = "${grade}th"
-        Log.d("StudyPoint", "Looking up grade key: $gradeKey")
-
-        val links = notesLinks[gradeKey]?.get(subject)?.get(material) ?: emptyList()
-
-        Log.d("StudyPoint", "Found ${links.size} links for $gradeKey $subject $material")
-        links.forEachIndexed { index, link ->
-            Log.d("StudyPoint", "Link $index: $link")
+        // Enrich with alias keys for each class
+        val enrichedPdfLinks = basePdfLinks.mapValues { (_, subjectsMap) ->
+            val enriched = subjectsMap.toMutableMap()
+            subjectsMap["Math"]?.let { enriched["Mathematics"] = it }
+            subjectsMap["Computer"]?.let { enriched["Computer Science"] = it }
+            subjectsMap["Tarjuma-tul-Quran"]?.let { enriched["Tarjuma tul Quran"] = it }
+            subjectsMap["Pak Studies"]?.let { enriched["Pakistan Studies"] = it }
+            subjectsMap["Islamiyat"]?.let { enriched["Islamiat"] = it }
+            enriched.toMap()
         }
 
-        // 🔹 Buttons list
+        val pdfLinks = enrichedPdfLinks + enrichedPdfLinks.mapKeys { "${it.key}th" }
+        val subjectMap = pdfLinks[rawGrade] ?: pdfLinks[gradeKey] ?: pdfLinks["${gradeKey}th"] ?: emptyMap()
+
+        val capitalizedSubject = rawSubject.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() }
+
+        val defaultFallbackMap = mapOf(
+            "Textbook" to "COMING_SOON",
+            "Book" to "COMING_SOON",
+            "Notes" to listOf("COMING_SOON"),
+            "Past Papers" to mapOf(
+                "2022" to "COMING_SOON",
+                "2023" to "COMING_SOON",
+                "2024" to "COMING_SOON",
+                "2025" to "COMING_SOON",
+                "2026" to "COMING_SOON"
+            ),
+            "MCQs" to "COMING_SOON"
+        )
+
+        val resolvedSubjectData = subjectMap[rawSubject]
+            ?: subjectMap[normalizedSubject]
+            ?: subjectMap[capitalizedSubject]
+            ?: subjectMap["Tarjuma-tul-Quran"]
+            ?: subjectMap["Tarjuma tul Quran"]
+            ?: subjectMap["Pak Studies"]
+            ?: subjectMap["Pakistan Studies"]
+            ?: subjectMap["Islamiyat"]
+            ?: subjectMap["Islamiat"]
+            ?: subjectMap["Math"]
+            ?: subjectMap["Computer"]
+            ?: defaultFallbackMap
+
+        // If material is MCQs, launch QuizActivity directly
+        if (material.equals("MCQs", ignoreCase = true) || material.equals("MCQ Practice", ignoreCase = true)) {
+            val sheetName = "Class_${gradeKey}th"
+            val quizIntent = Intent(this, QuizActivity::class.java).apply {
+                putExtra("sheetName", sheetName)
+                putExtra("subject", rawSubject.ifBlank { normalizedSubject })
+                putExtra("chapter", "")
+            }
+            startActivity(quizIntent)
+            finish()
+            return
+        }
+
         val ids = listOf(
             R.id.btnCh1, R.id.btnCh2, R.id.btnCh3,
             R.id.btnCh4, R.id.btnCh5, R.id.btnCh6,
             R.id.btnCh7, R.id.btnCh8, R.id.btnCh9
         )
 
-        if (material == "Notes") {
-            // 🔹 Notes → chapter-wise buttons show karo
-            ids.zip(links).forEach { (id, url) ->
-                findViewById<MaterialButton>(id).apply {
+        // Reset visibility of all buttons initially
+        ids.forEach { findViewById<MaterialButton>(it).visibility = View.GONE }
+
+        val displaySubject = if (rawSubject.isNotBlank()) rawSubject else normalizedSubject
+
+        // If no material specified, show the 4 strictly required material buttons:
+        // 1. Textbook, 2. Notes, 3. Past Papers, 4. MCQs
+        if (material.isBlank()) {
+            findViewById<TextView>(R.id.tvNotesTitle).text = "$displaySubject Study Material"
+
+            val materialOptions = listOf("Textbook", "Notes", "Past Papers", "MCQs")
+            materialOptions.forEachIndexed { index, mat ->
+                findViewById<MaterialButton>(ids[index]).apply {
                     visibility = View.VISIBLE
-                    setOnClickListener { open(url) }
+                    text = when (mat) {
+                        "Textbook" -> "📘 Textbook"
+                        "Notes" -> "📄 Solved Notes"
+                        "Past Papers" -> "📝 Past Papers (2022-2026)"
+                        "MCQs" -> "🎯 MCQs Practice"
+                        else -> mat
+                    }
+                    setOnClickListener {
+                        if (mat == "MCQs") {
+                            val sheetName = "Class_${gradeKey}th"
+                            val quizIntent = Intent(this@NotesActivity, QuizActivity::class.java).apply {
+                                putExtra("sheetName", sheetName)
+                                putExtra("subject", displaySubject)
+                                putExtra("chapter", "")
+                            }
+                            startActivity(quizIntent)
+                        } else {
+                            val intent = Intent(this@NotesActivity, NotesActivity::class.java).apply {
+                                putExtra("grade", gradeKey)
+                                putExtra("class", gradeKey)
+                                putExtra("subject", displaySubject)
+                                putExtra("material", mat)
+                            }
+                            startActivity(intent)
+                        }
+                    }
+                }
+            }
+            return
+        }
+
+        findViewById<TextView>(R.id.tvNotesTitle).text = when {
+            material.equals("Notes", ignoreCase = true) || material.equals("Solved Notes", ignoreCase = true) -> "$displaySubject Solved Notes"
+            material.equals("Book", ignoreCase = true) || material.equals("Textbook", ignoreCase = true) -> "$displaySubject Textbook"
+            material.equals("Past Papers", ignoreCase = true) -> "$displaySubject Past Papers (2022-2026)"
+            else -> displaySubject
+        }
+
+        if (material.equals("Past Papers", ignoreCase = true)) {
+            @Suppress("UNCHECKED_CAST")
+            val pastPapersMap = resolvedSubjectData["Past Papers"] as? Map<String, String> ?: emptyMap()
+            val years = listOf("2022", "2023", "2024", "2025", "2026")
+
+            ids.zip(years).forEach { (id, year) ->
+                val btn = findViewById<MaterialButton>(id)
+                val url = pastPapersMap[year] ?: ""
+                btn.visibility = View.VISIBLE
+                btn.text = "Past Paper $year"
+                btn.setOnClickListener {
+                    open(url, "$displaySubject Past Paper $year", gradeKey, displaySubject)
                 }
             }
         } else {
-            // 🔹 Book / Keybook → sirf ek button show karo
-            if (material == "Keybook" && links.size > 1) {
-                // Show multiple buttons for keybook guides
-                val buttonLabels = listOf("Guide 1", "Guide 2", "Guide 3", "Guide 4", "Guide 5")
-                links.take(5).forEachIndexed { index, url ->
-                    findViewById<MaterialButton>(ids[index]).apply {
+            val linksAny = if (material.equals("Textbook", ignoreCase = true) || material.equals("Book", ignoreCase = true)) {
+                resolvedSubjectData["Textbook"] ?: resolvedSubjectData["Book"]
+            } else {
+                resolvedSubjectData[material]
+            }
+
+            val links = when (linksAny) {
+                is List<*> -> linksAny.filterIsInstance<String>()
+                is String -> listOf(linksAny)
+                else -> emptyList()
+            }
+
+            if (links.size > 1) {
+                ids.zip(links).forEachIndexed { index, (id, url) ->
+                    findViewById<MaterialButton>(id).apply {
                         visibility = View.VISIBLE
-                        text = buttonLabels[index]
-                        setOnClickListener { open(url) }
+                        text = "$material Part ${index + 1}"
+                        setOnClickListener { open(url, "$displaySubject $material Part ${index + 1}", gradeKey, displaySubject) }
                     }
                 }
-                // Hide remaining buttons
-                ids.drop(links.size).forEach { id ->
-                    findViewById<MaterialButton>(id).visibility = View.GONE
-                }
             } else {
-                // Single button for Book or single Keybook
-                val bookBtn = findViewById<MaterialButton>(R.id.btnCh1)
-                bookBtn.visibility = View.VISIBLE
-                bookBtn.text = material // button pe "Book" ya "Keybook" likh do
-                if (links.isNotEmpty()) {
-                    bookBtn.setOnClickListener { open(links[0]) }
-                }
-                // Baaki sab buttons hide kar do
-                ids.drop(1).forEach { id ->
-                    findViewById<MaterialButton>(id).visibility = View.GONE
+                // Direct open for single Notes or Textbook
+                val url = links.firstOrNull() ?: ""
+                if (!isPlaceholderUrl(url)) {
+                    open(url, "$displaySubject $material", gradeKey, displaySubject)
+                    finish()
+                } else {
+                    Toast.makeText(this, "$material Coming Soon", Toast.LENGTH_SHORT).show()
+                    finish()
                 }
             }
         }

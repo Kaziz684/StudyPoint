@@ -18,29 +18,29 @@
         android:layout_height="wrap_content" />
 
     <Button
-        android:id="@+id/btnNotes"
-        android:text="📄 Notes"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp" />
-
-    <Button
-        android:id="@+id/btnHandwritten"
-        android:text="✍ Handwritten Notes"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp" />
-
-    <Button
         android:id="@+id/btnBook"
-        android:text="📘 Book"
+        android:text="📘 Textbook"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp" />
 
     <Button
-        android:id="@+id/btnKeybook"
-        android:text="🗝️ Keybook"
+        android:id="@+id/btnNotes"
+        android:text="📄 Solved Notes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp" />
+
+    <Button
+        android:id="@+id/btnPastPapers"
+        android:text="📝 Past Papers"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp" />
+
+    <Button
+        android:id="@+id/btnMCQs"
+        android:text="🎯 MCQs Practice"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 

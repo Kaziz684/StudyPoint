@@ -1,9 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.studypoint">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Internet permission (Firebase, network access) -->
     <uses-permission android:name="android.permission.INTERNET" /> <!-- Storage permissions for PDF access -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
+    <!-- Package queries for social apps and YouTube deep linking -->
+    <queries>
+        <package android:name="com.google.android.youtube" />
+        <package android:name="com.facebook.katana" />
+        <package android:name="com.whatsapp" />
+        <package android:name="org.telegram.messenger" />
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
+        </intent>
+    </queries>
 
     <application
         android:name=".StudyPointApp"
@@ -12,7 +24,8 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_logo_studypoint_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.StudyPoint">
+        android:theme="@style/Theme.StudyPoint"
+        android:usesCleartextTraffic="true">
 
         <!-- Added LoginActivity and made MainActivity the launcher -->
         <activity
@@ -30,6 +43,26 @@
 
         <activity
             android:name=".LoginActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".HomeActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".EmailVerificationActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".OtpVerificationActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".BoardsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".BoardWebViewActivity"
             android:exported="false" />
 
         <activity
@@ -55,7 +88,46 @@
             android:exported="false" />
         <activity
             android:name=".PdfViewActivity"
-            android:exported="false" /> <!-- Firebase / Google Services metadata -->
+            android:exported="false" />
+
+        <activity
+            android:name=".ChaptersActivity"
+            android:exported="false" />
+        <activity
+            android:name=".BookActivity"
+            android:exported="false" />
+        <activity
+            android:name=".KeyBookActivity"
+            android:exported="false" />
+        <activity
+            android:name=".StudyMaterialActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ClassSelectionActivity"
+            android:exported="false" />
+        <activity
+            android:name=".HandwrittenNotesActivity"
+            android:exported="false" />
+
+        <!-- Embedded YouTube Video Player Activity -->
+        <activity
+            android:name=".YouTubePlayerActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:hardwareAccelerated="true"
+            android:exported="false" />
+
+        <!-- Practice Quiz Activities -->
+        <activity
+            android:name=".practicetest.QuizSelectionActivity"
+            android:exported="false" />
+        <activity
+            android:name=".practicetest.QuizActivity"
+            android:exported="false" />
+        <activity
+            android:name=".practicetest.QuizResultActivity"
+            android:exported="false" />
+
+        <!-- Firebase / Google Services metadata -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/material_papers" />
