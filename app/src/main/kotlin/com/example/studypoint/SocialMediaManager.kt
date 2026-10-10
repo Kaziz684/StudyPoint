@@ -17,9 +17,8 @@ object SocialMediaManager {
     private const val YOUTUBE_CHANNEL_URL =
         "https://www.youtube.com/@theknowledgehub63"
 
-    // TODO: replace with the official Facebook page URL
     private const val FACEBOOK_PAGE_URL =
-        "https://www.facebook.com/alsamadacademy"
+        "https://www.facebook.com/alsamadacadmey"
 
     private fun open(context: Context, url: String) {
         context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
