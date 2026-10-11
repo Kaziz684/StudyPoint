@@ -1,6 +1,7 @@
 package com.example.studypoint
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -141,6 +142,7 @@ fun HomeScreen(
     // Navigation and interactive sheets state
     var selectedTab by remember { mutableIntStateOf(0) }
     var showAiChatSheet by remember { mutableStateOf(false) }
+    var appUpdateInfo by remember { mutableStateOf<AppUpdateInfo?>(null) }
     var showNotificationDialog by remember { mutableStateOf(false) }
     var showProfileDialog by remember { mutableStateOf(false) }
     var isSearchExpanded by remember { mutableStateOf(false) }
@@ -259,6 +261,28 @@ fun HomeScreen(
         }
     ) {
         Scaffold(
+            // AI Assistant floating button (small, like common chat FABs)
+            floatingActionButton = {
+                Box(
+                    modifier = Modifier
+                        .size(60.dp)
+                        .background(
+                            Brush.linearGradient(
+                                colors = listOf(Color(0xFF7C3AED), Color(0xFF4F46E5))
+                            ),
+                            CircleShape
+                        )
+                        .clickable { showAiChatSheet = true },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        Icons.Default.AutoAwesome,
+                        contentDescription = "Ask AI Assistant",
+                        tint = Color.White,
+                        modifier = Modifier.size(28.dp)
+                    )
+                }
+            },
             // 6. Fixed Bottom Navigation Bar
             bottomBar = {
                 Surface(
@@ -447,14 +471,7 @@ fun HomeScreen(
                         }
                     )
 
-                    // 4. Promotional / AI Assistant Banner
-                    AiAssistantPromoBanner(
-                        onAskAiClick = { showAiChatSheet = true }
-                    )
 
-                    // 5. Dynamic Content Cards (Stats / Quick Stats)
-                    SectionTitle("Your Learning Progress")
-                    StudentProgressStatsRow()
 
                     // Inspirational Quotes Carousel
                     SectionTitle("Daily Educational Inspiration")
@@ -526,6 +543,17 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.height(24.dp))
             }
         }
+    }
+
+    // In-app update check (Firestore: app_config/android_update)
+    LaunchedEffect(Unit) {
+        checkForAppUpdate(context) { info -> appUpdateInfo = info }
+    }
+
+    // Update available dialog
+    val update = appUpdateInfo
+    if (update != null) {
+        AppUpdateDialog(info = update, onDismiss = { appUpdateInfo = null })
     }
 
     // AI Assistant Interactive BottomSheet
@@ -825,11 +853,19 @@ fun QuickActionsGrid(
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(46.dp)
-                            .background(action.containerColor, CircleShape),
+                            .size(50.dp)
+                            .background(
+                                Brush.linearGradient(
+                                    colors = listOf(
+                                        action.iconColor,
+                                        action.iconColor.copy(alpha = 0.55f)
+                                    )
+                                ),
+                                CircleShape
+                            ),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(action.icon, null, tint = action.iconColor, modifier = Modifier.size(24.dp))
+                        Icon(action.icon, null, tint = Color.White, modifier = Modifier.size(26.dp))
                     }
 
                     Spacer(modifier = Modifier.height(10.dp))
@@ -856,122 +892,7 @@ fun QuickActionsGrid(
     }
 }
 
-// ==========================================
-// 4. PROMOTIONAL / AI ASSISTANT BANNER
-// ==========================================
-@Composable
-fun AiAssistantPromoBanner(onAskAiClick: () -> Unit) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 12.dp),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    Brush.horizontalGradient(
-                        colors = listOf(Color(0xFF4F46E5), Color(0xFF7C3AED), Color(0xFF06B6D4))
-                    )
-                )
-                .padding(20.dp)
-        ) {
-            Column {
-                Surface(
-                    color = Color.White.copy(alpha = 0.2f),
-                    shape = RoundedCornerShape(10.dp)
-                ) {
-                    Text(
-                        text = "✨ STUDYPOINT AI ASSISTANT 2.0",
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-                        color = Color.White,
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
 
-                Spacer(modifier = Modifier.height(10.dp))
-
-                Text(
-                    text = "Stuck on a Tricky Question?",
-                    color = Color.White,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.ExtraBold
-                )
-
-                Text(
-                    text = "Get instant 24/7 step-by-step solutions for Physics numericals, Chemistry formulas, and Urdu summaries in simple English & Urdu.",
-                    color = Color(0xFFE0E7FF),
-                    fontSize = 12.sp,
-                    lineHeight = 17.sp,
-                    modifier = Modifier.padding(vertical = 6.dp)
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Button(
-                    onClick = onAskAiClick,
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White,
-                        contentColor = Color(0xFF4F46E5)
-                    ),
-                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
-                ) {
-                    Icon(Icons.Default.AutoAwesome, null, modifier = Modifier.size(16.dp))
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text("Ask AI Assistant ➔", fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                }
-            }
-        }
-    }
-}
-
-// ==========================================
-// 5. DYNAMIC CONTENT CARDS (STATS)
-// ==========================================
-@Composable
-fun StudentProgressStatsRow() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 20.dp),
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        // Card 1: Chapters Read
-        StatCard(
-            count = "12",
-            label = "Chapters Read",
-            icon = Icons.Default.MenuBook,
-            iconBg = Color(0xFFEFF6FF),
-            iconTint = Color(0xFF2563EB),
-            modifier = Modifier.weight(1f)
-        )
-
-        // Card 2: Quizzes Taken
-        StatCard(
-            count = "8",
-            label = "Quizzes Taken",
-            icon = Icons.Default.EmojiEvents,
-            iconBg = Color(0xFFECFDF5),
-            iconTint = Color(0xFF10B981),
-            modifier = Modifier.weight(1f)
-        )
-
-        // Card 3: AI Doubts Solved
-        StatCard(
-            count = "24",
-            label = "AI Questions",
-            icon = Icons.Default.AutoAwesome,
-            iconBg = Color(0xFFF5F3FF),
-            iconTint = Color(0xFF7C3AED),
-            modifier = Modifier.weight(1f)
-        )
-    }
-}
 
 @Composable
 fun StatCard(
@@ -2025,68 +1946,7 @@ fun SocialMediaHubSection(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Primary Highlight Card: Facebook Official Page / Group
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onFacebookClick() },
-                shape = RoundedCornerShape(14.dp),
-                color = Color(0xFFEFF6FF)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(14.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(44.dp)
-                            .background(Color.White, CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_facebook),
-                            contentDescription = "Facebook",
-                            tint = Color.Unspecified,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.width(12.dp))
-
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "Official Facebook Page",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp,
-                            color = Color(0xFF1E3A8A)
-                        )
-                        Text(
-                            text = "Latest Date Sheets, Guess Papers & Discussion",
-                            fontSize = 11.sp,
-                            color = Color(0xFF3B82F6)
-                        )
-                    }
-
-                    Surface(
-                        shape = RoundedCornerShape(10.dp),
-                        color = Color(0xFF1877F2)
-                    ) {
-                        Text(
-                            text = "Visit Page",
-                            color = Color.White,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Action Row: WhatsApp Support & YouTube Channel
+            // Row 1: WhatsApp & YouTube
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -2110,6 +1970,25 @@ fun SocialMediaHubSection(
                     textColor = Color(0xFF991B1B),
                     onClick = onYouTubeClick
                 )
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // Row 2: Facebook Official Page
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                SocialActionChip(
+                    modifier = Modifier.weight(1f),
+                    title = "Facebook",
+                    subtitle = "Official Page",
+                    iconRes = R.drawable.ic_facebook,
+                    bgColor = Color(0xFFEFF6FF),
+                    textColor = Color(0xFF1E3A8A),
+                    onClick = onFacebookClick
+                )
+                Spacer(modifier = Modifier.weight(1f))
             }
         }
     }
@@ -2156,4 +2035,82 @@ fun SocialActionChip(
             }
         }
     }
+}
+
+// ==========================================
+// IN-APP UPDATE (Firestore driven)
+// Create Firestore doc: app_config/android_update with fields:
+//   latest_version_code (number), apk_url (string),
+//   force_update (boolean), changelog (string)
+// ==========================================
+data class AppUpdateInfo(
+    val latestVersionCode: Int,
+    val apkUrl: String,
+    val forceUpdate: Boolean,
+    val changelog: String
+)
+
+fun checkForAppUpdate(context: Context, onResult: (AppUpdateInfo?) -> Unit) {
+    try {
+        @Suppress("DEPRECATION")
+        val currentCode = context.packageManager.getPackageInfo(context.packageName, 0).versionCode
+        FirebaseFirestore.getInstance()
+            .collection("app_config")
+            .document("android_update")
+            .get()
+            .addOnSuccessListener { doc ->
+                val latest = doc.getLong("latest_version_code")?.toInt() ?: 0
+                if (latest > currentCode) {
+                    onResult(
+                        AppUpdateInfo(
+                            latestVersionCode = latest,
+                            apkUrl = doc.getString("apk_url").orEmpty(),
+                            forceUpdate = doc.getBoolean("force_update") ?: false,
+                            changelog = doc.getString("changelog").orEmpty()
+                        )
+                    )
+                } else {
+                    onResult(null)
+                }
+            }
+            .addOnFailureListener { onResult(null) }
+    } catch (e: Exception) {
+        onResult(null)
+    }
+}
+
+@Composable
+fun AppUpdateDialog(info: AppUpdateInfo, onDismiss: () -> Unit) {
+    val context = LocalContext.current
+    AlertDialog(
+        onDismissRequest = { if (!info.forceUpdate) onDismiss() },
+        title = { Text("Update Available \uD83C\uDF89", fontWeight = FontWeight.Bold) },
+        text = {
+            Column {
+                Text("A new version of StudyPoint is available. Update now for the latest features & fixes.")
+                if (info.changelog.isNotBlank()) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(info.changelog, fontSize = 13.sp, color = Color(0xFF64748B))
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    if (info.apkUrl.isNotBlank()) {
+                        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(info.apkUrl)))
+                    }
+                    if (!info.forceUpdate) onDismiss()
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF10B981))
+            ) {
+                Text("Update Now", color = Color.White, fontWeight = FontWeight.Bold)
+            }
+        },
+        dismissButton = {
+            if (!info.forceUpdate) {
+                TextButton(onClick = onDismiss) { Text("Later") }
+            }
+        }
+    )
 }

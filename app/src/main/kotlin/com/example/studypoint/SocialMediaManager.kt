@@ -7,39 +7,33 @@ import android.widget.Toast
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 
+/**
+ * Central place for all social / external links.
+ */
 object SocialMediaManager {
 
-    const val FACEBOOK_URL = "https://www.facebook.com/StudyPointOfficialPakistan"
-    const val FACEBOOK_PAGE_ID = "StudyPointOfficialPakistan"
+    const val FACEBOOK_URL = "https://www.facebook.com/alsamadacadmey"
+    const val WHATSAPP_CHANNEL_URL = "https://whatsapp.com/channel/0029Vah4pV3Au3aVHGzJL805"
     const val WHATSAPP_NUMBER = "+923276131242"
-    const val WHATSAPP_CLEAN_NUMBER = "923276131242"
     const val DEFAULT_SUPPORT_MESSAGE = "Hello! I need support regarding the live lectures / app."
-    const val YOUTUBE_CHANNEL_URL = "https://www.youtube.com/@StudyPointLectures"
+    const val YOUTUBE_CHANNEL_URL = "https://www.youtube.com/@theknowledgehub63"
 
     /**
-     * Opens Facebook Official Page / Group via deep link (Facebook App)
-     * with smooth fallback to Chrome Custom Tabs or browser.
+     * Opens Facebook Official Page with fallback to Chrome Custom Tabs or browser.
      */
-    fun openFacebook(
-        context: Context,
-        pageUrl: String = FACEBOOK_URL,
-        pageId: String = FACEBOOK_PAGE_ID
-    ) {
+    fun openFacebook(context: Context, pageUrl: String = FACEBOOK_URL) {
         try {
-            // Try Facebook App intent
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse("fb://facewebmodal/f?href=$pageUrl")).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK
             }
             context.startActivity(intent)
         } catch (e: Exception) {
-            // Fallback to Chrome Custom Tabs
             openCustomTab(context, pageUrl)
         }
     }
 
     /**
      * Opens WhatsApp support chat directly to +923276131242
-     * Gracefully falls back to browser if WhatsApp is not installed.
      */
     fun openWhatsApp(
         context: Context,
@@ -69,6 +63,13 @@ object SocialMediaManager {
     }
 
     /**
+     * Opens official StudyPoint WhatsApp channel
+     */
+    fun openWhatsAppChannel(context: Context) {
+        openCustomTab(context, WHATSAPP_CHANNEL_URL)
+    }
+
+    /**
      * Dedicated WhatsApp Live Lectures Support launcher
      */
     fun openWhatsAppLectureSupport(context: Context) {
@@ -91,7 +92,7 @@ object SocialMediaManager {
     }
 
     /**
-     * Opens any link in a high performance, styled Chrome Custom Tab
+     * Opens any link in a high performance Chrome Custom Tab
      */
     fun openCustomTab(context: Context, url: String) {
         try {

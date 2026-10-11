@@ -144,7 +144,7 @@ class QuizActivity : AppCompatActivity() {
                 button.visibility = View.VISIBLE
                 button.text = options[i]
                 button.strokeColor = ContextCompat.getColorStateList(this, R.color.edu_border)
-                button.backgroundTintList = null
+                button.backgroundTintList = ContextCompat.getColorStateList(this, R.color.edu_card_bg)
                 button.setTextColor(ContextCompat.getColor(this, R.color.edu_text_primary))
                 button.isEnabled = true
             } else {
