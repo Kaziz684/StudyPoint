@@ -11,6 +11,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -21,6 +25,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.border
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
@@ -441,6 +447,9 @@ fun HomeScreen(
                     SectionTitle("Search Results")
                     SearchResultsList(searchQuery, onClassClick)
                 } else {
+                    // Date / Time / Hijri header bar
+                    DateTimeHeader()
+
                     // 2. Daily Tracker / Status Card
                     DailyTrackerCard(
                         onStartChallenge = {
@@ -692,116 +701,147 @@ fun TopGreetingHeader(
 }
 
 // ==========================================
+// DATE / TIME / HIJRI HEADER BAR
+// ==========================================
+@Composable
+fun DateTimeHeader() {
+    var nowMs by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(30_000)
+            nowMs = System.currentTimeMillis()
+        }
+    }
+
+    val timeFmt = remember { SimpleDateFormat("h:mm a", Locale.getDefault()) }
+    val dateFmt = remember { SimpleDateFormat("d MMM yyyy", Locale.getDefault()) }
+    val hijriStr = remember(nowMs) {
+        try {
+            val hd = java.time.chrono.HijrahDate.now()
+            val months = listOf(
+                "", "Muharram", "Safar", "Rabi-ul-Awwal", "Rabi-us-Sani",
+                "Jumada-ul-Awwal", "Jumada-us-Sani", "Rajab", "Sha'ban",
+                "Ramadan", "Shawwal", "Zil-Qa'dah", "Zil-Hajjah"
+            )
+            val m = hd.get(java.time.temporal.ChronoField.MONTH_OF_YEAR)
+            val d = hd.get(java.time.temporal.ChronoField.DAY_OF_MONTH)
+            val y = hd.get(java.time.temporal.ChronoField.YEAR)
+            "$d ${months[m]} $y"
+        } catch (_: Exception) { "" }
+    }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 6.dp),
+        shape = RoundedCornerShape(14.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFECFDF5)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFA7F3D0))
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.Schedule, null, tint = Color(0xFF059669), modifier = Modifier.size(14.dp))
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(timeFmt.format(java.util.Date(nowMs)), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFF065F46))
+            }
+            Box(modifier = Modifier.width(1.dp).height(16.dp).background(Color(0xFFA7F3D0)))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.CalendarMonth, null, tint = Color(0xFF059669), modifier = Modifier.size(14.dp))
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(dateFmt.format(java.util.Date(nowMs)), fontSize = 12.sp, fontWeight = FontWeight.Medium, color = Color(0xFF065F46))
+            }
+            if (hijriStr.isNotBlank()) {
+                Box(modifier = Modifier.width(1.dp).height(16.dp).background(Color(0xFFA7F3D0)))
+                Text("🌙 $hijriStr", fontSize = 11.sp, fontWeight = FontWeight.Medium, color = Color(0xFF047857), maxLines = 1)
+            }
+        }
+    }
+}
+
+// ==========================================
 // 2. DAILY TRACKER / STATUS CARD COMPONENT
+// ==========================================
+// ==========================================
+// 2. DAILY TRACKER / STATUS CARD COMPONENT (COMPACT)
 // ==========================================
 @Composable
 fun DailyTrackerCard(onStartChallenge: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 12.dp),
-        shape = RoundedCornerShape(20.dp),
+            .padding(horizontal = 20.dp, vertical = 6.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFF0F172A)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
     ) {
-        Box(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(
-                    Brush.verticalGradient(
+                    Brush.horizontalGradient(
                         colors = listOf(Color(0xFF0F172A), Color(0xFF1E293B), Color(0xFF312E81))
                     )
                 )
-                .padding(18.dp)
+                .padding(horizontal = 14.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
-                // Badges Row
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // Study Streak Badge
-                    Surface(
-                        color = Color(0xFFF59E0B).copy(alpha = 0.2f),
-                        shape = RoundedCornerShape(12.dp),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF59E0B).copy(alpha = 0.4f))
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text("🔥 5-Day Study Streak", color = Color(0xFFFCD34D), fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                        }
-                    }
-
-                    // Target Tag
-                    Surface(
-                        color = Color(0xFF10B981).copy(alpha = 0.2f),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Text(
-                            text = "Daily Challenge",
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
-                            color = Color(0xFF6EE7B7),
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(14.dp))
-
+            // Compact streak badge
+            Surface(
+                color = Color(0xFFF59E0B).copy(alpha = 0.2f),
+                shape = RoundedCornerShape(10.dp),
+                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF59E0B).copy(alpha = 0.4f))
+            ) {
                 Text(
-                    text = "Today's Target: Complete 1 Chapter Quiz",
-                    color = Color.White,
-                    fontSize = 16.sp,
+                    text = "🔥 5-Day Streak",
+                    modifier = Modifier.padding(horizontal = 9.dp, vertical = 5.dp),
+                    color = Color(0xFFFCD34D),
+                    fontSize = 11.sp,
                     fontWeight = FontWeight.Bold
                 )
+            }
 
+            Spacer(modifier = Modifier.width(10.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Practice 10 multiple choice questions to keep your streak active and master board concepts.",
-                    color = Color(0xFFCBD5E1),
-                    fontSize = 12.sp,
-                    lineHeight = 16.sp,
-                    modifier = Modifier.padding(vertical = 4.dp)
+                    text = "Daily Challenge",
+                    color = Color.White,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold
                 )
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                // Progress Bar (70% Completed)
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text("Daily Progress", color = Color(0xFF94A3B8), fontSize = 11.sp)
-                    Text("7 / 10 MCQs (70%)", color = Color(0xFF34D399), fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                }
-
-                Spacer(modifier = Modifier.height(6.dp))
-
-                LinearProgressIndicator(
-                    progress = { 0.7f },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(8.dp)
-                        .clip(RoundedCornerShape(4.dp)),
-                    color = Color(0xFF10B981),
-                    trackColor = Color.White.copy(alpha = 0.15f)
+                Text(
+                    text = "7 / 10 MCQs",
+                    color = Color(0xFF34D399),
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Medium
                 )
+            }
 
-                Spacer(modifier = Modifier.height(14.dp))
-
-                // CTA Button
-                Button(
-                    onClick = onStartChallenge,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4F46E5))
-                ) {
-                    Text("Start Today's Quiz Challenge ➔", fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                }
+            // Circular arrow action button
+            IconButton(
+                onClick = onStartChallenge,
+                modifier = Modifier
+                    .size(42.dp)
+                    .background(
+                        Brush.linearGradient(
+                            colors = listOf(Color(0xFF4F46E5), Color(0xFF7C3AED))
+                        ),
+                        CircleShape
+                    )
+            ) {
+                Icon(
+                    Icons.AutoMirrored.Filled.ArrowForward,
+                    contentDescription = "Start Challenge",
+                    tint = Color.White,
+                    modifier = Modifier.size(20.dp)
+                )
             }
         }
     }
@@ -949,181 +989,266 @@ fun StatCard(
 // ==========================================
 // AI ASSISTANT BOTTOM SHEET
 // ==========================================
+// ==========================================
+// AI ASSISTANT BOTTOM SHEET
+// ==========================================
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AiChatBottomSheet(onDismiss: () -> Unit) {
     var prompt by remember { mutableStateOf("") }
+    var isTyping by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    val listState = rememberLazyListState()
     val messages = remember {
         mutableStateListOf(
-            AiChatMessage(false, "Assalam-o-Alaikum! I'm your StudyPoint AI Tutor 🎓 Ask me any question from Punjab Board Class 9, 10, 11, or 12!", "Just now")
+            AiChatMessage(false, "Assalam-o-Alaikum! 🎓 I'm your StudyPoint AI Tutor. Ask me anything \u2014 concepts, formulas, definitions from any subject!", "Just now")
         )
     }
 
     val samplePrompts = listOf(
         "Explain Newton's 2nd Law (Physics)",
         "What is Chemical Equilibrium?",
-        "Summary of Surah Maryam",
-        "1973 Constitution Pakistan Studies"
+        "What is photosynthesis?",
+        "Quadratic formula in Maths"
     )
+
+    // Auto-scroll to newest message / typing indicator
+    LaunchedEffect(messages.size, isTyping) {
+        val target = messages.size - 1 + if (isTyping) 1 else 0
+        if (target >= 0) listState.animateScrollToItem(target)
+    }
+
+    fun sendMessage(text: String) {
+        val userQ = text.trim()
+        if (userQ.isBlank() || isTyping) return
+        messages.add(AiChatMessage(true, userQ, "Now"))
+        prompt = ""
+        isTyping = true
+        scope.launch {
+            val aiAnswer = try {
+                AiTutorService.getAnswer(userQ)
+            } catch (e: Exception) {
+                "Sorry, I couldn't fetch an answer right now. Please check your internet connection and try again."
+            }
+            messages.add(AiChatMessage(false, aiAnswer, "Now"))
+            isTyping = false
+        }
+    }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        containerColor = Color.White
+        containerColor = Color.White,
+        dragHandle = null
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp)
-                .padding(bottom = 28.dp)
-        ) {
-            // Header
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(40.dp)
-                            .background(Color(0xFF7C3AED).copy(alpha = 0.15f), CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(Icons.Default.AutoAwesome, null, tint = Color(0xFF7C3AED))
-                    }
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column {
-                        Text("StudyPoint AI Tutor", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF0F172A))
-                        Text("Punjab Curriculum Expert • 24/7", fontSize = 11.sp, color = Color(0xFF10B981))
-                    }
-                }
-                IconButton(onClick = onDismiss) {
-                    Icon(Icons.Default.Close, null, tint = Color(0xFF64748B))
-                }
-            }
-
-            HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color(0xFFE2E8F0))
-
-            // Quick Prompt Chips
-            Text("Suggested Topics:", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
-            LazyRow(
-                modifier = Modifier.padding(vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(samplePrompts) { p ->
-                    SuggestionChip(
-                        onClick = {
-                            prompt = p
-                        },
-                        label = { Text(p, fontSize = 11.sp) }
-                    )
-                }
-            }
-
-            // Chat Messages Container
-            Card(
+        Column(modifier = Modifier.fillMaxWidth()) {
+            // Gradient header (emerald -> navy, like splash)
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(260.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFF8FAFC)),
-                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE2E8F0))
+                    .background(
+                        Brush.horizontalGradient(
+                            colors = listOf(Color(0xFF059669), Color(0xFF047857), Color(0xFF0F172A))
+                        )
+                    )
+                    .padding(horizontal = 20.dp, vertical = 14.dp)
             ) {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    items(messages) { msg ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = if (msg.isUser) Arrangement.End else Arrangement.Start
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .size(42.dp)
+                                .background(Color.White.copy(alpha = 0.2f), CircleShape),
+                            contentAlignment = Alignment.Center
                         ) {
-                            Card(
-                                shape = RoundedCornerShape(12.dp),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = if (msg.isUser) Color(0xFF4F46E5) else Color.White
-                                ),
-                                border = if (msg.isUser) null else androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE2E8F0)),
-                                modifier = Modifier.widthIn(max = 280.dp)
+                            Icon(Icons.Default.AutoAwesome, null, tint = Color.White, modifier = Modifier.size(22.dp))
+                        }
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column {
+                            Text("StudyPoint AI Tutor", fontWeight = FontWeight.Bold, fontSize = 17.sp, color = Color.White)
+                            Text("Smart Tutor \u2022 Powered by Web Search", fontSize = 11.sp, color = Color(0xFFA7F3D0))
+                        }
+                    }
+                    IconButton(onClick = onDismiss) {
+                        Icon(Icons.Default.Close, null, tint = Color.White)
+                    }
+                }
+            }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp)
+                    .padding(bottom = 28.dp)
+            ) {
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Quick Prompt Chips
+                Text("Suggested Topics:", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
+                LazyRow(
+                    modifier = Modifier.padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(samplePrompts) { p ->
+                        SuggestionChip(
+                            onClick = { sendMessage(p) },
+                            label = { Text(p, fontSize = 11.sp) }
+                        )
+                    }
+                }
+
+                // Chat Messages Container
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(280.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF8FAFC)),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE2E8F0)),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                ) {
+                    LazyColumn(
+                        state = listState,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(messages) { msg ->
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = if (msg.isUser) Arrangement.End else Arrangement.Start
                             ) {
-                                Column(modifier = Modifier.padding(10.dp)) {
-                                    Text(
-                                        text = msg.text,
-                                        fontSize = 13.sp,
-                                        color = if (msg.isUser) Color.White else Color(0xFF0F172A),
-                                        lineHeight = 18.sp
-                                    )
-                                    Spacer(modifier = Modifier.height(2.dp))
-                                    Text(
-                                        text = msg.time,
-                                        fontSize = 9.sp,
-                                        color = if (msg.isUser) Color.White.copy(0.7f) else Color(0xFF94A3B8),
-                                        textAlign = TextAlign.End,
-                                        modifier = Modifier.fillMaxWidth()
-                                    )
+                                Card(
+                                    shape = RoundedCornerShape(
+                                        topStart = 14.dp, topEnd = 14.dp,
+                                        bottomStart = if (msg.isUser) 14.dp else 4.dp,
+                                        bottomEnd = if (msg.isUser) 4.dp else 14.dp
+                                    ),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = if (msg.isUser) Color(0xFF4F46E5) else Color.White
+                                    ),
+                                    border = if (msg.isUser) null else androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE2E8F0)),
+                                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+                                    modifier = Modifier.widthIn(max = 280.dp)
+                                ) {
+                                    Column(modifier = Modifier.padding(10.dp)) {
+                                        Text(
+                                            text = msg.text,
+                                            fontSize = 13.sp,
+                                            color = if (msg.isUser) Color.White else Color(0xFF0F172A),
+                                            lineHeight = 18.sp
+                                        )
+                                        Spacer(modifier = Modifier.height(2.dp))
+                                        Text(
+                                            text = msg.time,
+                                            fontSize = 9.sp,
+                                            color = if (msg.isUser) Color.White.copy(0.7f) else Color(0xFF94A3B8),
+                                            textAlign = TextAlign.End,
+                                            modifier = Modifier.fillMaxWidth()
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                        if (isTyping) {
+                            item {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.Start
+                                ) {
+                                    TypingIndicatorBubble()
                                 }
                             }
                         }
                     }
                 }
-            }
 
-            Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
-            // Input Row
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                OutlinedTextField(
-                    value = prompt,
-                    onValueChange = { prompt = it },
-                    placeholder = { Text("Ask any formula, concept or question...", fontSize = 12.sp) },
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(14.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color.White,
-                        unfocusedContainerColor = Color.White,
-                        focusedBorderColor = Color(0xFF4F46E5)
-                    ),
-                    maxLines = 3
-                )
-
-                Spacer(modifier = Modifier.width(8.dp))
-
-                IconButton(
-                    onClick = {
-                        if (prompt.isNotBlank()) {
-                            val userQ = prompt.trim()
-                            messages.add(AiChatMessage(true, userQ, "Now"))
-                            prompt = ""
-                            // Simulate intelligent educational answer
-                            val aiAnswer = generateEducationalAiAnswer(userQ)
-                            messages.add(AiChatMessage(false, aiAnswer, "Now"))
-                        }
-                    },
-                    modifier = Modifier
-                        .size(50.dp)
-                        .background(Color(0xFF4F46E5), RoundedCornerShape(14.dp))
+                // Input Row
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(Icons.Default.Send, null, tint = Color.White)
+                    OutlinedTextField(
+                        value = prompt,
+                        onValueChange = { prompt = it },
+                        placeholder = { Text("Ask any formula, concept or question...", fontSize = 12.sp) },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(18.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = Color(0xFFF8FAFC),
+                            unfocusedContainerColor = Color(0xFFF8FAFC),
+                            focusedBorderColor = Color(0xFF059669)
+                        ),
+                        maxLines = 3,
+                        enabled = !isTyping
+                    )
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    IconButton(
+                        onClick = { sendMessage(prompt) },
+                        enabled = !isTyping,
+                        modifier = Modifier
+                            .size(52.dp)
+                            .background(
+                                Brush.linearGradient(
+                                    colors = if (isTyping)
+                                        listOf(Color(0xFF94A3B8), Color(0xFF64748B))
+                                    else
+                                        listOf(Color(0xFF059669), Color(0xFF4F46E5))
+                                ),
+                                RoundedCornerShape(18.dp)
+                            )
+                    ) {
+                        if (isTyping) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(22.dp),
+                                color = Color.White,
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Icon(Icons.Default.Send, null, tint = Color.White)
+                        }
+                    }
                 }
             }
         }
     }
 }
 
-fun generateEducationalAiAnswer(query: String): String {
-    val q = query.lowercase()
-    return when {
-        q.contains("newton") -> "Newton's 2nd Law states that when a net force F acts on a body of mass m, it produces acceleration a in the direction of the force: F = ma (SI unit: Newton, N = kg m/s²)."
-        q.contains("quadratic") -> "The general quadratic equation is ax² + bx + c = 0. Its roots are given by the Quadratic Formula: x = [-b ± √(b² - 4ac)] / (2a)."
-        q.contains("equilibrium") -> "In Chemistry (Chapter 9 PCTB), Dynamic Equilibrium occurs when the forward reaction rate equals the reverse reaction rate: aA + bB ⇌ cC + dD with Kc = [C]^c [D]^d / [A]^a [B]^b."
-        q.contains("maryam") -> "Surah Maryam (سورة مريم) is the 19th Surah of the Holy Quran, containing 98 verses and 6 Ruku's. It covers the miraculous birth of Hazrat Isa (AS) and the devotion of Hazrat Maryam (AS)."
-        q.contains("1973") || q.contains("constitution") -> "The 1973 Constitution of Pakistan was passed unanimously on 14th August 1973 under Zulfikar Ali Bhutto, establishing a parliamentary Islamic republic."
-        else -> "According to Punjab Board (PCTB) curriculum guidelines, '$query' is an important exam topic. Review the textbook definition and key solved examples in StudyPoint Solved Notes!"
+@Composable
+fun TypingIndicatorBubble() {
+    val infiniteTransition = rememberInfiniteTransition(label = "typing")
+    Row(
+        modifier = Modifier
+            .background(Color.White, RoundedCornerShape(16.dp))
+            .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(16.dp))
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        horizontalArrangement = Arrangement.spacedBy(5.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        repeat(3) { i ->
+            val alpha by infiniteTransition.animateFloat(
+                initialValue = 0.25f,
+                targetValue = 1f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(durationMillis = 500, delayMillis = i * 180),
+                    repeatMode = RepeatMode.Reverse
+                ),
+                label = "dot$i"
+            )
+            Box(
+                modifier = Modifier
+                    .size(8.dp)
+                    .background(Color(0xFF059669).copy(alpha = alpha), CircleShape)
+            )
+        }
     }
 }
 
