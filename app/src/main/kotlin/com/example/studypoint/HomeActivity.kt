@@ -54,6 +54,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.studypoint.practicetest.QuizSelectionActivity
+import com.example.studypoint.practicetest.BookmarksActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.delay
@@ -203,6 +204,17 @@ fun HomeScreen(
                         onClick = {
                             scope.launch { drawerState.close() }
                             context.startActivity(Intent(context, QuizSelectionActivity::class.java))
+                        },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+
+                    NavigationDrawerItem(
+                        icon = { Icon(Icons.Default.Bookmark, null, tint = Color(0xFFFFB300)) },
+                        label = { Text("Saved Questions") },
+                        selected = false,
+                        onClick = {
+                            scope.launch { drawerState.close() }
+                            context.startActivity(Intent(context, BookmarksActivity::class.java))
                         },
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                     )
