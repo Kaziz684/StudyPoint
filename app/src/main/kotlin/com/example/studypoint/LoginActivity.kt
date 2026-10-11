@@ -5,15 +5,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.text.method.HideReturnsTransformationMethod
-import android.text.method.PasswordTransformationMethod
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
 import kotlin.random.Random
@@ -37,7 +34,6 @@ class LoginActivity : AppCompatActivity() {
     // Login views
     private lateinit var etLoginEmail: TextInputEditText
     private lateinit var etLoginPassword: TextInputEditText
-    private lateinit var tilLoginPassword: TextInputLayout
     private lateinit var cbRemember: CheckBox
     private lateinit var tvForgot: TextView
     private lateinit var tvCaptchaLogin: TextView
@@ -48,7 +44,6 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var etSignupEmail: TextInputEditText
     private lateinit var etSignupPassword: TextInputEditText
     private lateinit var etSignupConfirm: TextInputEditText
-    private lateinit var tilSignupPassword: TextInputLayout
     private lateinit var passwordStrength: ProgressBar
     private lateinit var tvStrengthLabel: TextView
     private lateinit var tvCaptchaSignup: TextView
@@ -78,7 +73,6 @@ class LoginActivity : AppCompatActivity() {
 
         initViews()
         setupTabs()
-        setupPasswordToggles()
         setupCaptcha()
         setupPasswordStrength()
         setupButtons()
@@ -100,7 +94,6 @@ class LoginActivity : AppCompatActivity() {
 
         etLoginEmail = findViewById(R.id.etLoginEmail)
         etLoginPassword = findViewById(R.id.etLoginPassword)
-        tilLoginPassword = findViewById(R.id.tilLoginPassword)
         cbRemember = findViewById(R.id.cbRemember)
         tvForgot = findViewById(R.id.tvForgot)
         tvCaptchaLogin = findViewById(R.id.tvCaptchaLogin)
@@ -110,7 +103,6 @@ class LoginActivity : AppCompatActivity() {
         etSignupEmail = findViewById(R.id.etSignupEmail)
         etSignupPassword = findViewById(R.id.etSignupPassword)
         etSignupConfirm = findViewById(R.id.etSignupConfirm)
-        tilSignupPassword = findViewById(R.id.tilSignupPassword)
         passwordStrength = findViewById(R.id.passwordStrength)
         tvStrengthLabel = findViewById(R.id.tvStrengthLabel)
         tvCaptchaSignup = findViewById(R.id.tvCaptchaSignup)
@@ -151,32 +143,6 @@ class LoginActivity : AppCompatActivity() {
             loginContainer.visibility = View.VISIBLE
             loginContainer.alpha = 0f
             loginContainer.animate().alpha(1f).setDuration(300).start()
-        }
-    }
-
-    private fun setupPasswordToggles() {
-        var loginVisible = false
-        tilLoginPassword.setEndIconOnClickListener {
-            loginVisible = !loginVisible
-            etLoginPassword.transformationMethod = if (loginVisible)
-                HideReturnsTransformationMethod.getInstance()
-            else PasswordTransformationMethod.getInstance()
-            etLoginPassword.setSelection(etLoginPassword.text?.length ?: 0)
-            tilLoginPassword.endIconDrawable = ContextCompat.getDrawable(
-                this, if (loginVisible) R.drawable.ic_eye_off else R.drawable.ic_eye
-            )
-        }
-
-        var signupVisible = false
-        tilSignupPassword.setEndIconOnClickListener {
-            signupVisible = !signupVisible
-            etSignupPassword.transformationMethod = if (signupVisible)
-                HideReturnsTransformationMethod.getInstance()
-            else PasswordTransformationMethod.getInstance()
-            etSignupPassword.setSelection(etSignupPassword.text?.length ?: 0)
-            tilSignupPassword.endIconDrawable = ContextCompat.getDrawable(
-                this, if (signupVisible) R.drawable.ic_eye_off else R.drawable.ic_eye
-            )
         }
     }
 
