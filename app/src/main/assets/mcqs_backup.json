@@ -1,0 +1,2115 @@
+[
+ {
+  "id": 1,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 1: Matrices and Determinants",
+  "questionText": "The order of a matrix with 2 rows and 3 columns is:",
+  "options": [
+   "2 x 2",
+   "3 x 2",
+   "2 x 3",
+   "3 x 3"
+  ],
+  "correctAnswerIndex": 2,
+  "explanation": "Order is written as rows x columns, so it is 2 x 3."
+ },
+ {
+  "id": 2,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 1: Matrices and Determinants",
+  "questionText": "If A is a 2 x 3 matrix and B is a 3 x 2 matrix, the order of AB is:",
+  "options": [
+   "2 x 2",
+   "3 x 3",
+   "2 x 3",
+   "3 x 2"
+  ],
+  "correctAnswerIndex": 0,
+  "explanation": "The product of a (2 x 3) and a (3 x 2) matrix is a 2 x 2 matrix."
+ },
+ {
+  "id": 3,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 1: Matrices and Determinants",
+  "questionText": "The determinant of the matrix [[a, b], [c, d]] is:",
+  "options": [
+   "ad + bc",
+   "ad - bc",
+   "ab - cd",
+   "ac - bd"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "For a 2 x 2 matrix, |A| = ad - bc."
+ },
+ {
+  "id": 4,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 1: Matrices and Determinants",
+  "questionText": "A square matrix A is singular if:",
+  "options": [
+   "|A| = 1",
+   "|A| = 0",
+   "|A| is not equal to 0",
+   "A is a zero matrix"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "A matrix is singular when its determinant is zero."
+ },
+ {
+  "id": 5,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 2: Real and Complex Numbers",
+  "questionText": "The conjugate of 3 - 4i is:",
+  "options": [
+   "3 + 4i",
+   "-3 + 4i",
+   "3 - 4i",
+   "-3 - 4i"
+  ],
+  "correctAnswerIndex": 0,
+  "explanation": "The conjugate changes the sign of the imaginary part only."
+ },
+ {
+  "id": 6,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 2: Real and Complex Numbers",
+  "questionText": "Which of the following is a rational number?",
+  "options": [
+   "root 2",
+   "pi",
+   "0.5",
+   "e"
+  ],
+  "correctAnswerIndex": 2,
+  "explanation": "0.5 = 1/2 can be written as p/q, so it is rational."
+ },
+ {
+  "id": 7,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 2: Real and Complex Numbers",
+  "questionText": "The value of i raised to the power 4 is:",
+  "options": [
+   "i",
+   "-1",
+   "-i",
+   "1"
+  ],
+  "correctAnswerIndex": 3,
+  "explanation": "i^2 = -1, so i^4 = (i^2)^2 = (-1)^2 = 1."
+ },
+ {
+  "id": 8,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 2: Real and Complex Numbers",
+  "questionText": "The imaginary part of 5 - 2i is:",
+  "options": [
+   "5",
+   "-2",
+   "2i",
+   "-2i"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "The imaginary part is the real coefficient of i, which is -2."
+ },
+ {
+  "id": 9,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 3: Logarithms",
+  "questionText": "log(a x b) is equal to:",
+  "options": [
+   "log a + log b",
+   "log a - log b",
+   "log a x log b",
+   "(log a)/(log b)"
+  ],
+  "correctAnswerIndex": 0,
+  "explanation": "By the product law of logarithms: log(mn) = log m + log n."
+ },
+ {
+  "id": 10,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 3: Logarithms",
+  "questionText": "If log base 10 of x = 2, then x is:",
+  "options": [
+   "2",
+   "20",
+   "100",
+   "200"
+  ],
+  "correctAnswerIndex": 2,
+  "explanation": "log10(x) = 2 means x = 10^2 = 100."
+ },
+ {
+  "id": 11,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 3: Logarithms",
+  "questionText": "The value of log 1 (any valid base) is:",
+  "options": [
+   "1",
+   "0",
+   "10",
+   "undefined"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "Since any non-zero number raised to 0 is 1, log 1 = 0."
+ },
+ {
+  "id": 12,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 3: Logarithms",
+  "questionText": "The characteristic of log 472.5 is:",
+  "options": [
+   "2",
+   "3",
+   "4",
+   "47"
+  ],
+  "correctAnswerIndex": 0,
+  "explanation": "472.5 = 4.725 x 10^2, so the characteristic is 2."
+ },
+ {
+  "id": 13,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 4: Algebraic Expressions and Algebraic Formulas",
+  "questionText": "(a + b)^2 equals:",
+  "options": [
+   "a^2 + b^2",
+   "a^2 + 2ab + b^2",
+   "a^2 - 2ab + b^2",
+   "2a + 2b"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "Squaring a binomial: (a + b)^2 = a^2 + 2ab + b^2."
+ },
+ {
+  "id": 14,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 4: Algebraic Expressions and Algebraic Formulas",
+  "questionText": "(a - b)(a + b) equals:",
+  "options": [
+   "a^2 + b^2",
+   "a^2 - 2ab + b^2",
+   "a^2 - b^2",
+   "(a + b)^2"
+  ],
+  "correctAnswerIndex": 2,
+  "explanation": "The product of sum and difference gives the difference of squares."
+ },
+ {
+  "id": 15,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 4: Algebraic Expressions and Algebraic Formulas",
+  "questionText": "If x + 1/x = 5, then x^2 + 1/x^2 equals:",
+  "options": [
+   "25",
+   "23",
+   "27",
+   "10"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "(x + 1/x)^2 = x^2 + 2 + 1/x^2, so 25 - 2 = 23."
+ },
+ {
+  "id": 16,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 4: Algebraic Expressions and Algebraic Formulas",
+  "questionText": "(a + b)^3 equals:",
+  "options": [
+   "a^3 + b^3",
+   "a^3 + 3a^2 b + 3a b^2 + b^3",
+   "a^3 - 3a^2 b + 3a b^2 - b^3",
+   "3(a + b)"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "Cube of a binomial expands to a^3 + 3a^2 b + 3a b^2 + b^3."
+ },
+ {
+  "id": 17,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 4: Algebraic Expressions and Algebraic Formulas",
+  "questionText": "The value of (a^2 - b^2)/(a - b), where a is not equal to b, is:",
+  "options": [
+   "a - b",
+   "a + b",
+   "ab",
+   "1"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "Factor the numerator: (a - b)(a + b)/(a - b) = a + b."
+ },
+ {
+  "id": 18,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 5: Factorization",
+  "questionText": "The factors of x^2 + 5x + 6 are:",
+  "options": [
+   "(x + 2)(x + 3)",
+   "(x + 1)(x + 6)",
+   "(x - 2)(x - 3)",
+   "(x + 5)(x + 1)"
+  ],
+  "correctAnswerIndex": 0,
+  "explanation": "Two numbers with sum 5 and product 6 are 2 and 3."
+ },
+ {
+  "id": 19,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 5: Factorization",
+  "questionText": "a^3 - b^3 factorises as:",
+  "options": [
+   "(a - b)(a^2 + ab + b^2)",
+   "(a - b)(a^2 - ab + b^2)",
+   "(a + b)(a^2 - ab + b^2)",
+   "(a - b)^3"
+  ],
+  "correctAnswerIndex": 0,
+  "explanation": "Difference of cubes: a^3 - b^3 = (a - b)(a^2 + ab + b^2)."
+ },
+ {
+  "id": 20,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 5: Factorization",
+  "questionText": "The complete factorization of 4x^2 - 12x is:",
+  "options": [
+   "4x(x - 3)",
+   "x(4x - 12)",
+   "4(x^2 - 3)",
+   "2(2x^2 - 6x)"
+  ],
+  "correctAnswerIndex": 0,
+  "explanation": "Take out the greatest common factor 4x: 4x(x - 3)."
+ },
+ {
+  "id": 21,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 5: Factorization",
+  "questionText": "x^2 - 2x + 1 factorises as:",
+  "options": [
+   "(x - 1)^2",
+   "(x + 1)^2",
+   "(x - 1)(x + 1)",
+   "x(x - 2)"
+  ],
+  "correctAnswerIndex": 0,
+  "explanation": "It is a perfect square: x^2 - 2x + 1 = (x - 1)^2."
+ },
+ {
+  "id": 22,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 6: Algebraic Manipulation",
+  "questionText": "The L.C.M. of x^2 - 1 and x + 1 is:",
+  "options": [
+   "(x + 1)",
+   "(x - 1)",
+   "(x + 1)(x - 1)",
+   "(x + 1)^2"
+  ],
+  "correctAnswerIndex": 2,
+  "explanation": "x^2 - 1 = (x + 1)(x - 1), so the L.C.M. is (x + 1)(x - 1)."
+ },
+ {
+  "id": 23,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 6: Algebraic Manipulation",
+  "questionText": "The H.C.F. of 6x^2 and 9x is:",
+  "options": [
+   "3x^2",
+   "9x",
+   "3x",
+   "18x^2"
+  ],
+  "correctAnswerIndex": 2,
+  "explanation": "The greatest common divisor of the coefficients 6 and 9 is 3, and of x^2 and x is x."
+ },
+ {
+  "id": 24,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 6: Algebraic Manipulation",
+  "questionText": "On simplification, (x^2 - 4)/(x - 2) equals (x is not equal to 2):",
+  "options": [
+   "x - 2",
+   "x + 2",
+   "x^2 + 2",
+   "2x"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "Factor the numerator: (x - 2)(x + 2)/(x - 2) = x + 2."
+ },
+ {
+  "id": 25,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 6: Algebraic Manipulation",
+  "questionText": "1/(x + 1) + 1/(x - 1) equals:",
+  "options": [
+   "2/(x^2 - 1)",
+   "2x/(x^2 - 1)",
+   "2x/(x^2 + 1)",
+   "1/(x^2 - 1)"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "Common denominator (x^2 - 1): [(x - 1) + (x + 1)]/(x^2 - 1) = 2x/(x^2 - 1)."
+ },
+ {
+  "id": 26,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 6: Algebraic Manipulation",
+  "questionText": "The square root of x^2 is equal to:",
+  "options": [
+   "x",
+   "|x|",
+   "x^2",
+   "plus-minus x"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "The principal square root of x^2 is the absolute value of x."
+ },
+ {
+  "id": 27,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 7: Linear Equations and Inequalities",
+  "questionText": "The solution of x/3 = 4 is:",
+  "options": [
+   "7",
+   "12",
+   "1",
+   "4/3"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "Multiply both sides by 3: x = 12."
+ },
+ {
+  "id": 28,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 7: Linear Equations and Inequalities",
+  "questionText": "If x > 3, then -x is:",
+  "options": [
+   "greater than -3",
+   "less than -3",
+   "equal to -3",
+   "greater than 3"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "Multiplying an inequality by a negative number reverses the sign."
+ },
+ {
+  "id": 29,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 7: Linear Equations and Inequalities",
+  "questionText": "The solution set of |x| = 5 is:",
+  "options": [
+   "{5}",
+   "{-5}",
+   "{-5",
+   "5}",
+   "{0}"
+  ],
+  "correctAnswerIndex": 2,
+  "explanation": "Absolute value 5 means x = 5 or x = -5."
+ },
+ {
+  "id": 30,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 7: Linear Equations and Inequalities",
+  "questionText": "Which of the following is a linear equation in one variable?",
+  "options": [
+   "x^2 + 2x = 0",
+   "2x + 3 = 0",
+   "xy = 5",
+   "1/x = 2"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "A linear equation in one variable has the form ax + b = 0 with a not equal to 0."
+ },
+ {
+  "id": 31,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 8: Linear Graphs and Their Application",
+  "questionText": "The graph of y = 2x + 1 is a:",
+  "options": [
+   "straight line",
+   "parabola",
+   "circle",
+   "hyperbola"
+  ],
+  "correctAnswerIndex": 0,
+  "explanation": "An equation of degree 1 in x and y always graphs as a straight line."
+ },
+ {
+  "id": 32,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 8: Linear Graphs and Their Application",
+  "questionText": "The slope of the line y = 3x - 2 is:",
+  "options": [
+   "-2",
+   "2",
+   "3",
+   "1/3"
+  ],
+  "correctAnswerIndex": 2,
+  "explanation": "In y = mx + c, the coefficient of x (3) is the slope."
+ },
+ {
+  "id": 33,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 8: Linear Graphs and Their Application",
+  "questionText": "The point (2, -3) lies in the:",
+  "options": [
+   "first quadrant",
+   "second quadrant",
+   "third quadrant",
+   "fourth quadrant"
+  ],
+  "correctAnswerIndex": 3,
+  "explanation": "x is positive and y is negative, which is the fourth quadrant."
+ },
+ {
+  "id": 34,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 8: Linear Graphs and Their Application",
+  "questionText": "The x-intercept of the line 2x + 3y = 6 is:",
+  "options": [
+   "(0",
+   "2)",
+   "(3",
+   "0)",
+   "(0",
+   "3)",
+   "(2",
+   "0)"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "Put y = 0: 2x = 6, so x = 3, giving the point (3, 0)."
+ },
+ {
+  "id": 35,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 8: Linear Graphs and Their Application",
+  "questionText": "The graph of the equation x = 5 is a:",
+  "options": [
+   "horizontal line",
+   "vertical line",
+   "line through the origin",
+   "parabola"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "x = constant is a line parallel to the y-axis (vertical)."
+ },
+ {
+  "id": 36,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 9: Introduction to Coordinate Geometry",
+  "questionText": "The distance between (0, 0) and (3, 4) is:",
+  "options": [
+   "5",
+   "7",
+   "12",
+   "25"
+  ],
+  "correctAnswerIndex": 0,
+  "explanation": "Distance = root((3-0)^2 + (4-0)^2) = root(25) = 5."
+ },
+ {
+  "id": 37,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 9: Introduction to Coordinate Geometry",
+  "questionText": "The midpoint of the segment joining (2, 4) and (6, 8) is:",
+  "options": [
+   "(4",
+   "6)",
+   "(3",
+   "6)",
+   "(4",
+   "12)",
+   "(8",
+   "12)"
+  ],
+  "correctAnswerIndex": 0,
+  "explanation": "Midpoint = ((2+6)/2, (4+8)/2) = (4, 6)."
+ },
+ {
+  "id": 38,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 9: Introduction to Coordinate Geometry",
+  "questionText": "The distance between points (x1, y1) and (x2, y2) is:",
+  "options": [
+   "|x2 - x1| + |y2 - y1|",
+   "root((x2-x1)^2 + (y2-y1)^2)",
+   "(x2-x1)(y2-y1)",
+   "|x2 + x1| + |y2 + y1|"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "This is the distance formula derived from Pythagoras' theorem."
+ },
+ {
+  "id": 39,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 9: Introduction to Coordinate Geometry",
+  "questionText": "The point (-2, 3) lies in the:",
+  "options": [
+   "first quadrant",
+   "second quadrant",
+   "third quadrant",
+   "fourth quadrant"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "x is negative and y is positive, which is the second quadrant."
+ },
+ {
+  "id": 40,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 9: Introduction to Coordinate Geometry",
+  "questionText": "The coordinates of the origin are:",
+  "options": [
+   "(1",
+   "1)",
+   "(0",
+   "0)",
+   "(1",
+   "0)",
+   "(0",
+   "1)"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "The origin is the point where both axes meet: (0, 0)."
+ },
+ {
+  "id": 41,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 10: Congruent Triangles",
+  "questionText": "SSS in triangle congruence stands for:",
+  "options": [
+   "side-side-side",
+   "side-angle-side",
+   "angle-side-angle",
+   "hypotenuse-leg"
+  ],
+  "correctAnswerIndex": 0,
+  "explanation": "SSS means all three corresponding sides are equal."
+ },
+ {
+  "id": 42,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 10: Congruent Triangles",
+  "questionText": "If triangle ABC is congruent to triangle DEF, then:",
+  "options": [
+   "all corresponding sides and angles are equal",
+   "only sides are equal",
+   "only angles are equal",
+   "perimeters are different"
+  ],
+  "correctAnswerIndex": 0,
+  "explanation": "Congruent figures are identical in shape and size."
+ },
+ {
+  "id": 43,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 10: Congruent Triangles",
+  "questionText": "If triangle ABC is congruent to triangle DEF and AB = 5 cm, then DE equals:",
+  "options": [
+   "5 cm",
+   "10 cm",
+   "2.5 cm",
+   "cannot be determined"
+  ],
+  "correctAnswerIndex": 0,
+  "explanation": "Corresponding sides of congruent triangles are equal."
+ },
+ {
+  "id": 44,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 10: Congruent Triangles",
+  "questionText": "The ASA postulate of congruence requires:",
+  "options": [
+   "two sides and the included angle",
+   "three sides",
+   "two angles and the included side",
+   "hypotenuse and a leg"
+  ],
+  "correctAnswerIndex": 2,
+  "explanation": "ASA: two angles and the side between them must be equal."
+ },
+ {
+  "id": 45,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 10: Congruent Triangles",
+  "questionText": "Two triangles are congruent if their corresponding sides are:",
+  "options": [
+   "proportional",
+   "equal",
+   "parallel",
+   "perpendicular"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "Congruence requires equality, not just proportionality."
+ },
+ {
+  "id": 46,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 11: Parallelograms and Triangles",
+  "questionText": "The opposite sides of a parallelogram are:",
+  "options": [
+   "perpendicular",
+   "parallel and equal",
+   "unequal",
+   "intersecting"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "By definition, opposite sides of a parallelogram are parallel and equal."
+ },
+ {
+  "id": 47,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 11: Parallelograms and Triangles",
+  "questionText": "The diagonals of a rectangle are:",
+  "options": [
+   "perpendicular",
+   "unequal",
+   "equal",
+   "parallel"
+  ],
+  "correctAnswerIndex": 2,
+  "explanation": "A property of rectangles: both diagonals are equal in length."
+ },
+ {
+  "id": 48,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 11: Parallelograms and Triangles",
+  "questionText": "A rhombus with all angles equal is a:",
+  "options": [
+   "rectangle",
+   "square",
+   "trapezium",
+   "kite"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "Equal angles in a rhombus (90 degrees each) make it a square."
+ },
+ {
+  "id": 49,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 11: Parallelograms and Triangles",
+  "questionText": "The diagonals of a parallelogram:",
+  "options": [
+   "bisect each other",
+   "are equal",
+   "are perpendicular",
+   "do not intersect"
+  ],
+  "correctAnswerIndex": 0,
+  "explanation": "The diagonals of every parallelogram bisect each other."
+ },
+ {
+  "id": 50,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 11: Parallelograms and Triangles",
+  "questionText": "The sum of the interior angles of a quadrilateral is:",
+  "options": [
+   "180 degrees",
+   "270 degrees",
+   "360 degrees",
+   "540 degrees"
+  ],
+  "correctAnswerIndex": 2,
+  "explanation": "A quadrilateral divides into two triangles: 2 x 180 = 360 degrees."
+ },
+ {
+  "id": 51,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 12: Line Bisectors and Angle Bisectors",
+  "questionText": "The perpendicular bisector of a line segment:",
+  "options": [
+   "passes through the midpoint at 90 degrees",
+   "passes through an endpoint",
+   "divides the segment in a 2:1 ratio",
+   "is parallel to the segment"
+  ],
+  "correctAnswerIndex": 0,
+  "explanation": "It cuts the segment at its midpoint at right angles."
+ },
+ {
+  "id": 52,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 12: Line Bisectors and Angle Bisectors",
+  "questionText": "Any point on the perpendicular bisector of a segment is:",
+  "options": [
+   "equidistant from its endpoints",
+   "at the midpoint",
+   "on the segment",
+   "at a fixed distance of 1 cm"
+  ],
+  "correctAnswerIndex": 0,
+  "explanation": "This is the defining property of the perpendicular bisector."
+ },
+ {
+  "id": 53,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 12: Line Bisectors and Angle Bisectors",
+  "questionText": "An angle bisector divides an angle into:",
+  "options": [
+   "two unequal parts",
+   "two equal parts",
+   "three equal parts",
+   "four equal parts"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "By definition, a bisector divides an angle into two equal parts."
+ },
+ {
+  "id": 54,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 12: Line Bisectors and Angle Bisectors",
+  "questionText": "The point where the angle bisectors of a triangle meet is called the:",
+  "options": [
+   "circumcenter",
+   "incenter",
+   "centroid",
+   "orthocenter"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "The incenter is the point of concurrency of the three angle bisectors."
+ },
+ {
+  "id": 55,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 12: Line Bisectors and Angle Bisectors",
+  "questionText": "The angle bisectors of a triangle are concurrent at the:",
+  "options": [
+   "circumcenter",
+   "centroid",
+   "incenter",
+   "midpoint of the longest side"
+  ],
+  "correctAnswerIndex": 2,
+  "explanation": "The three angle bisectors meet at the incenter, the centre of the inscribed circle."
+ },
+ {
+  "id": 56,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 13: Sides and Angles of a Triangle",
+  "questionText": "The sum of the interior angles of a triangle is:",
+  "options": [
+   "90 degrees",
+   "180 degrees",
+   "270 degrees",
+   "360 degrees"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "The angle-sum property of a triangle is 180 degrees."
+ },
+ {
+  "id": 57,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 13: Sides and Angles of a Triangle",
+  "questionText": "A triangle with one angle of 90 degrees is called:",
+  "options": [
+   "acute-angled",
+   "right-angled",
+   "obtuse-angled",
+   "equilateral"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "A triangle containing a right angle is right-angled."
+ },
+ {
+  "id": 58,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 13: Sides and Angles of a Triangle",
+  "questionText": "An exterior angle of a triangle is equal to:",
+  "options": [
+   "the adjacent interior angle",
+   "the sum of the two opposite interior angles",
+   "180 degrees",
+   "the difference of the two opposite interior angles"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "Exterior angle theorem: it equals the sum of the two non-adjacent interior angles."
+ },
+ {
+  "id": 59,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 13: Sides and Angles of a Triangle",
+  "questionText": "In a triangle, the longest side lies opposite the:",
+  "options": [
+   "smallest angle",
+   "largest angle",
+   "right angle",
+   "base"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "Greater side is opposite the greater angle."
+ },
+ {
+  "id": 60,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 13: Sides and Angles of a Triangle",
+  "questionText": "An isosceles triangle has:",
+  "options": [
+   "three equal sides",
+   "two equal sides",
+   "no equal sides",
+   "two right angles"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "An isosceles triangle has two equal sides (and two equal base angles)."
+ },
+ {
+  "id": 61,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 14: Ratio and Proportion",
+  "questionText": "If a:b = 2:3 and b = 12, then a equals:",
+  "options": [
+   "6",
+   "8",
+   "18",
+   "24"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "a/12 = 2/3 gives a = 8."
+ },
+ {
+  "id": 62,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 14: Ratio and Proportion",
+  "questionText": "The fourth proportional of 2, 3 and 8 is:",
+  "options": [
+   "6",
+   "10",
+   "12",
+   "16"
+  ],
+  "correctAnswerIndex": 2,
+  "explanation": "2/3 = 8/x gives x = 12."
+ },
+ {
+  "id": 63,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 14: Ratio and Proportion",
+  "questionText": "The mean proportional between 4 and 9 is:",
+  "options": [
+   "6",
+   "13",
+   "36",
+   "5"
+  ],
+  "correctAnswerIndex": 0,
+  "explanation": "Mean proportional = root(4 x 9) = root(36) = 6."
+ },
+ {
+  "id": 64,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 14: Ratio and Proportion",
+  "questionText": "If x/5 = 3/15, then x equals:",
+  "options": [
+   "3",
+   "5",
+   "1",
+   "25"
+  ],
+  "correctAnswerIndex": 2,
+  "explanation": "Cross-multiplying: 15x = 15, so x = 1."
+ },
+ {
+  "id": 65,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 14: Ratio and Proportion",
+  "questionText": "The duplicate ratio of 2:3 is:",
+  "options": [
+   "4:6",
+   "4:9",
+   "8:27",
+   "3:2"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "Duplicate ratio squares each term: 2^2 : 3^2 = 4:9."
+ },
+ {
+  "id": 66,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 15: Pythagoras' Theorem",
+  "questionText": "In a right-angled triangle with hypotenuse c and other sides a, b:",
+  "options": [
+   "c = a + b",
+   "c^2 = a^2 + b^2",
+   "c^2 = a^2 - b^2",
+   "a^2 = b^2 + c^2"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "Pythagoras' theorem: the square of the hypotenuse equals the sum of the squares of the other two sides."
+ },
+ {
+  "id": 67,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 15: Pythagoras' Theorem",
+  "questionText": "The hypotenuse of a right triangle with legs 6 cm and 8 cm is:",
+  "options": [
+   "10 cm",
+   "12 cm",
+   "14 cm",
+   "48 cm"
+  ],
+  "correctAnswerIndex": 0,
+  "explanation": "c = root(36 + 64) = root(100) = 10 cm."
+ },
+ {
+  "id": 68,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 15: Pythagoras' Theorem",
+  "questionText": "A triangle with sides 3 cm, 4 cm and 5 cm is:",
+  "options": [
+   "acute-angled",
+   "right-angled",
+   "obtuse-angled",
+   "equilateral"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "3^2 + 4^2 = 5^2 (9 + 16 = 25), so it satisfies Pythagoras' theorem."
+ },
+ {
+  "id": 69,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 15: Pythagoras' Theorem",
+  "questionText": "Pythagoras' theorem applies to:",
+  "options": [
+   "all triangles",
+   "right-angled triangles",
+   "equilateral triangles",
+   "isosceles triangles"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "It is valid only for triangles containing a right angle."
+ },
+ {
+  "id": 70,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 15: Pythagoras' Theorem",
+  "questionText": "The side opposite the right angle in a triangle is called the:",
+  "options": [
+   "base",
+   "perpendicular",
+   "hypotenuse",
+   "median"
+  ],
+  "correctAnswerIndex": 2,
+  "explanation": "The hypotenuse is the longest side, opposite the right angle."
+ },
+ {
+  "id": 71,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 16: Theorems Related with Area",
+  "questionText": "Triangles on the same base and between the same parallels have:",
+  "options": [
+   "equal perimeters",
+   "equal areas",
+   "equal heights only",
+   "equal bases only"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "Same base and same height means equal area."
+ },
+ {
+  "id": 72,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 16: Theorems Related with Area",
+  "questionText": "The area of a triangle with base b and height h is:",
+  "options": [
+   "b x h",
+   "(1/2) x b x h",
+   "2 x b x h",
+   "b + h"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "Area of a triangle = half the product of base and height."
+ },
+ {
+  "id": 73,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 16: Theorems Related with Area",
+  "questionText": "Parallelograms on the same base and between the same parallels are:",
+  "options": [
+   "congruent",
+   "equal in area",
+   "similar",
+   "perpendicular"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "They share the same base and height, so their areas are equal."
+ },
+ {
+  "id": 74,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 16: Theorems Related with Area",
+  "questionText": "The area of a rectangle of length l and width w is:",
+  "options": [
+   "2(l + w)",
+   "l x w",
+   "l + w",
+   "(1/2)lw"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "Area of a rectangle = length x width."
+ },
+ {
+  "id": 75,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 16: Theorems Related with Area",
+  "questionText": "If two triangles have equal bases and equal altitudes, their areas are:",
+  "options": [
+   "equal",
+   "in the ratio 2:1",
+   "in the ratio 1:2",
+   "cannot be compared"
+  ],
+  "correctAnswerIndex": 0,
+  "explanation": "Equal base and equal height give equal area."
+ },
+ {
+  "id": 76,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 17: Practical Geometry - Triangles",
+  "questionText": "To construct a triangle, at least how many elements are needed, one of which must be a side?",
+  "options": [
+   "2",
+   "3",
+   "4",
+   "6"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "Three independent elements including at least one side are needed."
+ },
+ {
+  "id": 77,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 17: Practical Geometry - Triangles",
+  "questionText": "For SSS construction of a triangle we need:",
+  "options": [
+   "three angles",
+   "three sides",
+   "two sides and an angle",
+   "hypotenuse and a side"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "SSS means all three sides are given."
+ },
+ {
+  "id": 78,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 17: Practical Geometry - Triangles",
+  "questionText": "A triangle with sides 2 cm, 3 cm and 6 cm:",
+  "options": [
+   "can be constructed",
+   "cannot be constructed",
+   "is right-angled",
+   "is equilateral"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "2 + 3 < 6 violates the triangle inequality, so it cannot be constructed."
+ },
+ {
+  "id": 79,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 17: Practical Geometry - Triangles",
+  "questionText": "In triangle construction, RHS stands for:",
+  "options": [
+   "right angle-hypotenuse-side",
+   "right hand side",
+   "ratio-hypotenuse-sum",
+   "rectangular-hypotenuse-square"
+  ],
+  "correctAnswerIndex": 0,
+  "explanation": "RHS is the right angle, hypotenuse and one side criterion."
+ },
+ {
+  "id": 80,
+  "class_num": "9th",
+  "subject": "Math",
+  "chapter": "Chapter 17: Practical Geometry - Triangles",
+  "questionText": "An angle of 60 degrees is constructed using a compass by drawing:",
+  "options": [
+   "an equilateral triangle",
+   "a square",
+   "a perpendicular bisector",
+   "a circle with double radius"
+  ],
+  "correctAnswerIndex": 0,
+  "explanation": "Each angle of an equilateral triangle is 60 degrees."
+ },
+ {
+  "id": 1,
+  "class_num": "10th",
+  "subject": "Math",
+  "chapter": "Chapter 1",
+  "questionText": "Standard form of a quadratic equation is:",
+  "options": [
+   "ax + b = 0",
+   "ax^2 + bx + c = 0",
+   "ax^3 = 0",
+   "ax + ny = c"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "An equation of degree 2 in standard form is ax^2 + bx + c = 0."
+ },
+ {
+  "id": 2,
+  "class_num": "10th",
+  "subject": "Math",
+  "chapter": "Chapter 2: Theory of Quadratic Equations",
+  "questionText": "If discriminant b^2 - 4ac = 0, roots are:",
+  "options": [
+   "Real and equal",
+   "Real and unequal",
+   "Imaginary",
+   "Irrational"
+  ],
+  "correctAnswerIndex": 0,
+  "explanation": "A zero discriminant implies identical real roots."
+ },
+ {
+  "id": 3,
+  "class_num": "10th",
+  "subject": "Math",
+  "chapter": "Chapter 3: Variations",
+  "questionText": "If y varies directly as x (y ∝ x), then:",
+  "options": [
+   "y = k/x",
+   "y = kx",
+   "xy = k",
+   "y = k + x"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "Direct variation is expressed as y = kx where k is constant."
+ },
+ {
+  "id": 4,
+  "class_num": "10th",
+  "subject": "Physics",
+  "chapter": "Chapter 10: Simple Harmonic Motion",
+  "questionText": "The time period of a simple pendulum depends on its:",
+  "options": [
+   "Mass",
+   "Amplitude",
+   "Length",
+   "Material"
+  ],
+  "correctAnswerIndex": 2,
+  "explanation": "Period T = 2π√(l/g), depending directly on pendulum length l."
+ },
+ {
+  "id": 5,
+  "class_num": "10th",
+  "subject": "Physics",
+  "chapter": "Chapter 11: Sound",
+  "questionText": "Sound waves are examples of:",
+  "options": [
+   "Transverse waves",
+   "Electromagnetic waves",
+   "Longitudinal waves",
+   "Radio waves"
+  ],
+  "correctAnswerIndex": 2,
+  "explanation": "Sound moves via compression and rarefaction as longitudinal mechanical waves."
+ },
+ {
+  "id": 6,
+  "class_num": "10th",
+  "subject": "Physics",
+  "chapter": "Chapter 12: Geometrical Optics",
+  "questionText": "The mirror formula is:",
+  "options": [
+   "1/f = 1/p + 1/q",
+   "f = p + q",
+   "1/f = p - q",
+   "f = 1/p"
+  ],
+  "correctAnswerIndex": 0,
+  "explanation": "The focal length relation to object/image distance is 1/f = 1/p + 1/q."
+ },
+ {
+  "id": 7,
+  "class_num": "10th",
+  "subject": "Chemistry",
+  "chapter": "Chapter 9: Chemical Equilibrium",
+  "questionText": "At chemical equilibrium, the rate of forward and reverse reactions:",
+  "options": [
+   "Becomes zero",
+   "Becomes equal",
+   "Becomes unequal",
+   "Decreases"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "Dynamic equilibrium occurs when forward and reverse reaction speeds balance."
+ },
+ {
+  "id": 8,
+  "class_num": "10th",
+  "subject": "Chemistry",
+  "chapter": "Chapter 10: Acids, Bases and Salts",
+  "questionText": "pH of pure water at 25°C is:",
+  "options": [
+   "0",
+   "7",
+   "14",
+   "1"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "Pure water is neutral with a pH value of 7."
+ },
+ {
+  "id": 9,
+  "class_num": "10th",
+  "subject": "Chemistry",
+  "chapter": "Chapter 11: Organic Chemistry",
+  "questionText": "Hydrocarbons containing only single bonds are called:",
+  "options": [
+   "Alkenes",
+   "Alkynes",
+   "Alkanes",
+   "Aromatics"
+  ],
+  "correctAnswerIndex": 2,
+  "explanation": "Alkanes are saturated hydrocarbons with single covalent bonds."
+ },
+ {
+  "id": 10,
+  "class_num": "10th",
+  "subject": "Computer Science",
+  "chapter": "Chapter 1: Programming Basics",
+  "questionText": "A C program compilation converts source code into:",
+  "options": [
+   "Assembly code",
+   "Machine code",
+   "Web code",
+   "Text file"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "Compilers translate high-level source code into binary machine code."
+ },
+ {
+  "id": 11,
+  "class_num": "10th",
+  "subject": "Computer Science",
+  "chapter": "Chapter 2: Input / Output Handling",
+  "questionText": "Which function is used for formatted output in C language?",
+  "options": [
+   "scanf()",
+   "printf()",
+   "gets()",
+   "puts()"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "printf() is used to display output on the standard screen in C."
+ },
+ {
+  "id": 12,
+  "class_num": "10th",
+  "subject": "Computer Science",
+  "chapter": "Chapter 3: Control Structures",
+  "questionText": "Which loop executes at least once regardless of condition?",
+  "options": [
+   "for loop",
+   "while loop",
+   "do-while loop",
+   "nested loop"
+  ],
+  "correctAnswerIndex": 2,
+  "explanation": "do-while checks condition at the end, guaranteeing at least one execution."
+ },
+ {
+  "id": 13,
+  "class_num": "10th",
+  "subject": "Math",
+  "chapter": "Chapter 4: Partial Fractions",
+  "questionText": "The partial fraction decomposition of 1/[x(x + 1)] is:",
+  "options": [
+   "1/x + 1/(x+1)",
+   "1/x - 1/(x+1)",
+   "(x+1)/x",
+   "x/(x+1)"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "1/[x(x+1)] = (x+1 - x)/[x(x+1)] = 1/x - 1/(x+1)."
+ },
+ {
+  "id": 14,
+  "class_num": "10th",
+  "subject": "Math",
+  "chapter": "Chapter 5: Sets and Functions",
+  "questionText": "If A = {1, 2}, then the number of elements in the power set P(A) is:",
+  "options": [
+   "2",
+   "3",
+   "4",
+   "5"
+  ],
+  "correctAnswerIndex": 2,
+  "explanation": "A set with n elements has 2^n subsets; here 2^2 = 4."
+ },
+ {
+  "id": 15,
+  "class_num": "10th",
+  "subject": "Physics",
+  "chapter": "Chapter 13: Electrostatics",
+  "questionText": "Two like electric charges:",
+  "options": [
+   "Attract each other",
+   "Repel each other",
+   "Neither attract nor repel",
+   "First attract then repel"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "Like charges repel each other, while unlike charges attract."
+ },
+ {
+  "id": 16,
+  "class_num": "10th",
+  "subject": "Physics",
+  "chapter": "Chapter 14: Current Electricity",
+  "questionText": "The SI unit of electric current is the:",
+  "options": [
+   "Volt",
+   "Ampere",
+   "Ohm",
+   "Watt"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "Electric current is measured in amperes (A)."
+ },
+ {
+  "id": 17,
+  "class_num": "10th",
+  "subject": "Chemistry",
+  "chapter": "Chapter 12: Hydrocarbons",
+  "questionText": "The general formula of alkenes is:",
+  "options": [
+   "CnH2n+2",
+   "CnH2n",
+   "CnH2n-2",
+   "CnHn"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "Alkenes contain one double bond and follow the general formula CnH2n."
+ },
+ {
+  "id": 18,
+  "class_num": "10th",
+  "subject": "Chemistry",
+  "chapter": "Chapter 13: Biochemistry",
+  "questionText": "The basic building blocks (monomers) of proteins are:",
+  "options": [
+   "Glucose units",
+   "Fatty acids",
+   "Amino acids",
+   "Nucleotides"
+  ],
+  "correctAnswerIndex": 2,
+  "explanation": "Proteins are polymers of amino acids joined by peptide bonds."
+ },
+ {
+  "id": 19,
+  "class_num": "10th",
+  "subject": "Computer Science",
+  "chapter": "Chapter 4: Functions in C",
+  "questionText": "A function that calls itself is called a:",
+  "options": [
+   "Recursive function",
+   "Library function",
+   "Main function",
+   "Nested function"
+  ],
+  "correctAnswerIndex": 0,
+  "explanation": "Recursion occurs when a function calls itself directly or indirectly."
+ },
+ {
+  "id": 20,
+  "class_num": "10th",
+  "subject": "Computer Science",
+  "chapter": "Chapter 5: File Handling in C",
+  "questionText": "Which header file is required for printf() and scanf() in C?",
+  "options": [
+   "conio.h",
+   "stdlib.h",
+   "stdio.h",
+   "math.h"
+  ],
+  "correctAnswerIndex": 2,
+  "explanation": "The standard input-output functions are declared in stdio.h."
+ },
+ {
+  "id": 1,
+  "class_num": "11th",
+  "subject": "Math",
+  "chapter": "Chapter 1: Complex Numbers",
+  "questionText": "The value of i^2 (iota squared) is equal to:",
+  "options": [
+   "1",
+   "-1",
+   "i",
+   "-i"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "By definition, iota is √(-1), so i^2 = -1."
+ },
+ {
+  "id": 2,
+  "class_num": "11th",
+  "subject": "Math",
+  "chapter": "Chapter 2: Sets, Functions and Groups",
+  "questionText": "A function f: A -> B is one-one if:",
+  "options": [
+   "Distinct elements have distinct images",
+   "Range = Codomain",
+   "It is onto",
+   "Every element has two images"
+  ],
+  "correctAnswerIndex": 0,
+  "explanation": "In injective (one-one) functions, no two domain elements map to the same image."
+ },
+ {
+  "id": 3,
+  "class_num": "11th",
+  "subject": "Math",
+  "chapter": "Chapter 3: Matrices and Determinants",
+  "questionText": "If determinant |A| = 0, then matrix A is:",
+  "options": [
+   "Singular",
+   "Non-singular",
+   "Identity",
+   "Symmetric"
+  ],
+  "correctAnswerIndex": 0,
+  "explanation": "A matrix with zero determinant cannot be inverted and is singular."
+ },
+ {
+  "id": 4,
+  "class_num": "11th",
+  "subject": "Physics",
+  "chapter": "Chapter 1: Measurements",
+  "questionText": "The dimensions of force are:",
+  "options": [
+   "[M L T^-1]",
+   "[M L T^-2]",
+   "[M L^2 T^-2]",
+   "[M L^-1 T^-1]"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "Force = Mass × Acceleration -> [M] × [L T^-2] = [M L T^-2]."
+ },
+ {
+  "id": 5,
+  "class_num": "11th",
+  "subject": "Physics",
+  "chapter": "Chapter 2: Vectors and Equilibrium",
+  "questionText": "Dot product of two perpendicular vectors is:",
+  "options": [
+   "Maximum",
+   "Zero",
+   "One",
+   "Negative"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "A · B = AB cos(90°) = 0."
+ },
+ {
+  "id": 6,
+  "class_num": "11th",
+  "subject": "Physics",
+  "chapter": "Chapter 3: Motion and Force",
+  "questionText": "Rate of change of momentum is equal to:",
+  "options": [
+   "Work",
+   "Energy",
+   "Applied Force",
+   "Impulse"
+  ],
+  "correctAnswerIndex": 2,
+  "explanation": "Newton's 2nd law states F = dp/dt."
+ },
+ {
+  "id": 7,
+  "class_num": "11th",
+  "subject": "Chemistry",
+  "chapter": "Chapter 1: Basic Concepts",
+  "questionText": "One mole of any gas at STP occupies a volume of:",
+  "options": [
+   "22.414 dm3",
+   "24.0 dm3",
+   "11.2 dm3",
+   "100 dm3"
+  ],
+  "correctAnswerIndex": 0,
+  "explanation": "Standard molar volume of an ideal gas at STP is 22.414 dm3."
+ },
+ {
+  "id": 8,
+  "class_num": "11th",
+  "subject": "Chemistry",
+  "chapter": "Chapter 2: Experimental Techniques",
+  "questionText": "Filtration through a gooch crucible is done under:",
+  "options": [
+   "High pressure",
+   "Suction / Reduced pressure",
+   "Heating",
+   "Gravity only"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "Gooch crucibles use suction to speed up filtration process."
+ },
+ {
+  "id": 9,
+  "class_num": "11th",
+  "subject": "Chemistry",
+  "chapter": "Chapter 3: Gases",
+  "questionText": "Boyle's Law states that at constant temperature, volume is inversely proportional to:",
+  "options": [
+   "Temperature",
+   "Pressure",
+   "Number of moles",
+   "Density"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "Boyle's Law establishes P ∝ 1/V at constant T."
+ },
+ {
+  "id": 10,
+  "class_num": "11th",
+  "subject": "Computer Science",
+  "chapter": "Chapter 1: Overview of Computer System",
+  "questionText": "Which system memory is volatile?",
+  "options": [
+   "ROM",
+   "Hard Disk",
+   "RAM",
+   "Flash Memory"
+  ],
+  "correctAnswerIndex": 2,
+  "explanation": "RAM loses all stored data when power is turned off."
+ },
+ {
+  "id": 11,
+  "class_num": "11th",
+  "subject": "Computer Science",
+  "chapter": "Chapter 2: Information Networks",
+  "questionText": "In Star Topology, all nodes are connected to a central device called:",
+  "options": [
+   "Router",
+   "Repeater",
+   "Hub/Switch",
+   "Gateway"
+  ],
+  "correctAnswerIndex": 2,
+  "explanation": "Star networks channel traffic through a central hub or switch."
+ },
+ {
+  "id": 12,
+  "class_num": "11th",
+  "subject": "Computer Science",
+  "chapter": "Chapter 3: Data Communications",
+  "questionText": "The transmission mode where data flows in both directions simultaneously is:",
+  "options": [
+   "Simplex",
+   "Half-Duplex",
+   "Full-Duplex",
+   "Bandwidth"
+  ],
+  "correctAnswerIndex": 2,
+  "explanation": "Full-Duplex allows two-way simultaneous communication like a telephone call."
+ },
+ {
+  "id": 13,
+  "class_num": "11th",
+  "subject": "Math",
+  "chapter": "Chapter 4: Sequences and Series",
+  "questionText": "The 5th term of the arithmetic sequence 2, 5, 8, ... is:",
+  "options": [
+   "11",
+   "13",
+   "14",
+   "17"
+  ],
+  "correctAnswerIndex": 2,
+  "explanation": "With a = 2 and d = 3, the nth term is a + (n-1)d = 2 + 4(3) = 14."
+ },
+ {
+  "id": 14,
+  "class_num": "11th",
+  "subject": "Math",
+  "chapter": "Chapter 5: Quadratic Equations",
+  "questionText": "For ax^2 + bx + c = 0, the sum of the roots is:",
+  "options": [
+   "-b/a",
+   "b/a",
+   "c/a",
+   "-c/a"
+  ],
+  "correctAnswerIndex": 0,
+  "explanation": "By Vieta's formulas, the sum of the roots equals -b/a."
+ },
+ {
+  "id": 15,
+  "class_num": "11th",
+  "subject": "Physics",
+  "chapter": "Chapter 4: Work and Energy",
+  "questionText": "Work done by a force is maximum when the angle between force and displacement is:",
+  "options": [
+   "0°",
+   "45°",
+   "90°",
+   "180°"
+  ],
+  "correctAnswerIndex": 0,
+  "explanation": "W = Fd cos(theta); cos(theta) is maximum (1) when theta = 0°."
+ },
+ {
+  "id": 16,
+  "class_num": "11th",
+  "subject": "Physics",
+  "chapter": "Chapter 5: Circular Motion",
+  "questionText": "The direction of the centripetal force on a body in uniform circular motion is:",
+  "options": [
+   "Away from the centre",
+   "Towards the centre",
+   "Tangent to the circle",
+   "Along the velocity"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "Centripetal force always acts towards the centre of the circular path."
+ },
+ {
+  "id": 17,
+  "class_num": "11th",
+  "subject": "Chemistry",
+  "chapter": "Chapter 4: Liquids and Solids",
+  "questionText": "Evaporation of a liquid takes place:",
+  "options": [
+   "Only at the boiling point",
+   "At all temperatures",
+   "Only below 0°C",
+   "Only in a vacuum"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "Evaporation is a surface phenomenon that occurs at all temperatures."
+ },
+ {
+  "id": 18,
+  "class_num": "11th",
+  "subject": "Chemistry",
+  "chapter": "Chapter 5: Atomic Structure",
+  "questionText": "Which quantum number describes the shape of an orbital?",
+  "options": [
+   "Principal (n)",
+   "Azimuthal (l)",
+   "Magnetic (m)",
+   "Spin (s)"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "The azimuthal quantum number l determines the subshell and the shape of the orbital."
+ },
+ {
+  "id": 19,
+  "class_num": "11th",
+  "subject": "Computer Science",
+  "chapter": "Chapter 4: Data Representation",
+  "questionText": "The binary equivalent of the decimal number 10 is:",
+  "options": [
+   "1001",
+   "1010",
+   "1100",
+   "1000"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "10 in decimal = 8 + 2 = 1010 in binary."
+ },
+ {
+  "id": 20,
+  "class_num": "11th",
+  "subject": "Computer Science",
+  "chapter": "Chapter 5: Logic Gates",
+  "questionText": "Which logic gate gives output 1 only when all its inputs are 1?",
+  "options": [
+   "OR gate",
+   "AND gate",
+   "NOT gate",
+   "NAND gate"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "An AND gate outputs 1 only if every input is 1."
+ },
+ {
+  "id": 1,
+  "class_num": "12th",
+  "subject": "Math",
+  "chapter": "Chapter 1: Functions and Limits",
+  "questionText": "The value of limit (x->0) sin(x)/x is:",
+  "options": [
+   "0",
+   "1",
+   "Infinity",
+   "Undefined"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "By standard calculus limit theorem, lim(x->0) sin(x)/x = 1."
+ },
+ {
+  "id": 2,
+  "class_num": "12th",
+  "subject": "Math",
+  "chapter": "Chapter 2: Differentiation",
+  "questionText": "The derivative of d/dx (sin x) is:",
+  "options": [
+   "cos x",
+   "-cos x",
+   "tan x",
+   "sec^2 x"
+  ],
+  "correctAnswerIndex": 0,
+  "explanation": "The basic trigonometric derivative of sin(x) is cos(x)."
+ },
+ {
+  "id": 3,
+  "class_num": "12th",
+  "subject": "Math",
+  "chapter": "Chapter 3: Integration",
+  "questionText": "The integral ∫ (1/x) dx is:",
+  "options": [
+   "x^2 / 2",
+   "ln|x| + c",
+   "-1/x^2",
+   "e^x"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "Antiderivative of 1/x is the natural logarithm ln|x| + c."
+ },
+ {
+  "id": 4,
+  "class_num": "12th",
+  "subject": "Physics",
+  "chapter": "Chapter 12: Electrostatics",
+  "questionText": "Coulomb's Law constant 'k' in vacuum is equal to:",
+  "options": [
+   "8.99 x 10^9 N m^2 C^-2",
+   "9 x 10^-9 N m^2 C^-2",
+   "1.6 x 10^-19 C",
+   "8.85 x 10^-12 F/m"
+  ],
+  "correctAnswerIndex": 0,
+  "explanation": "Coulomb constant k = 1 / (4πε₀) ≈ 8.99 × 10^9 N m^2 C^-2."
+ },
+ {
+  "id": 5,
+  "class_num": "12th",
+  "subject": "Physics",
+  "chapter": "Chapter 13: Current Electricity",
+  "questionText": "Ohm's law is valid when temperature remains:",
+  "options": [
+   "Variable",
+   "Constant",
+   "Zero",
+   "Extremely high"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "Ohm's law requires physical conditions like temperature to remain constant."
+ },
+ {
+  "id": 6,
+  "class_num": "12th",
+  "subject": "Physics",
+  "chapter": "Chapter 14: Electromagnetism",
+  "questionText": "The SI unit of magnetic flux density (B) is:",
+  "options": [
+   "Weber",
+   "Tesla",
+   "Henry",
+   "Gauss"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "Magnetic field strength B is measured in Tesla (T)."
+ },
+ {
+  "id": 7,
+  "class_num": "12th",
+  "subject": "Chemistry",
+  "chapter": "Chapter 1: Periodic Classification",
+  "questionText": "The element with the highest electronegativity is:",
+  "options": [
+   "Chlorine",
+   "Fluorine",
+   "Oxygen",
+   "Cesium"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "Fluorine is the most electronegative element with a value of 4.0."
+ },
+ {
+  "id": 8,
+  "class_num": "12th",
+  "subject": "Chemistry",
+  "chapter": "Chapter 2: s-Block Elements",
+  "questionText": "Which alkali metal gives a crimson red flame test?",
+  "options": [
+   "Sodium",
+   "Potassium",
+   "Lithium",
+   "Calcium"
+  ],
+  "correctAnswerIndex": 2,
+  "explanation": "Lithium salts impart a distinctive crimson red color to flame."
+ },
+ {
+  "id": 9,
+  "class_num": "12th",
+  "subject": "Chemistry",
+  "chapter": "Chapter 7: Fundamental Principles of Organic Chem",
+  "questionText": "Functional group present in alcohols is:",
+  "options": [
+   "-COOH",
+   "-OH",
+   "-CHO",
+   "-CO-"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "Alcohols are characterized by the hydroxyl (-OH) functional group."
+ },
+ {
+  "id": 10,
+  "class_num": "12th",
+  "subject": "Computer Science",
+  "chapter": "Chapter 1: Data Basics",
+  "questionText": "A collection of raw, unprocessed facts and figures is called:",
+  "options": [
+   "Information",
+   "Data",
+   "Knowledge",
+   "Database"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "Data consists of unorganized facts that are processed into information."
+ },
+ {
+  "id": 11,
+  "class_num": "12th",
+  "subject": "Computer Science",
+  "chapter": "Chapter 2: Basic Concepts and Terminology of DB",
+  "questionText": "A primary key that consists of two or more attributes is called:",
+  "options": [
+   "Foreign key",
+   "Composite key",
+   "Candidate key",
+   "Alternate key"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "A composite key combines multiple fields to uniquely identify a record."
+ },
+ {
+  "id": 12,
+  "class_num": "12th",
+  "subject": "Computer Science",
+  "chapter": "Chapter 3: Table Handling in MS Access",
+  "questionText": "Which view in MS Access is used to define table structure and fields?",
+  "options": [
+   "Datasheet View",
+   "Design View",
+   "Form View",
+   "Layout View"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "Design View allows editing field names, data types, and properties."
+ },
+ {
+  "id": 13,
+  "class_num": "12th",
+  "subject": "Math",
+  "chapter": "Chapter 4: Introduction to Analytic Geometry",
+  "questionText": "The distance between the points (0, 0) and (3, 4) is:",
+  "options": [
+   "5",
+   "6",
+   "7",
+   "25"
+  ],
+  "correctAnswerIndex": 0,
+  "explanation": "Distance = sqrt((3-0)^2 + (4-0)^2) = sqrt(25) = 5."
+ },
+ {
+  "id": 14,
+  "class_num": "12th",
+  "subject": "Math",
+  "chapter": "Chapter 5: Linear Inequalities and Linear Programming",
+  "questionText": "The region satisfying x > 0 and y > 0 lies in the:",
+  "options": [
+   "First quadrant",
+   "Second quadrant",
+   "Third quadrant",
+   "Fourth quadrant"
+  ],
+  "correctAnswerIndex": 0,
+  "explanation": "Both coordinates are positive only in the first quadrant."
+ },
+ {
+  "id": 15,
+  "class_num": "12th",
+  "subject": "Physics",
+  "chapter": "Chapter 15: Electromagnetic Induction",
+  "questionText": "The production of induced emf in a coil due to a changing magnetic flux is called:",
+  "options": [
+   "Electromagnetic induction",
+   "Self induction only",
+   "Mutual induction only",
+   "Electrostatics"
+  ],
+  "correctAnswerIndex": 0,
+  "explanation": "Faraday's law describes electromagnetic induction through a changing magnetic flux."
+ },
+ {
+  "id": 16,
+  "class_num": "12th",
+  "subject": "Physics",
+  "chapter": "Chapter 16: Alternating Current",
+  "questionText": "The SI unit of inductance is the:",
+  "options": [
+   "Farad",
+   "Henry",
+   "Tesla",
+   "Weber"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "Inductance is measured in henrys (H), named after Joseph Henry."
+ },
+ {
+  "id": 17,
+  "class_num": "12th",
+  "subject": "Chemistry",
+  "chapter": "Chapter 3: Group IIIA and IVA Elements",
+  "questionText": "The chemical formula of borax is:",
+  "options": [
+   "Na2B4O7.10H2O",
+   "Na2CO3.10H2O",
+   "CaSO4.2H2O",
+   "NaHCO3"
+  ],
+  "correctAnswerIndex": 0,
+  "explanation": "Borax (sodium tetraborate) is Na2B4O7.10H2O."
+ },
+ {
+  "id": 18,
+  "class_num": "12th",
+  "subject": "Chemistry",
+  "chapter": "Chapter 4: Group VA and VIA Elements",
+  "questionText": "The strongest oxidising agent among the halogens is:",
+  "options": [
+   "Chlorine",
+   "Bromine",
+   "Iodine",
+   "Fluorine"
+  ],
+  "correctAnswerIndex": 3,
+  "explanation": "Fluorine is the most electronegative element and the strongest oxidising halogen."
+ },
+ {
+  "id": 19,
+  "class_num": "12th",
+  "subject": "Computer Science",
+  "chapter": "Chapter 4: Queries and Reports in MS Access",
+  "questionText": "In MS Access, a query is mainly used to:",
+  "options": [
+   "Design table structure",
+   "Retrieve and filter data from tables",
+   "Create input forms",
+   "Secure the database"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "Queries extract specific data from tables based on given criteria."
+ },
+ {
+  "id": 20,
+  "class_num": "12th",
+  "subject": "Computer Science",
+  "chapter": "Chapter 5: Introduction to SQL",
+  "questionText": "SQL stands for:",
+  "options": [
+   "Simple Query Language",
+   "Structured Query Language",
+   "Standard Question List",
+   "System Query Logic"
+  ],
+  "correctAnswerIndex": 1,
+  "explanation": "SQL stands for Structured Query Language, used to manage relational databases."
+ }
+]
