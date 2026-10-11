@@ -144,8 +144,8 @@
                         app:boxBackgroundMode="none"
                         app:startIconDrawable="@android:drawable/ic_lock_lock"
                         app:startIconTint="#38BDF8"
-                        app:endIconMode="custom"
-                        app:endIconDrawable="@drawable/ic_eye">
+                        app:endIconMode="password_toggle"
+                        app:endIconTint="#38BDF8">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etLoginPassword"
@@ -363,8 +363,8 @@
                         app:boxBackgroundMode="none"
                         app:startIconDrawable="@android:drawable/ic_lock_lock"
                         app:startIconTint="#38BDF8"
-                        app:endIconMode="custom"
-                        app:endIconDrawable="@drawable/ic_eye">
+                        app:endIconMode="password_toggle"
+                        app:endIconTint="#38BDF8">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etSignupPassword"
