@@ -1,0 +1,64 @@
+name: Build & Release APK
+
+on:
+  push:
+    branches: [master]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Bump versionCode
+        id: bump
+        run: |
+          FILE=app/build.gradle.kts
+          CODE=$(grep -oP 'versionCode = \K\d+' "$FILE" | head -1)
+          NEW=$((CODE + 1))
+          sed -i -E "s/versionCode = $CODE/versionCode = $NEW/" "$FILE"
+          VNAME=$(grep -oP 'versionName = "\K[^"]+' "$FILE" | head -1)
+          echo "version_code=$NEW" >> "$GITHUB_OUTPUT"
+          echo "version_name=$VNAME" >> "$GITHUB_OUTPUT"
+          echo "tag=v${VNAME}-${NEW}" >> "$GITHUB_OUTPUT"
+          echo "Bumped versionCode $CODE -> $NEW"
+
+      - name: Build debug APK
+        run: ./gradlew assembleDebug --no-daemon
+
+      - name: Rename APK
+        run: |
+          APK=$(ls app/build/outputs/apk/debug/*.apk | head -1)
+          NEWNAME="StudyPoint-${{ steps.bump.outputs.tag }}.apk"
+          cp "$APK" "app/build/outputs/apk/debug/$NEWNAME"
+          echo "apk_path=app/build/outputs/apk/debug/$NEWNAME" >> "$GITHUB_ENV"
+          ls -lh "app/build/outputs/apk/debug/$NEWNAME"
+
+      - name: Commit version bump [skip ci]
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add app/build.gradle.kts
+          git commit -m "bump versionCode to ${{ steps.bump.outputs.version_code }} [skip ci]"
+          git push
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          NOTES="$(git log -1 --pretty=%B | head -20)"
+          gh release create "${{ steps.bump.outputs.tag }}" \
+            --title "StudyPoint ${{ steps.bump.outputs.tag }}" \
+            --notes "$NOTES" \
+            "${{ env.apk_path }}"
