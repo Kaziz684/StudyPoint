@@ -478,7 +478,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
-                        android:text="I agree to the Terms & Conditions and Privacy Policy"
+                        android:text="I agree to the Terms &amp; Conditions and Privacy Policy"
                         android:textColor="#D0D0E8"
                         android:textSize="13sp"
                         android:buttonTint="#38BDF8" />
