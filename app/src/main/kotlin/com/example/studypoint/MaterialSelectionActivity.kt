@@ -21,11 +21,12 @@ class MaterialSelectionActivity : AppCompatActivity() {
         findViewById<android.view.View>(R.id.btnBack).setOnClickListener { finish() }
         findViewById<TextView>(R.id.headerText).text = if (subject.isNotBlank()) "$subject Materials" else "Study Material"
 
-        // Strictly 4 Material Categories: Textbook, Notes, Past Papers, MCQs (Keybook strictly excluded)
+        // 5 Material Categories: Textbook, Notes, Past Papers, Guess Papers, MCQs
         val materials = listOf(
             GridItem("Textbook", "Textbook", R.drawable.ic_textbook),
             GridItem("Notes", "Solved Notes", R.drawable.ic_solved_notes),
             GridItem("Past Papers", "Past Papers", R.drawable.ic_pastpaper),
+            GridItem("Guess Papers", "Guess Papers", R.drawable.ic_pastpaper),
             GridItem("MCQs", "MCQs Practice", R.drawable.ic_mcqs_practice)
         )
 
