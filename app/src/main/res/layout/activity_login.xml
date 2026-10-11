@@ -113,8 +113,12 @@
                 app:boxCornerRadiusBottomStart="12dp"
                 app:boxCornerRadiusTopEnd="12dp"
                 app:boxCornerRadiusTopStart="12dp"
+                app:endIconMode="password_toggle"
+                app:endIconTint="@color/gray"
                 app:passwordToggleEnabled="true"
-                app:startIconDrawable="@drawable/ic_home">
+                app:passwordToggleTint="@color/gray"
+                app:startIconDrawable="@drawable/ic_home"
+                app:startIconTint="@color/gray">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/passwordInput"
