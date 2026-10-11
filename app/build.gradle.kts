@@ -48,23 +48,6 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-
-    signingConfigs {
-        create("ciRelease") {
-            storeFile = file("ci-release.p12")
-            storePassword = System.getenv("KEYSTORE_PASSWORD")
-            keyAlias = System.getenv("KEY_ALIAS") ?: "studypoint"
-            keyPassword = System.getenv("KEY_PASSWORD")
-        }
-    }
-
-    buildTypes {
-        getByName("release") {
-            signingConfig = signingConfigs.getByName("ciRelease")
-            isMinifyEnabled = false
-            isShrinkResources = false
-        }
-    }
 }
 
 dependencies {
