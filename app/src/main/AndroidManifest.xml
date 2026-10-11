@@ -124,6 +124,10 @@
             android:name=".practicetest.QuizActivity"
             android:exported="false" />
         <activity
+            android:name=".practicetest.BookmarksActivity"
+            android:exported="false"
+            android:parentActivityName=".HomeActivity" />
+        <activity
             android:name=".practicetest.QuizResultActivity"
             android:exported="false" />
 
