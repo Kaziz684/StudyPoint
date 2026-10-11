@@ -1,44 +1,26 @@
 {
   "project_info": {
-    "project_number": "390593664414",
-    "project_id": "studypoint-3e479",
-    "storage_bucket": "studypoint-3e479.firebasestorage.app"
+    "project_number": "1038387291874",
+    "project_id": "studypoint-642d1",
+    "storage_bucket": "studypoint-642d1.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:390593664414:android:d0ff6e49f3a8969494728f",
+        "mobilesdk_app_id": "1:1038387291874:android:7fc6a4708672bf464660bb",
         "android_client_info": {
           "package_name": "com.example.studypoint"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "390593664414-79vbuvkjpn75p5v9nbu3pr8o66mveoei.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.example.studypoint",
-            "certificate_hash": "18c76484c6b9eb6200a5f62feeab162722b419e1"
-          }
-        },
-        {
-          "client_id": "390593664414-c1pl1mbmn7n1qfrcjd1dd4bvin0cmju1.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBep95Hp21KhTTu61rBRi6agAJmqLlxMP8"
+          "current_key": "AIzaSyCyXe96ZNxqoqE6Z8OE9sEkEovG8PDII6c"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "390593664414-c1pl1mbmn7n1qfrcjd1dd4bvin0cmju1.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }
