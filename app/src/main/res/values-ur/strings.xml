@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">اسٹڈی پوائنٹ</string>
+
+    <!-- Authentication Strings -->
+    <string name="login_title">خوش آمدید</string>
+    <string name="signup_title">اکاؤنٹ بنائیں</string>
+    <string name="email_hint">ای میل</string>
+    <string name="password_hint">پاس ورڈ</string>
+    <string name="confirm_password_hint">پاس ورڈ کی تصدیق کریں</string>
+    <string name="sign_in">سائن ان</string>
+    <string name="sign_up">سائن اپ</string>
+    <string name="create_account">اکاؤنٹ بنائیں</string>
+    <string name="google_sign_in">گوگل سے جاری رکھیں</string>
+    <string name="already_have_account">پہلے سے اکاؤنٹ ہے؟ سائن ان کریں</string>
+    <string name="dont_have_account">اکاؤنٹ نہیں ہے؟ سائن اپ کریں</string>
+    <string name="forgot_password">پاس ورڈ بھول گئے؟</string>
+    <string name="reset_password">پاس ورڈ ری سیٹ کریں</string>
+    <string name="logout">لاگ آؤٹ</string>
+
+    <!-- Error Messages -->
+    <string name="error_empty_fields">براہ کرم تمام خانے پُر کریں</string>
+    <string name="error_invalid_email">براہ کرم درست ای میل درج کریں</string>
+    <string name="error_weak_password">پاس ورڈ کم از کم 6 حروف کا ہو</string>
+    <string name="error_passwords_dont_match">پاس ورڈ میل نہیں کھاتے</string>
+    <string name="error_authentication_failed">تصدیق ناکام ہو گئی</string>
+    <string name="error_network">نیٹ ورک خرابی۔ دوبارہ کوشش کریں</string>
+
+    <!-- Success Messages -->
+    <string name="success_account_created">اکاؤنٹ کامیابی سے بن گیا</string>
+    <string name="success_signed_in">کامیابی سے سائن ان ہو گئے</string>
+    <string name="success_password_reset">پاس ورڈ ری سیٹ ای میل بھیج دی گئی</string>
+
+    <!-- Home / Navigation -->
+    <string name="nav_home">ہوم</string>
+    <string name="nav_quiz">پریکٹس ٹیسٹ</string>
+    <string name="nav_bookmarks">محفوظ سوالات</string>
+    <string name="nav_language">زبان / Language</string>
+    <string name="nav_notifications">اطلاعات</string>
+
+    <!-- Bookmarks -->
+    <string name="bookmarks_title">محفوظ سوالات</string>
+    <string name="bookmarks_empty">ابھی کوئی سوال محفوظ نہیں۔\nکوئز کے دوران بک مارک آئیکن دبائیں!</string>
+    <string name="bookmarks_clear">سب صاف کریں</string>
+</resources>
