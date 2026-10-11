@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@drawable/bg_physics_gradient" />
+    <item android:drawable="@drawable/bg_pak_studies_gradient" />
     <item
         android:drawable="@drawable/ic_book"
         android:bottom="20dp"

@@ -1,0 +1,27 @@
+{
+  "name": "StudyPoint - Punjab Board Notes & AI Tutor",
+  "short_name": "StudyPoint",
+  "description": "100% Free PCTB Notes, Textbooks, 2022-2026 Past Papers & AI Tutor for Class 9, 10, 11, 12",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#090d16",
+  "theme_color": "#4f46e5",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/images/app-icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/app-icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "categories": [
+    "education",
+    "books",
+    "reference"
+  ]
+}

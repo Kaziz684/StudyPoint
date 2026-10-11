@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  
+  <!-- Primary Master Landing Page -->
+  <url>
+    <loc>https://studypoint.pk/</loc>
+    <lastmod>2026-10-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://studypoint.pk/images/og-preview.svg</image:loc>
+      <image:title>StudyPoint - Punjab Board Notes, Past Papers and AI Tutor</image:title>
+      <image:caption>Complete Study Material for Classes 9, 10, 11, and 12</image:caption>
+    </image:image>
+  </url>
+
+  <!-- Dedicated APK Download Page -->
+  <url>
+    <loc>https://studypoint.pk/download.html</loc>
+    <lastmod>2026-10-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+    <image:image>
+      <image:loc>https://studypoint.pk/images/app-icon.png</image:loc>
+      <image:title>Download StudyPoint APK v2.4.0</image:title>
+      <image:caption>One-click direct Android APK download for StudyPoint</image:caption>
+    </image:image>
+  </url>
+
+  <!-- Class 9th Notes & Past Papers -->
+  <url>
+    <loc>https://studypoint.pk/class-9-notes.html</loc>
+    <lastmod>2026-10-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.90</priority>
+    <image:image>
+      <image:loc>https://studypoint.pk/images/ic_physics.png</image:loc>
+      <image:title>Class 9th Notes and Past Papers</image:title>
+      <image:caption>Class 9th Tarjuma-tul-Quran, Islamiyat, Physics, Chemistry, and Math Notes</image:caption>
+    </image:image>
+  </url>
+
+  <!-- Class 10th Notes & Class 10 Physics PCTB Notes -->
+  <url>
+    <loc>https://studypoint.pk/class-10-notes.html</loc>
+    <lastmod>2026-10-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.90</priority>
+    <image:image>
+      <image:loc>https://studypoint.pk/images/ic_physics.png</image:loc>
+      <image:title>Class 10 Physics PCTB Notes and Pakistan Studies</image:title>
+      <image:caption>Class 10 Physics Solved Notes, Pak Studies, Tarjuma-tul-Quran, and 2022-2026 Past Papers</image:caption>
+    </image:image>
+  </url>
+
+  <!-- Class 11th Notes (1st Year) -->
+  <url>
+    <loc>https://studypoint.pk/class-11-notes.html</loc>
+    <lastmod>2026-10-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.90</priority>
+    <image:image>
+      <image:loc>https://studypoint.pk/images/ic_solved_notes.png</image:loc>
+      <image:title>1st Year (Class 11) FSc and ICS Notes</image:title>
+      <image:caption>Class 11 Physics, Islamiyat Compulsory, Tarjuma-tul-Quran, and Past Papers</image:caption>
+    </image:image>
+  </url>
+
+  <!-- Class 12th Notes (2nd Year) -->
+  <url>
+    <loc>https://studypoint.pk/class-12-notes.html</loc>
+    <lastmod>2026-10-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.90</priority>
+    <image:image>
+      <image:loc>https://studypoint.pk/images/ic_solved_notes.png</image:loc>
+      <image:title>2nd Year (Class 12) Notes and Pakistan Studies</image:title>
+      <image:caption>Class 12 Pakistan Studies Notes, Physics, Tarjuma-tul-Quran, and Past Papers</image:caption>
+    </image:image>
+  </url>
+
+  <!-- OTP Web Authentication Portal -->
+  <url>
+    <loc>https://studypoint.pk/auth/index.html</loc>
+    <lastmod>2026-10-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.60</priority>
+  </url>
+
+</urlset>

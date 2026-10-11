@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StudyPoint - OTP Authentication</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --primary-light: #6366f1;
+      --primary-glow: rgba(99, 102, 241, 0.35);
+      --purple-accent: #8b5cf6;
+      --bg-dark: #0a0d14;
+      --card-bg: rgba(15, 23, 42, 0.72);
+      --card-border: rgba(255, 255, 255, 0.1);
+      --card-border-focus: rgba(99, 102, 241, 0.6);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --input-bg: rgba(2, 6, 23, 0.65);
+      --input-border: rgba(51, 65, 85, 0.7);
+      --error-red: #ef4444;
+      --error-bg: rgba(239, 68, 68, 0.12);
+      --success-green: #10b981;
+      --success-bg: rgba(16, 185, 129, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Ambient Background Glows */
+    .bg-glow {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(100px);
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.5;
+      animation: floatOrb 12s ease-in-out infinite alternate;
+    }
+
+    .bg-glow-1 {
+      width: 420px;
+      height: 420px;
+      background: radial-gradient(circle, #4f46e5 0%, rgba(79, 70, 229, 0) 70%);
+      top: -60px;
+      left: 10%;
+    }
+
+    .bg-glow-2 {
+      width: 380px;
+      height: 380px;
+      background: radial-gradient(circle, #8b5cf6 0%, rgba(139, 92, 246, 0) 70%);
+      bottom: -60px;
+      right: 10%;
+      animation-delay: -6s;
+    }
+
+    @keyframes floatOrb {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(30px, 40px) scale(1.1); }
+    }
+
+    /* Main Container */
+    .auth-container {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 450px;
+    }
+
+    /* Glassmorphism Card */
+    .glass-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border: 1px solid var(--card-border);
+      border-radius: 28px;
+      padding: 36px 32px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7),
+                  0 0 0 1px rgba(255, 255, 255, 0.05),
+                  0 0 35px var(--primary-glow);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Header / Logo */
+    .brand-header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .brand-icon-wrapper {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, rgba(79, 70, 229, 0.2), rgba(139, 92, 246, 0.25));
+      border: 1px solid rgba(99, 102, 241, 0.4);
+      border-radius: 20px;
+      margin-bottom: 14px;
+      box-shadow: 0 8px 20px var(--primary-glow);
+    }
+
+    .brand-icon-wrapper svg {
+      width: 34px;
+      height: 34px;
+      fill: none;
+      stroke: #a5b4fc;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .brand-title {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #ffffff 30%, #c7d2fe 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+    }
+
+    .brand-tagline {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* Tab Switcher (Login / Sign Up) */
+    .auth-tabs {
+      display: flex;
+      background: rgba(2, 6, 23, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 14px;
+      padding: 4px;
+      margin-bottom: 24px;
+    }
+
+    .auth-tab {
+      flex: 1;
+      padding: 10px;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: transparent;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      text-align: center;
+    }
+
+    .auth-tab.active {
+      background: linear-gradient(135deg, #4f46e5, #6366f1);
+      color: #ffffff;
+      box-shadow: 0 4px 12px var(--primary-glow);
+    }
+
+    /* Method Selector (Phone / Email Toggle) */
+    .method-switch {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .method-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--input-border);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .method-btn:hover {
+      border-color: var(--primary-light);
+      color: var(--text-main);
+    }
+
+    .method-btn.active {
+      border-color: var(--primary-light);
+      background: rgba(79, 70, 229, 0.15);
+      color: #a5b4fc;
+    }
+
+    .method-btn svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+    }
+
+    /* Input Fields */
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      letter-spacing: 0.2px;
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .phone-input-group {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .country-code-select {
+      width: 96px;
+      height: 50px;
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 14px;
+      color: var(--text-main);
+      padding: 0 10px;
+      font-size: 14px;
+      font-weight: 600;
+      outline: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .country-code-select:focus {
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+
+    .text-input {
+      width: 100%;
+      height: 50px;
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 14px;
+      padding: 0 16px 0 44px;
+      color: var(--text-main);
+      font-size: 14.5px;
+      font-weight: 500;
+      outline: none;
+      transition: all 0.25s ease;
+    }
+
+    .phone-text-input {
+      padding-left: 16px;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 14px;
+      width: 20px;
+      height: 20px;
+      color: var(--text-dim);
+      pointer-events: none;
+      transition: color 0.2s;
+    }
+
+    .text-input:focus {
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+      background: rgba(2, 6, 23, 0.85);
+    }
+
+    .text-input:focus + .input-icon,
+    .input-wrapper:focus-within .input-icon {
+      color: var(--primary-light);
+    }
+
+    .text-input.error {
+      border-color: var(--error-red);
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+    }
+
+    .error-feedback {
+      display: none;
+      color: #f87171;
+      font-size: 12px;
+      margin-top: 6px;
+      font-weight: 500;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .error-feedback.visible {
+      display: flex;
+    }
+
+    /* Primary Action Button */
+    .btn-primary {
+      width: 100%;
+      height: 52px;
+      background: linear-gradient(135deg, var(--primary) 0%, #6366f1 100%);
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 700;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 8px 24px var(--primary-glow);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, var(--primary-hover) 0%, var(--primary) 100%);
+      transform: translateY(-1.5px);
+      box-shadow: 0 12px 28px rgba(79, 70, 229, 0.45);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    /* Spinner */
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2.5px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #ffffff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      display: none;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* STEP 2: OTP Verification Styling */
+    .step-view {
+      display: none;
+      animation: fadeIn 0.3s ease forwards;
+    }
+
+    .step-view.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .verify-badge-container {
+      text-align: center;
+      margin-bottom: 22px;
+    }
+
+    .target-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(99, 102, 241, 0.14);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      color: #c7d2fe;
+      padding: 6px 14px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-top: 6px;
+    }
+
+    .btn-change-target {
+      background: none;
+      border: none;
+      color: #818cf8;
+      font-size: 12.5px;
+      font-weight: 600;
+      margin-top: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      transition: color 0.2s;
+    }
+
+    .btn-change-target:hover {
+      color: #a5b4fc;
+    }
+
+    /* 6-Digit OTP Boxes */
+    .otp-inputs-grid {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 24px 0;
+    }
+
+    .otp-digit {
+      flex: 1;
+      height: 60px;
+      background: var(--input-bg);
+      border: 1.5px solid var(--input-border);
+      border-radius: 14px;
+      color: #ffffff;
+      font-size: 24px;
+      font-weight: 700;
+      text-align: center;
+      outline: none;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      caret-color: var(--primary-light);
+    }
+
+    .otp-digit:focus {
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 3px var(--primary-glow), 0 0 20px rgba(99, 102, 241, 0.25);
+      background: rgba(2, 6, 23, 0.9);
+      transform: translateY(-2px);
+    }
+
+    .otp-digit.filled {
+      border-color: rgba(99, 102, 241, 0.7);
+      background: rgba(79, 70, 229, 0.08);
+    }
+
+    .otp-digit.error {
+      border-color: var(--error-red) !important;
+      color: #fca5a5 !important;
+      background: var(--error-bg) !important;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
+    }
+
+    .otp-digit.success {
+      border-color: var(--success-green) !important;
+      color: #6ee7b7 !important;
+      background: var(--success-bg) !important;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2) !important;
+    }
+
+    /* Shake Animation for Incorrect OTP */
+    .shake {
+      animation: shakeAnim 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+    }
+
+    @keyframes shakeAnim {
+      10%, 90% { transform: translate3d(-2px, 0, 0); }
+      20%, 80% { transform: translate3d(4px, 0, 0); }
+      30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+      40%, 60% { transform: translate3d(6px, 0, 0); }
+    }
+
+    /* Resend Section */
+    .resend-section {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .btn-resend {
+      background: none;
+      border: none;
+      color: #818cf8;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-resend:hover:not(:disabled) {
+      color: #a5b4fc;
+      background: rgba(99, 102, 241, 0.1);
+    }
+
+    .btn-resend:disabled {
+      color: var(--text-dim);
+      cursor: not-allowed;
+      opacity: 0.65;
+    }
+
+    .countdown-timer {
+      font-variant-numeric: tabular-nums;
+      font-weight: 700;
+      color: #a5b4fc;
+    }
+
+    /* Interactive Demo Toast */
+    .demo-toast {
+      position: fixed;
+      top: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(99, 102, 241, 0.4);
+      color: #ffffff;
+      padding: 12px 20px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6), 0 0 25px var(--primary-glow);
+      z-index: 1000;
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .demo-toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .toast-code {
+      background: rgba(79, 70, 229, 0.3);
+      color: #a5b4fc;
+      font-family: monospace;
+      font-size: 15px;
+      font-weight: 800;
+      padding: 4px 8px;
+      border-radius: 8px;
+      letter-spacing: 2px;
+    }
+
+    .toast-copy-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #e2e8f0;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    /* Success Screen */
+    .success-view {
+      display: none;
+      text-align: center;
+      padding: 10px 0;
+    }
+
+    .success-view.active {
+      display: block;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .success-icon-wrapper {
+      width: 76px;
+      height: 76px;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.3));
+      border: 2px solid var(--success-green);
+      border-radius: 50%;
+      margin: 0 auto 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 35px rgba(16, 185, 129, 0.35);
+    }
+
+    .success-icon-wrapper svg {
+      width: 40px;
+      height: 40px;
+      stroke: var(--success-green);
+      stroke-width: 2.5;
+    }
+
+    .success-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 8px;
+    }
+
+    .success-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+
+    /* Footer Note */
+    .auth-footer {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    .auth-footer a {
+      color: #818cf8;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .auth-footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 480px) {
+      .glass-card {
+        padding: 28px 20px;
+        border-radius: 24px;
+      }
+      .otp-digit {
+        height: 52px;
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Decorative Glowing Orbs -->
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+
+  <!-- Interactive Demo Notification Toast -->
+  <div id="demoToast" class="demo-toast">
+    <span>🔐 StudyPoint Demo OTP:</span>
+    <span id="toastOtpCode" class="toast-code">482910</span>
+    <button id="toastCopyBtn" class="toast-copy-btn">Auto Fill</button>
+  </div>
+
+  <div class="auth-container">
+    <div class="glass-card">
+      
+      <!-- Brand Header -->
+      <div class="brand-header">
+        <div class="brand-icon-wrapper">
+          <!-- Graduation Cap Icon -->
+          <svg viewBox="0 0 24 24">
+            <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+            <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+          </svg>
+        </div>
+        <h1 class="brand-title">StudyPoint</h1>
+        <p class="brand-tagline">Punjab Curriculum & Textbook Board Learning Portal</p>
+      </div>
+
+      <!-- Step 1: Input Identifier View -->
+      <div id="step1View" class="step-view active">
+        <!-- Auth Tabs: Login / Sign Up -->
+        <div class="auth-tabs">
+          <button type="button" class="auth-tab active" data-mode="login">Login</button>
+          <button type="button" class="auth-tab" data-mode="signup">Sign Up</button>
+        </div>
+
+        <!-- Optional Name field for Sign Up mode -->
+        <div id="signupNameGroup" class="form-group" style="display: none;">
+          <label class="form-label" for="userName">Full Name</label>
+          <div class="input-wrapper">
+            <input type="text" id="userName" class="text-input" placeholder="Enter your full name" />
+            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </div>
+          <div id="nameError" class="error-feedback">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <span>Please enter your name</span>
+          </div>
+        </div>
+
+        <!-- Input Type Switcher: Phone vs Email -->
+        <div class="method-switch">
+          <button type="button" class="method-btn active" data-method="phone">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+            Phone Number
+          </button>
+          <button type="button" class="method-btn" data-method="email">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            Email Address
+          </button>
+        </div>
+
+        <!-- Phone Input Section -->
+        <div id="phoneInputSection" class="form-group">
+          <label class="form-label" for="userPhone">Phone Number</label>
+          <div class="phone-input-group">
+            <select id="countryCode" class="country-code-select">
+              <option value="+92" selected>🇵🇰 +92</option>
+              <option value="+1">🇺🇸 +1</option>
+              <option value="+44">🇬🇧 +44</option>
+              <option value="+971">🇦🇪 +971</option>
+              <option value="+966">🇸🇦 +966</option>
+            </select>
+            <div class="input-wrapper" style="flex: 1;">
+              <input type="tel" id="userPhone" class="text-input phone-text-input" placeholder="300 1234567" maxlength="15" />
+            </div>
+          </div>
+          <div id="phoneError" class="error-feedback">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <span>Enter a valid mobile number (e.g., 300 1234567)</span>
+          </div>
+        </div>
+
+        <!-- Email Input Section -->
+        <div id="emailInputSection" class="form-group" style="display: none;">
+          <label class="form-label" for="userEmail">Email Address</label>
+          <div class="input-wrapper">
+            <input type="email" id="userEmail" class="text-input" placeholder="student@example.com" />
+            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+              <polyline points="22,6 12,13 2,6"></polyline>
+            </svg>
+          </div>
+          <div id="emailError" class="error-feedback">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <span>Enter a valid email address (e.g. name@domain.com)</span>
+          </div>
+        </div>
+
+        <!-- Send OTP Button -->
+        <button type="button" id="btnSendOtp" class="btn-primary">
+          <span class="btn-text">Send OTP Code</span>
+          <div class="spinner"></div>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </button>
+
+        <div class="auth-footer">
+          By continuing, you agree to StudyPoint\'s <a href="#">Terms</a> & <a href="#">Privacy Policy</a>
+        </div>
+      </div>
+
+      <!-- Step 2: Verification Screen View -->
+      <div id="step2View" class="step-view">
+        <div class="verify-badge-container">
+          <h2 style="font-size: 19px; font-weight: 700; margin-bottom: 4px;">Enter Verification Code</h2>
+          <p style="font-size: 13px; color: var(--text-muted);">We have sent a 6-digit OTP code to</p>
+          <div id="targetBadge" class="target-badge">
+            <span id="targetText">+92 300 1234567</span>
+          </div>
+          <div>
+            <button type="button" id="btnChangeTarget" class="btn-change-target">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+              Change Phone / Email
+            </button>
+          </div>
+        </div>
+
+        <!-- 6-Digit OTP Input Boxes -->
+        <div id="otpContainer" class="otp-inputs-grid">
+          <input type="text" class="otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" />
+          <input type="text" class="otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]*" />
+          <input type="text" class="otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]*" />
+          <input type="text" class="otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]*" />
+          <input type="text" class="otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]*" />
+          <input type="text" class="otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]*" />
+        </div>
+
+        <!-- OTP Error Notice -->
+        <div id="otpErrorFeedback" class="error-feedback" style="justify-content: center; margin-bottom: 16px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          <span id="otpErrorText">Invalid verification code. Please try again.</span>
+        </div>
+
+        <!-- Verify Button -->
+        <button type="button" id="btnVerifyOtp" class="btn-primary">
+          <span class="btn-text">Verify & Continue</span>
+          <div class="spinner"></div>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+        </button>
+
+        <!-- Resend OTP & 30-Second Countdown Timer -->
+        <div class="resend-section">
+          <span>Didn\'t receive code? </span>
+          <button type="button" id="btnResendOtp" class="btn-resend" disabled>
+            Resend in <span id="countdownTimer" class="countdown-timer">30s</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 3: Success Screen View -->
+      <div id="successView" class="success-view">
+        <div class="success-icon-wrapper">
+          <svg viewBox="0 0 24 24" fill="none">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <h2 class="success-title">Verified Successfully!</h2>
+        <p class="success-desc">
+          Welcome to <strong style="color: #a5b4fc;">StudyPoint</strong>. Your account is verified and ready to access PCTB 9th–12th class notes, past papers, and practice quizzes.
+        </p>
+        <button type="button" id="btnGoHome" class="btn-primary">
+          <span>Go to Study Dashboard</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // State
+      let currentMode = "login"; // "login" | "signup"
+      let currentMethod = "phone"; // "phone" | "email"
+      let generatedOtp = "482910";
+      let countdownSeconds = 30;
+      let countdownTimerInterval = null;
+      let userDestination = "";
+
+      // DOM Elements
+      const authTabs = document.querySelectorAll(".auth-tab");
+      const methodBtns = document.querySelectorAll(".method-btn");
+      const signupNameGroup = document.getElementById("signupNameGroup");
+      const phoneSection = document.getElementById("phoneInputSection");
+      const emailSection = document.getElementById("emailInputSection");
+      
+      const userNameInput = document.getElementById("userName");
+      const userPhoneInput = document.getElementById("userPhone");
+      const userEmailInput = document.getElementById("userEmail");
+      const countryCodeSelect = document.getElementById("countryCode");
+
+      const nameError = document.getElementById("nameError");
+      const phoneError = document.getElementById("phoneError");
+      const emailError = document.getElementById("emailError");
+      const otpErrorFeedback = document.getElementById("otpErrorFeedback");
+      const otpErrorText = document.getElementById("otpErrorText");
+
+      const step1View = document.getElementById("step1View");
+      const step2View = document.getElementById("step2View");
+      const successView = document.getElementById("successView");
+
+      const btnSendOtp = document.getElementById("btnSendOtp");
+      const btnVerifyOtp = document.getElementById("btnVerifyOtp");
+      const btnChangeTarget = document.getElementById("btnChangeTarget");
+      const btnResendOtp = document.getElementById("btnResendOtp");
+      const countdownTimer = document.getElementById("countdownTimer");
+      const targetText = document.getElementById("targetText");
+      const btnGoHome = document.getElementById("btnGoHome");
+
+      const otpInputs = document.querySelectorAll(".otp-digit");
+      const otpContainer = document.getElementById("otpContainer");
+
+      const demoToast = document.getElementById("demoToast");
+      const toastOtpCode = document.getElementById("toastOtpCode");
+      const toastCopyBtn = document.getElementById("toastCopyBtn");
+
+      // 1. Auth Tab Switcher (Login vs Sign Up)
+      authTabs.forEach(tab => {
+        tab.addEventListener("click", () => {
+          authTabs.forEach(t => t.classList.remove("active"));
+          tab.classList.add("active");
+          currentMode = tab.dataset.mode;
+          
+          if (currentMode === "signup") {
+            signupNameGroup.style.display = "block";
+            btnSendOtp.querySelector(".btn-text").textContent = "Create Account with OTP";
+          } else {
+            signupNameGroup.style.display = "none";
+            btnSendOtp.querySelector(".btn-text").textContent = "Send OTP Code";
+          }
+          clearErrors();
+        });
+      });
+
+      // 2. Method Switcher (Phone vs Email)
+      methodBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+          methodBtns.forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          currentMethod = btn.dataset.method;
+
+          if (currentMethod === "phone") {
+            phoneSection.style.display = "block";
+            emailSection.style.display = "none";
+            userPhoneInput.focus();
+          } else {
+            phoneSection.style.display = "none";
+            emailSection.style.display = "block";
+            userEmailInput.focus();
+          }
+          clearErrors();
+        });
+      });
+
+      // Format phone input on type
+      userPhoneInput.addEventListener("input", (e) => {
+        // Strip non-numeric
+        let val = e.target.value.replace(/\\D/g, "");
+        if (val.startsWith("0")) val = val.substring(1); // remove leading 0 if entered
+        e.target.value = val;
+        phoneError.classList.remove("visible");
+        userPhoneInput.classList.remove("error");
+      });
+
+      userEmailInput.addEventListener("input", () => {
+        emailError.classList.remove("visible");
+        userEmailInput.classList.remove("error");
+      });
+
+      function clearErrors() {
+        nameError.classList.remove("visible");
+        phoneError.classList.remove("visible");
+        emailError.classList.remove("visible");
+        otpErrorFeedback.classList.remove("visible");
+        userNameInput.classList.remove("error");
+        userPhoneInput.classList.remove("error");
+        userEmailInput.classList.remove("error");
+      }
+
+      // Generate a fresh 6-digit OTP
+      function generateRandomOtp() {
+        return Math.floor(100000 + Math.random() * 900000).toString();
+      }
+
+      function showDemoToast(code) {
+        toastOtpCode.textContent = code;
+        demoToast.classList.add("show");
+        setTimeout(() => {
+          demoToast.classList.remove("show");
+        }, 8000);
+      }
+
+      // Auto-fill OTP on toast button click
+      toastCopyBtn.addEventListener("click", () => {
+        fillOtpDigits(generatedOtp);
+        demoToast.classList.remove("show");
+      });
+
+      // 3. Step 1 Validation & Send OTP
+      btnSendOtp.addEventListener("click", () => {
+        clearErrors();
+        let isValid = true;
+
+        if (currentMode === "signup" && !userNameInput.value.trim()) {
+          userNameInput.classList.add("error");
+          nameError.classList.add("visible");
+          isValid = false;
+        }
+
+        if (currentMethod === "phone") {
+          const rawPhone = userPhoneInput.value.trim();
+          // Pakistani mobile is 10 digits without leading 0 (e.g. 3001234567) or 7-12 digits international
+          if (!rawPhone || rawPhone.length < 9) {
+            userPhoneInput.classList.add("error");
+            phoneError.classList.add("visible");
+            isValid = false;
+          } else {
+            userDestination = `${countryCodeSelect.value} ${rawPhone}`;
+          }
+        } else {
+          const rawEmail = userEmailInput.value.trim();
+          const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+          if (!rawEmail || !emailRegex.test(rawEmail)) {
+            userEmailInput.classList.add("error");
+            emailError.classList.add("visible");
+            isValid = false;
+          } else {
+            userDestination = rawEmail;
+          }
+        }
+
+        if (!isValid) return;
+
+        // Animate Button Loading
+        setBtnLoading(btnSendOtp, true);
+
+        setTimeout(() => {
+          setBtnLoading(btnSendOtp, false);
+          
+          // Generate demo OTP & switch to Step 2
+          generatedOtp = generateRandomOtp();
+          targetText.textContent = userDestination;
+          
+          step1View.classList.remove("active");
+          step2View.classList.add("active");
+
+          // Reset and Focus OTP input 0
+          resetOtpInputs();
+          startCountdown();
+          showDemoToast(generatedOtp);
+        }, 900);
+      });
+
+      function setBtnLoading(button, isLoading) {
+        const text = button.querySelector(".btn-text");
+        const spinner = button.querySelector(".spinner");
+        const icon = button.querySelector("svg");
+        button.disabled = isLoading;
+        if (isLoading) {
+          if (text) text.style.opacity = "0";
+          if (icon) icon.style.display = "none";
+          if (spinner) spinner.style.display = "block";
+        } else {
+          if (text) text.style.opacity = "1";
+          if (icon) icon.style.display = "block";
+          if (spinner) spinner.style.display = "none";
+        }
+      }
+
+      // 4. Navigation: Change Phone / Email
+      btnChangeTarget.addEventListener("click", () => {
+        clearInterval(countdownTimerInterval);
+        step2View.classList.remove("active");
+        step1View.classList.add("active");
+        clearErrors();
+        if (currentMethod === "phone") {
+          userPhoneInput.focus();
+        } else {
+          userEmailInput.focus();
+        }
+      });
+
+      // 5. Smooth OTP UX: Auto-Focus, Backspace, Arrow Keys & Paste
+      otpInputs.forEach((input, index) => {
+        // Input Event
+        input.addEventListener("input", (e) => {
+          const val = e.target.value.replace(/\\D/g, "");
+          e.target.value = val ? val[val.length - 1] : ""; // only 1 digit
+
+          if (e.target.value) {
+            input.classList.add("filled");
+            input.classList.remove("error");
+            otpErrorFeedback.classList.remove("visible");
+
+            // Move cursor to next input box
+            if (index < otpInputs.length - 1) {
+              otpInputs[index + 1].focus();
+            } else {
+              // Check if all filled -> Auto verify
+              if (getOtpValue().length === 6) {
+                verifyOtpCode();
+              }
+            }
+          } else {
+            input.classList.remove("filled");
+          }
+        });
+
+        // Keydown Event (Backspace and Arrow Keys)
+        input.addEventListener("keydown", (e) => {
+          if (e.key === "Backspace") {
+            if (!input.value && index > 0) {
+              otpInputs[index - 1].focus();
+              otpInputs[index - 1].value = "";
+              otpInputs[index - 1].classList.remove("filled");
+            } else {
+              input.value = "";
+              input.classList.remove("filled");
+            }
+            otpErrorFeedback.classList.remove("visible");
+            clearOtpErrors();
+          } else if (e.key === "ArrowLeft" && index > 0) {
+            otpInputs[index - 1].focus();
+          } else if (e.key === "ArrowRight" && index < otpInputs.length - 1) {
+            otpInputs[index + 1].focus();
+          }
+        });
+
+        // Paste Event for 6 digits
+        input.addEventListener("paste", (e) => {
+          e.preventDefault();
+          const pasteData = (e.clipboardData || window.clipboardData).getData("text").replace(/\\D/g, "").slice(0, 6);
+          if (pasteData) {
+            fillOtpDigits(pasteData);
+            if (pasteData.length === 6) {
+              verifyOtpCode();
+            }
+          }
+        });
+
+        // Select content on focus
+        input.addEventListener("focus", () => {
+          input.select();
+        });
+      });
+
+      function fillOtpDigits(code) {
+        const digits = code.split("");
+        digits.forEach((digit, i) => {
+          if (i < otpInputs.length) {
+            otpInputs[i].value = digit;
+            otpInputs[i].classList.add("filled");
+            otpInputs[i].classList.remove("error");
+          }
+        });
+        const nextIndex = Math.min(digits.length, otpInputs.length - 1);
+        otpInputs[nextIndex].focus();
+      }
+
+      function getOtpValue() {
+        let otp = "";
+        otpInputs.forEach(inp => otp += inp.value);
+        return otp;
+      }
+
+      function resetOtpInputs() {
+        otpInputs.forEach(inp => {
+          inp.value = "";
+          inp.classList.remove("filled", "error", "success");
+        });
+        otpErrorFeedback.classList.remove("visible");
+        setTimeout(() => {
+          otpInputs[0].focus();
+        }, 150);
+      }
+
+      function clearOtpErrors() {
+        otpInputs.forEach(inp => inp.classList.remove("error"));
+      }
+
+      // 6. Resend Countdown Timer (30s)
+      function startCountdown() {
+        clearInterval(countdownTimerInterval);
+        countdownSeconds = 30;
+        btnResendOtp.disabled = true;
+        updateCountdownUI();
+
+        countdownTimerInterval = setInterval(() => {
+          countdownSeconds--;
+          updateCountdownUI();
+
+          if (countdownSeconds <= 0) {
+            clearInterval(countdownTimerInterval);
+            btnResendOtp.disabled = false;
+            btnResendOtp.innerHTML = "Resend OTP";
+          }
+        }, 1000);
+      }
+
+      function updateCountdownUI() {
+        if (countdownSeconds > 0) {
+          const sec = countdownSeconds < 10 ? `0${countdownSeconds}` : countdownSeconds;
+          btnResendOtp.innerHTML = `Resend in <span class="countdown-timer">${sec}s</span>`;
+        }
+      }
+
+      btnResendOtp.addEventListener("click", () => {
+        if (btnResendOtp.disabled) return;
+        generatedOtp = generateRandomOtp();
+        resetOtpInputs();
+        startCountdown();
+        showDemoToast(generatedOtp);
+      });
+
+      // 7. Verification & Visual Feedback
+      btnVerifyOtp.addEventListener("click", () => {
+        verifyOtpCode();
+      });
+
+      function verifyOtpCode() {
+        const enteredCode = getOtpValue();
+        if (enteredCode.length < 6) {
+          otpErrorText.textContent = "Please enter all 6 digits of the OTP code.";
+          otpErrorFeedback.classList.add("visible");
+          otpContainer.classList.add("shake");
+          setTimeout(() => otpContainer.classList.remove("shake"), 500);
+          return;
+        }
+
+        setBtnLoading(btnVerifyOtp, true);
+
+        setTimeout(() => {
+          setBtnLoading(btnVerifyOtp, false);
+
+          if (enteredCode === generatedOtp || enteredCode === "123456") {
+            // Correct OTP
+            otpInputs.forEach(inp => {
+              inp.classList.remove("error");
+              inp.classList.add("success");
+            });
+            otpErrorFeedback.classList.remove("visible");
+
+            setTimeout(() => {
+              clearInterval(countdownTimerInterval);
+              step2View.classList.remove("active");
+              successView.classList.add("active");
+            }, 600);
+
+          } else {
+            // Incorrect OTP
+            otpInputs.forEach(inp => inp.classList.add("error"));
+            otpErrorText.textContent = "Incorrect OTP code. Please check and try again.";
+            otpErrorFeedback.classList.add("visible");
+            
+            // Trigger Shake Animation
+            otpContainer.classList.add("shake");
+            setTimeout(() => {
+              otpContainer.classList.remove("shake");
+            }, 500);
+
+            // Focus on first box and select
+            otpInputs[0].focus();
+            otpInputs[0].select();
+          }
+        }, 600);
+      }
+
+      // Go to Study Dashboard button
+      btnGoHome.addEventListener("click", () => {
+        alert("🎉 Authentication verified! Navigating to StudyPoint Curriculum Dashboard...");
+      });
+
+    });
+  </script>
+</body>
+</html>

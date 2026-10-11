@@ -1,0 +1,23 @@
+# StudyPoint Robots.txt - Search Engine Crawling Directives
+User-agent: *
+Allow: /
+Allow: /css/
+Allow: /js/
+Allow: /images/
+Allow: /downloads/studypoint.apk
+Disallow: /tmp/
+Disallow: /*.zip$
+Disallow: /*.bak$
+
+# Dedicated Bots
+User-agent: Googlebot
+Allow: /
+
+User-agent: Googlebot-Image
+Allow: /images/
+
+User-agent: Googlebot-Mobile
+Allow: /
+
+# Sitemap Index
+Sitemap: https://studypoint.pk/sitemap.xml

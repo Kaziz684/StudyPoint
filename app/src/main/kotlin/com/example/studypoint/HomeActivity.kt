@@ -519,9 +519,7 @@ fun HomeScreen(
                     SocialMediaHubSection(
                         onFacebookClick = { SocialMediaManager.openFacebook(context) },
                         onWhatsAppClick = { SocialMediaManager.openWhatsApp(context) },
-                        onTelegramClick = { SocialMediaManager.openTelegram(context) },
-                        onYouTubeClick = { SocialMediaManager.openYouTubeChannel(context) },
-                        onInstagramClick = { SocialMediaManager.openInstagram(context) }
+                        onYouTubeClick = { SocialMediaManager.openYouTubeChannel(context) }
                     )
                 }
 
@@ -1995,9 +1993,7 @@ fun YouTubeVideoCard(
 fun SocialMediaHubSection(
     onFacebookClick: () -> Unit,
     onWhatsAppClick: () -> Unit,
-    onTelegramClick: () -> Unit,
-    onYouTubeClick: () -> Unit,
-    onInstagramClick: () -> Unit
+    onYouTubeClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -2090,7 +2086,7 @@ fun SocialMediaHubSection(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Grid Row 1: WhatsApp Support & Telegram Group
+            // Action Row: WhatsApp Support & YouTube Channel
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -2107,40 +2103,12 @@ fun SocialMediaHubSection(
 
                 SocialActionChip(
                     modifier = Modifier.weight(1f),
-                    title = "Telegram",
-                    subtitle = "PDFs Channel",
-                    iconRes = R.drawable.ic_telegram,
-                    bgColor = Color(0xFFF0F9FF),
-                    textColor = Color(0xFF075985),
-                    onClick = onTelegramClick
-                )
-            }
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            // Grid Row 2: YouTube Lectures & Instagram
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                SocialActionChip(
-                    modifier = Modifier.weight(1f),
                     title = "YouTube",
                     subtitle = "Free Lectures",
                     iconRes = R.drawable.ic_youtube,
                     bgColor = Color(0xFFFEF2F2),
                     textColor = Color(0xFF991B1B),
                     onClick = onYouTubeClick
-                )
-
-                SocialActionChip(
-                    modifier = Modifier.weight(1f),
-                    title = "Instagram",
-                    subtitle = "Reels & Tips",
-                    iconRes = R.drawable.ic_instagram,
-                    bgColor = Color(0xFFFDF2F8),
-                    textColor = Color(0xFF9D174D),
-                    onClick = onInstagramClick
                 )
             }
         }
