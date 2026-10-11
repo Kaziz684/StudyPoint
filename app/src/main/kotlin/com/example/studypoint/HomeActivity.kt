@@ -1225,6 +1225,15 @@ fun AiChatBottomSheet(onDismiss: () -> Unit) {
 @Composable
 fun TypingIndicatorBubble() {
     val infiniteTransition = rememberInfiniteTransition(label = "typing")
+    val alpha by infiniteTransition.animateFloat(
+        initialValue = 0.25f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween<Float>(durationMillis = 600),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "dots"
+    )
     Row(
         modifier = Modifier
             .background(Color.White, RoundedCornerShape(16.dp))
@@ -1233,16 +1242,7 @@ fun TypingIndicatorBubble() {
         horizontalArrangement = Arrangement.spacedBy(5.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        repeat(3) { i ->
-            val alpha by infiniteTransition.animateFloat(
-                initialValue = 0.25f,
-                targetValue = 1f,
-                animationSpec = infiniteRepeatable(
-                    animation = tween(durationMillis = 500, delayMillis = i * 180),
-                    repeatMode = RepeatMode.Reverse
-                ),
-                label = "dot$i"
-            )
+        repeat(3) {
             Box(
                 modifier = Modifier
                     .size(8.dp)
