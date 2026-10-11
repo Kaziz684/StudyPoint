@@ -68,7 +68,9 @@ class HomeActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        LanguageManager.applySavedLanguage(this)
         auth = FirebaseAuth.getInstance()
+        setupNotifications()
 
         if (auth.currentUser == null) {
             startActivity(Intent(this, LoginActivity::class.java))
@@ -93,6 +95,18 @@ class HomeActivity : ComponentActivity() {
                 )
             }
         }
+    }
+
+    private fun setupNotifications() {
+        // Request notification permission on Android 13+
+        if (android.os.Build.VERSION.SDK_INT >= 33) {
+            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) !=
+                android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 1001)
+            }
+        }
+        // Subscribe to FCM topics for daily MCQs and announcements
+        StudyPointMessagingService.subscribeToTopics()
     }
 
     private fun logout() {
@@ -215,6 +229,19 @@ fun HomeScreen(
                         onClick = {
                             scope.launch { drawerState.close() }
                             context.startActivity(Intent(context, BookmarksActivity::class.java))
+                        },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+
+                    NavigationDrawerItem(
+                        icon = { Icon(Icons.Default.Language, null, tint = Color(0xFF38BDF8)) },
+                        label = { Text(if (LanguageManager.isUrdu(context)) "English کریں" else "اردو کریں") },
+                        selected = false,
+                        onClick = {
+                            scope.launch { drawerState.close() }
+                            val ctx = context as android.app.Activity
+                            LanguageManager.toggle(ctx)
+                            ctx.recreate()
                         },
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                     )
