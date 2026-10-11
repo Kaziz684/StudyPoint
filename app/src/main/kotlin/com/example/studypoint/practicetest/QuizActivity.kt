@@ -6,8 +6,10 @@ import android.os.CountDownTimer
 import android.os.Handler
 import android.os.Looper
 import android.view.View
+import android.widget.ImageButton
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -25,6 +27,7 @@ class QuizActivity : AppCompatActivity() {
     private lateinit var tvQuestionText: TextView
     private lateinit var btnOptions: List<MaterialButton>
     private lateinit var btnNext: MaterialButton
+    private lateinit var btnBookmark: ImageButton
 
     private var questions: List<Question> = emptyList()
     private var currentIndex = 0
@@ -42,6 +45,19 @@ class QuizActivity : AppCompatActivity() {
         quizProgressBar = findViewById(R.id.quizProgressBar)
         tvQuestionText = findViewById(R.id.tvQuestionText)
         btnNext = findViewById(R.id.btnNext)
+        btnBookmark = findViewById(R.id.btnBookmark)
+
+        btnBookmark.setOnClickListener {
+            if (questions.isEmpty() || currentIndex >= questions.size) return@setOnClickListener
+            val q = questions[currentIndex]
+            val added = BookmarkManager.toggleBookmark(this, q)
+            updateBookmarkIcon()
+            Toast.makeText(
+                this,
+                if (added) "Saved! Find it in Bookmarks." else "Removed from bookmarks.",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
 
         btnOptions = listOf(
             findViewById(R.id.btnOption1),
@@ -137,6 +153,7 @@ class QuizActivity : AppCompatActivity() {
         tvQuestionCount.text = "Question ${currentIndex + 1} / ${questions.size}"
         quizProgressBar.progress = ((currentIndex + 1) * 100) / questions.size
         tvQuestionText.text = q.questionText
+        updateBookmarkIcon()
 
         val options = q.options
         btnOptions.forEachIndexed { i, button ->
@@ -153,6 +170,15 @@ class QuizActivity : AppCompatActivity() {
         }
 
         startTimer()
+    }
+
+    private fun updateBookmarkIcon() {
+        if (questions.isEmpty() || currentIndex >= questions.size) return
+        val bookmarked = BookmarkManager.isBookmarked(this, questions[currentIndex])
+        btnBookmark.setImageResource(
+            if (bookmarked) android.R.drawable.btn_star_big_on
+            else android.R.drawable.btn_star_big_off
+        )
     }
 
     private fun startTimer() {
