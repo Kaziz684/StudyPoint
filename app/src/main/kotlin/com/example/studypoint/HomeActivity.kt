@@ -1216,13 +1216,17 @@ fun AiChatBottomSheet(onDismiss: () -> Unit) {
                     OutlinedTextField(
                         value = prompt,
                         onValueChange = { prompt = it },
-                        placeholder = { Text("Ask any formula, concept or question...", fontSize = 12.sp) },
+                        placeholder = { Text("Ask any formula, concept or question...", fontSize = 12.sp, color = Color(0xFF94A3B8)) },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(18.dp),
                         colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = Color.Black,
+                            unfocusedTextColor = Color.Black,
                             focusedContainerColor = Color(0xFFF8FAFC),
                             unfocusedContainerColor = Color(0xFFF8FAFC),
-                            focusedBorderColor = Color(0xFF059669)
+                            focusedBorderColor = Color(0xFF059669),
+                            unfocusedBorderColor = Color(0xFFE2E8F0),
+                            cursorColor = Color.Black
                         ),
                         maxLines = 3,
                         enabled = !isTyping
