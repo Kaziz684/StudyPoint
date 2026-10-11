@@ -60,9 +60,10 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
         val isS2Bio = s2.contains("bio") || s2.contains("حیاتیات")
         if (isS1Bio && isS2Bio) return true
 
-        // Computer Science matching
-        val isS1CS = s1.contains("computer") || s1.contains("cs") || s1.contains("کمپیوٹر")
-        val isS2CS = s2.contains("computer") || s2.contains("cs") || s2.contains("کمپیوٹر")
+        // Computer Science matching ("cs" only as a whole word: "physics"/"mathematics" contain "cs" as substring)
+        val csWord = Regex("\\bcs\\b")
+        val isS1CS = s1.contains("computer") || s1.contains(csWord) || s1.contains("کمپیوٹر")
+        val isS2CS = s2.contains("computer") || s2.contains(csWord) || s2.contains("کمپیوٹر")
         if (isS1CS && isS2CS) return true
 
         // English matching

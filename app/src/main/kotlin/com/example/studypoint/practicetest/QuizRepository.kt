@@ -14,8 +14,8 @@ import java.util.concurrent.TimeUnit
 class QuizRepository(private val context: Context? = null) {
 
     private val client = OkHttpClient.Builder()
-        .connectTimeout(5, TimeUnit.SECONDS)
-        .readTimeout(5, TimeUnit.SECONDS)
+        .connectTimeout(20, TimeUnit.SECONDS)
+        .readTimeout(20, TimeUnit.SECONDS)
         .build()
 
     private val gson = Gson()
