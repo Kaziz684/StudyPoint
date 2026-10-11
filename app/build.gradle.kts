@@ -24,7 +24,7 @@ android {
         applicationId = "com.example.studypoint"
         minSdk = 23 // Firebase + PDF Viewer ke liye best
         targetSdk = 35
-        versionCode = 6
+        versionCode = 2
         versionName = "1.1"
 
         buildConfigField("String", "YOUTUBE_API_KEY", "\"$youtubeApiKey\"")
@@ -66,6 +66,7 @@ dependencies {
     implementation("com.google.firebase:firebase-database")
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-messaging")
 
     implementation("androidx.viewpager2:viewpager2:1.1.0")
 
