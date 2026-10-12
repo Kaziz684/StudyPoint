@@ -1,12 +1,19 @@
 package com.example.studypoint
 
 import android.annotation.SuppressLint
+import android.app.DownloadManager
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.view.LayoutInflater
 import android.widget.Toast
+import androidx.core.content.FileProvider
+import java.io.File
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedVisibility
@@ -2246,8 +2253,9 @@ fun checkForAppUpdate(context: Context, onResult: (AppUpdateInfo?) -> Unit) {
 @Composable
 fun AppUpdateDialog(info: AppUpdateInfo, onDismiss: () -> Unit) {
     val context = LocalContext.current
+    var isDownloading by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
     AlertDialog(
-        onDismissRequest = { if (!info.forceUpdate) onDismiss() },
+        onDismissRequest = { if (!info.forceUpdate && !isDownloading) onDismiss() },
         title = { Text("Update Available \uD83C\uDF89", fontWeight = FontWeight.Bold) },
         text = {
             Column {
@@ -2256,25 +2264,85 @@ fun AppUpdateDialog(info: AppUpdateInfo, onDismiss: () -> Unit) {
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(info.changelog, fontSize = 13.sp, color = Color(0xFF64748B))
                 }
+                if (isDownloading) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("Downloading update... please wait.", fontSize = 13.sp, color = Color(0xFF10B981))
+                }
             }
         },
         confirmButton = {
             Button(
                 onClick = {
-                    if (info.apkUrl.isNotBlank()) {
-                        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(info.apkUrl)))
+                    if (info.apkUrl.isNotBlank() && !isDownloading) {
+                        isDownloading = true
+                        downloadAndInstallApk(context, info.apkUrl)
                     }
                     if (!info.forceUpdate) onDismiss()
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF10B981))
             ) {
-                Text("Update Now", color = Color.White, fontWeight = FontWeight.Bold)
+                Text(if (isDownloading) "Downloading..." else "Update Now", color = Color.White, fontWeight = FontWeight.Bold)
             }
         },
         dismissButton = {
-            if (!info.forceUpdate) {
+            if (!info.forceUpdate && !isDownloading) {
                 TextButton(onClick = onDismiss) { Text("Later") }
             }
         }
     )
+}
+
+/**
+ * Downloads the APK inside the app using DownloadManager (no browser),
+ * then opens the install prompt automatically when done.
+ */
+fun downloadAndInstallApk(context: Context, url: String) {
+    try {
+        val fileName = "StudyPoint-update.apk"
+        val request = DownloadManager.Request(Uri.parse(url)).apply {
+            setTitle("StudyPoint Update")
+            setDescription("Downloading update...")
+            setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+            setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
+            setMimeType("application/vnd.android.package-archive")
+        }
+        val dm = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+        val downloadId = dm.enqueue(request)
+        Toast.makeText(context, "Downloading update...", Toast.LENGTH_SHORT).show()
+
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(ctx: Context, intent: Intent) {
+                val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
+                if (id == downloadId) {
+                    try { ctx.unregisterReceiver(this) } catch (_: Exception) {}
+                    val file = File(
+                        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+                        fileName
+                    )
+                    if (file.exists()) {
+                        val uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                            FileProvider.getUriForFile(ctx, "${ctx.packageName}.fileprovider", file)
+                        } else {
+                            Uri.fromFile(file)
+                        }
+                        val installIntent = Intent(Intent.ACTION_VIEW).apply {
+                            setDataAndType(uri, "application/vnd.android.package-archive")
+                            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
+                        }
+                        ctx.startActivity(installIntent)
+                    } else {
+                        Toast.makeText(ctx, "Download failed. Try again.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+        if (Build.VERSION.SDK_INT >= 33) {
+            context.registerReceiver(receiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE), Context.RECEIVER_NOT_EXPORTED)
+        } else {
+            @Suppress("DEPRECATION")
+            context.registerReceiver(receiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
+        }
+    } catch (e: Exception) {
+        Toast.makeText(context, "Download failed: ${e.message}", Toast.LENGTH_SHORT).show()
+    }
 }
