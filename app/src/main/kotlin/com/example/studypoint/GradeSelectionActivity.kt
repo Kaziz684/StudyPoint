@@ -17,10 +17,10 @@ class GradeSelectionActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.headerText).text = "Select Your Class"
 
         val grades = listOf(
-            GridItem("9", "9th Class", R.drawable.ic_resources_rich),
-            GridItem("10", "10th Class", R.drawable.ic_resources_rich),
-            GridItem("11", "11th Class", R.drawable.ic_resources_rich),
-            GridItem("12", "12th Class", R.drawable.ic_resources_rich)
+            GridItem("9", "نہم کلاس (میٹرک)", R.drawable.ic_class_9_rich),
+            GridItem("10", "دہم کلاس (بورڈ)", R.drawable.ic_class_10_rich),
+            GridItem("11", "گیارہویں کلاس (انٹر)", R.drawable.ic_class_11_rich),
+            GridItem("12", "بارہویں کلاس (پری-یو)", R.drawable.ic_class_12_rich)
         )
 
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
