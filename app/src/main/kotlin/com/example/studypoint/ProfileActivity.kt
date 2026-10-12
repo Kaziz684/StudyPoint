@@ -440,26 +440,38 @@ fun ProfileScreen(
                         color = Color(0xFF475569)
                     )
                     Spacer(modifier = Modifier.height(8.dp))
-                    androidx.compose.foundation.layout.FlowRow(
+                    Column(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        subjectOptions.forEach { opt ->
-                            val isSelected = opt == selectedSubjectGroup
-                            Surface(
-                                modifier = Modifier.clickable(enabled = isEditMode) { selectedSubjectGroup = opt },
-                                shape = RoundedCornerShape(20.dp),
-                                color = if (isSelected) Color(0xFF10B981) else Color(0xFFF1F5F9),
-                                border = if (isSelected) null else androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE2E8F0))
+                        subjectOptions.chunked(2).forEach { rowOpts ->
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                Text(
-                                    text = opt,
-                                    fontSize = 12.sp,
-                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                    color = if (isSelected) Color.White else Color(0xFF475569),
-                                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp)
-                                )
+                                rowOpts.forEach { opt ->
+                                    val isSelected = opt == selectedSubjectGroup
+                                    Surface(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .clickable(enabled = isEditMode) { selectedSubjectGroup = opt },
+                                        shape = RoundedCornerShape(20.dp),
+                                        color = if (isSelected) Color(0xFF10B981) else Color(0xFFF1F5F9),
+                                        border = if (isSelected) null else androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE2E8F0))
+                                    ) {
+                                        Text(
+                                            text = opt,
+                                            fontSize = 12.sp,
+                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                            color = if (isSelected) Color.White else Color(0xFF475569),
+                                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp)
+                                        )
+                                    }
+                                }
+                                // Fill empty space if odd number of items
+                                if (rowOpts.size == 1) {
+                                    Spacer(modifier = Modifier.weight(1f))
+                                }
                             }
                         }
                     }
