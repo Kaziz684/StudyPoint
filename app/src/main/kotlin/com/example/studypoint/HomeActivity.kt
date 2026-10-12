@@ -634,7 +634,10 @@ fun HomeScreen(
             onLogout = onLogout,
             onShare = onShare,
             onWhatsApp = onWhatsApp,
-            onFeedback = onFeedback
+            onFeedback = onFeedback,
+            onProfileClick = {
+                context.startActivity(Intent(context, ProfileActivity::class.java))
+            }
         )
     }
 }
@@ -1360,12 +1363,16 @@ fun ProfileDialog(
     onLogout: () -> Unit,
     onShare: () -> Unit,
     onWhatsApp: () -> Unit,
-    onFeedback: () -> Unit
+    onFeedback: () -> Unit,
+    onProfileClick: () -> Unit
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.clickable { onDismiss(); onProfileClick() }
+            ) {
                 Box(
                     modifier = Modifier
                         .size(44.dp)
