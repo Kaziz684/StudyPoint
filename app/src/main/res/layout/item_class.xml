@@ -1,4 +1,5 @@
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/classCard"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -6,18 +7,45 @@
     android:foreground="?attr/selectableItemBackground"
     android:clickable="true"
     android:focusable="true"
-    android:elevation="8dp"
-    android:radius="22dp">
+    app:cardElevation="8dp"
+    app:cardCornerRadius="22dp">
 
-    <TextView
-        android:id="@+id/tvClassName"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Class 9"
-        android:textSize="20sp"
-        android:textStyle="bold"
+        android:orientation="vertical"
         android:gravity="center"
-        android:padding="24dp"
-        android:textColor="@android:color/white"
-        android:background="@drawable/class_bg"/>
+        android:padding="20dp"
+        android:background="@drawable/class_bg">
+
+        <TextView
+            android:id="@+id/tvClassNumber"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:gravity="center"
+            android:text="9"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:textColor="#059669"
+            android:background="@drawable/circle_white_bg" />
+
+        <TextView
+            android:id="@+id/tvClassName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Class 9th"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            android:layout_marginTop="8dp" />
+
+        <TextView
+            android:id="@+id/tvClassSubtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Matric Part 1"
+            android:textSize="12sp"
+            android:textColor="#A7F3D0" />
+
+    </LinearLayout>
 </androidx.cardview.widget.CardView>
