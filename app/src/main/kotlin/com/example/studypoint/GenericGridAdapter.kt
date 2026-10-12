@@ -6,7 +6,6 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.card.MaterialCardView
 
 data class GridItem(
     val id: String,
@@ -17,6 +16,7 @@ data class GridItem(
 
 class GenericGridAdapter(
     private val items: List<GridItem>,
+    private val useGlassCard: Boolean = false,
     private val onItemClick: (GridItem) -> Unit
 ) : RecyclerView.Adapter<GenericGridAdapter.GridViewHolder>() {
 
@@ -28,14 +28,9 @@ class GenericGridAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GridViewHolder {
-        // Use glass card layout if available, fallback to square card
-        val layoutRes = try {
-            val id = parent.context.resources.getIdentifier("item_glass_card", "layout", parent.context.packageName)
-            if (id != 0) id else R.layout.item_square_card
-        } catch (e: Exception) {
-            R.layout.item_square_card
-        }
-        val view = LayoutInflater.from(parent.context).inflate(layoutRes, parent, false)
+        val layoutRes = if (useGlassCard) R.layout.item_glass_card else R.layout.item_square_card
+        val view = LayoutInflater.from(parent.context)
+            .inflate(layoutRes, parent, false)
         return GridViewHolder(view)
     }
 

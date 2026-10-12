@@ -29,7 +29,7 @@ class GradeSelectionActivity : AppCompatActivity() {
 
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
         recyclerView.layoutManager = GridLayoutManager(this, 2)
-        recyclerView.adapter = GenericGridAdapter(grades) { item ->
+        recyclerView.adapter = GenericGridAdapter(grades, useGlassCard = true) { item ->
             val intent = Intent(this, SubjectsActivity::class.java)
             intent.putExtra("grade", item.id)
             startActivity(intent)
