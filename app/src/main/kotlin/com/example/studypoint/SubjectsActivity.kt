@@ -49,22 +49,13 @@ class SubjectsActivity : AppCompatActivity() {
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
         recyclerView.layoutManager = GridLayoutManager(this, 2)
         recyclerView.adapter = GenericGridAdapter(subjects) { item ->
-            if (SubjectStructure.hasSections(item.id)) {
-                // Urdu/English: show sections first (Hissa Ghazal/Nazm/Asbaq, Grammar etc.)
-                val intent = Intent(this, SectionsActivity::class.java).apply {
-                    putExtra("grade", gradeNum)
-                    putExtra("class", gradeNum)
-                    putExtra("subject", item.id)
-                    putExtra("mode", "sections")
-                }
-                startActivity(intent)
-            } else {
-                val intent = Intent(this, MaterialSelectionActivity::class.java)
-                intent.putExtra("grade", gradeNum)
-                intent.putExtra("class", gradeNum)
-                intent.putExtra("subject", item.id)
-                startActivity(intent)
-            }
+            // All subjects go to MaterialSelectionActivity
+            // (Urdu sections and English Grammar are materials inside it)
+            val intent = Intent(this, MaterialSelectionActivity::class.java)
+            intent.putExtra("grade", gradeNum)
+            intent.putExtra("class", gradeNum)
+            intent.putExtra("subject", item.id)
+            startActivity(intent)
         }
     }
 }
