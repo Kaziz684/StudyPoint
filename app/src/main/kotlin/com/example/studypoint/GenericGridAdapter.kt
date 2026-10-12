@@ -11,6 +11,7 @@ import com.google.android.material.card.MaterialCardView
 data class GridItem(
     val id: String,
     val title: String,
+    val subtitle: String = "",
     val iconRes: Int
 )
 
@@ -20,20 +21,29 @@ class GenericGridAdapter(
 ) : RecyclerView.Adapter<GenericGridAdapter.GridViewHolder>() {
 
     class GridViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val card: MaterialCardView = itemView.findViewById(R.id.cardContainer)
+        val card: View = itemView.findViewById(R.id.cardContainer)
         val icon: ImageView = itemView.findViewById(R.id.itemIcon)
         val title: TextView = itemView.findViewById(R.id.itemTitle)
+        val subtitle: TextView? = itemView.findViewById(R.id.itemSubtitle)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GridViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_square_card, parent, false)
+        // Use glass card layout if available, fallback to square card
+        val layoutRes = try {
+            val id = parent.context.resources.getIdentifier("item_glass_card", "layout", parent.context.packageName)
+            if (id != 0) id else R.layout.item_square_card
+        } catch (e: Exception) {
+            R.layout.item_square_card
+        }
+        val view = LayoutInflater.from(parent.context).inflate(layoutRes, parent, false)
         return GridViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: GridViewHolder, position: Int) {
         val item = items[position]
         holder.title.text = item.title
+        holder.subtitle?.text = item.subtitle
+        holder.subtitle?.visibility = if (item.subtitle.isNotEmpty()) View.VISIBLE else View.GONE
         holder.icon.setImageResource(item.iconRes)
         // No need for separate tint if we use rich icons with backgrounds
         holder.icon.imageTintList = null 
