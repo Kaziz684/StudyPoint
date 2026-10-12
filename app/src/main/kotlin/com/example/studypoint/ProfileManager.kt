@@ -15,6 +15,7 @@ data class UserProfile(
     val age: String = "16",
     val schoolCollege: String = "Govt Higher Secondary School, Bahawalpur",
     val grade: String = "Class 10th",
+    val subjectGroup: String = "",
     val imagePath: String = ""
 )
 
@@ -24,6 +25,7 @@ object ProfileManager {
     private const val KEY_AGE = "age"
     private const val KEY_SCHOOL = "school_college"
     private const val KEY_GRADE = "grade"
+    private const val KEY_SUBJECT_GROUP = "subject_group"
     private const val KEY_IMAGE_PATH = "profile_image_path"
     private const val TAG = "ProfileManager"
 
@@ -36,6 +38,7 @@ object ProfileManager {
         val age = prefs.getString(KEY_AGE, "16") ?: "16"
         val school = prefs.getString(KEY_SCHOOL, "Govt Comprehensive High School, Bahawalpur") ?: "Govt Comprehensive High School, Bahawalpur"
         val grade = prefs.getString(KEY_GRADE, "Class 10th") ?: "Class 10th"
+        val subjectGroup = prefs.getString(KEY_SUBJECT_GROUP, "") ?: ""
         val imagePath = prefs.getString(KEY_IMAGE_PATH, "") ?: ""
 
         return UserProfile(
@@ -43,6 +46,7 @@ object ProfileManager {
             age = age,
             schoolCollege = school,
             grade = grade,
+            subjectGroup = subjectGroup,
             imagePath = imagePath
         )
     }
@@ -54,10 +58,11 @@ object ProfileManager {
             putString(KEY_AGE, profile.age.trim())
             putString(KEY_SCHOOL, profile.schoolCollege.trim())
             putString(KEY_GRADE, profile.grade.trim())
+            putString(KEY_SUBJECT_GROUP, profile.subjectGroup.trim())
             putString(KEY_IMAGE_PATH, profile.imagePath)
             apply()
         }
-        Log.d(TAG, "User profile saved successfully: ${profile.fullName}, ${profile.grade}")
+        Log.d(TAG, "User profile saved successfully: ${profile.fullName}, ${profile.grade}, ${profile.subjectGroup}")
     }
 
     /**

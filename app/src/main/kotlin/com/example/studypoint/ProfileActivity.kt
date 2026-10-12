@@ -76,6 +76,7 @@ fun ProfileScreen(
     var age by remember { mutableStateOf(initialProfile.age) }
     var schoolCollege by remember { mutableStateOf(initialProfile.schoolCollege) }
     var selectedGrade by remember { mutableStateOf(initialProfile.grade) }
+    var selectedSubjectGroup by remember { mutableStateOf(initialProfile.subjectGroup) }
     var imagePath by remember { mutableStateOf(initialProfile.imagePath) }
 
     // Error states for validation
@@ -171,6 +172,7 @@ fun ProfileScreen(
                                         age = age.trim(),
                                         schoolCollege = schoolCollege.trim(),
                                         grade = selectedGrade,
+                                        subjectGroup = selectedSubjectGroup,
                                         imagePath = imagePath
                                     )
                                     ProfileManager.saveProfile(context, updated)
@@ -289,7 +291,12 @@ fun ProfileScreen(
             )
 
             Text(
-                text = "$selectedGrade • Bahawalpur",
+                text = buildString {
+                    append(selectedGrade)
+                    if (selectedSubjectGroup.isNotBlank()) {
+                        append(" • $selectedSubjectGroup")
+                    }
+                },
                 fontSize = 13.sp,
                 color = Color(0xFF64748B)
             )
@@ -394,7 +401,10 @@ fun ProfileScreen(
                             Surface(
                                 modifier = Modifier
                                     .weight(1f)
-                                    .clickable(enabled = isEditMode) { selectedGrade = gr },
+                                    .clickable(enabled = isEditMode) {
+                                        selectedGrade = gr
+                                        selectedSubjectGroup = ""
+                                    },
                                 shape = RoundedCornerShape(10.dp),
                                 color = if (isSelected) Color(0xFF4F46E5) else Color(0xFFF1F5F9),
                                 border = if (isSelected) null else androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE2E8F0))
@@ -410,6 +420,46 @@ fun ProfileScreen(
                                         color = if (isSelected) Color.White else Color(0xFF475569)
                                     )
                                 }
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // 5. Subject / Group Selection (depends on class)
+                    val isMatric = selectedGrade == "Class 9th" || selectedGrade == "Class 10th"
+                    val subjectOptions = if (isMatric) {
+                        listOf("Biology", "Computer Science")
+                    } else {
+                        listOf("Pre-Medical", "Pre-Engineering", "ICS", "Commerce", "Arts")
+                    }
+                    Text(
+                        text = if (isMatric) "Subject (9th/10th)" else "Group (11th/12th)",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color(0xFF475569)
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    androidx.compose.foundation.layout.FlowRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        subjectOptions.forEach { opt ->
+                            val isSelected = opt == selectedSubjectGroup
+                            Surface(
+                                modifier = Modifier.clickable(enabled = isEditMode) { selectedSubjectGroup = opt },
+                                shape = RoundedCornerShape(20.dp),
+                                color = if (isSelected) Color(0xFF10B981) else Color(0xFFF1F5F9),
+                                border = if (isSelected) null else androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE2E8F0))
+                            ) {
+                                Text(
+                                    text = opt,
+                                    fontSize = 12.sp,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                    color = if (isSelected) Color.White else Color(0xFF475569),
+                                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp)
+                                )
                             }
                         }
                     }
@@ -444,6 +494,7 @@ fun ProfileScreen(
                                 age = age.trim(),
                                 schoolCollege = schoolCollege.trim(),
                                 grade = selectedGrade,
+                                subjectGroup = selectedSubjectGroup,
                                 imagePath = imagePath
                             )
                             ProfileManager.saveProfile(context, updated)
