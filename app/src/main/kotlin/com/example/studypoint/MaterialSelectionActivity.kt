@@ -16,13 +16,14 @@ class MaterialSelectionActivity : AppCompatActivity() {
         val rawGrade = intent.getStringExtra("grade") ?: intent.getStringExtra("class") ?: "9"
         val gradeNum = rawGrade.filter { it.isDigit() }.ifBlank { "9" }
         val subject = intent.getStringExtra("subject") ?: ""
+        val subjectLower = subject.lowercase()
 
         // Set Header
         findViewById<android.view.View>(R.id.btnBack).setOnClickListener { finish() }
-        findViewById<TextView>(R.id.headerText).text = if (subject.isNotBlank()) "$subject Materials" else "Study Material"
+        findViewById<TextView>(R.id.headerText).text = if (subject.isNotBlank()) "$subject" else "Study Material"
 
-        // 5 Material Categories: Textbook, Notes, Past Papers, Guess Papers, MCQs
-        val materials = listOf(
+        // Build materials list based on subject type
+        val materials = mutableListOf(
             GridItem("Textbook", "Textbook", R.drawable.ic_textbook),
             GridItem("Notes", "Solved Notes", R.drawable.ic_solved_notes),
             GridItem("Past Papers", "Past Papers", R.drawable.ic_pastpaper),
@@ -30,44 +31,74 @@ class MaterialSelectionActivity : AppCompatActivity() {
             GridItem("MCQs", "MCQs Practice", R.drawable.ic_mcqs_practice)
         )
 
-        val chapter = intent.getStringExtra("chapter") ?: ""
-        val chapterTitle = intent.getStringExtra("chapterTitle") ?: ""
+        // English: add Grammar as a material
+        if (subjectLower.contains("english")) {
+            materials.add(GridItem("Grammar", "Grammar", R.drawable.ic_solved_notes))
+        }
 
-        // Update header if we're inside a chapter/section
-        if (chapterTitle.isNotBlank()) {
-            findViewById<TextView>(R.id.headerText).text = chapterTitle
+        // Urdu: add 3 sections as materials
+        if (subjectLower.contains("urdu")) {
+            materials.add(GridItem("urdu_ghazal", "Hissa-e-Ghazal", R.drawable.ic_textbook))
+            materials.add(GridItem("urdu_nazm", "Hissa-e-Nazm", R.drawable.ic_textbook))
+            materials.add(GridItem("urdu_asbaq", "Asbaq", R.drawable.ic_textbook))
         }
 
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
         recyclerView.layoutManager = GridLayoutManager(this, 2)
         recyclerView.adapter = GenericGridAdapter(materials) { item ->
-            if (item.id == "MCQs") {
-                val sheetName = "Class_${gradeNum}th"
-                val intent = Intent(this, QuizActivity::class.java).apply {
-                    putExtra("sheetName", sheetName)
-                    putExtra("subject", subject)
-                    putExtra("chapter", chapter)
+            when {
+                item.id == "MCQs" -> {
+                    val sheetName = "Class_${gradeNum}th"
+                    val intent = Intent(this, QuizActivity::class.java).apply {
+                        putExtra("sheetName", sheetName)
+                        putExtra("subject", subject)
+                        putExtra("chapter", "")
+                    }
+                    startActivity(intent)
                 }
-                startActivity(intent)
-            } else if (item.id == "Notes" && SubjectStructure.hasChapterNotes(subject) && chapter.isBlank()) {
-                // Sciences: show chapter list when Notes is tapped
-                val intent = Intent(this, SectionsActivity::class.java).apply {
-                    putExtra("grade", gradeNum)
-                    putExtra("class", gradeNum)
-                    putExtra("subject", subject)
-                    putExtra("mode", "chapters")
+                item.id == "Notes" && SubjectStructure.hasChapterNotes(subject) -> {
+                    // Sciences: Notes -> chapter list -> DIRECT to content (no materials again)
+                    val intent = Intent(this, SectionsActivity::class.java).apply {
+                        putExtra("grade", gradeNum)
+                        putExtra("class", gradeNum)
+                        putExtra("subject", subject)
+                        putExtra("mode", "chapters")
+                    }
+                    startActivity(intent)
                 }
-                startActivity(intent)
-            } else {
-                val intent = Intent(this, NotesActivity::class.java).apply {
-                    putExtra("grade", gradeNum)
-                    putExtra("class", gradeNum)
-                    putExtra("subject", subject)
-                    putExtra("material", item.id)
-                    putExtra("chapter", chapter)
-                    putExtra("chapterTitle", chapterTitle)
+                item.id == "Grammar" -> {
+                    // English Grammar -> topic list -> DIRECT to content
+                    val intent = Intent(this, SectionsActivity::class.java).apply {
+                        putExtra("grade", gradeNum)
+                        putExtra("class", gradeNum)
+                        putExtra("subject", subject)
+                        putExtra("mode", "content")
+                        putExtra("sectionId", "eng_grammar")
+                        putExtra("sectionTitle", "Grammar")
+                    }
+                    startActivity(intent)
                 }
-                startActivity(intent)
+                item.id.startsWith("urdu_") -> {
+                    // Urdu sections -> content list -> DIRECT to content
+                    val intent = Intent(this, SectionsActivity::class.java).apply {
+                        putExtra("grade", gradeNum)
+                        putExtra("class", gradeNum)
+                        putExtra("subject", subject)
+                        putExtra("mode", "content")
+                        putExtra("sectionId", item.id)
+                        putExtra("sectionTitle", item.title)
+                    }
+                    startActivity(intent)
+                }
+                else -> {
+                    val intent = Intent(this, NotesActivity::class.java).apply {
+                        putExtra("grade", gradeNum)
+                        putExtra("class", gradeNum)
+                        putExtra("subject", subject)
+                        putExtra("material", item.id)
+                    }
+                    startActivity(intent)
+                }
             }
         }
     }
