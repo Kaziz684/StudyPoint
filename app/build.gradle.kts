@@ -31,6 +31,27 @@ android {
         buildConfigField("String", "YOUTUBE_CHANNEL_ID", "\"$youtubeChannelId\"")
     }
 
+    // Release signing: uses env vars when present (CI). Local builds fall back to debug signing.
+    val releaseKeystorePath = System.getenv("KEYSTORE_FILE")
+    signingConfigs {
+        if (!releaseKeystorePath.isNullOrBlank()) {
+            create("release") {
+                storeFile = file(releaseKeystorePath)
+                storePassword = System.getenv("KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("KEY_ALIAS")
+                keyPassword = System.getenv("KEY_PASSWORD")
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            if (!releaseKeystorePath.isNullOrBlank()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
+        }
+    }
+
     buildFeatures {
         compose = true
         buildConfig = true
