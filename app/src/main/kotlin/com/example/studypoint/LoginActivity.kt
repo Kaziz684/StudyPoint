@@ -7,11 +7,16 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.widget.*
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
 import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.UserProfileChangeRequest
 import kotlin.random.Random
 
@@ -49,6 +54,26 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var tvCaptchaSignup: TextView
     private lateinit var etCaptchaSignup: EditText
     private lateinit var cbTerms: CheckBox
+
+    // Google Sign-In launcher
+    private val googleSignInLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+        try {
+            val account = task.getResult(ApiException::class.java)
+            val idToken = account.idToken
+            if (idToken != null) {
+                firebaseAuthWithGoogle(idToken)
+            } else {
+                showLoading(false)
+                Toast.makeText(this, "Google sign-in failed: no ID token", Toast.LENGTH_SHORT).show()
+            }
+        } catch (e: ApiException) {
+            showLoading(false)
+            Toast.makeText(this, "Google sign-in failed: ${e.statusCode}", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -221,12 +246,45 @@ class LoginActivity : AppCompatActivity() {
         tvForgot.setOnClickListener { handleForgotPassword() }
 
         findViewById<Button>(R.id.btnGoogle).setOnClickListener {
-            Toast.makeText(this, "Google Sign-In coming soon", Toast.LENGTH_SHORT).show()
+            signInWithGoogle()
         }
 
         findViewById<Button>(R.id.btnPhoneOtp).setOnClickListener {
             showPhoneDialog()
         }
+    }
+
+    private fun signInWithGoogle() {
+        val webClientId = getString(R.string.default_web_client_id)
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(webClientId)
+            .requestEmail()
+            .build()
+        val googleSignInClient = GoogleSignIn.getClient(this, gso)
+        // Sign out first to always show account chooser
+        googleSignInClient.signOut().addOnCompleteListener {
+            showLoading(true)
+            googleSignInLauncher.launch(googleSignInClient.signInIntent)
+        }
+    }
+
+    private fun firebaseAuthWithGoogle(idToken: String) {
+        val credential = GoogleAuthProvider.getCredential(idToken, null)
+        auth.signInWithCredential(credential)
+            .addOnCompleteListener(this) { task ->
+                showLoading(false)
+                if (task.isSuccessful) {
+                    val user = auth.currentUser
+                    // Save login state
+                    val prefs = getSharedPreferences("login_prefs", Context.MODE_PRIVATE)
+                    prefs.edit().putBoolean("remember_me", true).apply()
+                    Toast.makeText(this, "Welcome ${user?.displayName ?: "Student"}! 🎉", Toast.LENGTH_SHORT).show()
+                    startActivity(Intent(this, HomeActivity::class.java))
+                    finish()
+                } else {
+                    Toast.makeText(this, "Google sign-in failed: ${task.exception?.message}", Toast.LENGTH_LONG).show()
+                }
+            }
     }
 
     private fun handleLogin() {
