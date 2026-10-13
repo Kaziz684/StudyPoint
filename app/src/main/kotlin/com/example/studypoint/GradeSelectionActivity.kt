@@ -12,9 +12,6 @@ class GradeSelectionActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_grid_selection)
 
-        // Dark premium background for glass design
-        findViewById<android.view.View>(android.R.id.content).setBackgroundResource(R.drawable.bg_class_dark)
-
         // Set Header
         findViewById<android.view.View>(R.id.btnBack).setOnClickListener { finish() }
         findViewById<TextView>(R.id.headerText).text = "Select Your Class"
@@ -28,6 +25,11 @@ class GradeSelectionActivity : AppCompatActivity() {
         )
 
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
+        // Dark premium background for glass design — must be applied to the layout
+        // root and the list itself (android.R.id.content sits UNDER the layout's
+        // own opaque background, so setting it there never shows).
+        (recyclerView.parent as? android.view.View)?.setBackgroundResource(R.drawable.bg_class_dark)
+        recyclerView.setBackgroundResource(R.drawable.bg_class_dark)
         recyclerView.layoutManager = GridLayoutManager(this, 2)
         recyclerView.adapter = GenericGridAdapter(grades, useGlassCard = true) { item ->
             val intent = Intent(this, SubjectsActivity::class.java)
