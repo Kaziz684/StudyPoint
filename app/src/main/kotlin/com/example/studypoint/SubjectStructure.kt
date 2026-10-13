@@ -214,19 +214,19 @@ object SubjectStructure {
 
     private fun getChemistryChapters(grade: String): List<StudySection> = when (grade) {
         "9" -> listOf(
-            StudySection("c1", "Ch 1: States of Matter & Phase Changes", "", "chapter"),
-            StudySection("c2", "Ch 2: Atomic Structure", "", "chapter"),
-            StudySection("c3", "Ch 3: Chemical Bonding", "", "chapter"),
-            StudySection("c4", "Ch 4: Stoichiometry", "", "chapter"),
-            StudySection("c5", "Ch 5: Energetics", "", "chapter"),
-            StudySection("c6", "Ch 6: Equilibria", "", "chapter"),
-            StudySection("c7", "Ch 7: Acid-Base Chemistry", "", "chapter"),
-            StudySection("c8", "Ch 8: Periodic Table & Periodicity", "", "chapter"),
-            StudySection("c9", "Ch 9: Group Properties & Elements", "", "chapter"),
-            StudySection("c10", "Ch 10: Environmental Chemistry", "", "chapter"),
-            StudySection("c11", "Ch 11: Hydrocarbons", "", "chapter"),
-            StudySection("c12", "Ch 12: Empirical Data Collection", "", "chapter"),
-            StudySection("c13", "Ch 13: Laboratory Skills", "", "chapter")
+            StudySection("c1", "Chapter 1: States of Matter and Phase Changes", "", "chapter"),
+            StudySection("c2", "Chapter 2: Atomic Structure", "", "chapter"),
+            StudySection("c3", "Chapter 3: Chemical Bonding", "", "chapter"),
+            StudySection("c4", "Chapter 4: Stoichiometry", "", "chapter"),
+            StudySection("c5", "Chapter 5: Energetics", "", "chapter"),
+            StudySection("c6", "Chapter 6: Equilibria", "", "chapter"),
+            StudySection("c7", "Chapter 7: Acid Base Chemistry", "", "chapter"),
+            StudySection("c8", "Chapter 8: Periodic Table and Periodicity", "", "chapter"),
+            StudySection("c9", "Chapter 9: Group Properties and Elements", "", "chapter"),
+            StudySection("c10", "Chapter 10: Environmental Chemistry", "", "chapter"),
+            StudySection("c11", "Chapter 11: Hydrocarbons", "", "chapter"),
+            StudySection("c12", "Chapter 12: Empirical Data Collection and Analysis", "", "chapter"),
+            StudySection("c13", "Chapter 13: Laboratory and Practical Skills", "", "chapter")
         )
         "10" -> (1..9).map { StudySection("c$it", "Chapter $it", "", "chapter") }
         "11" -> (1..11).map { StudySection("c$it", "Chapter $it", "", "chapter") }
@@ -235,15 +235,17 @@ object SubjectStructure {
 
     private fun getBiologyChapters(grade: String): List<StudySection> = when (grade) {
         "9" -> listOf(
-            StudySection("b1", "Ch 1: Introduction to Biology", "", "chapter"),
-            StudySection("b2", "Ch 2: Solving a Biological Problem", "", "chapter"),
-            StudySection("b3", "Ch 3: Biodiversity", "", "chapter"),
-            StudySection("b4", "Ch 4: Cells & Tissues", "", "chapter"),
-            StudySection("b5", "Ch 5: Cell Cycle", "", "chapter"),
-            StudySection("b6", "Ch 6: Enzymes", "", "chapter"),
-            StudySection("b7", "Ch 7: Bioenergetics", "", "chapter"),
-            StudySection("b8", "Ch 8: Nutrition", "", "chapter"),
-            StudySection("b9", "Ch 9: Transport", "", "chapter")
+            StudySection("b1", "Chapter 1: The Science of Biology", "", "chapter"),
+            StudySection("b2", "Chapter 2: Biodiversity", "", "chapter"),
+            StudySection("b3", "Chapter 3: The Cell", "", "chapter"),
+            StudySection("b4", "Chapter 4: Cell Cycle", "", "chapter"),
+            StudySection("b5", "Chapter 5: Tissues, Organs, and Organ Systems", "", "chapter"),
+            StudySection("b6", "Chapter 6: Biomolecules", "", "chapter"),
+            StudySection("b7", "Chapter 7: Enzymes", "", "chapter"),
+            StudySection("b8", "Chapter 8: Bioenergetics", "", "chapter"),
+            StudySection("b9", "Chapter 9: Plant Physiology", "", "chapter"),
+            StudySection("b10", "Chapter 10: Reproduction in Plants", "", "chapter"),
+            StudySection("b11", "Chapter 11: Biostatistics", "", "chapter")
         )
         "10" -> listOf(
             StudySection("b1", "Ch 1: Gaseous Exchange", "", "chapter"),
