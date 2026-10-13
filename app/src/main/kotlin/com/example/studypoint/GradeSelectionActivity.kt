@@ -12,24 +12,20 @@ class GradeSelectionActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_grid_selection)
 
-        // Dark premium background like the design
-        findViewById<android.view.View>(android.R.id.content).setBackgroundResource(R.drawable.bg_class_dark)
-
         // Set Header
         findViewById<android.view.View>(R.id.btnBack).setOnClickListener { finish() }
         findViewById<TextView>(R.id.headerText).text = "Select Your Class"
-        findViewById<TextView>(R.id.headerText).setTextColor(android.graphics.Color.WHITE)
 
         val grades = listOf(
-            GridItem("9", "9th Class", "(Matric)", R.drawable.ic_simple_book),
-            GridItem("10", "10th Class", "(Board)", R.drawable.ic_simple_pen),
-            GridItem("11", "11th Class", "(Inter)", R.drawable.ic_simple_science),
-            GridItem("12", "12th Class", "(Pre-U)", R.drawable.ic_simple_cap)
+            GridItem("9", "9th Class (Matric)", R.drawable.ic_class_9_rich),
+            GridItem("10", "10th Class (Board)", R.drawable.ic_class_10_rich),
+            GridItem("11", "11th Class (Inter)", R.drawable.ic_class_11_rich),
+            GridItem("12", "12th Class (Pre-U)", R.drawable.ic_class_12_rich)
         )
 
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
         recyclerView.layoutManager = GridLayoutManager(this, 2)
-        recyclerView.adapter = GenericGridAdapter(grades, useGlassCard = true) { item ->
+        recyclerView.adapter = GenericGridAdapter(grades) { item ->
             val intent = Intent(this, SubjectsActivity::class.java)
             intent.putExtra("grade", item.id)
             startActivity(intent)
