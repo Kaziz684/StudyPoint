@@ -153,8 +153,33 @@ object SubjectStructure {
             s.contains("chemistry") -> getChemistryChapters(grade)
             s.contains("biology") || s.contains("bio") -> getBiologyChapters(grade)
             s.contains("computer") -> getComputerChapters(grade)
+            s.contains("math") -> getMathChapters(grade)
             else -> emptyList()
         }
+    }
+
+    // Mathematics — PCTB new syllabus (Grade 9: 13 units + backmatter)
+    private fun getMathChapters(grade: String): List<StudySection> = when (grade) {
+        "9" -> listOf(
+            StudySection("m1", "Unit 1: Real Numbers", "حقیقی اعداد", "chapter"),
+            StudySection("m2", "Unit 2: Logarithms", "لاگھرتھم", "chapter"),
+            StudySection("m3", "Unit 3: Sets and Functions", "سیٹ اور فنکشنز", "chapter"),
+            StudySection("m4", "Unit 4: Factorization and Algebraic Manipulation", "تجزیہ اور الجبری عمل", "chapter"),
+            StudySection("m5", "Unit 5: Linear Equations and Inequalities", "لکیری مساواتیں اور غیر مساواتیں", "chapter"),
+            StudySection("m6", "Unit 6: Trigonometry", "تکونیات", "chapter"),
+            StudySection("m7", "Unit 7: Coordinate Geometry", "کوآرڈینیٹ جیومیٹری", "chapter"),
+            StudySection("m8", "Unit 8: Logic", "منطق", "chapter"),
+            StudySection("m9", "Unit 9: Similar Figures", "ہم شکل اشکال", "chapter"),
+            StudySection("m10", "Unit 10: Graphs of Functions", "فنکشنز کے گراف", "chapter"),
+            StudySection("m11", "Unit 11: Loci and Construction", "لوکی اور ہندساتی تعمیرات", "chapter"),
+            StudySection("m12", "Unit 12: Information Handling", "معلومات کا انتظام", "chapter"),
+            StudySection("m13", "Unit 13: Probability", "احتمال", "chapter"),
+            StudySection("mb1", "Answers", "جوابات", "chapter"),
+            StudySection("mb2", "Glossary", "فرہنگ", "chapter"),
+            StudySection("mb3", "Symbols and Notations", "علامات", "chapter"),
+            StudySection("mb4", "Logarithmic Tables", "لاگھرتھم کے جدول", "chapter")
+        )
+        else -> (1..13).map { StudySection("m$it", "Unit $it", "", "chapter") }
     }
 
     private fun getPhysicsChapters(grade: String): List<StudySection> = when (grade) {
@@ -273,7 +298,8 @@ object SubjectStructure {
     fun hasChapterNotes(subject: String): Boolean {
         val s = subject.lowercase()
         return s.contains("physics") || s.contains("chemistry") ||
-               s.contains("biology") || s.contains("bio") || s.contains("computer")
+               s.contains("biology") || s.contains("bio") || s.contains("computer") ||
+               s.contains("math")
     }
 
     fun getSections(grade: String, subject: String): List<StudySection> {
