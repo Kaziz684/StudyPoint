@@ -10,8 +10,8 @@ import androidx.recyclerview.widget.RecyclerView
 data class GridItem(
     val id: String,
     val title: String,
-    val subtitle: String = "",
-    val iconRes: Int
+    val iconRes: Int,
+    val subtitle: String = ""
 )
 
 class GenericGridAdapter(
