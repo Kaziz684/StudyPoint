@@ -53,6 +53,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -1226,12 +1227,14 @@ fun AiChatBottomSheet(onDismiss: () -> Unit) {
                     OutlinedTextField(
                         value = prompt,
                         onValueChange = { prompt = it },
-                        placeholder = { Text("Ask any formula, concept or question...", fontSize = 12.sp, color = Color(0xFF94A3B8)) },
+                        placeholder = { Text("Ask any formula, concept or question...", fontSize = 12.sp, color = Color(0xFF64748B)) },
+                        textStyle = TextStyle(color = Color.Black, fontSize = 14.sp),
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(18.dp),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedTextColor = Color.Black,
                             unfocusedTextColor = Color.Black,
+                            disabledTextColor = Color.Black,
                             focusedContainerColor = Color(0xFFF8FAFC),
                             unfocusedContainerColor = Color(0xFFF8FAFC),
                             focusedBorderColor = Color(0xFF059669),
