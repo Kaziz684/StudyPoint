@@ -184,15 +184,18 @@ object SubjectStructure {
 
     private fun getPhysicsChapters(grade: String): List<StudySection> = when (grade) {
         "9" -> listOf(
-            StudySection("p1", "Ch 1: Physical Quantities & Measurements", "", "chapter"),
-            StudySection("p2", "Ch 2: Kinematics", "", "chapter"),
-            StudySection("p3", "Ch 3: Dynamics", "", "chapter"),
-            StudySection("p4", "Ch 4: Turning Effects of Forces", "", "chapter"),
-            StudySection("p5", "Ch 5: Work, Energy and Power", "", "chapter"),
-            StudySection("p6", "Ch 6: Mechanical Properties of Matter", "", "chapter"),
-            StudySection("p7", "Ch 7: Thermal Properties of Matter", "", "chapter"),
-            StudySection("p8", "Ch 8: Magnetism", "", "chapter"),
-            StudySection("p9", "Ch 9: Nature of Science", "", "chapter")
+            StudySection("p1", "Chapter 1: Physical Quantities and Measurements", "", "chapter"),
+            StudySection("p2", "Chapter 2: Kinematics", "", "chapter"),
+            StudySection("p3", "Chapter 3: Dynamics", "", "chapter"),
+            StudySection("p4", "Chapter 4: Turning Effects of Force", "", "chapter"),
+            StudySection("p5", "Chapter 5: Work, Energy and Power", "", "chapter"),
+            StudySection("p6", "Chapter 6: Mechanical Properties of Matter", "", "chapter"),
+            StudySection("p7", "Chapter 7: Thermal Properties of Matter", "", "chapter"),
+            StudySection("p8", "Chapter 8: Magnetism", "", "chapter"),
+            StudySection("p9", "Chapter 9: Nature of Science", "", "chapter"),
+            StudySection("pb1", "Bibliography", "", "chapter"),
+            StudySection("pb2", "Glossary", "", "chapter"),
+            StudySection("pb3", "Index", "", "chapter")
         )
         "10" -> listOf(
             StudySection("p1", "Ch 1: Simple Harmonic Motion & Waves", "", "chapter"),
