@@ -215,7 +215,7 @@ class PdfViewActivity : AppCompatActivity() {
             else -> null
         }
         return if (!fileId.isNullOrBlank()) {
-            "https://drive.google.com/uc?export=download&id=$fileId"
+            "https://drive.usercontent.google.com/download?id=$fileId&export=download&confirm=t"
         } else {
             url
         }
@@ -281,7 +281,7 @@ class PdfViewActivity : AppCompatActivity() {
             if (inputStream == null) return false
 
             var downloadedBytes = 0L
-            val buffer = ByteArray(32 * 1024) // 32 KB high-efficiency buffer
+            val buffer = ByteArray(128 * 1024) // 32 KB high-efficiency buffer
 
             FileOutputStream(tempFile).use { output ->
                 inputStream.use { input ->

@@ -43,7 +43,7 @@ class NotesActivity : AppCompatActivity() {
             else -> null
         }
         return if (!fileId.isNullOrBlank()) {
-            "https://drive.google.com/uc?export=download&id=$fileId"
+            "https://drive.usercontent.google.com/download?id=$fileId&export=download&confirm=t"
         } else {
             url
         }
@@ -121,8 +121,8 @@ class NotesActivity : AppCompatActivity() {
                     "Guess Papers" to "COMING_SOON"
                 ),
                 "Biology" to mapOf(
-                    "Textbook" to "https://drive.google.com/uc?export=download&id=9_BIO_BOOK",
-                    "Book" to "https://drive.google.com/uc?export=download&id=9_BIO_BOOK",
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=1E82PoD4JjzKcH-08RfgrCcCDEkC3lTkz",
+                    "Book" to "https://drive.google.com/uc?export=download&id=1E82PoD4JjzKcH-08RfgrCcCDEkC3lTkz",
                     "Notes" to listOf("https://drive.google.com/uc?export=download&id=9_BIO_NOTE"),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=9_BIO_PP_2022",
@@ -135,8 +135,8 @@ class NotesActivity : AppCompatActivity() {
                     "Guess Papers" to "COMING_SOON"
                 ),
                 "Math" to mapOf(
-                    "Textbook" to "https://drive.google.com/uc?export=download&id=1-RYEohAp3YYXQZPNJNichua3UDmpIHFs",
-                    "Book" to "https://drive.google.com/uc?export=download&id=1-RYEohAp3YYXQZPNJNichua3UDmpIHFs",
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=1eATq2CheWHx-_Pp4WCL4dhgy7U66m3ND",
+                    "Book" to "https://drive.google.com/uc?export=download&id=1eATq2CheWHx-_Pp4WCL4dhgy7U66m3ND",
                     "Notes" to listOf("https://drive.google.com/uc?export=download&id=1RtZZ5jE8w-CmLO2tVKbPczp-TO1Fc9Gk"),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=9_MATH_PP_2022",
@@ -165,7 +165,7 @@ class NotesActivity : AppCompatActivity() {
                 "Chemistry" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=1X5QxTWBgKlwCubCY0OBcjFVlQdsu4kEw",
                     "Book" to "https://drive.google.com/uc?export=download&id=1X5QxTWBgKlwCubCY0OBcjFVlQdsu4kEw",
-                    "Notes" to listOf("https://drive.google.com/uc?export=download&id=9_CHEM_NOTES"),
+                    "Notes" to listOf("https://drive.google.com/uc?export=download&id=15zybNRbmjPO7cIn0Te9gefo5GFPG1UeZ"),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=9_CHEM_PP_2022",
                         "2023" to "https://drive.google.com/uc?export=download&id=9_CHEM_PP_2023",
@@ -191,8 +191,8 @@ class NotesActivity : AppCompatActivity() {
                     "Guess Papers" to "COMING_SOON"
                 ),
                 "Urdu" to mapOf(
-                    "Textbook" to "https://drive.google.com/uc?export=download&id=9_URDU_BOOK",
-                    "Book" to "https://drive.google.com/uc?export=download&id=9_URDU_BOOK",
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=1ymJXZaSTWprln5k8Z4u0zZ6EwULbgDBk",
+                    "Book" to "https://drive.google.com/uc?export=download&id=1ymJXZaSTWprln5k8Z4u0zZ6EwULbgDBk",
                     "Notes" to listOf("COMING_SOON"),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=9_URDU_PP_2022",
@@ -219,8 +219,8 @@ class NotesActivity : AppCompatActivity() {
                     "Guess Papers" to "COMING_SOON"
                 ),
                 "Tarjuma-tul-Quran" to mapOf(
-                    "Textbook" to "https://drive.google.com/uc?export=download&id=9_TQ_BOOK",
-                    "Book" to "https://drive.google.com/uc?export=download&id=9_TQ_BOOK",
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=1U4TI5vqLsGlh49iYWdatb28wUko2Djxv",
+                    "Book" to "https://drive.google.com/uc?export=download&id=1U4TI5vqLsGlh49iYWdatb28wUko2Djxv",
                     "Notes" to listOf("COMING_SOON"),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=9_TQ_PP_2022",
