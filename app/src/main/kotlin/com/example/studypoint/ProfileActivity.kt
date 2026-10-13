@@ -47,7 +47,14 @@ class ProfileActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MaterialTheme {
+            MaterialTheme(
+                colorScheme = lightColorScheme(
+                    primary = Color(0xFF4F46E5),
+                    onSurface = Color(0xFF0F172A),
+                    surface = Color.White,
+                    onSurfaceVariant = Color(0xFF475569)
+                )
+            ) {
                 ProfileScreen(
                     onBackClick = { finish() },
                     onProfileUpdated = {
@@ -70,7 +77,7 @@ fun ProfileScreen(
 
     // 1. Load saved profile data
     val initialProfile = remember { ProfileManager.getProfile(context) }
-    var isEditMode by remember { mutableStateOf(false) }
+    var isEditMode by remember { mutableStateOf(true) }
 
     var fullName by remember { mutableStateOf(initialProfile.fullName) }
     var age by remember { mutableStateOf(initialProfile.age) }
@@ -176,7 +183,7 @@ fun ProfileScreen(
                                         imagePath = imagePath
                                     )
                                     ProfileManager.saveProfile(context, updated)
-                                    isEditMode = false
+                                    isEditMode = true
                                     onProfileUpdated()
                                     Toast.makeText(context, "Profile details saved successfully! ✅", Toast.LENGTH_SHORT).show()
                                 }
@@ -510,7 +517,7 @@ fun ProfileScreen(
                                 imagePath = imagePath
                             )
                             ProfileManager.saveProfile(context, updated)
-                            isEditMode = false
+                            isEditMode = true
                             onProfileUpdated()
                             Toast.makeText(context, "Profile details saved successfully! ✅", Toast.LENGTH_SHORT).show()
                         }
