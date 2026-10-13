@@ -17,6 +17,7 @@ data class GridItem(
 class GenericGridAdapter(
     private val items: List<GridItem>,
     private val useGlassCard: Boolean = false,
+    private val useListRow: Boolean = false,
     private val onItemClick: (GridItem) -> Unit
 ) : RecyclerView.Adapter<GenericGridAdapter.GridViewHolder>() {
 
@@ -28,7 +29,11 @@ class GenericGridAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GridViewHolder {
-        val layoutRes = if (useGlassCard) R.layout.item_glass_card else R.layout.item_square_card
+        val layoutRes = when {
+            useGlassCard -> R.layout.item_glass_card
+            useListRow -> R.layout.item_chapter_row
+            else -> R.layout.item_square_card
+        }
         val view = LayoutInflater.from(parent.context)
             .inflate(layoutRes, parent, false)
         return GridViewHolder(view)

@@ -18,19 +18,20 @@ object SubjectStructure {
     // ==================== URDU ====================
     // 3 sections: Hissa-e-Ghazal, Hissa-e-Nazm, Asbaq
     fun getUrduSections(grade: String): List<StudySection> = listOf(
-        StudySection("urdu_ghazal", "Hissa-e-Ghazal", "حصہ غزل"),
-        StudySection("urdu_nazm", "Hissa-e-Nazm", "حصہ نظم"),
-        StudySection("urdu_asbaq", "Asbaq", "اسباق")
+        StudySection("urdu_ghazal", "حصہ غزل", ""),
+        StudySection("urdu_nazm", "حصہ نظم", ""),
+        StudySection("urdu_asbaq", "اسباق", ""),
+        StudySection("urdu_farhang", "فرہنگ", "")
     )
 
     fun getUrduContent(grade: String, sectionId: String): List<StudySection> {
         return when (sectionId) {
             "urdu_ghazal" -> when (grade) {
                 "9" -> listOf(
-                    StudySection("g1", "Hasti Apni Habab Ki Si Hai", "ہستی اپنی حباب کی سی ہے", "chapter"),
-                    StudySection("g2", "Rukh-o-Zulf Par Jaan Khoya Hai", "رخ و زلف پر جان کھویا ہے", "chapter"),
-                    StudySection("g3", "Dil-e-Nadan Tujhe Hua Kya Hai", "دل ناداں تجھے ہوا کیا ہے", "chapter"),
-                    StudySection("g4", "Lagta Nahin Hai Dil Mera", "لگتا نہیں ہے دل میرا", "chapter")
+                    StudySection("g1", "فقیرانہ آئے صدا کر چلے", "غزل — میر تقی میر", "chapter"),
+                    StudySection("g2", "سن تو سہی جہاں میں ہے تیرافسانہ کیا", "غزل — خواجہ حیدر علی آتش", "chapter"),
+                    StudySection("g3", "غم ہے یا خوشی ہے تُو", "غزل — ناصر کاظمی", "chapter"),
+                    StudySection("g4", "کاش طوفاں میں سفینے کو اتارا ہوتا", "غزل — پروین شاکر", "chapter")
                 )
                 else -> listOf(
                     StudySection("g1", "Ghazal 1", "غزل ۱", "chapter"),
@@ -41,10 +42,12 @@ object SubjectStructure {
             }
             "urdu_nazm" -> when (grade) {
                 "9" -> listOf(
-                    StudySection("n1", "Hamd", "حمد", "chapter"),
-                    StudySection("n2", "Naat", "نعت", "chapter"),
-                    StudySection("n3", "Barsaat Ki Baharain", "برسات کی بہاریں", "chapter"),
-                    StudySection("n4", "Pewasta Reh Shajar Se", "پیوستہ رہ شجر سے", "chapter")
+                    StudySection("n1", "حمد", "نظم — مظفر وارثی", "chapter"),
+                    StudySection("n2", "نعت", "نظم — مولانا ظفر علی خان", "chapter"),
+                    StudySection("n3", "محنت کی برکات", "نظم — مولانا حالی", "chapter"),
+                    StudySection("n4", "جاوید کے نام", "نظم — علامہ محمد اقبال", "chapter"),
+                    StudySection("n5", "پیامِ لطیف", "نظم — شیخ ایاز", "chapter"),
+                    StudySection("n6", "کرکٹ اور مشاعرہ", "نظم — دلاور فگار", "chapter")
                 )
                 else -> listOf(
                     StudySection("n1", "Nazm 1", "نظم ۱", "chapter"),
@@ -55,22 +58,27 @@ object SubjectStructure {
             }
             "urdu_asbaq" -> when (grade) {
                 "9" -> listOf(
-                    StudySection("s1", "Hijrat-e-Nabwi (SAW)", "ہجرت نبوی ﷺ", "chapter"),
-                    StudySection("s2", "Mirza Ghalib Ke Aadaat-o-Khasail", "مرزا غالب کے عادات و خصائل", "chapter"),
-                    StudySection("s3", "Kahili", "کاہلی", "chapter"),
-                    StudySection("s4", "Shairon Ke Lateefay", "شاعروں کے لطیفے", "chapter"),
-                    StudySection("s5", "Nasoo Aur Saleem Ki Guftugu", "نسو اور سلیم کی گفتگو", "chapter"),
-                    StudySection("s6", "Panchaiyat", "پنچایت", "chapter"),
-                    StudySection("s7", "Araam-o-Sukoon", "آرام و سکون", "chapter"),
-                    StudySection("s8", "Lahu Aur Qaleen", "لہو اور قالین", "chapter"),
-                    StudySection("s9", "Imtehaan", "امتحان", "chapter"),
-                    StudySection("s10", "Mulki Parinday", "ملکی پرندے", "chapter"),
-                    StudySection("s11", "Qadr-e-Ayaz", "قدر ایاز", "chapter"),
-                    StudySection("s12", "Hausla Na Haaro", "حوصلہ نہ ہارو", "chapter")
+                    StudySection("s1", "اخلاقِ حسنہ", "سبق — سید سلیمان ندوی", "chapter"),
+                    StudySection("s2", "اپنی مدد آپ", "سبق — سر سید احمد خان", "chapter"),
+                    StudySection("s3", "کلیئم اور مرزا ظاہر دار بیگ", "سبق — ڈپٹی نذیر احمد", "chapter"),
+                    StudySection("s4", "نام دیو مالی", "سبق — مولوی عبدالحق", "chapter"),
+                    StudySection("s5", "آرام و سکون", "سبق — امتیاز علی تاج", "chapter"),
+                    StudySection("s6", "کتبہ", "سبق — غلام عباس", "chapter"),
+                    StudySection("s7", "ابتدائی حساب", "سبق — ابنِ انشاء", "chapter"),
+                    StudySection("s8", "لڑی میں پروئے ہوئے منتظر", "سبق — رضا علی عابدی", "chapter"),
+                    StudySection("s9", "بھیڑیا", "سبق — فاروق سرور", "chapter")
                 )
                 else -> (1..12).map {
                     StudySection("s$it", "Sabaq $it", "سبق $it", "chapter")
                 }
+            }
+            "urdu_farhang" -> when (grade) {
+                "9" -> listOf(
+                    StudySection("f1", "فرہنگ", "لغت — معانی و مترادفات", "chapter")
+                )
+                else -> listOf(
+                    StudySection("f1", "فرہنگ", "لغت", "chapter")
+                )
             }
             else -> emptyList()
         }

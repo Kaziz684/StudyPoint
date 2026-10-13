@@ -38,9 +38,10 @@ class MaterialSelectionActivity : AppCompatActivity() {
 
         // Urdu: add 3 sections as materials
         if (subjectLower.contains("urdu")) {
-            materials.add(GridItem("urdu_ghazal", "Hissa-e-Ghazal", R.drawable.ic_textbook))
-            materials.add(GridItem("urdu_nazm", "Hissa-e-Nazm", R.drawable.ic_textbook))
-            materials.add(GridItem("urdu_asbaq", "Asbaq", R.drawable.ic_textbook))
+            materials.add(GridItem("urdu_ghazal", "حصہ غزل", R.drawable.ic_textbook))
+            materials.add(GridItem("urdu_nazm", "حصہ نظم", R.drawable.ic_textbook))
+            materials.add(GridItem("urdu_asbaq", "اسباق", R.drawable.ic_textbook))
+            materials.add(GridItem("urdu_farhang", "فرہنگ", R.drawable.ic_textbook))
         }
 
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)

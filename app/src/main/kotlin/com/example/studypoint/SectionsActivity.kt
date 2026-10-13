@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 /**
@@ -47,14 +47,15 @@ class SectionsActivity : AppCompatActivity() {
 
         findViewById<TextView>(R.id.headerText).text = header
 
+        // Single-column list rows: full width, title wraps to 2 lines with
+        // ellipsis, Urdu gloss / category-author shown as subtitle line.
         val gridItems = items.map { s ->
-            val displayTitle = if (s.titleUrdu.isNotBlank()) "${s.title}\n${s.titleUrdu}" else s.title
-            GridItem(s.id, displayTitle, R.drawable.ic_solved_notes)
+            GridItem(s.id, s.title, R.drawable.ic_solved_notes, s.titleUrdu)
         }
 
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
-        recyclerView.layoutManager = GridLayoutManager(this, 2)
-        recyclerView.adapter = GenericGridAdapter(gridItems) { item ->
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.adapter = GenericGridAdapter(gridItems, useListRow = true) { item ->
             // Go DIRECTLY to NotesActivity - show "Coming Soon" if no PDF linked yet
             // The chapter/section name is passed so NotesActivity can show relevant content
             val intent = Intent(this, NotesActivity::class.java).apply {
