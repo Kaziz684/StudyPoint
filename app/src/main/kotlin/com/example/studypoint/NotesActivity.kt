@@ -205,8 +205,8 @@ class NotesActivity : AppCompatActivity() {
                     "Guess Papers" to "COMING_SOON"
                 ),
                 "Islamiyat" to mapOf(
-                    "Textbook" to "https://drive.google.com/uc?export=download&id=9_ISL_BOOK",
-                    "Book" to "https://drive.google.com/uc?export=download&id=9_ISL_BOOK",
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=1pC6LTikKN0WEhHIMKoF5uM4iabk_snKF",
+                    "Book" to "https://drive.google.com/uc?export=download&id=1pC6LTikKN0WEhHIMKoF5uM4iabk_snKF",
                     "Notes" to listOf("https://drive.google.com/uc?export=download&id=13KfAtj5FM-6caBamFSBL0X0GZgK7RciR"),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=9_ISL_PP_2022",

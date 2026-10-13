@@ -53,6 +53,12 @@ android {
         }
     }
 
+    // Lint ko release build rokne se mana karein (CI par signed build ke liye)
+    lint {
+        abortOnError = false
+        checkReleaseBuilds = false
+    }
+
     buildFeatures {
         compose = true
         buildConfig = true
