@@ -1,5 +1,11 @@
 name: Build & Release APK
 
+# Har master push par: version bump -> SIGNED release APK -> GitHub Release.
+# Signing keystore + passwords GitHub Secrets mein hain — repo mein koi
+# key ya password commit NAHI hota (repo public hai).
+# app/build.gradle.kts KEYSTORE_FILE env var se keystore uthata hai.
+# Version-bump commits khud "[skip ci]" ke sath push hote hain taake loop na bane.
+
 on:
   push:
     branches: [master]
@@ -24,6 +30,18 @@ jobs:
           distribution: temurin
           java-version: 17
 
+      - name: Restore keystore from secret
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "::error::KEYSTORE_BASE64 secret missing — repo Settings > Secrets and variables > Actions mein add karein"
+            exit 1
+          fi
+          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
+          echo "KEYSTORE_FILE=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
+          ls -lh "$RUNNER_TEMP/release.jks"
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+
       - name: Bump versionCode
         id: bump
         run: |
@@ -37,16 +55,20 @@ jobs:
           echo "tag=v${VNAME}-${NEW}" >> "$GITHUB_OUTPUT"
           echo "Bumped versionCode $CODE -> $NEW"
 
-      - name: Build debug APK
-        run: ./gradlew assembleDebug --no-daemon
+      - name: Build signed release APK
+        run: ./gradlew assembleRelease --no-daemon
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
       - name: Rename APK
         run: |
-          APK=$(ls app/build/outputs/apk/debug/*.apk | head -1)
+          APK=$(ls app/build/outputs/apk/release/*.apk | head -1)
           NEWNAME="StudyPoint-${{ steps.bump.outputs.tag }}.apk"
-          cp "$APK" "app/build/outputs/apk/debug/$NEWNAME"
-          echo "apk_path=app/build/outputs/apk/debug/$NEWNAME" >> "$GITHUB_ENV"
-          ls -lh "app/build/outputs/apk/debug/$NEWNAME"
+          cp "$APK" "app/build/outputs/apk/release/$NEWNAME"
+          echo "apk_path=app/build/outputs/apk/release/$NEWNAME" >> "$GITHUB_ENV"
+          ls -lh "app/build/outputs/apk/release/$NEWNAME"
 
       - name: Commit version bump [skip ci]
         run: |
