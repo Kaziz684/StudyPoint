@@ -1394,6 +1394,11 @@ fun ProfileDialog(
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 ListItem(
+                    headlineContent = { Text("Edit Profile", fontWeight = FontWeight.Bold) },
+                    leadingContent = { Icon(Icons.Default.Edit, null, tint = Color(0xFF7C3AED)) },
+                    modifier = Modifier.clickable { onDismiss(); onProfileClick() }
+                )
+                ListItem(
                     headlineContent = { Text("Share StudyPoint") },
                     leadingContent = { Icon(Icons.Default.Share, null, tint = Color(0xFF4F46E5)) },
                     modifier = Modifier.clickable { onDismiss(); onShare() }
