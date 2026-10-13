@@ -140,7 +140,7 @@ class HomeActivity : ComponentActivity() {
     private fun shareApp() {
         val intent = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"
-            putExtra(Intent.EXTRA_TEXT, "Download StudyPoint App for PCTB Notes, Past Papers & AI Tutor! https://kaziz684.github.io/StudyPoint/")
+            putExtra(Intent.EXTRA_TEXT, "Download StudyPoint App for PCTB Notes, Past Papers & AI Tutor! https://studypoint.io")
         }
         startActivity(Intent.createChooser(intent, "Share StudyPoint"))
     }
@@ -637,7 +637,11 @@ fun HomeScreen(
             onWhatsApp = onWhatsApp,
             onFeedback = onFeedback,
             onProfileClick = {
-                context.startActivity(Intent(context, ProfileActivity::class.java))
+                try {
+                    context.startActivity(Intent(context, ProfileActivity::class.java))
+                } catch (e: Exception) {
+                    android.widget.Toast.makeText(context, "Profile screen unavailable", android.widget.Toast.LENGTH_SHORT).show()
+                }
             }
         )
     }
