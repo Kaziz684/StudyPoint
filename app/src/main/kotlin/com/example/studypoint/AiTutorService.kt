@@ -43,13 +43,26 @@ Guidelines:
             .build()
     }
 
+    /** A tutor answer: text plus an optional educational image and its source. */
+    data class AiAnswer(
+        val text: String,
+        val imageUrl: String? = null,
+        val sourceLabel: String? = null
+    )
+
     /**
-     * Resolves an intelligent response for any user query.
+     * Resolves an intelligent response for any user query (text only).
      */
-    suspend fun getAnswer(query: String): String = withContext(Dispatchers.IO) {
+    suspend fun getAnswer(query: String): String = getAnswerRich(query).text
+
+    /**
+     * Resolves a rich response: answer text, and whenever the web result has
+     * one, a real educational image (e.g. a biology diagram from Wikipedia).
+     */
+    suspend fun getAnswerRich(query: String): AiAnswer = withContext(Dispatchers.IO) {
         val trimmed = query.trim()
         if (trimmed.isBlank()) {
-            return@withContext "Please type a question, topic, or concept to begin."
+            return@withContext AiAnswer("Please type a question, topic, or concept to begin.")
         }
 
         // 1. If Gemini API key is configured in BuildConfig / local.properties, call Gemini 2.5 Flash with Search Grounding
@@ -61,25 +74,91 @@ Guidelines:
             try {
                 val geminiAnswer = callGeminiWithSearch(trimmed, geminiKey)
                 if (!geminiAnswer.isNullOrBlank()) {
-                    return@withContext geminiAnswer
+                    return@withContext AiAnswer(geminiAnswer)
                 }
             } catch (e: Exception) {
                 Log.w(TAG, "Gemini grounding request failed: ${e.message}")
             }
         }
 
-        // 2. Dynamic Real-Time Web Search Grounding (DuckDuckGo + Wikipedia REST)
+        // 2. Wikipedia SEARCH (works for any study question; also returns a topic image)
+        try {
+            val wikiAnswer = searchWikipedia(trimmed)
+            if (wikiAnswer != null) {
+                return@withContext wikiAnswer
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Wikipedia search failed: ${e.message}")
+        }
+
+        // 3. Dynamic Real-Time Web Search Grounding (DuckDuckGo + Wikipedia REST)
         try {
             val liveWebResult = fetchLiveWebSummary(trimmed)
             if (!liveWebResult.isNullOrBlank()) {
-                return@withContext liveWebResult
+                return@withContext AiAnswer(liveWebResult)
             }
         } catch (e: Exception) {
             Log.w(TAG, "Dynamic web search failed: ${e.message}")
         }
 
-        // 3. Clean Universal Knowledge Engine (Unrestricted, direct, clean markdown)
-        return@withContext generateUniversalTutorAnswer(trimmed)
+        // 4. Clean Universal Knowledge Engine (Unrestricted, direct, clean markdown)
+        return@withContext AiAnswer(generateUniversalTutorAnswer(trimmed))
+    }
+
+    /**
+     * Searches Wikipedia properly (full-text search API instead of guessing an
+     * article title) and returns the top article's intro extract together with
+     * its picture, so study questions get a real answer and, when available, a
+     * real educational image/diagram.
+     */
+    private fun searchWikipedia(query: String): AiAnswer? {
+        val cleanTerm = query
+            .replace(Regex("(?i)^(what is|what are|explain|who was|who is|define|tell me about|how does|why is)\s+"), "")
+            .replace(Regex("(?i)\b(picture|image|diagram|photo|pic)\b"), "")
+            .replace("?", "")
+            .trim()
+        if (cleanTerm.length < 2) return null
+
+        val encoded = URLEncoder.encode(cleanTerm, StandardCharsets.UTF_8.name())
+        val url = "https://en.wikipedia.org/w/api.php?action=query&format=json&redirects=1" +
+            "&generator=search&gsrnamespace=0&gsrlimit=3" +
+            "&prop=pageimages%7Cextracts&pithumbsize=800&exintro&explaintext&exsentences=6" +
+            "&gsrsearch=$encoded"
+        val request = Request.Builder()
+            .url(url)
+            .header("User-Agent", "StudyPointApp/1.0 (Android; educational)")
+            .build()
+
+        httpClient.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) return null
+            val body = response.body?.string() ?: return null
+            val pagesArr = JSONObject(body).optJSONObject("query")?.optJSONArray("pages") ?: return null
+
+            val pages = mutableListOf<JSONObject>()
+            for (i in 0 until pagesArr.length()) {
+                val p = pagesArr.getJSONObject(i)
+                if (p.optString("extract").trim().length >= 60) pages += p
+            }
+            if (pages.isEmpty()) return null
+            pages.sortBy { it.optInt("index", 99) }
+
+            val wantsImage = query.contains(Regex("(?i)picture|image|diagram|photo|pic"))
+            fun imageOf(p: JSONObject): String? =
+                p.optJSONObject("thumbnail")?.optString("source")?.takeIf { it.isNotBlank() }
+            val hit = if (wantsImage) {
+                pages.firstOrNull { imageOf(it) != null } ?: pages.first()
+            } else {
+                pages.first()
+            }
+            val title = hit.optString("title")
+            val extract = hit.optString("extract").trim()
+            if (extract.isBlank()) return null
+            return AiAnswer(
+                text = "### $title\n\n$extract",
+                imageUrl = imageOf(hit),
+                sourceLabel = "Wikipedia - $title"
+            )
+        }
     }
 
     /**
@@ -329,13 +408,12 @@ Guidelines:
                 "• **Pakistan Studies (مطالعہ پاکستان):** Dedicated compulsory subject for 10th and 12th Classes (replaces Islamiyat in these grades).\n" +
                 "• **Subjects Content:** All science and arts subjects are updated to the latest single conceptual syllabus editions with SLO-based testing (Student Learning Outcomes)."
 
-            // 8. General Default Intelligent Tutor Response
+            // 8. Honest fallback (no invented content)
             else ->
                 "### ${query.replaceFirstChar { it.uppercase() }}\n\n" +
-                "Here is an overview of this topic:\n\n" +
-                "• **Core Definition:** This subject involves fundamental principles in academic study and practical understanding.\n" +
-                "• **Key Concepts:** When studying this topic, break it down into core components, relevant formulas or definitions, and practical real-world examples.\n" +
-                "• **Next Steps:** Ask for specific sub-topics, definitions, solved equations, or historical context to dive deeper."
+                "I could not fetch a detailed answer for this topic just now - the online search did not return a result. " +
+                "Please check your internet connection and try again, or ask in a simpler way, for example: \"What is photosynthesis?\"\n\n" +
+                "Tip: You can also find this topic in the app's Notes, MCQs and Paper Generator sections."
         }
     }
 }
