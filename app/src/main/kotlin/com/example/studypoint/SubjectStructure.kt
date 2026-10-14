@@ -179,6 +179,23 @@ object SubjectStructure {
             StudySection("mb3", "Symbols and Notations", "علامات", "chapter"),
             StudySection("mb4", "Logarithmic Tables", "لاگھرتھم کے جدول", "chapter")
         )
+        "10" -> listOf(
+            StudySection("m1", "Unit 1: Complex Numbers", "مخلوط اعداد", "chapter"),
+            StudySection("m2", "Unit 2: Quadratic Equations and Inequalities", "دو درجی مساواتیں اور غیر مساواتیں", "chapter"),
+            StudySection("m3", "Unit 3: Matrices and Determinants", "میٹرکس اور ڈیٹرمینینٹس", "chapter"),
+            StudySection("m4", "Unit 4: Functions and Graphs", "فنکشنز اور گراف", "chapter"),
+            StudySection("m5", "Unit 5: Algebraic Fractions", "الجبری کسریں", "chapter"),
+            StudySection("m6", "Unit 6: Vectors in Plane", "مستوی میں ویکٹرز", "chapter"),
+            StudySection("m7", "Unit 7: Trigonometry", "تکونیات", "chapter"),
+            StudySection("m8", "Unit 8: Chords and Arcs of a Circle", "دائرے کے وتر اور قوس", "chapter"),
+            StudySection("m9", "Unit 9: Tangent and Angles of a Circle", "دائرے کے مماس اور زاویے", "chapter"),
+            StudySection("m10", "Unit 10: Practical Geometry of Circles", "دائروں کی عملی جیومیٹری", "chapter"),
+            StudySection("m11", "Unit 11: Information Handling", "معلومات کا انتظام", "chapter"),
+            StudySection("m12", "Unit 12: Probability", "احتمال", "chapter"),
+            StudySection("mb1", "Answers", "جوابات", "chapter"),
+            StudySection("mb2", "Glossary", "فرہنگ", "chapter"),
+            StudySection("mb3", "Symbols", "علامات", "chapter")
+        )
         else -> (1..13).map { StudySection("m$it", "Unit $it", "", "chapter") }
     }
 

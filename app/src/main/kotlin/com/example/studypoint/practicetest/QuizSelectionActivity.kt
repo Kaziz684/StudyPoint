@@ -19,7 +19,7 @@ class QuizSelectionActivity : AppCompatActivity() {
     private lateinit var btnStartQuiz: MaterialButton
 
     private val classes = listOf("Class_9th", "Class_10th", "Class_11th", "Class_12th")
-    private val chapters = listOf("All Chapters", "Chapter 1", "Chapter 2", "Chapter 3", "Chapter 4", "Chapter 5", "Chapter 6", "Chapter 7", "Chapter 8", "Chapter 9")
+    private val chapters = listOf("All Chapters") + (1..25).map { "Chapter $it" }
 
     private fun getSubjectsForClass(className: String): List<String> {
         val baseSubjects = listOf("English", "Urdu", "Mathematics", "Physics", "Chemistry", "Biology", "Computer Science")
