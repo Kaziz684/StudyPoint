@@ -469,7 +469,12 @@ class PaperGeneratorActivity : AppCompatActivity() {
             "pakistan studies" to listOf("pak studies", "pakistan studies")
         )
         val terms = aliases[s] ?: listOf(s)
-        return terms.any { term -> q == term || q.contains(term) || term.contains(q) && q.length >= 3 }
+        fun words(text: String): List<String> =
+            text.split(Regex("[^a-z]+")).filter { it.isNotBlank() }
+        val qWords = words(q)
+        return terms.any { term ->
+            q == term || qWords.contains(term) || (q.length >= 3 && words(term).contains(q))
+        }
     }
 
     private fun chapterNumber(text: String): Int? =
