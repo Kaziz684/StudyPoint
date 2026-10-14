@@ -80,7 +80,7 @@ class WelcomeActivity : AppCompatActivity() {
                 type = "text/plain"
                 putExtra(
                     Intent.EXTRA_TEXT,
-                    " Check out the StudyPoint app for Notes, Past Papers, and MCQs! Download now: https://studypoint.io 🚀"
+                    " Check out the StudyPoint app for Notes, Past Papers, and MCQs! Download now: https://kaziz684.github.io/StudyPoint/ 🚀"
                 )
             }
             startActivity(Intent.createChooser(share, "Share via"))
