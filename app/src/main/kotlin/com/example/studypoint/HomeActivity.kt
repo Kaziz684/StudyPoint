@@ -152,7 +152,7 @@ class HomeActivity : ComponentActivity() {
 }
 
 // Data Models
-data class AiChatMessage(val isUser: Boolean, val text: String, val time: String)
+data class AiChatMessage(val isUser: Boolean, val text: String, val time: String, val imageUrl: String? = null, val sourceLabel: String? = null)
 data class QuickActionItem(val title: String, val subtitle: String, val icon: ImageVector, val containerColor: Color, val iconColor: Color, val onClick: () -> Unit)
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -1119,7 +1119,7 @@ fun AiChatBottomSheet(onDismiss: () -> Unit) {
     val listState = rememberLazyListState()
     val messages = remember {
         mutableStateListOf(
-            AiChatMessage(false, "Assalam-o-Alaikum! 🎓 I'm your StudyPoint AI Tutor. Ask me anything \u2014 concepts, formulas, definitions from any subject!", "Just now")
+            AiChatMessage(false, "Assalam-o-Alaikum! 🎓 I'm your StudyPoint AI Tutor. Ask me any concept, formula or definition \u2014 or a topic picture, e.g. \"Diagram of a plant cell\"!", "Just now")
         )
     }
 
@@ -1143,12 +1143,16 @@ fun AiChatBottomSheet(onDismiss: () -> Unit) {
         prompt = ""
         isTyping = true
         scope.launch {
-            val aiAnswer = try {
-                AiTutorService.getAnswer(userQ)
+            val result = try {
+                AiTutorService.getAnswerRich(userQ)
             } catch (e: Exception) {
-                "Sorry, I couldn't fetch an answer right now. Please check your internet connection and try again."
+                null
             }
-            messages.add(AiChatMessage(false, aiAnswer, "Now"))
+            if (result != null) {
+                messages.add(AiChatMessage(false, result.text, "Now", result.imageUrl, result.sourceLabel))
+            } else {
+                messages.add(AiChatMessage(false, "Sorry, I couldn't fetch an answer right now. Please check your internet connection and try again.", "Now"))
+            }
             isTyping = false
         }
     }
@@ -1254,12 +1258,34 @@ fun AiChatBottomSheet(onDismiss: () -> Unit) {
                                     modifier = Modifier.widthIn(max = 280.dp)
                                 ) {
                                     Column(modifier = Modifier.padding(10.dp)) {
+                                        if (!msg.isUser && msg.imageUrl != null) {
+                                            AsyncImage(
+                                                model = msg.imageUrl,
+                                                contentDescription = "Topic image",
+                                                contentScale = ContentScale.Fit,
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .height(170.dp)
+                                                    .clip(RoundedCornerShape(10.dp))
+                                                    .background(Color(0xFFF1F5F9))
+                                            )
+                                            Spacer(modifier = Modifier.height(8.dp))
+                                        }
                                         Text(
                                             text = msg.text,
                                             fontSize = 13.sp,
                                             color = if (msg.isUser) Color.White else Color(0xFF0F172A),
                                             lineHeight = 18.sp
                                         )
+                                        if (!msg.isUser && msg.sourceLabel != null) {
+                                            Spacer(modifier = Modifier.height(4.dp))
+                                            Text(
+                                                text = "Source: ${msg.sourceLabel}",
+                                                fontSize = 9.sp,
+                                                color = Color(0xFF059669),
+                                                fontWeight = FontWeight.Medium
+                                            )
+                                        }
                                         Spacer(modifier = Modifier.height(2.dp))
                                         Text(
                                             text = msg.time,
