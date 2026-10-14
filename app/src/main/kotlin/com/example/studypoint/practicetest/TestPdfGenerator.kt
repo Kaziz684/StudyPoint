@@ -57,13 +57,13 @@ object TestPdfGenerator {
         StaticLayout.Builder.obtain(text, 0, text.length, p, width).build()
 
     /** A drawable block with a fixed height, placed by the pagination pass. */
-    private class Unit(
+    private class Block(
         val height: Int,
         val forceNewPage: Boolean = false,
         val draw: (Canvas, Int, Int) -> Unit
     )
 
-    private class Placement(val unit: Unit, val page: Int, val y: Int)
+    private class Placement(val unit: Block, val page: Int, val y: Int)
 
     private fun topFor(page: Int): Int = if (page == 0) MARGIN else MARGIN + MINI_HEADER_H
 
@@ -92,7 +92,7 @@ object TestPdfGenerator {
         }
 
     fun generate(context: Context, data: TestPaperData, outFile: File): File {
-        val units = mutableListOf<Unit>()
+        val units = mutableListOf<Block>()
 
         // ---------- Header (page 1) ----------
         val iconBmp: Bitmap? = try {
@@ -110,7 +110,7 @@ object TestPdfGenerator {
         val titleLayout = layoutOf(
             data.testTitle.uppercase(), paint(16f, bold = true, color = NAVY), CONTENT_W
         )
-        units += Unit(104) { c, x, y ->
+        units += Block(104) { c, x, y ->
             if (iconBmp != null) {
                 c.drawBitmap(iconBmp, x.toFloat(), y.toFloat(), null)
                 c.save(); c.translate((x + 66).toFloat(), y.toFloat()); appNameLayout.draw(c); c.restore()
@@ -131,7 +131,7 @@ object TestPdfGenerator {
         val infoBold = paint(10.5f, bold = true)
         val chapLayout = layoutOf("Chapter(s):  ${data.chaptersLabel}", infoPaint)
         val infoHeight = 18 + chapLayout.height + 4 + 18 + 18 + 10
-        units += Unit(infoHeight) { c, x, y ->
+        units += Block(infoHeight) { c, x, y ->
             var yy = y
             c.drawText("Class:  ${data.classLabel}", x.toFloat(), (yy + 11).toFloat(), infoBold)
             c.drawText("Subject:  ${data.subject}", (x + CONTENT_W / 2).toFloat(), (yy + 11).toFloat(), infoBold)
@@ -152,7 +152,7 @@ object TestPdfGenerator {
             "Instructions: Choose the correct answer for each question. Each question carries 1 mark.",
             paint(10.5f, color = MUTED)
         )
-        units += Unit(instrLayout.height + 12) { c, x, y ->
+        units += Block(instrLayout.height + 12) { c, x, y ->
             c.save(); c.translate(x.toFloat(), y.toFloat()); instrLayout.draw(c); c.restore()
             val linePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.rgb(203, 213, 225); strokeWidth = 1f }
             val ly = y + instrLayout.height + 6
@@ -172,7 +172,7 @@ object TestPdfGenerator {
             val all = listOf(qLayout) + optLayouts
             val totalH = all.sumOf { it.height } + 10
             if (totalH <= maxBlockH) {
-                units += Unit(totalH, draw = stackDraw(all))
+                units += Block(totalH, draw = stackDraw(all))
             } else {
                 // Rare fallback: split this question line-by-line across pages.
                 var cur = mutableListOf<Triple<StaticLayout, Int, Int>>()
@@ -181,7 +181,7 @@ object TestPdfGenerator {
                     if (cur.isEmpty()) return
                     val chunk = cur.toList()
                     val h = curH
-                    units += Unit(h) { c, x, y ->
+                    units += Block(h) { c, x, y ->
                         var yy = y
                         for ((l, s, e) in chunk) {
                             lineRangeDraw(l, s, e)(c, x, yy)
@@ -213,7 +213,7 @@ object TestPdfGenerator {
                     }
                 }
                 flush()
-                units += Unit(10) { _, _, _ -> }
+                units += Block(10) { _, _, _ -> }
             }
         }
 
@@ -221,7 +221,7 @@ object TestPdfGenerator {
         var missingAnswers = 0
         if (data.withAnswers && data.questions.isNotEmpty()) {
             val keyTitle = layoutOf("ANSWER KEY", paint(15f, bold = true, color = NAVY), CONTENT_W)
-            units += Unit(40, forceNewPage = true) { c, x, y ->
+            units += Block(40, forceNewPage = true) { c, x, y ->
                 val tx = x + (CONTENT_W - keyTitle.width) / 2
                 c.save(); c.translate(tx.toFloat(), y.toFloat()); keyTitle.draw(c); c.restore()
                 val rulePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = GREEN; strokeWidth = 2f }
@@ -239,7 +239,7 @@ object TestPdfGenerator {
                 "${idx + 1}.  $letter"
             }
             entries.chunked(4).forEach { row ->
-                units += Unit(19) { c, x, y ->
+                units += Block(19) { c, x, y ->
                     row.forEachIndexed { col, text ->
                         c.drawText(text, (x + col * colW).toFloat(), (y + 13).toFloat(), keyPaint)
                     }
@@ -250,7 +250,7 @@ object TestPdfGenerator {
                     "Note: Answers marked ? were not available in the source data.",
                     paint(10f, color = MUTED)
                 )
-                units += Unit(note.height + 8, draw = stackDraw(listOf(note)))
+                units += Block(note.height + 8, draw = stackDraw(listOf(note)))
             }
         }
 
