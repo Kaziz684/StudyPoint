@@ -1,0 +1,431 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F8FAFC"
+    android:orientation="vertical">
+
+    <!-- Header bar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/edu_navy"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="12dp">
+
+        <TextView
+            android:id="@+id/btnBackPaper"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:text="←"
+            android:textColor="#FFFFFF"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="StudyPoint"
+                android:textColor="#FFFFFF"
+                android:textSize="19sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Paper Generator"
+                android:textColor="#A7F3D0"
+                android:textSize="13sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Question Paper"
+                android:textColor="@color/edu_navy"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Choose paper type, class, subject and chapters — a printable PDF paper will be generated from the actual sheet data."
+                android:textColor="#64748B"
+                android:textSize="13sp" />
+
+            <!-- Paper Type -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:textColor="@color/edu_navy"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:text="Paper Type" />
+
+            <RadioGroup
+                android:id="@+id/radioTypeGroupPaper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp">
+
+                <RadioButton
+                    android:id="@+id/radioTypeMcqs"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="MCQs Paper" />
+
+                <RadioButton
+                    android:id="@+id/radioTypeShort"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Short Questions Paper" />
+
+                <RadioButton
+                    android:id="@+id/radioTypeLong"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Long Questions Paper" />
+
+                <RadioButton
+                    android:id="@+id/radioTypeCombined"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Combined Paper (MCQs + Short + Long)" />
+            </RadioGroup>
+
+            <!-- Class -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:textColor="@color/edu_navy"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:text="Class" />
+
+            <Spinner
+                android:id="@+id/spinnerClassPaper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/input_field_bg"
+                android:padding="10dp" />
+
+            <!-- Subject -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:textColor="@color/edu_navy"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:text="Subject" />
+
+            <Spinner
+                android:id="@+id/spinnerSubjectPaper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/input_field_bg"
+                android:padding="10dp" />
+
+            <!-- Chapters -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:textColor="@color/edu_navy"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:text="Chapter Selection" />
+
+            <ProgressBar
+                android:id="@+id/progressPaper"
+                style="?android:attr/progressBarStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tvChapterStatusPaper"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:textColor="#64748B"
+                android:textSize="13sp" />
+
+            <CheckBox
+                android:id="@+id/checkAllChaptersPaper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="All Chapters / Full Book"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/layoutChaptersPaper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+            <!-- MCQs count -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:textColor="@color/edu_navy"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:text="MCQs Selection" />
+
+            <RadioGroup
+                android:id="@+id/radioCountGroupPaper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp">
+
+                <RadioButton
+                    android:id="@+id/radioAllPaper"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="Generate all available questions" />
+
+                <RadioButton
+                    android:id="@+id/radioCustomPaper"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Select the number of questions" />
+            </RadioGroup>
+
+            <EditText
+                android:id="@+id/etCustomCountPaper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/input_field_bg"
+                android:enabled="false"
+                android:hint="Number of questions, e.g. 25"
+                android:inputType="number"
+                android:padding="12dp"
+                android:textSize="15sp" />
+
+            <!-- Answer key -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:textColor="@color/edu_navy"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:text="Paper Mode" />
+
+            <RadioGroup
+                android:id="@+id/radioAnswerGroupPaper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/radioUnsolvedPaper"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="Unsolved (no answers)" />
+
+                <RadioButton
+                    android:id="@+id/radioSolvedPaper"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="24dp"
+                    android:text="Solved (with answers)" />
+            </RadioGroup>
+
+            <!-- Order -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:textColor="@color/edu_navy"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:text="Question Order" />
+
+            <RadioGroup
+                android:id="@+id/radioOrderGroupPaper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/radioOriginalPaper"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="Original order" />
+
+                <RadioButton
+                    android:id="@+id/radioRandomPaper"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="24dp"
+                    android:text="Random order" />
+            </RadioGroup>
+
+            <!-- Test title -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:textColor="@color/edu_navy"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:text="Test Title" />
+
+            <EditText
+                android:id="@+id/etPaperTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/input_field_bg"
+                android:hint="Question Paper"
+                android:padding="12dp"
+                android:text="Question Paper"
+                android:textSize="15sp" />
+
+            <!-- Time allowed -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:textColor="@color/edu_navy"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:text="Time Allowed" />
+
+            <EditText
+                android:id="@+id/etTimePaper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/input_field_bg"
+                android:hint="e.g. 1 Hour"
+                android:padding="12dp"
+                android:text="30 Minutes"
+                android:textSize="15sp" />
+
+            <Button
+                android:id="@+id/btnGeneratePaper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="22dp"
+                android:backgroundTint="@color/primary_green"
+                android:padding="12dp"
+                android:text="Generate Paper PDF"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvPaperStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                android:textColor="#334155"
+                android:textSize="13sp" />
+
+            <!-- Actions after generation -->
+            <LinearLayout
+                android:id="@+id/layoutActionsPaper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btnPreviewPaper"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="6dp"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/edu_navy"
+                        android:text="Preview Paper"
+                        android:textColor="#FFFFFF" />
+
+                    <Button
+                        android:id="@+id/btnSharePaper"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/edu_navy"
+                        android:text="Share PDF"
+                        android:textColor="#FFFFFF" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btnSavePaper"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="6dp"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/edu_navy"
+                        android:text="Download / Save PDF"
+                        android:textColor="#FFFFFF" />
+
+                    <Button
+                        android:id="@+id/btnRegeneratePaper"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/edu_navy"
+                        android:text="Regenerate Test"
+                        android:textColor="#FFFFFF" />
+                </LinearLayout>
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
