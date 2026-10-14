@@ -79,21 +79,6 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
         return false
     }
 
-    private fun chapterNumber(chapter: String): Int? =
-        Regex("^\\s*chapter\\s*(\\d+)", RegexOption.IGNORE_CASE).find(chapter)?.groupValues?.get(1)?.toIntOrNull()
-
-    private fun chaptersMatch(questionChapter: String, selectedChapter: String): Boolean {
-        val qNum = chapterNumber(questionChapter)
-        val sNum = chapterNumber(selectedChapter)
-        return if (qNum != null && sNum != null) {
-            // Exact chapter-number match, so "Chapter 1" never pulls in Chapter 10-19 questions
-            qNum == sNum
-        } else {
-            questionChapter.trim().contains(selectedChapter, ignoreCase = true) ||
-                selectedChapter.contains(questionChapter.trim(), ignoreCase = true)
-        }
-    }
-
     fun loadQuestions(sheetName: String, subject: String, chapter: String) {
         _quizState.value = UiState.Loading
         viewModelScope.launch {
@@ -120,7 +105,8 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
                 if (subjectFiltered.isNotEmpty()) subjectFiltered else questions
             } else {
                 val chapterFiltered = subjectFiltered.filter { q ->
-                    chaptersMatch(q.chapter, trimmedChapter)
+                    q.chapter.trim().contains(trimmedChapter, ignoreCase = true) ||
+                    trimmedChapter.contains(q.chapter.trim(), ignoreCase = true)
                 }
                 if (chapterFiltered.isNotEmpty()) chapterFiltered else if (subjectFiltered.isNotEmpty()) subjectFiltered else questions
             }
