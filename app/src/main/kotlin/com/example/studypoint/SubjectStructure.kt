@@ -198,15 +198,18 @@ object SubjectStructure {
             StudySection("pb3", "Index", "", "chapter")
         )
         "10" -> listOf(
-            StudySection("p1", "Ch 1: Simple Harmonic Motion & Waves", "", "chapter"),
-            StudySection("p2", "Ch 2: Sound", "", "chapter"),
-            StudySection("p3", "Ch 3: Geometrical Optics", "", "chapter"),
-            StudySection("p4", "Ch 4: Electrostatics", "", "chapter"),
-            StudySection("p5", "Ch 5: Current Electricity", "", "chapter"),
-            StudySection("p6", "Ch 6: Electromagnetism", "", "chapter"),
-            StudySection("p7", "Ch 7: Basic Electronics", "", "chapter"),
-            StudySection("p8", "Ch 8: Information Technology", "", "chapter"),
-            StudySection("p9", "Ch 9: Atomic & Nuclear Physics", "", "chapter")
+            StudySection("p10", "Chapter 10: Thermal Physics", "حرارتی طبیعات", "chapter"),
+            StudySection("p11", "Chapter 11: Transfer of Thermal Energy", "حرارتی توانائی کی منتقلی", "chapter"),
+            StudySection("p12", "Chapter 12: Waves", "لہریں", "chapter"),
+            StudySection("p13", "Chapter 13: Sound", "آواز", "chapter"),
+            StudySection("p14", "Chapter 14: Light", "روشنی", "chapter"),
+            StudySection("p15", "Chapter 15: Electrostatics", "ساکن بجلی", "chapter"),
+            StudySection("p16", "Chapter 16: Electricity", "بجلی", "chapter"),
+            StudySection("p17", "Chapter 17: Electromagnetism", "برقی مقناطیسیت", "chapter"),
+            StudySection("p18", "Chapter 18: Electromagnetic Induction and Electromagnetic Waves", "برقی مقناطیسی امالہ اور لہریں", "chapter"),
+            StudySection("p19", "Chapter 19: Electronics", "الیکٹرانکس", "chapter"),
+            StudySection("p20", "Chapter 20: Atomic and Nuclear Physics", "ایٹمی اور نیوکلیائی طبیعات", "chapter"),
+            StudySection("p21", "Chapter 21: Space and Environment", "خلا اور ماحول", "chapter")
         )
         "11" -> (1..11).map { StudySection("p$it", "Chapter $it", "", "chapter") }
         else -> (1..10).map { StudySection("p$it", "Chapter $it", "", "chapter") }
