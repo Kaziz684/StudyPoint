@@ -857,7 +857,7 @@ fun DailyTrackerCard(onStartChallenge: () -> Unit) {
                     modifier = Modifier.padding(horizontal = 9.dp, vertical = 5.dp),
                     color = Color(0xFFFCD34D),
                     fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.SemiBold
                 )
             }
 
@@ -868,7 +868,7 @@ fun DailyTrackerCard(onStartChallenge: () -> Unit) {
                     text = "Daily Challenge",
                     color = Color.White,
                     fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.SemiBold
                 )
                 Text(
                     text = "7 / 10 MCQs",
@@ -931,7 +931,7 @@ fun QuickActionsGrid(
             Card(
                 modifier = Modifier
                     .width(115.dp)
-                    .height(130.dp)
+                    .heightIn(min = 124.dp)
                     .clickable { action.onClick() },
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -940,7 +940,7 @@ fun QuickActionsGrid(
             ) {
                 Column(
                     modifier = Modifier
-                        .fillMaxSize()
+                        .fillMaxWidth()
                         .padding(12.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
@@ -966,8 +966,9 @@ fun QuickActionsGrid(
 
                     Text(
                         text = action.title,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.SemiBold,
                         fontSize = 12.sp,
+                        overflow = TextOverflow.Ellipsis,
                         color = Color(0xFF0F172A),
                         textAlign = TextAlign.Center,
                         maxLines = 1
@@ -1729,7 +1730,7 @@ fun SectionTitle(title: String) {
         text = title,
         modifier = Modifier.padding(start = 20.dp, top = 18.dp, bottom = 10.dp),
         fontSize = 16.sp,
-        fontWeight = FontWeight.Bold,
+        fontWeight = FontWeight.SemiBold,
         color = Color(0xFF0F172A)
     )
 }
@@ -1919,7 +1920,7 @@ fun YouTubeVideosSection(
                 Text(
                     text = "View Channel →",
                     fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.SemiBold,
                     color = Color(0xFFEF4444)
                 )
             }
@@ -2021,7 +2022,7 @@ fun YouTubeVideoCard(
                         text = video.durationLabel,
                         color = Color.White,
                         fontSize = 10.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                     )
                 }
@@ -2038,7 +2039,7 @@ fun YouTubeVideoCard(
                         text = "PCTB 2026",
                         color = Color.White,
                         fontSize = 9.sp,
-                        fontWeight = FontWeight.ExtraBold,
+                        fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                     )
                 }
@@ -2052,7 +2053,7 @@ fun YouTubeVideoCard(
             ) {
                 Text(
                     text = video.title,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.SemiBold,
                     fontSize = 13.sp,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
