@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.studypoint.practicetest.QuizActivity
+import com.example.studypoint.practicetest.TestGeneratorActivity
 
 class MaterialSelectionActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,7 +29,8 @@ class MaterialSelectionActivity : AppCompatActivity() {
             GridItem("Notes", "Solved Notes", R.drawable.ic_solved_notes),
             GridItem("Past Papers", "Past Papers", R.drawable.ic_pastpaper),
             GridItem("Guess Papers", "Guess Papers", R.drawable.ic_pastpaper),
-            GridItem("MCQs", "MCQs Practice", R.drawable.ic_mcqs_practice)
+            GridItem("MCQs", "MCQs Practice", R.drawable.ic_mcqs_practice),
+            GridItem("TestGenerator", "Generate MCQs Test", R.drawable.ic_mcqs_practice)
         )
 
         // English: add Grammar as a material
@@ -54,6 +56,13 @@ class MaterialSelectionActivity : AppCompatActivity() {
                         putExtra("sheetName", sheetName)
                         putExtra("subject", subject)
                         putExtra("chapter", "")
+                    }
+                    startActivity(intent)
+                }
+                item.id == "TestGenerator" -> {
+                    val intent = Intent(this, TestGeneratorActivity::class.java).apply {
+                        putExtra("grade", gradeNum)
+                        putExtra("subject", subject)
                     }
                     startActivity(intent)
                 }

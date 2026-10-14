@@ -144,6 +144,9 @@
         <activity
             android:name=".practicetest.QuizResultActivity"
             android:exported="false" />
+        <activity
+            android:name=".practicetest.TestGeneratorActivity"
+            android:exported="false" />
 
         <!-- Firebase / Google Services metadata -->
         <meta-data
