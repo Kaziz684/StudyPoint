@@ -65,6 +65,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.compose.ui.viewinterop.AndroidView
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.example.studypoint.practicetest.PaperGeneratorActivity
 import com.example.studypoint.practicetest.QuizSelectionActivity
 import com.example.studypoint.practicetest.BookmarksActivity
 import com.google.firebase.auth.FirebaseAuth
@@ -543,6 +544,9 @@ fun HomeScreen(
                         onPastPapersClick = {
                             val intent = Intent(context, GradeSelectionActivity::class.java)
                             context.startActivity(intent)
+                        },
+                        onPaperGeneratorClick = {
+                            context.startActivity(Intent(context, PaperGeneratorActivity::class.java))
                         }
                     )
 
@@ -967,13 +971,15 @@ fun QuickActionsGrid(
     onNotesClick: () -> Unit,
     onMcqsClick: () -> Unit,
     onAiTutorClick: () -> Unit,
-    onPastPapersClick: () -> Unit
+    onPastPapersClick: () -> Unit,
+    onPaperGeneratorClick: () -> Unit
 ) {
     val actions = remember {
         listOf(
             QuickActionItem("Textbooks", "درسی کتب", Icons.Default.MenuBook, Color(0xFFEFF6FF), Color(0xFF2563EB), onTextbooksClick),
             QuickActionItem("Solved Notes", "حل شدہ نوٹس", Icons.Default.Description, Color(0xFFEEF2FF), Color(0xFF4F46E5), onNotesClick),
             QuickActionItem("MCQs Practice", "کثیر الانتخابی", Icons.Default.Quiz, Color(0xFFECFDF5), Color(0xFF10B981), onMcqsClick),
+            QuickActionItem("Paper Generator", "پیپر بنائیں", Icons.Default.Article, Color(0xFFF0FDFA), Color(0xFF0D9488), onPaperGeneratorClick),
             QuickActionItem("AI Tutor", "اے آئی ٹیوٹر", Icons.Default.AutoAwesome, Color(0xFFF5F3FF), Color(0xFF7C3AED), onAiTutorClick),
             QuickActionItem("Past Papers", "2022–2026", Icons.Default.Assignment, Color(0xFFFFFBEB), Color(0xFFD97706), onPastPapersClick)
         )
