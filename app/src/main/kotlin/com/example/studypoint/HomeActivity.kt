@@ -49,6 +49,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -58,6 +59,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.Dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.compose.ui.viewinterop.AndroidView
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -176,6 +180,20 @@ fun HomeScreen(
     var showProfileDialog by remember { mutableStateOf(false) }
     var isSearchExpanded by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
+
+    // Profile picture (persisted by ProfileManager); refreshed live whenever
+    // the screen resumes, e.g. after returning from Edit Profile.
+    var profileImagePath by remember { mutableStateOf(ProfileManager.getProfile(context).imagePath) }
+    val hostActivity = context as? androidx.activity.ComponentActivity
+    DisposableEffect(hostActivity) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                profileImagePath = ProfileManager.getProfile(context).imagePath
+            }
+        }
+        hostActivity?.lifecycle?.addObserver(observer)
+        onDispose { hostActivity?.lifecycle?.removeObserver(observer) }
+    }
 
     // Dynamic YouTube Feed State
     var youTubeVideos by remember { mutableStateOf<List<YouTubeVideo>>(YouTubeRepository.sampleLectures) }
@@ -448,6 +466,7 @@ fun HomeScreen(
                 // 1. Top Greeting Header
                 TopGreetingHeader(
                     userName = userName,
+                    imagePath = profileImagePath,
                     onMenuClick = { scope.launch { drawerState.open() } },
                     onSearchClick = { isSearchExpanded = !isSearchExpanded },
                     onRefreshClick = {
@@ -631,6 +650,7 @@ fun HomeScreen(
         ProfileDialog(
             userName = userName,
             userEmail = userEmail,
+            imagePath = profileImagePath,
             onDismiss = { showProfileDialog = false },
             onLogout = onLogout,
             onShare = onShare,
@@ -648,11 +668,61 @@ fun HomeScreen(
 }
 
 // ==========================================
+// PROFILE AVATAR (photo if uploaded, else initial letter)
+// ==========================================
+@Composable
+fun ProfileAvatar(
+    userName: String,
+    imagePath: String,
+    size: Dp,
+    onClick: (() -> Unit)? = null
+) {
+    val avatarFile = if (imagePath.isBlank()) null else java.io.File(imagePath)
+    // Keyed on lastModified too: a new photo overwrites the same file path.
+    val bitmap = remember(imagePath, avatarFile?.lastModified()) {
+        try {
+            if (avatarFile != null && avatarFile.exists()) {
+                android.graphics.BitmapFactory.decodeFile(avatarFile.absolutePath)
+            } else null
+        } catch (e: Exception) { null }
+    }
+    Box(
+        modifier = Modifier
+            .size(size)
+            .clip(CircleShape)
+            .background(
+                Brush.linearGradient(
+                    listOf(Color(0xFF4F46E5), Color(0xFF7C3AED))
+                )
+            )
+            .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier),
+        contentAlignment = Alignment.Center
+    ) {
+        if (bitmap != null) {
+            Image(
+                bitmap = bitmap.asImageBitmap(),
+                contentDescription = "Profile picture",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        } else {
+            Text(
+                text = userName.take(1).uppercase(),
+                color = Color.White,
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp
+            )
+        }
+    }
+}
+
+// ==========================================
 // 1. TOP GREETING HEADER COMPONENT
 // ==========================================
 @Composable
 fun TopGreetingHeader(
     userName: String,
+    imagePath: String,
     onMenuClick: () -> Unit,
     onSearchClick: () -> Unit,
     onRefreshClick: () -> Unit,
@@ -669,26 +739,13 @@ fun TopGreetingHeader(
                 .padding(horizontal = 20.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Left: Clickable Profile/Drawer Avatar
-            Box(
-                modifier = Modifier
-                    .size(46.dp)
-                    .clip(CircleShape)
-                    .background(
-                        Brush.linearGradient(
-                            listOf(Color(0xFF4F46E5), Color(0xFF7C3AED))
-                        )
-                    )
-                    .clickable { onMenuClick() },
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = userName.take(1).uppercase(),
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp
-                )
-            }
+            // Left: Clickable Profile/Drawer Avatar (photo if uploaded, else initial letter)
+            ProfileAvatar(
+                userName = userName,
+                imagePath = imagePath,
+                size = 46.dp,
+                onClick = onMenuClick
+            )
 
             Spacer(modifier = Modifier.width(14.dp))
 
@@ -1367,6 +1424,7 @@ fun NotificationItem(title: String, desc: String, time: String) {
 fun ProfileDialog(
     userName: String,
     userEmail: String,
+    imagePath: String,
     onDismiss: () -> Unit,
     onLogout: () -> Unit,
     onShare: () -> Unit,
@@ -1381,14 +1439,11 @@ fun ProfileDialog(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.clickable { onDismiss(); onProfileClick() }
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(44.dp)
-                        .background(Color(0xFF4F46E5), CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(userName.take(1).uppercase(), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                }
+                ProfileAvatar(
+                    userName = userName,
+                    imagePath = imagePath,
+                    size = 44.dp
+                )
                 Spacer(modifier = Modifier.width(12.dp))
                 Column {
                     Text(userName, fontWeight = FontWeight.Bold, fontSize = 16.sp)

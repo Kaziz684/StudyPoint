@@ -39,7 +39,12 @@ object ProfileManager {
         val school = prefs.getString(KEY_SCHOOL, "Govt Comprehensive High School, Bahawalpur") ?: "Govt Comprehensive High School, Bahawalpur"
         val grade = prefs.getString(KEY_GRADE, "Class 10th") ?: "Class 10th"
         val subjectGroup = prefs.getString(KEY_SUBJECT_GROUP, "") ?: ""
-        val imagePath = prefs.getString(KEY_IMAGE_PATH, "") ?: ""
+        val imagePath = (prefs.getString(KEY_IMAGE_PATH, "") ?: "").ifBlank {
+            // A picked photo is always copied to this fixed file; use it even if
+            // the profile was not explicitly saved after picking.
+            val avatarFile = File(context.filesDir, "profile_avatar.jpg")
+            if (avatarFile.exists()) avatarFile.absolutePath else ""
+        }
 
         return UserProfile(
             fullName = fullName,
