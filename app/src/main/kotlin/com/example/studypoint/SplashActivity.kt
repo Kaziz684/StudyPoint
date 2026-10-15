@@ -27,18 +27,21 @@ class SplashActivity : AppCompatActivity() {
     }
 
     private fun checkAuthAndNavigate() {
-        val currentUser = FirebaseAuth.getInstance().currentUser
-        if (currentUser != null) {
-            // Check if user is verified via email OR logged in via phone
-            if (currentUser.isEmailVerified || currentUser.phoneNumber != null) {
+        try {
+            val currentUser = FirebaseAuth.getInstance().currentUser
+            if (currentUser != null) {
+                // Signed in (email, Google or phone) — no verification gate.
                 startActivity(Intent(this, HomeActivity::class.java))
             } else {
-                // User logged in via email but NOT verified
-                startActivity(Intent(this, EmailVerificationActivity::class.java))
+                // User is not signed in, go to Login screen
+                startActivity(Intent(this, LoginActivity::class.java))
             }
-        } else {
-            // User is not signed in, go to Login screen
-            startActivity(Intent(this, LoginActivity::class.java))
+        } catch (e: Exception) {
+            // Never crash on the splash screen; fall back to Login.
+            try {
+                startActivity(Intent(this, LoginActivity::class.java))
+            } catch (ignored: Exception) {
+            }
         }
         finish()
     }

@@ -72,6 +72,9 @@ class LoginActivity : AppCompatActivity() {
         } catch (e: ApiException) {
             showLoading(false)
             Toast.makeText(this, "Google sign-in failed: ${e.statusCode}", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            showLoading(false)
+            Toast.makeText(this, "Google sign-in failed. Please try again.", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -81,19 +84,12 @@ class LoginActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
 
-        // Auto-login check
+        // Auto-login check: any signed-in user goes straight to Home.
+        // Email verification is NOT required anymore.
         val prefs = getSharedPreferences("login_prefs", Context.MODE_PRIVATE)
-        val currentUser = auth.currentUser
-        if (currentUser != null) {
-            if (currentUser.isEmailVerified || currentUser.phoneNumber != null) {
-                startActivity(Intent(this, HomeActivity::class.java))
-                finish()
-                return
-            } else {
-                startActivity(Intent(this, EmailVerificationActivity::class.java))
-                finish()
-                return
-            }
+        if (auth.currentUser != null) {
+            goHome()
+            return
         }
 
         initViews()
@@ -249,22 +245,37 @@ class LoginActivity : AppCompatActivity() {
             signInWithGoogle()
         }
 
+        findViewById<Button>(R.id.btnGoogleSignup).setOnClickListener {
+            signInWithGoogle()
+        }
+
         findViewById<Button>(R.id.btnPhoneOtp).setOnClickListener {
             showPhoneDialog()
         }
     }
 
     private fun signInWithGoogle() {
-        val webClientId = getString(R.string.default_web_client_id)
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(webClientId)
-            .requestEmail()
-            .build()
-        val googleSignInClient = GoogleSignIn.getClient(this, gso)
-        // Sign out first to always show account chooser
-        googleSignInClient.signOut().addOnCompleteListener {
-            showLoading(true)
-            googleSignInLauncher.launch(googleSignInClient.signInIntent)
+        try {
+            val webClientId = getString(R.string.default_web_client_id)
+            val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(webClientId)
+                .requestEmail()
+                .requestProfile()
+                .build()
+            val googleSignInClient = GoogleSignIn.getClient(this, gso)
+            // Sign out first to always show account chooser
+            googleSignInClient.signOut().addOnCompleteListener {
+                try {
+                    showLoading(true)
+                    googleSignInLauncher.launch(googleSignInClient.signInIntent)
+                } catch (e: Exception) {
+                    showLoading(false)
+                    Toast.makeText(this, "Could not open Google sign-in. Please try again.", Toast.LENGTH_SHORT).show()
+                }
+            }
+        } catch (e: Exception) {
+            showLoading(false)
+            Toast.makeText(this, "Google sign-in is not available right now. Please use email login.", Toast.LENGTH_LONG).show()
         }
     }
 
@@ -274,13 +285,12 @@ class LoginActivity : AppCompatActivity() {
             .addOnCompleteListener(this) { task ->
                 showLoading(false)
                 if (task.isSuccessful) {
+                    // Firebase creates the account automatically on first
+                    // Google sign-in — no verification or extra steps needed.
                     val user = auth.currentUser
-                    // Save login state
-                    val prefs = getSharedPreferences("login_prefs", Context.MODE_PRIVATE)
-                    prefs.edit().putBoolean("remember_me", true).apply()
+                    initializeSession(user)
                     Toast.makeText(this, "Welcome ${user?.displayName ?: "Student"}! 🎉", Toast.LENGTH_SHORT).show()
-                    startActivity(Intent(this, HomeActivity::class.java))
-                    finish()
+                    goHome()
                 } else {
                     Toast.makeText(this, "Google sign-in failed: ${task.exception?.message}", Toast.LENGTH_LONG).show()
                 }
@@ -329,15 +339,9 @@ class LoginActivity : AppCompatActivity() {
         auth.signInWithEmailAndPassword(email, password).addOnCompleteListener { task ->
             showLoading(false)
             if (task.isSuccessful) {
-                val user = auth.currentUser
-                if (user != null && user.isEmailVerified) {
-                    startActivity(Intent(this, HomeActivity::class.java))
-                    finish()
-                } else {
-                    user?.sendEmailVerification()
-                    startActivity(Intent(this, EmailVerificationActivity::class.java))
-                    finish()
-                }
+                // No email-verification gate: log in immediately.
+                initializeSession(auth.currentUser)
+                goHome()
             } else {
                 Toast.makeText(this, "Login Failed: ${task.exception?.message}", Toast.LENGTH_LONG).show()
                 generateCaptchaLogin()
@@ -393,18 +397,17 @@ class LoginActivity : AppCompatActivity() {
         showLoading(true)
         auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task ->
             if (task.isSuccessful) {
+                // No email verification: the account is ready immediately.
                 val user = auth.currentUser
                 val profileUpdates = UserProfileChangeRequest.Builder()
                     .setDisplayName(name)
                     .build()
 
                 user?.updateProfile(profileUpdates)?.addOnCompleteListener {
-                    user.sendEmailVerification().addOnCompleteListener {
-                        showLoading(false)
-                        Toast.makeText(this, "Account created! Verify your email.", Toast.LENGTH_LONG).show()
-                        startActivity(Intent(this, EmailVerificationActivity::class.java))
-                        finish()
-                    }
+                    showLoading(false)
+                    initializeSession(user, name)
+                    Toast.makeText(this, "Account created! Welcome, $name 🎉", Toast.LENGTH_LONG).show()
+                    goHome()
                 }
             } else {
                 showLoading(false)
@@ -457,6 +460,44 @@ class LoginActivity : AppCompatActivity() {
         intent.putExtra("type", "phone")
         intent.putExtra("target", phoneNumber)
         startActivity(intent)
+    }
+
+    /**
+     * Initializes the default session right after a successful sign-in
+     * (Google, email or phone): login preferences + a seeded local profile,
+     * so the rest of the app always finds a ready session. Never throws.
+     */
+    private fun initializeSession(user: com.google.firebase.auth.FirebaseUser?, displayNameOverride: String? = null) {
+        try {
+            val prefs = getSharedPreferences("login_prefs", Context.MODE_PRIVATE)
+            prefs.edit()
+                .putBoolean("remember_me", true)
+                .putString("user_email", user?.email ?: "")
+                .putString("user_name", displayNameOverride ?: user?.displayName ?: "")
+                .apply()
+
+            // Seed the local profile name from the account, only if unset.
+            val nameToSeed = displayNameOverride ?: user?.displayName
+            if (!nameToSeed.isNullOrBlank()) {
+                val profilePrefs = getSharedPreferences("studypoint_user_profile", Context.MODE_PRIVATE)
+                if (profilePrefs.getString("full_name", null).isNullOrBlank()) {
+                    profilePrefs.edit().putString("full_name", nameToSeed).apply()
+                }
+            }
+        } catch (e: Exception) {
+            // Session init must never block or crash sign-in.
+        }
+    }
+
+    /** Navigates to Home safely; a navigation failure never crashes sign-in. */
+    private fun goHome() {
+        try {
+            startActivity(Intent(this, HomeActivity::class.java))
+            finish()
+        } catch (e: Exception) {
+            try { showLoading(false) } catch (ignored: Exception) { }
+            Toast.makeText(this, "Signed in, but could not open Home. Please reopen the app.", Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun showLoading(show: Boolean) {

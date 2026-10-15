@@ -12,7 +12,20 @@
           "package_name": "com.example.studypoint"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1038387291874-5b1o26uectdu2o6l04ef3rjs5k0f54q6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.studypoint",
+            "certificate_hash": "b6d074d44c5fb5b764c6a4a72261fa9f675fc949"
+          }
+        },
+        {
+          "client_id": "1038387291874-6ef7hi47psfdptcin5p12c7fvllc9gmm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCyXe96ZNxqoqE6Z8OE9sEkEovG8PDII6c"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1038387291874-6ef7hi47psfdptcin5p12c7fvllc9gmm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
