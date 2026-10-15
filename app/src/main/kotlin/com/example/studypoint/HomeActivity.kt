@@ -1409,7 +1409,7 @@ fun NotificationsDialog(onDismiss: () -> Unit) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.Notifications, null, tint = Color(0xFF4F46E5))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Board Announcements", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                Text("Board Announcements", fontWeight = FontWeight.Bold, fontSize = 17.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
         },
         text = {
@@ -1438,10 +1438,20 @@ fun NotificationItem(title: String, desc: String, time: String) {
         Column(modifier = Modifier.padding(12.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top
             ) {
-                Text(title, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = Color(0xFF0F172A))
-                Text(time, fontSize = 10.sp, color = Color(0xFF94A3B8))
+                Text(
+                    title,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 13.sp,
+                    color = Color(0xFF0F172A),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(time, fontSize = 10.sp, color = Color(0xFF94A3B8), maxLines = 1, softWrap = false)
             }
             Spacer(modifier = Modifier.height(4.dp))
             Text(desc, fontSize = 11.sp, color = Color(0xFF64748B), lineHeight = 15.sp)
