@@ -106,6 +106,7 @@ class NotesActivity : AppCompatActivity() {
                 "Pair of Words" -> "https://drive.google.com/uc?export=download&id=17ssLAMsGLsA0SwVRC4hVbH2us5As48Fq"
                 "Correct Use of Verb" -> "https://drive.google.com/uc?export=download&id=1dSiq_tL9Q45b4OuLi8uREWF-MV_xyLv_"
                 "Direct & Indirect Speech" -> "https://drive.google.com/uc?export=download&id=18QNDosWey5xOFL1JPnvuKRSk0hgRtN3R"
+                "Translation (Urdu to English)" -> "https://drive.google.com/uc?export=download&id=16A3hQteRW5xZm_fW9XUGkfOYkiTdSYAI"
                 else -> null
             }
         } else null
