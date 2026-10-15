@@ -2165,7 +2165,10 @@ fun YouTubeVideoCard(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.weight(1f)
+                    ) {
                         Box(
                             modifier = Modifier
                                 .size(6.dp)
@@ -2182,11 +2185,14 @@ fun YouTubeVideoCard(
                         )
                     }
 
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "▶ Watch Now",
                         fontSize = 11.sp,
                         color = Color(0xFF4F46E5),
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        softWrap = false
                     )
                 }
             }
