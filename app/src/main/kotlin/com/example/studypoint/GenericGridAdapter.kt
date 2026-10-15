@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.card.MaterialCardView
 
 data class GridItem(
     val id: String,
@@ -44,6 +45,16 @@ class GenericGridAdapter(
         holder.title.text = item.title
         holder.subtitle?.text = item.subtitle
         holder.subtitle?.visibility = if (item.subtitle.isNotEmpty()) View.VISIBLE else View.GONE
+        // Soft pastel card tint (flowchart style) for square cards only
+        if (!useGlassCard && !useListRow) {
+            val pastel = listOf(
+                0xFFEFF6FF, 0xFFECFDF5, 0xFFF5F3FF,
+                0xFFFFF7ED, 0xFFFDF2F8, 0xFFF0FDFA
+            )
+            (holder.card as? MaterialCardView)?.setCardBackgroundColor(
+                pastel[position % pastel.size].toInt()
+            )
+        }
         holder.icon.setImageResource(item.iconRes)
         // No need for separate tint if we use rich icons with backgrounds
         holder.icon.imageTintList = null 

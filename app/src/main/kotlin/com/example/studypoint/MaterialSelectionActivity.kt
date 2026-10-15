@@ -7,7 +7,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.studypoint.practicetest.QuizActivity
-import com.example.studypoint.practicetest.PaperGeneratorActivity
 
 class MaterialSelectionActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,7 +29,6 @@ class MaterialSelectionActivity : AppCompatActivity() {
             GridItem("Past Papers", "Past Papers", R.drawable.ic_mat_past),
             GridItem("Guess Papers", "Guess Papers", R.drawable.ic_mat_guess),
             GridItem("MCQs", "MCQs Practice", R.drawable.ic_mat_mcqs),
-            GridItem("PaperGenerator", "Paper Generator", R.drawable.ic_mat_paper)
         )
 
         // English: add Grammar as a material
@@ -47,7 +45,14 @@ class MaterialSelectionActivity : AppCompatActivity() {
         }
 
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
-        recyclerView.layoutManager = GridLayoutManager(this, 2)
+        val gridLayoutManager = GridLayoutManager(this, 2)
+        gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+            override fun getSpanSize(position: Int): Int {
+                val count = recyclerView.adapter?.itemCount ?: 0
+                return if (count % 2 == 1 && position == count - 1) 2 else 1
+            }
+        }
+        recyclerView.layoutManager = gridLayoutManager
         recyclerView.adapter = GenericGridAdapter(materials) { item ->
             when {
                 item.id == "MCQs" -> {
@@ -56,13 +61,6 @@ class MaterialSelectionActivity : AppCompatActivity() {
                         putExtra("sheetName", sheetName)
                         putExtra("subject", subject)
                         putExtra("chapter", "")
-                    }
-                    startActivity(intent)
-                }
-                item.id == "PaperGenerator" -> {
-                    val intent = Intent(this, PaperGeneratorActivity::class.java).apply {
-                        putExtra("grade", gradeNum)
-                        putExtra("subject", subject)
                     }
                     startActivity(intent)
                 }
