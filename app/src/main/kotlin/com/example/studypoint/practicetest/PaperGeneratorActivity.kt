@@ -17,6 +17,7 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.RadioButton
 import android.widget.RadioGroup
+import android.widget.ScrollView
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
@@ -107,6 +108,17 @@ class PaperGeneratorActivity : AppCompatActivity() {
     private var tvShortCounter: TextView? = null
     private var tvLongCounter: TextView? = null
 
+    // --- Wizard navigation (4 steps) ---
+    private lateinit var scrollPaper: ScrollView
+    private lateinit var stepContainers: List<LinearLayout>
+    private lateinit var stepSegments: List<View>
+    private lateinit var tvStepTitle: TextView
+    private lateinit var tvStepSub: TextView
+    private lateinit var tvSummary: TextView
+    private lateinit var btnBackStep: Button
+    private lateinit var btnNextStep: Button
+    private var currentStep = 1
+
     private val saveLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -174,6 +186,44 @@ class PaperGeneratorActivity : AppCompatActivity() {
         tvStatus = findViewById(R.id.tvPaperStatus)
         layoutActions = findViewById(R.id.layoutActionsPaper)
 
+        scrollPaper = findViewById(R.id.scrollPaper)
+        stepContainers = listOf(
+            findViewById(R.id.step1Paper),
+            findViewById(R.id.step2Paper),
+            findViewById(R.id.step3Paper),
+            findViewById(R.id.step4Paper)
+        )
+        stepSegments = listOf(
+            findViewById(R.id.stepSeg1Paper),
+            findViewById(R.id.stepSeg2Paper),
+            findViewById(R.id.stepSeg3Paper),
+            findViewById(R.id.stepSeg4Paper)
+        )
+        tvStepTitle = findViewById(R.id.tvStepTitlePaper)
+        tvStepSub = findViewById(R.id.tvStepSubPaper)
+        tvSummary = findViewById(R.id.tvSummaryPaper)
+        btnBackStep = findViewById(R.id.btnBackStepPaper)
+        btnNextStep = findViewById(R.id.btnNextStepPaper)
+        btnBackStep.setOnClickListener { showStep(currentStep - 1) }
+        btnNextStep.setOnClickListener {
+            if (currentStep == 1 && currentType() != PaperType.BOARD) {
+                if (loading) {
+                    Toast.makeText(this, "Please wait — questions are loading", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+                if (chapterNames.isEmpty()) {
+                    Toast.makeText(
+                        this,
+                        "No chapters are loaded for this subject yet. Check your internet connection or choose another subject.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    return@setOnClickListener
+                }
+            }
+            showStep(currentStep + 1)
+        }
+        showStep(1)
+
         findViewById<TextView>(R.id.btnBackPaper).setOnClickListener { finish() }
 
         val incomingGrade = (intent.getStringExtra("grade") ?: intent.getStringExtra("class") ?: "9")
@@ -235,6 +285,91 @@ class PaperGeneratorActivity : AppCompatActivity() {
     override fun onDestroy() {
         scope.cancel()
         super.onDestroy()
+    }
+
+    // --- Wizard step navigation ---
+
+    private fun showStep(n: Int) {
+        currentStep = n.coerceIn(1, 4)
+        stepContainers.forEachIndexed { i, v ->
+            v.visibility = if (i == currentStep - 1) View.VISIBLE else View.GONE
+        }
+        stepSegments.forEachIndexed { i, v ->
+            v.setBackgroundColor(Color.parseColor(if (i < currentStep) "#2563EB" else "#E2E8F0"))
+        }
+        val titles = listOf(
+            "Step 1 of 4 — Select Class, Subject & Chapters",
+            "Step 2 of 4 — Paper Type & Questions",
+            "Step 3 of 4 — Paper Options",
+            "Step 4 of 4 — Preview & Generate"
+        )
+        val subs = listOf(
+            "Choose the class and subject for your test paper.",
+            "Pick the paper type, then select questions yourself or set the numbers.",
+            "Choose solved or unsolved, question order, title and time.",
+            "Review your selected options before creating the test paper."
+        )
+        tvStepTitle.text = titles[currentStep - 1]
+        tvStepSub.text = subs[currentStep - 1]
+        btnBackStep.visibility = if (currentStep > 1) View.VISIBLE else View.GONE
+        btnNextStep.visibility = if (currentStep < 4) View.VISIBLE else View.GONE
+        btnGenerate.visibility = if (currentStep == 4) View.VISIBLE else View.GONE
+        if (currentStep == 4) tvSummary.text = buildSummary()
+        scrollPaper.scrollTo(0, 0)
+    }
+
+    private fun buildSummary(): String {
+        val typeLabel = when (currentType()) {
+            PaperType.MCQS -> "MCQs Test"
+            PaperType.SHORT -> "Short Questions"
+            PaperType.LONG -> "Long Questions"
+            PaperType.COMBINED -> "Mixed Paper (MCQs + Short + Long)"
+            PaperType.BOARD -> "Board Pattern Paper (Class 10 English)"
+        }
+        val classLabel = classLabels[spinnerClass.selectedItemPosition.coerceIn(0, classLabels.lastIndex)]
+        val subject = spinnerSubject.selectedItem?.toString() ?: ""
+        val sb = StringBuilder()
+        sb.append("Paper Type:  $typeLabel\n")
+        sb.append("Class:  $classLabel\n")
+        sb.append("Subject:  $subject\n")
+        if (currentType() == PaperType.BOARD) {
+            sb.append("Total Marks:  75  •  Time:  2 Hours 30 Minutes\n")
+            sb.append("Structure:  Q.1: 19 MCQs • Q.2: Short answers (any 5 of 8) • Q.3–Q.8: Board pattern sections\n")
+        } else {
+            val chapters = when {
+                checkAllChapters.isChecked -> "All Chapters / Full Book"
+                selectedChapterLabels().isEmpty() -> "None selected"
+                else -> selectedChapterLabels().joinToString(", ")
+            }
+            sb.append("Chapters:  $chapters\n")
+            if (isManualMode()) {
+                val m = eligibleMcqs().count { it.id in selectedMcqIds }
+                val s = eligibleShorts().count { it.id in selectedShortIds }
+                val l = eligibleLongs().count { it.id in selectedLongIds }
+                sb.append("Selection:  Manual — $m MCQs, $s Short, $l Long selected\n")
+            } else {
+                val custom = radioCustom.isChecked
+                fun cnt(field: EditText, pool: Int): String {
+                    if (!custom) return "$pool (all)"
+                    val n = field.text.toString().toIntOrNull()
+                    return if (n == null || n < 1) "$pool (all)" else "${minOf(n, pool)} of $pool"
+                }
+                val parts = mutableListOf<String>()
+                val t = currentType()
+                if (t == PaperType.MCQS || t == PaperType.COMBINED) parts += "${cnt(etCustomCount, eligibleMcqs().size)} MCQs"
+                if (t == PaperType.SHORT || t == PaperType.COMBINED) parts += "${cnt(etCountShort, eligibleShorts().size)} Short"
+                if (t == PaperType.LONG || t == PaperType.COMBINED) parts += "${cnt(etCountLong, eligibleLongs().size)} Long"
+                sb.append("Questions:  ${parts.joinToString(", ")}\n")
+                sb.append("Selection Style:  ${if (radioSelectRandom.isChecked) "Random (no repeats)" else "First questions in original order"}\n")
+            }
+        }
+        sb.append("Paper Mode:  ${if (radioSolved.isChecked) "Solved (with answers)" else "Unsolved (no answers)"}\n")
+        if (currentType() != PaperType.BOARD) {
+            sb.append("Order:  ${if (radioRandom.isChecked) "Random (shuffle)" else "Original"}\n")
+            sb.append("Title:  ${etTitle.text.toString().trim().ifBlank { "Question Paper" }}\n")
+            sb.append("Time Allowed:  ${etTime.text.toString().trim().ifBlank { "30 Minutes" }}")
+        }
+        return sb.toString()
     }
 
     private fun currentType(): PaperType = when {
