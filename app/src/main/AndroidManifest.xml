@@ -145,10 +145,6 @@
             android:name=".practicetest.QuizResultActivity"
             android:exported="false" />
         <activity
-            android:name=".practicetest.TestGeneratorActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
             android:name=".practicetest.PaperGeneratorActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />

@@ -8,7 +8,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.studypoint.practicetest.QuizActivity
 import com.example.studypoint.practicetest.PaperGeneratorActivity
-import com.example.studypoint.practicetest.TestGeneratorActivity
 
 class MaterialSelectionActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,26 +25,25 @@ class MaterialSelectionActivity : AppCompatActivity() {
 
         // Build materials list based on subject type
         val materials = mutableListOf(
-            GridItem("Textbook", "Textbook", R.drawable.ic_textbook),
-            GridItem("Notes", "Solved Notes", R.drawable.ic_solved_notes),
-            GridItem("Past Papers", "Past Papers", R.drawable.ic_pastpaper),
-            GridItem("Guess Papers", "Guess Papers", R.drawable.ic_pastpaper),
-            GridItem("MCQs", "MCQs Practice", R.drawable.ic_mcqs_practice),
-            GridItem("TestGenerator", "Generate MCQs Test", R.drawable.ic_mcqs_practice),
-            GridItem("PaperGenerator", "Paper Generator", R.drawable.ic_mcqs_practice)
+            GridItem("Textbook", "Textbook", R.drawable.ic_mat_textbook),
+            GridItem("Notes", "Solved Notes", R.drawable.ic_mat_notes),
+            GridItem("Past Papers", "Past Papers", R.drawable.ic_mat_past),
+            GridItem("Guess Papers", "Guess Papers", R.drawable.ic_mat_guess),
+            GridItem("MCQs", "MCQs Practice", R.drawable.ic_mat_mcqs),
+            GridItem("PaperGenerator", "Paper Generator", R.drawable.ic_mat_paper)
         )
 
         // English: add Grammar as a material
         if (subjectLower.contains("english")) {
-            materials.add(GridItem("Grammar", "Grammar", R.drawable.ic_solved_notes))
+            materials.add(GridItem("Grammar", "Grammar", R.drawable.ic_mat_notes))
         }
 
         // Urdu: add 3 sections as materials
         if (subjectLower.contains("urdu")) {
-            materials.add(GridItem("urdu_ghazal", "حصہ غزل", R.drawable.ic_textbook))
-            materials.add(GridItem("urdu_nazm", "حصہ نظم", R.drawable.ic_textbook))
-            materials.add(GridItem("urdu_asbaq", "اسباق", R.drawable.ic_textbook))
-            materials.add(GridItem("urdu_farhang", "فرہنگ", R.drawable.ic_textbook))
+            materials.add(GridItem("urdu_ghazal", "حصہ غزل", R.drawable.ic_mat_textbook))
+            materials.add(GridItem("urdu_nazm", "حصہ نظم", R.drawable.ic_mat_textbook))
+            materials.add(GridItem("urdu_asbaq", "اسباق", R.drawable.ic_mat_textbook))
+            materials.add(GridItem("urdu_farhang", "فرہنگ", R.drawable.ic_mat_textbook))
         }
 
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
@@ -63,13 +61,6 @@ class MaterialSelectionActivity : AppCompatActivity() {
                 }
                 item.id == "PaperGenerator" -> {
                     val intent = Intent(this, PaperGeneratorActivity::class.java).apply {
-                        putExtra("grade", gradeNum)
-                        putExtra("subject", subject)
-                    }
-                    startActivity(intent)
-                }
-                item.id == "TestGenerator" -> {
-                    val intent = Intent(this, TestGeneratorActivity::class.java).apply {
                         putExtra("grade", gradeNum)
                         putExtra("subject", subject)
                     }

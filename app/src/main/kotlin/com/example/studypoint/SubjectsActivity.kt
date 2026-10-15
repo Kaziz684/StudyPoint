@@ -26,25 +26,25 @@ class SubjectsActivity : AppCompatActivity() {
         val isMatricOrInterSecondYear = (gradeNum == "10" || gradeNum == "12")
 
         val subjects = mutableListOf(
-            GridItem("English", "English", R.drawable.ic_urdu_english),
-            GridItem("Urdu", "Urdu", R.drawable.ic_urdu_english),
-            GridItem("Mathematics", "Mathematics", R.drawable.ic_mathematics),
-            GridItem("Physics", "Physics", R.drawable.ic_physics),
-            GridItem("Chemistry", "Chemistry", R.drawable.ic_chemistry),
-            GridItem("Biology", "Biology", R.drawable.ic_biology),
-            GridItem("Computer Science", "Computer Science", R.drawable.ic_computer)
+            GridItem("English", "English", R.drawable.ic_sub_english),
+            GridItem("Urdu", "Urdu", R.drawable.ic_sub_urdu),
+            GridItem("Mathematics", "Mathematics", R.drawable.ic_sub_math),
+            GridItem("Physics", "Physics", R.drawable.ic_sub_physics),
+            GridItem("Chemistry", "Chemistry", R.drawable.ic_sub_chemistry),
+            GridItem("Biology", "Biology", R.drawable.ic_sub_biology),
+            GridItem("Computer Science", "Computer Science", R.drawable.ic_sub_computer)
         )
 
         if (isMatricOrInterSecondYear) {
             // 10th & 12th Classes: Add Pak Studies, remove Islamiyat
-            subjects.add(GridItem("Pak Studies", "Pak Studies", R.drawable.ic_pak_studies))
+            subjects.add(GridItem("Pak Studies", "Pak Studies", R.drawable.ic_sub_pakstudies))
         } else {
             // 9th & 11th Classes: Add Islamiyat compulsory, omit Pak Studies
-            subjects.add(GridItem("Islamiyat", "Islamiyat", R.drawable.ic_islamiyat))
+            subjects.add(GridItem("Islamiyat", "Islamiyat", R.drawable.ic_sub_islamiyat))
         }
 
         // All Classes (9th, 10th, 11th, 12th): Dedicated Tarjuma-tul-Quran section
-        subjects.add(GridItem("Tarjuma-tul-Quran", "Tarjuma-tul-Quran", R.drawable.ic_islamiyat))
+        subjects.add(GridItem("Tarjuma-tul-Quran", "Tarjuma-tul-Quran", R.drawable.ic_sub_quran))
 
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
         recyclerView.layoutManager = GridLayoutManager(this, 2)
