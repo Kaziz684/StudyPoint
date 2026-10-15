@@ -383,6 +383,8 @@ object PaperPdfGenerator {
 
     private val ROMAN = listOf("(i)", "(ii)", "(iii)", "(iv)", "(v)", "(vi)", "(vii)", "(viii)")
 
+    private fun roman(i: Int): String = if (i in ROMAN.indices) ROMAN[i] else "(${i + 1})"
+
     fun generateBoardPattern(context: Context, data: BoardPaperData, outFile: File): File {
         val blocks = mutableListOf<Block>()
 
@@ -486,7 +488,7 @@ object PaperPdfGenerator {
 
         qHeading("Q.2  Answer the following questions in your own words. (Attempt any FIVE)   (Marks: 10)")
         data.shorts.forEachIndexed { i, wq ->
-            body("${ROMAN.getOrElse(i) { "(${i + 1})" }}  ${wq.question}")
+            body("${roman(i)}  ${wq.question}")
         }
 
         val sec2 = layoutOf("SECTION-II", paint(12.5f, bold = true, color = NAVY))
@@ -507,17 +509,17 @@ object PaperPdfGenerator {
 
         qHeading("Q.5  Write an essay of 150-200 words on any ONE of the following topics:   (Marks: 15)")
         data.essayTopics.forEachIndexed { i, t ->
-            body("${ROMAN.getOrElse(i) { "(${i + 1})" }}  $t", paint(11.5f))
+            body("${roman(i)}  $t", paint(11.5f))
         }
         orLine()
         body("Write a paragraph of 100-150 words on any ONE of the following topics:", paint(11.5f, bold = true))
         data.paragraphTopics.forEachIndexed { i, t ->
-            body("${ROMAN.getOrElse(i) { "(${i + 1})" }}  $t", paint(11.5f))
+            body("${roman(i)}  $t", paint(11.5f))
         }
 
         qHeading("Q.6  Change the following sentences into indirect speech. (Attempt any FIVE)   (Marks: 05)")
         data.narration.forEachIndexed { i, n ->
-            body("${ROMAN.getOrElse(i) { "(${i + 1})" }}  ${n.sentence}")
+            body("${roman(i)}  ${n.sentence}")
         }
 
         qHeading("Q.7  Use the following pairs of words in your own sentences. (Attempt any FIVE)   (Marks: 05)")
@@ -563,7 +565,7 @@ object PaperPdfGenerator {
 
             qHeading("Q.2  (Short Answers)")
             data.shorts.forEachIndexed { i, wq ->
-                val r = ROMAN.getOrElse(i) { "(${i + 1})" }
+                val r = roman(i)
                 if (wq.answer.isNotBlank()) {
                     blocks += blocksFor(listOf(layoutOf(boldPrefix("$r  ", wq.answer), ansPaint)), gapAfter = 6)
                 } else {
@@ -580,7 +582,7 @@ object PaperPdfGenerator {
 
             qHeading("Q.6  (Indirect Speech)")
             data.narration.forEachIndexed { i, n ->
-                val r = ROMAN.getOrElse(i) { "(${i + 1})" }
+                val r = roman(i)
                 blocks += blocksFor(listOf(layoutOf(boldPrefix("$r  ", n.indirect), ansPaint)), gapAfter = 6)
             }
 

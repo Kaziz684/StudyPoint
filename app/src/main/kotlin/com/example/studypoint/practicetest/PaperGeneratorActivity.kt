@@ -841,7 +841,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
             Toast.makeText(this, "Board pattern content is missing in this build", Toast.LENGTH_LONG).show()
             return
         }
-        val rnd = java.util.Random()
+        val rnd = kotlin.random.Random.Default
         fun <T> pick(list: List<T>, n: Int): List<T> = list.shuffled(rnd).take(n)
         val narration = pick(diMcqs, 8).map { q ->
             val sentence = q.questionText
