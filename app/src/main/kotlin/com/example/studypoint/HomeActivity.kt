@@ -517,13 +517,6 @@ fun HomeScreen(
                     // Date / Time / Hijri header bar
                     DateTimeHeader()
 
-                    // 2. Daily Tracker / Status Card
-                    DailyTrackerCard(
-                        onStartChallenge = {
-                            context.startActivity(Intent(context, QuizSelectionActivity::class.java))
-                        }
-                    )
-
                     // 3. Quick Action Feature Grid (Textbooks, Notes, MCQs, AI Tutor, Past Papers)
                     SectionTitle("Quick Actions")
                     QuickActionsGrid(
@@ -832,7 +825,9 @@ fun DateTimeHeader() {
     val dateFmt = remember { SimpleDateFormat("d MMM yyyy", Locale.getDefault()) }
     val hijriStr = remember(nowMs) {
         try {
+            // Pakistan (Ruet-e-Hilal) runs one day behind the Umalqura calendar
             val hd = java.time.chrono.HijrahDate.now()
+                .minus(1, java.time.temporal.ChronoUnit.DAYS)
             val months = listOf(
                 "", "Muharram", "Safar", "Rabi-ul-Awwal", "Rabi-us-Sani",
                 "Jumada-ul-Awwal", "Jumada-us-Sani", "Rajab", "Sha'ban",
@@ -841,7 +836,7 @@ fun DateTimeHeader() {
             val m = hd.get(java.time.temporal.ChronoField.MONTH_OF_YEAR)
             val d = hd.get(java.time.temporal.ChronoField.DAY_OF_MONTH)
             val y = hd.get(java.time.temporal.ChronoField.YEAR)
-            "$d ${months[m]} $y"
+            "$d ${months[m]} $y AH"
         } catch (_: Exception) { "" }
     }
 
@@ -875,88 +870,6 @@ fun DateTimeHeader() {
             if (hijriStr.isNotBlank()) {
                 Box(modifier = Modifier.width(1.dp).height(16.dp).background(Color(0xFFA7F3D0)))
                 Text("🌙 $hijriStr", fontSize = 11.sp, fontWeight = FontWeight.Medium, color = Color(0xFF047857), maxLines = 1)
-            }
-        }
-    }
-}
-
-// ==========================================
-// 2. DAILY TRACKER / STATUS CARD COMPONENT
-// ==========================================
-// ==========================================
-// 2. DAILY TRACKER / STATUS CARD COMPONENT (COMPACT)
-// ==========================================
-@Composable
-fun DailyTrackerCard(onStartChallenge: () -> Unit) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 6.dp),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF0F172A)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    Brush.horizontalGradient(
-                        colors = listOf(Color(0xFF0F172A), Color(0xFF1E293B), Color(0xFF312E81))
-                    )
-                )
-                .padding(horizontal = 14.dp, vertical = 10.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Compact streak badge
-            Surface(
-                color = Color(0xFFF59E0B).copy(alpha = 0.2f),
-                shape = RoundedCornerShape(10.dp),
-                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF59E0B).copy(alpha = 0.4f))
-            ) {
-                Text(
-                    text = "🔥 5-Day Streak",
-                    modifier = Modifier.padding(horizontal = 9.dp, vertical = 5.dp),
-                    color = Color(0xFFFCD34D),
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
-
-            Spacer(modifier = Modifier.width(10.dp))
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = "Daily Challenge",
-                    color = Color.White,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Text(
-                    text = "7 / 10 MCQs",
-                    color = Color(0xFF34D399),
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            }
-
-            // Circular arrow action button
-            IconButton(
-                onClick = onStartChallenge,
-                modifier = Modifier
-                    .size(42.dp)
-                    .background(
-                        Brush.linearGradient(
-                            colors = listOf(Color(0xFF4F46E5), Color(0xFF7C3AED))
-                        ),
-                        CircleShape
-                    )
-            ) {
-                Icon(
-                    Icons.AutoMirrored.Filled.ArrowForward,
-                    contentDescription = "Start Challenge",
-                    tint = Color.White,
-                    modifier = Modifier.size(20.dp)
-                )
             }
         }
     }
