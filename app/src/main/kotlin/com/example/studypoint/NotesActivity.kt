@@ -25,6 +25,7 @@ class NotesActivity : AppCompatActivity() {
                 url.contains("_NOTE") ||
                 url.contains("_KEYBOOK") ||
                 url.contains("_PP") ||
+                url.contains("_GP") ||
                 url.contains("_MCQ")
     }
 
@@ -135,7 +136,10 @@ class NotesActivity : AppCompatActivity() {
                         "2026" to "https://drive.google.com/uc?export=download&id=9_ENG_PP_2026"
                     ),
                     "MCQs" to "COMING_SOON",
-                    "Guess Papers" to "COMING_SOON"
+                    "Guess Papers" to mapOf(
+                        "2027" to "https://drive.google.com/uc?export=download&id=9_ENG_GP_2027",
+                        "2026" to "https://drive.google.com/uc?export=download&id=9_ENG_GP_2026"
+                    )
                 ),
                 "Biology" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=1E82PoD4JjzKcH-08RfgrCcCDEkC3lTkz",
@@ -149,7 +153,10 @@ class NotesActivity : AppCompatActivity() {
                         "2026" to "https://drive.google.com/uc?export=download&id=9_BIO_PP_2026"
                     ),
                     "MCQs" to "COMING_SOON",
-                    "Guess Papers" to "COMING_SOON"
+                    "Guess Papers" to mapOf(
+                        "2027" to "https://drive.google.com/uc?export=download&id=9_BIO_GP_2027",
+                        "2026" to "https://drive.google.com/uc?export=download&id=9_BIO_GP_2026"
+                    )
                 ),
                 "Math" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=1eATq2CheWHx-_Pp4WCL4dhgy7U66m3ND",
@@ -163,7 +170,10 @@ class NotesActivity : AppCompatActivity() {
                         "2026" to "https://drive.google.com/uc?export=download&id=9_MATH_PP_2026"
                     ),
                     "MCQs" to "COMING_SOON",
-                    "Guess Papers" to "COMING_SOON"
+                    "Guess Papers" to mapOf(
+                        "2027" to "https://drive.google.com/uc?export=download&id=9_MATH_GP_2027",
+                        "2026" to "https://drive.google.com/uc?export=download&id=9_MATH_GP_2026"
+                    )
                 ),
                 "Physics" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=1Z_WG6Y8wFuvqJu7qdy-xEQQm1KXX_e9r",
@@ -177,7 +187,10 @@ class NotesActivity : AppCompatActivity() {
                         "2026" to "https://drive.google.com/uc?export=download&id=9_PHY_PP_2026"
                     ),
                     "MCQs" to "COMING_SOON",
-                    "Guess Papers" to "COMING_SOON"
+                    "Guess Papers" to mapOf(
+                        "2027" to "https://drive.google.com/uc?export=download&id=9_PHY_GP_2027",
+                        "2026" to "https://drive.google.com/uc?export=download&id=9_PHY_GP_2026"
+                    )
                 ),
                 "Chemistry" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=1X5QxTWBgKlwCubCY0OBcjFVlQdsu4kEw",
@@ -191,7 +204,10 @@ class NotesActivity : AppCompatActivity() {
                         "2026" to "https://drive.google.com/uc?export=download&id=9_CHEM_PP_2026"
                     ),
                     "MCQs" to "COMING_SOON",
-                    "Guess Papers" to "COMING_SOON"
+                    "Guess Papers" to mapOf(
+                        "2027" to "https://drive.google.com/uc?export=download&id=9_CHEM_GP_2027",
+                        "2026" to "https://drive.google.com/uc?export=download&id=9_CHEM_GP_2026"
+                    )
                 ),
                 "Computer" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=15e8iWFCs2hZqTqQQbBE0gj5Om50B42Vx",
@@ -205,7 +221,10 @@ class NotesActivity : AppCompatActivity() {
                         "2026" to "https://drive.google.com/uc?export=download&id=9_CS_PP_2026"
                     ),
                     "MCQs" to "COMING_SOON",
-                    "Guess Papers" to "COMING_SOON"
+                    "Guess Papers" to mapOf(
+                        "2027" to "https://drive.google.com/uc?export=download&id=9_CS_GP_2027",
+                        "2026" to "https://drive.google.com/uc?export=download&id=9_CS_GP_2026"
+                    )
                 ),
                 "Urdu" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=1ymJXZaSTWprln5k8Z4u0zZ6EwULbgDBk",
@@ -219,7 +238,10 @@ class NotesActivity : AppCompatActivity() {
                         "2026" to "https://drive.google.com/uc?export=download&id=9_URDU_PP_2026"
                     ),
                     "MCQs" to "COMING_SOON",
-                    "Guess Papers" to "COMING_SOON"
+                    "Guess Papers" to mapOf(
+                        "2027" to "https://drive.google.com/uc?export=download&id=9_URDU_GP_2027",
+                        "2026" to "https://drive.google.com/uc?export=download&id=9_URDU_GP_2026"
+                    )
                 ),
                 "Islamiyat" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=1pC6LTikKN0WEhHIMKoF5uM4iabk_snKF",
@@ -233,7 +255,10 @@ class NotesActivity : AppCompatActivity() {
                         "2026" to "https://drive.google.com/uc?export=download&id=9_ISL_PP_2026"
                     ),
                     "MCQs" to "COMING_SOON",
-                    "Guess Papers" to "COMING_SOON"
+                    "Guess Papers" to mapOf(
+                        "2027" to "https://drive.google.com/uc?export=download&id=9_ISL_GP_2027",
+                        "2026" to "https://drive.google.com/uc?export=download&id=9_ISL_GP_2026"
+                    )
                 ),
                 "Tarjuma-tul-Quran" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=1U4TI5vqLsGlh49iYWdatb28wUko2Djxv",
@@ -247,7 +272,10 @@ class NotesActivity : AppCompatActivity() {
                         "2026" to "https://drive.google.com/uc?export=download&id=9_TQ_PP_2026"
                     ),
                     "MCQs" to "COMING_SOON",
-                    "Guess Papers" to "COMING_SOON"
+                    "Guess Papers" to mapOf(
+                        "2027" to "https://drive.google.com/uc?export=download&id=9_TQ_GP_2027",
+                        "2026" to "https://drive.google.com/uc?export=download&id=9_TQ_GP_2026"
+                    )
                 )
             ),
             "10" to mapOf(
@@ -263,7 +291,10 @@ class NotesActivity : AppCompatActivity() {
                         "2026" to "https://drive.google.com/uc?export=download&id=10_ENG_PP_2026"
                     ),
                     "MCQs" to "COMING_SOON",
-                    "Guess Papers" to "COMING_SOON"
+                    "Guess Papers" to mapOf(
+                        "2027" to "https://drive.google.com/uc?export=download&id=10_ENG_GP_2027",
+                        "2026" to "https://drive.google.com/uc?export=download&id=10_ENG_GP_2026"
+                    )
                 ),
                 "Computer" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=15e8iWFCs2hZqTqQQbBE0gj5Om50B42Vx",
@@ -277,7 +308,10 @@ class NotesActivity : AppCompatActivity() {
                         "2026" to "https://drive.google.com/uc?export=download&id=10_CS_PP_2026"
                     ),
                     "MCQs" to "COMING_SOON",
-                    "Guess Papers" to "COMING_SOON"
+                    "Guess Papers" to mapOf(
+                        "2027" to "https://drive.google.com/uc?export=download&id=10_CS_GP_2027",
+                        "2026" to "https://drive.google.com/uc?export=download&id=10_CS_GP_2026"
+                    )
                 ),
                 "Biology" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=1mPdYAMYe1iBGLC_2ZCJHVLhZoQxVxxGL",
@@ -291,7 +325,10 @@ class NotesActivity : AppCompatActivity() {
                         "2026" to "https://drive.google.com/uc?export=download&id=10_BIO_PP_2026"
                     ),
                     "MCQs" to "COMING_SOON",
-                    "Guess Papers" to "COMING_SOON"
+                    "Guess Papers" to mapOf(
+                        "2027" to "https://drive.google.com/uc?export=download&id=10_BIO_GP_2027",
+                        "2026" to "https://drive.google.com/uc?export=download&id=10_BIO_GP_2026"
+                    )
                 ),
                 "Physics" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=137liQcICrTidgolg0HrVAvmNzadI7n4y",
@@ -305,7 +342,10 @@ class NotesActivity : AppCompatActivity() {
                         "2026" to "https://drive.google.com/uc?export=download&id=10_PHY_PP_2026"
                     ),
                     "MCQs" to "COMING_SOON",
-                    "Guess Papers" to "COMING_SOON"
+                    "Guess Papers" to mapOf(
+                        "2027" to "https://drive.google.com/uc?export=download&id=10_PHY_GP_2027",
+                        "2026" to "https://drive.google.com/uc?export=download&id=10_PHY_GP_2026"
+                    )
                 ),
                 "Chemistry" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=1hL9-HeRrPnOQwXGUJCkcldyqTy2y3Kd0",
@@ -319,7 +359,10 @@ class NotesActivity : AppCompatActivity() {
                         "2026" to "https://drive.google.com/uc?export=download&id=10_CHEM_PP_2026"
                     ),
                     "MCQs" to "COMING_SOON",
-                    "Guess Papers" to "COMING_SOON"
+                    "Guess Papers" to mapOf(
+                        "2027" to "https://drive.google.com/uc?export=download&id=10_CHEM_GP_2027",
+                        "2026" to "https://drive.google.com/uc?export=download&id=10_CHEM_GP_2026"
+                    )
                 ),
                 "Urdu" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=1YGc4bd5mdSXthR73Hw86pvoewqkvEzYk",
@@ -333,7 +376,10 @@ class NotesActivity : AppCompatActivity() {
                         "2026" to "https://drive.google.com/uc?export=download&id=10_URDU_PP_2026"
                     ),
                     "MCQs" to "COMING_SOON",
-                    "Guess Papers" to "COMING_SOON"
+                    "Guess Papers" to mapOf(
+                        "2027" to "https://drive.google.com/uc?export=download&id=10_URDU_GP_2027",
+                        "2026" to "https://drive.google.com/uc?export=download&id=10_URDU_GP_2026"
+                    )
                 ),
                 "Math" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=1TiZFVUnjdmGnZPc5Zsn7Ia-k6-P0gUFN",
@@ -347,7 +393,10 @@ class NotesActivity : AppCompatActivity() {
                         "2026" to "https://drive.google.com/uc?export=download&id=10_MATH_PP_2026"
                     ),
                     "MCQs" to "COMING_SOON",
-                    "Guess Papers" to "COMING_SOON"
+                    "Guess Papers" to mapOf(
+                        "2027" to "https://drive.google.com/uc?export=download&id=10_MATH_GP_2027",
+                        "2026" to "https://drive.google.com/uc?export=download&id=10_MATH_GP_2026"
+                    )
                 ),
                 // Pak Studies replaces Islamiyat in Class 10 (Islamiyat completely removed)
                 "Pak Studies" to mapOf(
@@ -362,7 +411,10 @@ class NotesActivity : AppCompatActivity() {
                         "2026" to "https://drive.google.com/uc?export=download&id=10_PS_PP_2026"
                     ),
                     "MCQs" to "COMING_SOON",
-                    "Guess Papers" to "COMING_SOON"
+                    "Guess Papers" to mapOf(
+                        "2027" to "https://drive.google.com/uc?export=download&id=10_PS_GP_2027",
+                        "2026" to "https://drive.google.com/uc?export=download&id=10_PS_GP_2026"
+                    )
                 ),
                 "Tarjuma-tul-Quran" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=10_TQ_BOOK",
@@ -376,7 +428,10 @@ class NotesActivity : AppCompatActivity() {
                         "2026" to "https://drive.google.com/uc?export=download&id=10_TQ_PP_2026"
                     ),
                     "MCQs" to "COMING_SOON",
-                    "Guess Papers" to "COMING_SOON"
+                    "Guess Papers" to mapOf(
+                        "2027" to "https://drive.google.com/uc?export=download&id=10_TQ_GP_2027",
+                        "2026" to "https://drive.google.com/uc?export=download&id=10_TQ_GP_2026"
+                    )
                 )
             ),
             "11" to mapOf(
@@ -392,7 +447,10 @@ class NotesActivity : AppCompatActivity() {
                         "2026" to "https://drive.google.com/uc?export=download&id=11_ENG_PP_2026"
                     ),
                     "MCQs" to "COMING_SOON",
-                    "Guess Papers" to "COMING_SOON"
+                    "Guess Papers" to mapOf(
+                        "2027" to "https://drive.google.com/uc?export=download&id=11_ENG_GP_2027",
+                        "2026" to "https://drive.google.com/uc?export=download&id=11_ENG_GP_2026"
+                    )
                 ),
                 "Urdu" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=11_URDU_BOOK",
@@ -406,7 +464,10 @@ class NotesActivity : AppCompatActivity() {
                         "2026" to "https://drive.google.com/uc?export=download&id=11_URDU_PP_2026"
                     ),
                     "MCQs" to "COMING_SOON",
-                    "Guess Papers" to "COMING_SOON"
+                    "Guess Papers" to mapOf(
+                        "2027" to "https://drive.google.com/uc?export=download&id=11_URDU_GP_2027",
+                        "2026" to "https://drive.google.com/uc?export=download&id=11_URDU_GP_2026"
+                    )
                 ),
                 "Physics" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=11_PHY_BOOK",
@@ -420,7 +481,10 @@ class NotesActivity : AppCompatActivity() {
                         "2026" to "https://drive.google.com/uc?export=download&id=11_PHY_PP_2026"
                     ),
                     "MCQs" to "COMING_SOON",
-                    "Guess Papers" to "COMING_SOON"
+                    "Guess Papers" to mapOf(
+                        "2027" to "https://drive.google.com/uc?export=download&id=11_PHY_GP_2027",
+                        "2026" to "https://drive.google.com/uc?export=download&id=11_PHY_GP_2026"
+                    )
                 ),
                 "Chemistry" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=11_CHEM_BOOK",
@@ -434,7 +498,10 @@ class NotesActivity : AppCompatActivity() {
                         "2026" to "https://drive.google.com/uc?export=download&id=11_CHEM_PP_2026"
                     ),
                     "MCQs" to "COMING_SOON",
-                    "Guess Papers" to "COMING_SOON"
+                    "Guess Papers" to mapOf(
+                        "2027" to "https://drive.google.com/uc?export=download&id=11_CHEM_GP_2027",
+                        "2026" to "https://drive.google.com/uc?export=download&id=11_CHEM_GP_2026"
+                    )
                 ),
                 "Biology" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=11_BIO_BOOK",
@@ -448,7 +515,10 @@ class NotesActivity : AppCompatActivity() {
                         "2026" to "https://drive.google.com/uc?export=download&id=11_BIO_PP_2026"
                     ),
                     "MCQs" to "COMING_SOON",
-                    "Guess Papers" to "COMING_SOON"
+                    "Guess Papers" to mapOf(
+                        "2027" to "https://drive.google.com/uc?export=download&id=11_BIO_GP_2027",
+                        "2026" to "https://drive.google.com/uc?export=download&id=11_BIO_GP_2026"
+                    )
                 ),
                 "Math" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=11_MATH_BOOK",
@@ -462,7 +532,10 @@ class NotesActivity : AppCompatActivity() {
                         "2026" to "https://drive.google.com/uc?export=download&id=11_MATH_PP_2026"
                     ),
                     "MCQs" to "COMING_SOON",
-                    "Guess Papers" to "COMING_SOON"
+                    "Guess Papers" to mapOf(
+                        "2027" to "https://drive.google.com/uc?export=download&id=11_MATH_GP_2027",
+                        "2026" to "https://drive.google.com/uc?export=download&id=11_MATH_GP_2026"
+                    )
                 ),
                 "Computer" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=11_CS_BOOK",
@@ -476,7 +549,10 @@ class NotesActivity : AppCompatActivity() {
                         "2026" to "https://drive.google.com/uc?export=download&id=11_CS_PP_2026"
                     ),
                     "MCQs" to "COMING_SOON",
-                    "Guess Papers" to "COMING_SOON"
+                    "Guess Papers" to mapOf(
+                        "2027" to "https://drive.google.com/uc?export=download&id=11_CS_GP_2027",
+                        "2026" to "https://drive.google.com/uc?export=download&id=11_CS_GP_2026"
+                    )
                 ),
                 "Islamiyat" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=11_ISL_BOOK",
@@ -490,7 +566,10 @@ class NotesActivity : AppCompatActivity() {
                         "2026" to "https://drive.google.com/uc?export=download&id=11_ISL_PP_2026"
                     ),
                     "MCQs" to "COMING_SOON",
-                    "Guess Papers" to "COMING_SOON"
+                    "Guess Papers" to mapOf(
+                        "2027" to "https://drive.google.com/uc?export=download&id=11_ISL_GP_2027",
+                        "2026" to "https://drive.google.com/uc?export=download&id=11_ISL_GP_2026"
+                    )
                 ),
                 "Tarjuma-tul-Quran" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=11_TQ_BOOK",
@@ -504,7 +583,10 @@ class NotesActivity : AppCompatActivity() {
                         "2026" to "https://drive.google.com/uc?export=download&id=11_TQ_PP_2026"
                     ),
                     "MCQs" to "COMING_SOON",
-                    "Guess Papers" to "COMING_SOON"
+                    "Guess Papers" to mapOf(
+                        "2027" to "https://drive.google.com/uc?export=download&id=11_TQ_GP_2027",
+                        "2026" to "https://drive.google.com/uc?export=download&id=11_TQ_GP_2026"
+                    )
                 )
             ),
             "12" to mapOf(
@@ -520,7 +602,10 @@ class NotesActivity : AppCompatActivity() {
                         "2026" to "https://drive.google.com/uc?export=download&id=12_ENG_PP_2026"
                     ),
                     "MCQs" to "COMING_SOON",
-                    "Guess Papers" to "COMING_SOON"
+                    "Guess Papers" to mapOf(
+                        "2027" to "https://drive.google.com/uc?export=download&id=12_ENG_GP_2027",
+                        "2026" to "https://drive.google.com/uc?export=download&id=12_ENG_GP_2026"
+                    )
                 ),
                 "Urdu" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=12_URDU_BOOK",
@@ -534,7 +619,10 @@ class NotesActivity : AppCompatActivity() {
                         "2026" to "https://drive.google.com/uc?export=download&id=12_URDU_PP_2026"
                     ),
                     "MCQs" to "COMING_SOON",
-                    "Guess Papers" to "COMING_SOON"
+                    "Guess Papers" to mapOf(
+                        "2027" to "https://drive.google.com/uc?export=download&id=12_URDU_GP_2027",
+                        "2026" to "https://drive.google.com/uc?export=download&id=12_URDU_GP_2026"
+                    )
                 ),
                 "Physics" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=12_PHY_BOOK",
@@ -548,7 +636,10 @@ class NotesActivity : AppCompatActivity() {
                         "2026" to "https://drive.google.com/uc?export=download&id=12_PHY_PP_2026"
                     ),
                     "MCQs" to "COMING_SOON",
-                    "Guess Papers" to "COMING_SOON"
+                    "Guess Papers" to mapOf(
+                        "2027" to "https://drive.google.com/uc?export=download&id=12_PHY_GP_2027",
+                        "2026" to "https://drive.google.com/uc?export=download&id=12_PHY_GP_2026"
+                    )
                 ),
                 "Chemistry" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=12_CHEM_BOOK",
@@ -562,7 +653,10 @@ class NotesActivity : AppCompatActivity() {
                         "2026" to "https://drive.google.com/uc?export=download&id=12_CHEM_PP_2026"
                     ),
                     "MCQs" to "COMING_SOON",
-                    "Guess Papers" to "COMING_SOON"
+                    "Guess Papers" to mapOf(
+                        "2027" to "https://drive.google.com/uc?export=download&id=12_CHEM_GP_2027",
+                        "2026" to "https://drive.google.com/uc?export=download&id=12_CHEM_GP_2026"
+                    )
                 ),
                 "Biology" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=12_BIO_BOOK",
@@ -576,7 +670,10 @@ class NotesActivity : AppCompatActivity() {
                         "2026" to "https://drive.google.com/uc?export=download&id=12_BIO_PP_2026"
                     ),
                     "MCQs" to "COMING_SOON",
-                    "Guess Papers" to "COMING_SOON"
+                    "Guess Papers" to mapOf(
+                        "2027" to "https://drive.google.com/uc?export=download&id=12_BIO_GP_2027",
+                        "2026" to "https://drive.google.com/uc?export=download&id=12_BIO_GP_2026"
+                    )
                 ),
                 "Math" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=12_MATH_BOOK",
@@ -590,7 +687,10 @@ class NotesActivity : AppCompatActivity() {
                         "2026" to "https://drive.google.com/uc?export=download&id=12_MATH_PP_2026"
                     ),
                     "MCQs" to "COMING_SOON",
-                    "Guess Papers" to "COMING_SOON"
+                    "Guess Papers" to mapOf(
+                        "2027" to "https://drive.google.com/uc?export=download&id=12_MATH_GP_2027",
+                        "2026" to "https://drive.google.com/uc?export=download&id=12_MATH_GP_2026"
+                    )
                 ),
                 "Computer" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=12_CS_BOOK",
@@ -604,7 +704,10 @@ class NotesActivity : AppCompatActivity() {
                         "2026" to "https://drive.google.com/uc?export=download&id=12_CS_PP_2026"
                     ),
                     "MCQs" to "COMING_SOON",
-                    "Guess Papers" to "COMING_SOON"
+                    "Guess Papers" to mapOf(
+                        "2027" to "https://drive.google.com/uc?export=download&id=12_CS_GP_2027",
+                        "2026" to "https://drive.google.com/uc?export=download&id=12_CS_GP_2026"
+                    )
                 ),
                 // Pak Studies replaces Islamiyat in Class 12 (Islamiyat completely removed)
                 "Pak Studies" to mapOf(
@@ -619,7 +722,10 @@ class NotesActivity : AppCompatActivity() {
                         "2026" to "https://drive.google.com/uc?export=download&id=12_PS_PP_2026"
                     ),
                     "MCQs" to "COMING_SOON",
-                    "Guess Papers" to "COMING_SOON"
+                    "Guess Papers" to mapOf(
+                        "2027" to "https://drive.google.com/uc?export=download&id=12_PS_GP_2027",
+                        "2026" to "https://drive.google.com/uc?export=download&id=12_PS_GP_2026"
+                    )
                 ),
                 "Tarjuma-tul-Quran" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=12_TQ_BOOK",
@@ -633,7 +739,10 @@ class NotesActivity : AppCompatActivity() {
                         "2026" to "https://drive.google.com/uc?export=download&id=12_TQ_PP_2026"
                     ),
                     "MCQs" to "COMING_SOON",
-                    "Guess Papers" to "COMING_SOON"
+                    "Guess Papers" to mapOf(
+                        "2027" to "https://drive.google.com/uc?export=download&id=12_TQ_GP_2027",
+                        "2026" to "https://drive.google.com/uc?export=download&id=12_TQ_GP_2026"
+                    )
                 )
             )
         )
@@ -766,6 +875,22 @@ class NotesActivity : AppCompatActivity() {
                 btn.text = "Past Paper $year"
                 btn.setOnClickListener {
                     open(url, "$displaySubject Past Paper $year", gradeKey, displaySubject)
+                }
+            }
+        } else if (material.equals("Guess Papers", ignoreCase = true) &&
+            resolvedSubjectData["Guess Papers"] is Map<*, *>
+        ) {
+            @Suppress("UNCHECKED_CAST")
+            val guessPapersMap = resolvedSubjectData["Guess Papers"] as Map<String, String>
+            val years = guessPapersMap.keys.sortedDescending()
+
+            ids.zip(years).forEach { (id, year) ->
+                val btn = findViewById<MaterialButton>(id)
+                val url = guessPapersMap[year] ?: ""
+                btn.visibility = View.VISIBLE
+                btn.text = "Guess Paper $year"
+                btn.setOnClickListener {
+                    open(url, "$displaySubject Guess Paper $year", gradeKey, displaySubject)
                 }
             }
         } else {
