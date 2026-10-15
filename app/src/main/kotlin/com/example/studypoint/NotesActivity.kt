@@ -99,6 +99,21 @@ class NotesActivity : AppCompatActivity() {
 
         val normalizedSubject = normalizeSubject(rawSubject)
 
+        // Grammar topic PDFs (Class 10 English): open the topic's own PDF directly
+        val chapterTitle = intent.getStringExtra("chapterTitle") ?: ""
+        val grammarTopicPdf = if (gradeKey == "10" && normalizedSubject == "English") {
+            when (chapterTitle) {
+                "Pair of Words" -> "https://drive.google.com/uc?export=download&id=17ssLAMsGLsA0SwVRC4hVbH2us5As48Fq"
+                "Correct Use of Verb" -> "https://drive.google.com/uc?export=download&id=1dSiq_tL9Q45b4OuLi8uREWF-MV_xyLv_"
+                else -> null
+            }
+        } else null
+        if (grammarTopicPdf != null) {
+            open(grammarTopicPdf, chapterTitle, rawGrade, normalizedSubject)
+            finish()
+            return
+        }
+
         // Comprehensive pdfLinks Map with all PCTB Subjects according to curriculum rules:
         // - All Classes (9th, 10th, 11th, 12th): Must include "Tarjuma-tul-Quran" as a dedicated subject section.
         // - 9th & 11th Classes: Must include "Islamiyat" compulsory (Pak Studies omitted).
