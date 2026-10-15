@@ -113,8 +113,8 @@ Guidelines:
      */
     private fun searchWikipedia(query: String): AiAnswer? {
         val cleanTerm = query
-            .replace(Regex("(?i)^(what is|what are|explain|who was|who is|define|tell me about|how does|why is)\s+"), "")
-            .replace(Regex("(?i)\b(picture|image|diagram|photo|pic)\b"), "")
+            .replace(Regex("(?i)^(what is|what are|explain|who was|who is|define|tell me about|how does|why is)\\s+"), "")
+            .replace(Regex("(?i)\\b(picture|image|diagram|photo|pic)\\b"), "")
             .replace("?", "")
             .trim()
         if (cleanTerm.length < 2) return null
