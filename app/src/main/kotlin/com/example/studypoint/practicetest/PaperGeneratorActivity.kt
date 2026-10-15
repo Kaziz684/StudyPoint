@@ -45,7 +45,7 @@ import java.util.Locale
  */
 class PaperGeneratorActivity : AppCompatActivity() {
 
-    private enum class PaperType { MCQS, SHORT, LONG, COMBINED }
+    private enum class PaperType { MCQS, SHORT, LONG, COMBINED, BOARD }
 
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private var loadJob: Job? = null
@@ -62,6 +62,11 @@ class PaperGeneratorActivity : AppCompatActivity() {
     private lateinit var radioTypeShort: RadioButton
     private lateinit var radioTypeLong: RadioButton
     private lateinit var radioTypeCombined: RadioButton
+    private lateinit var radioTypeBoard: RadioButton
+    private lateinit var tvBoardInfo: TextView
+    private lateinit var layoutChapterSection: LinearLayout
+    private lateinit var layoutModeSection: LinearLayout
+    private lateinit var layoutOrderSection: LinearLayout
     private lateinit var radioCustom: RadioButton
     private lateinit var etCustomCount: EditText
     private lateinit var radioSolved: RadioButton
@@ -146,6 +151,11 @@ class PaperGeneratorActivity : AppCompatActivity() {
         radioTypeShort = findViewById(R.id.radioTypeShort)
         radioTypeLong = findViewById(R.id.radioTypeLong)
         radioTypeCombined = findViewById(R.id.radioTypeCombined)
+        radioTypeBoard = findViewById(R.id.radioTypeBoard)
+        tvBoardInfo = findViewById(R.id.tvBoardInfoPaper)
+        layoutChapterSection = findViewById(R.id.layoutChapterSectionPaper)
+        layoutModeSection = findViewById(R.id.layoutModeSectionPaper)
+        layoutOrderSection = findViewById(R.id.layoutOrderSectionPaper)
         radioCustom = findViewById(R.id.radioCustomPaper)
         etCustomCount = findViewById(R.id.etCustomCountPaper)
         radioSolved = findViewById(R.id.radioSolvedPaper)
@@ -188,7 +198,10 @@ class PaperGeneratorActivity : AppCompatActivity() {
 
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
-        findViewById<RadioGroup>(R.id.radioTypeGroupPaper).setOnCheckedChangeListener { _, _ -> loadData() }
+        findViewById<RadioGroup>(R.id.radioTypeGroupPaper).setOnCheckedChangeListener { _, _ ->
+            applyBoardVisibility()
+            loadData()
+        }
 
         checkAllChapters.setOnCheckedChangeListener { _, checked ->
             chapterChecks.forEach { it.isEnabled = !checked }
@@ -225,10 +238,25 @@ class PaperGeneratorActivity : AppCompatActivity() {
     }
 
     private fun currentType(): PaperType = when {
+        radioTypeBoard.isChecked -> PaperType.BOARD
         radioTypeShort.isChecked -> PaperType.SHORT
         radioTypeLong.isChecked -> PaperType.LONG
         radioTypeCombined.isChecked -> PaperType.COMBINED
         else -> PaperType.MCQS
+    }
+
+    /** Board Pattern mode hides the chapter / selection-mode / order blocks —
+     *  the full BISE structure is fixed. Currently Class 10 English only. */
+    private fun applyBoardVisibility() {
+        if (!::tvBoardInfo.isInitialized) return
+        val board = currentType() == PaperType.BOARD
+        tvBoardInfo.visibility = if (board) View.VISIBLE else View.GONE
+        layoutChapterSection.visibility = if (board) View.GONE else View.VISIBLE
+        layoutModeSection.visibility = if (board) View.GONE else View.VISIBLE
+        layoutOrderSection.visibility = if (board) View.GONE else View.VISIBLE
+        if (board && spinnerClass.selectedItemPosition != classSheets.indexOf("Class_10th")) {
+            spinnerClass.setSelection(classSheets.indexOf("Class_10th"))
+        }
     }
 
     private fun subjectsFor(sheet: String): List<String> = when (sheet) {
@@ -267,7 +295,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
         layoutChapters.removeAllViews()
         chapterChecks.clear()
         loadJob = scope.launch {
-            if (type == PaperType.MCQS || type == PaperType.COMBINED) {
+            if (type == PaperType.MCQS || type == PaperType.COMBINED || type == PaperType.BOARD) {
                 val fetched = try {
                     quizRepository.fetchQuestions(sheet, applicationContext)
                 } catch (e: Exception) {
@@ -275,7 +303,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
                 }
                 mcqAll = fetched.filter { subjectsMatch(it.subject, subject) }
             }
-            if ((type == PaperType.SHORT || type == PaperType.COMBINED) && !shortTabLoaded) {
+            if ((type == PaperType.SHORT || type == PaperType.COMBINED || type == PaperType.BOARD) && !shortTabLoaded) {
                 shortRaw = try {
                     paperRepository.fetchWritten(PaperRepository.TAB_SHORTS)
                 } catch (e: Exception) {
@@ -297,8 +325,8 @@ class PaperGeneratorActivity : AppCompatActivity() {
             val labels = sortedSetOf(
                 compareBy<String>({ chapterNumber(it) ?: Int.MAX_VALUE }, { it.lowercase() })
             )
-            if (type == PaperType.MCQS || type == PaperType.COMBINED) labels += mcqAll.map { it.chapter }
-            if (type == PaperType.SHORT || type == PaperType.COMBINED) labels += shortAll.map { it.chapterLabel }
+            if (type == PaperType.MCQS || type == PaperType.COMBINED || type == PaperType.BOARD) labels += mcqAll.map { it.chapter }
+            if (type == PaperType.SHORT || type == PaperType.COMBINED || type == PaperType.BOARD) labels += shortAll.map { it.chapterLabel }
             if (type == PaperType.LONG || type == PaperType.COMBINED) labels += longAll.map { it.chapterLabel }
             chapterNames = labels.toList()
 
@@ -324,8 +352,8 @@ class PaperGeneratorActivity : AppCompatActivity() {
 
     private fun statusText(type: PaperType): String {
         val parts = mutableListOf<String>()
-        if (type == PaperType.MCQS || type == PaperType.COMBINED) parts += "${mcqAll.size} MCQs"
-        if (type == PaperType.SHORT || type == PaperType.COMBINED) parts += "${shortAll.size} Short"
+        if (type == PaperType.MCQS || type == PaperType.COMBINED || type == PaperType.BOARD) parts += "${mcqAll.size} MCQs"
+        if (type == PaperType.SHORT || type == PaperType.COMBINED || type == PaperType.BOARD) parts += "${shortAll.size} Short"
         if (type == PaperType.LONG || type == PaperType.COMBINED) parts += "${longAll.size} Long"
         val total = parts.joinToString(" • ")
         return when {
@@ -645,6 +673,10 @@ class PaperGeneratorActivity : AppCompatActivity() {
             Toast.makeText(this, "Please wait \u2014 questions are loading", Toast.LENGTH_SHORT).show()
             return
         }
+        if (currentType() == PaperType.BOARD) {
+            generateBoardPattern()
+            return
+        }
         val type = currentType()
         if (chapterNames.isEmpty()) {
             Toast.makeText(
@@ -712,6 +744,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
             PaperType.SHORT -> "Short Questions Paper"
             PaperType.LONG -> "Long Questions Paper"
             PaperType.COMBINED -> "Question Paper"
+            PaperType.BOARD -> "Board Pattern Paper"
         }
         val title = etTitle.text.toString().trim().ifBlank { defaultTitle }
         val time = etTime.text.toString().trim().ifBlank { "$total Minutes" }
@@ -754,6 +787,112 @@ class PaperGeneratorActivity : AppCompatActivity() {
                 if (shortfallNote.isNotBlank()) msg += " $shortfallNote"
                 tvStatus.text = msg
                 Toast.makeText(this@PaperGeneratorActivity, "Paper PDF generated", Toast.LENGTH_SHORT).show()
+            } else {
+                tvStatus.text = "PDF generation failed. Please try again."
+            }
+        }
+    }
+
+    /** Board Pattern paper (Class 10 English): fixed BISE structure —
+     *  Q.1 19 MCQs, Q.2 shorts (any 5 of 8), Q.3-Q.8 from the content pack. */
+    private fun generateBoardPattern() {
+        val sheet = classSheets[spinnerClass.selectedItemPosition.coerceIn(0, classSheets.lastIndex)]
+        val subject = spinnerSubject.selectedItem?.toString() ?: ""
+        if (sheet != "Class_10th" || !subject.equals("English", ignoreCase = true)) {
+            Toast.makeText(
+                this,
+                "Board Pattern is currently available for Class 10 English only",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        if (mcqAll.size < 19) {
+            Toast.makeText(
+                this,
+                "Not enough MCQs loaded yet (${mcqAll.size} found, 19 needed). Check your internet connection.",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        val diMcqs = mcqAll.filter {
+            it.chapter.contains("Direct", ignoreCase = true) &&
+                it.chapter.contains("Indirect", ignoreCase = true)
+        }
+        if (diMcqs.size < 8) {
+            Toast.makeText(
+                this,
+                "Direct and Indirect Speech questions are not loaded yet (needed for Q.6).",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        if (shortAll.size < 8) {
+            Toast.makeText(
+                this,
+                "Not enough Short Questions loaded yet (${shortAll.size} found, 8 needed for Q.2).",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        val pack = BoardPatternPack.load(applicationContext)
+        if (pack == null || pack.q3Paragraphs.isEmpty() || pack.q8Paragraphs.isEmpty() ||
+            pack.pairs.size < 8 || pack.essayTopics.size < 3 || pack.paragraphTopics.size < 3 ||
+            pack.summaryPoems.isEmpty() || pack.paraphraseSets.isEmpty() || pack.tenSentenceTopics.isEmpty()
+        ) {
+            Toast.makeText(this, "Board pattern content is missing in this build", Toast.LENGTH_LONG).show()
+            return
+        }
+        val rnd = kotlin.random.Random.Default
+        fun <T> pick(list: List<T>, n: Int): List<T> = list.shuffled(rnd).take(n)
+        val narration = pick(diMcqs, 8).map { q ->
+            val sentence = q.questionText
+                .replace("Grammar: Choose the correct indirect speech of: ", "")
+                .replace("Choose the correct indirect speech of: ", "")
+                .trim()
+            PaperPdfGenerator.NarrItem(
+                sentence,
+                q.options.getOrNull(q.correctAnswerIndex) ?: ""
+            )
+        }
+        val typedTitle = etTitle.text.toString().trim()
+        val title = if (typedTitle.isBlank() || typedTitle == "Question Paper") {
+            "Board Pattern Paper"
+        } else typedTitle
+        val data = PaperPdfGenerator.BoardPaperData(
+            testTitle = title,
+            classLabel = "Class 10th",
+            subject = "English",
+            mcqs = pick(mcqAll, 19),
+            shorts = pick(shortAll, 8),
+            q3 = pack.q3Paragraphs.random(rnd),
+            poemSummary = pack.summaryPoems.random(rnd),
+            paraphrase = pack.paraphraseSets.random(rnd),
+            essayTopics = pick(pack.essayTopics, 3),
+            paragraphTopics = pick(pack.paragraphTopics, 3),
+            narration = narration,
+            pairs = pick(pack.pairs, 8),
+            q8 = pack.q8Paragraphs.random(rnd),
+            tenSentenceTopic = pack.tenSentenceTopics.random(rnd),
+            includeAnswers = radioSolved.isChecked
+        )
+        btnGenerate.isEnabled = false
+        tvStatus.text = "Generating PDF..."
+        scope.launch {
+            val file = try {
+                withContext(Dispatchers.IO) {
+                    val ts = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
+                    val out = File(File(cacheDir, "papers"), "BoardPattern_English10_$ts.pdf")
+                    PaperPdfGenerator.generateBoardPattern(applicationContext, data, out)
+                }
+            } catch (e: Exception) {
+                null
+            }
+            btnGenerate.isEnabled = true
+            if (file != null && file.exists()) {
+                lastFile = file
+                layoutActions.visibility = View.VISIBLE
+                tvStatus.text = "PDF ready: Board Pattern Paper (Q.1: 19 MCQs, Q.2-Q.8 complete) \u2022 ${file.name}"
+                Toast.makeText(this@PaperGeneratorActivity, "Board Pattern paper generated", Toast.LENGTH_SHORT).show()
             } else {
                 tvStatus.text = "PDF generation failed. Please try again."
             }

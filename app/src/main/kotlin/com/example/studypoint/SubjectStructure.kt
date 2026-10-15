@@ -114,6 +114,99 @@ object SubjectStructure {
             }
             "eng_grammar" -> when (grade) {
                 "10" -> listOf(
+                    StudySection("gr3", "Direct & Indirect Speech", "", "chapter"),
+                    StudySection("gr4", "Pair of Words", "", "chapter"),
+                    StudySection("gr10", "Correct Use of Verb", "", "chapter"),
+                    StudySection("gr7", "Paragraphs", "", "chapter"),
+                    StudySection("gr9", "Translation (Urdu to English)", "", "chapter")
+                )
+                "9" -> listOf(
+                    StudySection("g1", "فقیرانہ آئے صدا کر چلے", "غزل — میر تقی میر", "chapter"),
+                    StudySection("g2", "سن تو سہی جہاں میں ہے تیرافسانہ کیا", "غزل — خواجہ حیدر علی آتش", "chapter"),
+                    StudySection("g3", "غم ہے یا خوشی ہے تُو", "غزل — ناصر کاظمی", "chapter"),
+                    StudySection("g4", "کاش طوفاں میں سفینے کو اتارا ہوتا", "غزل — پروین شاکر", "chapter")
+                )
+                else -> listOf(
+                    StudySection("g1", "Ghazal 1", "غزل ۱", "chapter"),
+                    StudySection("g2", "Ghazal 2", "غزل ۲", "chapter"),
+                    StudySection("g3", "Ghazal 3", "غزل ۳", "chapter"),
+                    StudySection("g4", "Ghazal 4", "غزل ۴", "chapter")
+                )
+            }
+            "urdu_nazm" -> when (grade) {
+                "9" -> listOf(
+                    StudySection("n1", "حمد", "نظم — مظفر وارثی", "chapter"),
+                    StudySection("n2", "نعت", "نظم — مولانا ظفر علی خان", "chapter"),
+                    StudySection("n3", "محنت کی برکات", "نظم — مولانا حالی", "chapter"),
+                    StudySection("n4", "جاوید کے نام", "نظم — علامہ محمد اقبال", "chapter"),
+                    StudySection("n5", "پیامِ لطیف", "نظم — شیخ ایاز", "chapter"),
+                    StudySection("n6", "کرکٹ اور مشاعرہ", "نظم — دلاور فگار", "chapter")
+                )
+                else -> listOf(
+                    StudySection("n1", "Nazm 1", "نظم ۱", "chapter"),
+                    StudySection("n2", "Nazm 2", "نظم ۲", "chapter"),
+                    StudySection("n3", "Nazm 3", "نظم ۳", "chapter"),
+                    StudySection("n4", "Nazm 4", "نظم ۴", "chapter")
+                )
+            }
+            "urdu_asbaq" -> when (grade) {
+                "9" -> listOf(
+                    StudySection("s1", "اخلاقِ حسنہ", "سبق — سید سلیمان ندوی", "chapter"),
+                    StudySection("s2", "اپنی مدد آپ", "سبق — سر سید احمد خان", "chapter"),
+                    StudySection("s3", "کلیئم اور مرزا ظاہر دار بیگ", "سبق — ڈپٹی نذیر احمد", "chapter"),
+                    StudySection("s4", "نام دیو مالی", "سبق — مولوی عبدالحق", "chapter"),
+                    StudySection("s5", "آرام و سکون", "سبق — امتیاز علی تاج", "chapter"),
+                    StudySection("s6", "کتبہ", "سبق — غلام عباس", "chapter"),
+                    StudySection("s7", "ابتدائی حساب", "سبق — ابنِ انشاء", "chapter"),
+                    StudySection("s8", "لڑی میں پروئے ہوئے منتظر", "سبق — رضا علی عابدی", "chapter"),
+                    StudySection("s9", "بھیڑیا", "سبق — فاروق سرور", "chapter")
+                )
+                else -> (1..12).map {
+                    StudySection("s$it", "Sabaq $it", "سبق $it", "chapter")
+                }
+            }
+            "urdu_farhang" -> when (grade) {
+                "9" -> listOf(
+                    StudySection("f1", "فرہنگ", "لغت — معانی و مترادفات", "chapter")
+                )
+                else -> listOf(
+                    StudySection("f1", "فرہنگ", "لغت", "chapter")
+                )
+            }
+            else -> emptyList()
+        }
+    }
+
+    // ==================== ENGLISH ====================
+    // 3 sections: Chapter Notes, Grammar, Vocabulary
+    fun getEnglishSections(grade: String): List<StudySection> = listOf(
+        StudySection("eng_chapters", "Chapter Notes", "اسباق کے نوٹس"),
+        StudySection("eng_grammar", "Grammar", "گرامر"),
+        StudySection("eng_vocab", "Vocabulary", "ذخیرہ الفاظ")
+    )
+
+    fun getEnglishContent(grade: String, sectionId: String): List<StudySection> {
+        return when (sectionId) {
+            "eng_chapters" -> when (grade) {
+                "9" -> listOf(
+                    StudySection("c1", "Chapter 1: The Saviour of Mankind", "", "chapter"),
+                    StudySection("c2", "Chapter 2: Patriotism", "", "chapter"),
+                    StudySection("c3", "Chapter 3: Media and Its Impact", "", "chapter"),
+                    StudySection("c4", "Chapter 4: Hazrat Asma (R.A)", "", "chapter"),
+                    StudySection("c5", "Chapter 5: Daffodils", "", "chapter"),
+                    StudySection("c6", "Chapter 6: The Quaid's Vision", "", "chapter"),
+                    StudySection("c7", "Chapter 7: Sultan Ahmad Mosque", "", "chapter"),
+                    StudySection("c8", "Chapter 8: Stopping by Woods", "", "chapter"),
+                    StudySection("c9", "Chapter 9: All is Not Lost", "", "chapter"),
+                    StudySection("c10", "Chapter 10: Drug Addiction", "", "chapter"),
+                    StudySection("c11", "Chapter 11: Noise in the Environment", "", "chapter"),
+                    StudySection("c12", "Chapter 12: Three Days to See", "", "chapter")
+                )
+                "10" -> (1..13).map { StudySection("c$it", "Chapter $it", "", "chapter") }
+                else -> (1..14).map { StudySection("c$it", "Chapter $it", "", "chapter") }
+            }
+            "eng_grammar" -> when (grade) {
+                "10" -> listOf(
                     StudySection("gr1", "Tenses", "", "chapter"),
                     StudySection("gr2", "Active & Passive Voice", "", "chapter"),
                     StudySection("gr3", "Direct & Indirect Speech", "", "chapter"),
