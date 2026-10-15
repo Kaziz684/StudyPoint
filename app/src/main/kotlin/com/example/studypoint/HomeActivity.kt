@@ -543,7 +543,53 @@ fun HomeScreen(
                         }
                     )
 
-
+                    // Paper Generator feature card — direct access from Home (no class/subject navigation needed)
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp, vertical = 4.dp)
+                            .clickable {
+                                context.startActivity(Intent(context, PaperGeneratorActivity::class.java))
+                            },
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFF2563EB)),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(48.dp)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(Color.White.copy(alpha = 0.2f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    Icons.Default.Article,
+                                    contentDescription = null,
+                                    tint = Color.White,
+                                    modifier = Modifier.size(28.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(14.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    "Paper Generator",
+                                    color = Color.White,
+                                    fontSize = 17.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    "Create MCQs, Short, Long & Board Pattern papers in 4 easy steps — no need to open a class first",
+                                    color = Color(0xFFDBEAFE),
+                                    fontSize = 12.5.sp
+                                )
+                            }
+                            Icon(Icons.Default.ArrowForward, contentDescription = null, tint = Color.White)
+                        }
+                    }
 
                     // Inspirational Quotes Carousel
                     SectionTitle("Daily Educational Inspiration")
