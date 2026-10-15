@@ -117,7 +117,25 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Combined Paper (MCQs + Short + Long)" />
+
+                <RadioButton
+                    android:id="@+id/radioTypeBoard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Board Pattern Paper (Class 10 English)" />
             </RadioGroup>
+
+            <TextView
+                android:id="@+id/tvBoardInfoPaper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/input_field_bg"
+                android:padding="10dp"
+                android:text="Board Pattern (75 Marks, 2 Hours 30 Minutes)\nQ.1: 19 MCQs  •  Q.2: Short answers (any 5 of 8)\nQ.3: Paragraph translation / simple English  •  Q.4: Poem summary / paraphrase\nQ.5: Essay or Paragraph  •  Q.6: Direct to Indirect (any 5 of 8)\nQ.7: Pair of Words (any 5 of 8)  •  Q.8: Urdu paragraph to English / ten sentences\nSelect Class 10 and English below — all sections are added automatically."
+                android:textColor="#334155"
+                android:textSize="13sp"
+                android:visibility="gone" />
 
             <!-- Class -->
             <TextView
@@ -156,6 +174,12 @@
                 android:padding="10dp" />
 
             <!-- Chapters -->
+            <LinearLayout
+                android:id="@+id/layoutChapterSectionPaper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -196,7 +220,15 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical" />
 
+            </LinearLayout>
+
             <!-- Selection Mode -->
+            <LinearLayout
+                android:id="@+id/layoutModeSectionPaper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -413,6 +445,8 @@
                     android:orientation="vertical" />
             </LinearLayout>
 
+            </LinearLayout>
+
             <!-- Answer key -->
             <TextView
                 android:layout_width="wrap_content"
@@ -444,6 +478,12 @@
             </RadioGroup>
 
             <!-- Order -->
+            <LinearLayout
+                android:id="@+id/layoutOrderSectionPaper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -472,6 +512,8 @@
                     android:layout_height="wrap_content"
                     android:text="Random order (shuffle selected)" />
             </RadioGroup>
+
+            </LinearLayout>
 
             <!-- Test title -->
             <TextView
