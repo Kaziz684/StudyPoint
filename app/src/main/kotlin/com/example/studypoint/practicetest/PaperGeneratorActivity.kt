@@ -1,6 +1,10 @@
 package com.example.studypoint.practicetest
 
 import android.app.Activity
+import android.graphics.Color
+import android.graphics.Typeface
+import android.text.Editable
+import android.text.TextWatcher
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -83,6 +87,21 @@ class PaperGeneratorActivity : AppCompatActivity() {
     private var lastFile: File? = null
     private var loading = false
 
+    private lateinit var radioModeManual: RadioButton
+    private lateinit var layoutAuto: LinearLayout
+    private lateinit var layoutManual: LinearLayout
+    private lateinit var etCountShort: EditText
+    private lateinit var etCountLong: EditText
+    private lateinit var radioSelectRandom: RadioButton
+    private lateinit var etSearch: EditText
+    private lateinit var layoutQuestions: LinearLayout
+    private val selectedMcqIds = mutableSetOf<Int>()
+    private val selectedShortIds = mutableSetOf<Int>()
+    private val selectedLongIds = mutableSetOf<Int>()
+    private var tvMcqCounter: TextView? = null
+    private var tvShortCounter: TextView? = null
+    private var tvLongCounter: TextView? = null
+
     private val saveLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -133,6 +152,14 @@ class PaperGeneratorActivity : AppCompatActivity() {
         radioRandom = findViewById(R.id.radioRandomPaper)
         etTitle = findViewById(R.id.etPaperTitle)
         etTime = findViewById(R.id.etTimePaper)
+        radioModeManual = findViewById(R.id.radioModeManualPaper)
+        layoutAuto = findViewById(R.id.layoutAutoPaper)
+        layoutManual = findViewById(R.id.layoutManualPaper)
+        etCountShort = findViewById(R.id.etCountShortPaper)
+        etCountLong = findViewById(R.id.etCountLongPaper)
+        radioSelectRandom = findViewById(R.id.radioSelectRandomPaper)
+        etSearch = findViewById(R.id.etSearchPaper)
+        layoutQuestions = findViewById(R.id.layoutQuestionsPaper)
         btnGenerate = findViewById(R.id.btnGeneratePaper)
         tvStatus = findViewById(R.id.tvPaperStatus)
         layoutActions = findViewById(R.id.layoutActionsPaper)
@@ -155,6 +182,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
         }
         spinnerSubject.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                clearQuestionSelections()
                 loadData()
             }
 
@@ -164,14 +192,23 @@ class PaperGeneratorActivity : AppCompatActivity() {
 
         checkAllChapters.setOnCheckedChangeListener { _, checked ->
             chapterChecks.forEach { it.isEnabled = !checked }
+            renderQuestions()
         }
-        findViewById<RadioButton>(R.id.radioAllPaper).setOnCheckedChangeListener { _, checked ->
-            if (checked) etCustomCount.isEnabled = false
+        findViewById<RadioButton>(R.id.radioAllPaper).setOnCheckedChangeListener { _, _ ->
+            updateCountFieldsEnabled()
         }
         radioCustom.setOnCheckedChangeListener { _, checked ->
-            etCustomCount.isEnabled = checked
+            updateCountFieldsEnabled()
             if (checked) etCustomCount.requestFocus()
         }
+        findViewById<RadioGroup>(R.id.radioModeGroupPaper).setOnCheckedChangeListener { _, _ -> applyMode() }
+        findViewById<RadioGroup>(R.id.radioAnswerGroupPaper).setOnCheckedChangeListener { _, _ -> renderQuestions() }
+        etSearch.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) { renderQuestions() }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+        findViewById<Button>(R.id.btnClearSearchPaper).setOnClickListener { etSearch.setText("") }
 
         btnGenerate.setOnClickListener { generate() }
         findViewById<Button>(R.id.btnPreviewPaper).setOnClickListener { previewPdf() }
@@ -272,6 +309,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
                     tag = ch
                     textSize = 14.5f
                     isEnabled = !checkAllChapters.isChecked
+                    setOnCheckedChangeListener { _, _ -> renderQuestions() }
                 }
                 chapterChecks += cb
                 layoutChapters.addView(cb)
@@ -279,6 +317,8 @@ class PaperGeneratorActivity : AppCompatActivity() {
             tvChapterStatus.text = statusText(type)
             progress.visibility = View.GONE
             loading = false
+            updateCountFieldsEnabled()
+            renderQuestions()
         }
     }
 
@@ -319,17 +359,302 @@ class PaperGeneratorActivity : AppCompatActivity() {
         return n
     }
 
+
+    // --- Selection mode + manual question browser ---
+
+    private fun isManualMode(): Boolean = radioModeManual.isChecked
+
+    private fun applyMode() {
+        val manual = isManualMode()
+        layoutManual.visibility = if (manual) View.VISIBLE else View.GONE
+        layoutAuto.visibility = if (manual) View.GONE else View.VISIBLE
+        if (manual) renderQuestions()
+    }
+
+    private fun clearQuestionSelections() {
+        selectedMcqIds.clear()
+        selectedShortIds.clear()
+        selectedLongIds.clear()
+        if (::etSearch.isInitialized) etSearch.setText("")
+    }
+
+    private fun updateCountFieldsEnabled() {
+        if (!::etCountShort.isInitialized) return
+        val custom = radioCustom.isChecked
+        val type = currentType()
+        etCustomCount.isEnabled = custom && (type == PaperType.MCQS || type == PaperType.COMBINED)
+        etCountShort.isEnabled = custom && (type == PaperType.SHORT || type == PaperType.COMBINED)
+        etCountLong.isEnabled = custom && (type == PaperType.LONG || type == PaperType.COMBINED)
+    }
+
+    private fun selectedChapterLabels(): List<String> =
+        if (checkAllChapters.isChecked) chapterNames
+        else chapterChecks.filter { it.isChecked }.map { it.tag as String }
+
+    private fun eligibleMcqs(): List<Question> {
+        val sel = selectedChapterLabels()
+        return mcqAll.filter { it.chapter in sel }.sortedBy { it.id }
+    }
+
+    private fun eligibleShorts(): List<WrittenQuestion> {
+        val sel = selectedChapterLabels()
+        return shortAll.filter { wq -> sel.any { writtenInChapter(wq, it) } }.sortedBy { it.id }
+    }
+
+    private fun eligibleLongs(): List<WrittenQuestion> {
+        val sel = selectedChapterLabels()
+        return longAll.filter { wq -> sel.any { writtenInChapter(wq, it) } }.sortedBy { it.id }
+    }
+
+    private fun divider(): View = View(this).apply {
+        layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1)
+        setBackgroundColor(Color.parseColor("#E2E8F0"))
+    }
+
+    private fun noteView(text: String): TextView = TextView(this).apply {
+        this.text = text
+        textSize = 12.5f
+        setTextColor(Color.parseColor("#64748B"))
+        setPadding(2, 8, 2, 8)
+    }
+
+    private fun counterView(): TextView = TextView(this).apply {
+        textSize = 12f
+        setTextColor(Color.parseColor("#475569"))
+        setPadding(2, 2, 2, 2)
+    }
+
+    private fun sectionHeader(title: String, visibleIds: List<Int>, selection: MutableSet<Int>): LinearLayout {
+        val row = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = android.view.Gravity.CENTER_VERTICAL
+            setPadding(0, 12, 0, 2)
+        }
+        val tv = TextView(this).apply {
+            text = title
+            textSize = 15f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(Color.parseColor("#1F2937"))
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        }
+        val btnAll = Button(this).apply {
+            text = "Select All"
+            textSize = 11f
+            minHeight = 0
+            setPadding(10, 4, 10, 4)
+            setOnClickListener {
+                selection.addAll(visibleIds)
+                renderQuestions()
+            }
+        }
+        val btnNone = Button(this).apply {
+            text = "Deselect All"
+            textSize = 11f
+            minHeight = 0
+            setPadding(10, 4, 10, 4)
+            setOnClickListener {
+                selection.removeAll(visibleIds.toSet())
+                renderQuestions()
+            }
+        }
+        row.addView(tv)
+        row.addView(btnAll)
+        row.addView(btnNone)
+        return row
+    }
+
+    private fun mcqRow(q: Question): View {
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(2, 6, 2, 6)
+        }
+        val cb = CheckBox(this).apply {
+            text = q.questionText
+            textSize = 13.5f
+            isChecked = q.id in selectedMcqIds
+            setOnCheckedChangeListener { _, checked ->
+                if (checked) selectedMcqIds += q.id else selectedMcqIds -= q.id
+                updateCounters()
+            }
+        }
+        container.addView(cb)
+        container.addView(TextView(this).apply {
+            text = q.options.mapIndexed { i, o -> "${'A' + i}) $o" }.joinToString("\n")
+            textSize = 12f
+            setTextColor(Color.parseColor("#475569"))
+            setPadding(38, 0, 0, 0)
+        })
+        container.addView(TextView(this).apply {
+            text = q.chapter
+            textSize = 10.5f
+            setTextColor(Color.parseColor("#94A3B8"))
+            setPadding(38, 2, 0, 0)
+        })
+        if (radioSolved.isChecked) {
+            container.addView(TextView(this).apply {
+                val letter = if (q.correctAnswerIndex in q.options.indices) ('A' + q.correctAnswerIndex).toString() else "?"
+                val ansText = q.options.getOrNull(q.correctAnswerIndex) ?: ""
+                var line = "\u2713 Correct answer: $letter) $ansText"
+                if (q.explanation.isNotBlank()) line += "\n" + q.explanation
+                text = line
+                textSize = 12f
+                setTextColor(Color.parseColor("#047857"))
+                setPadding(38, 4, 0, 0)
+            })
+        }
+        container.addView(divider())
+        return container
+    }
+
+    private fun writtenRow(q: WrittenQuestion, selection: MutableSet<Int>): View {
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(2, 6, 2, 6)
+        }
+        val cb = CheckBox(this).apply {
+            text = q.question
+            textSize = 13.5f
+            isChecked = q.id in selection
+            setOnCheckedChangeListener { _, checked ->
+                if (checked) selection += q.id else selection -= q.id
+                updateCounters()
+            }
+        }
+        container.addView(cb)
+        container.addView(TextView(this).apply {
+            text = q.chapterLabel + if (q.marks.isNotBlank()) " \u2022 ${q.marks} marks" else ""
+            textSize = 10.5f
+            setTextColor(Color.parseColor("#94A3B8"))
+            setPadding(38, 2, 0, 0)
+        })
+        if (radioSolved.isChecked) {
+            val answerView = TextView(this).apply {
+                text = if (q.answer.isNotBlank()) "Answer: ${q.answer}"
+                    else "(Answer not available in the source data)"
+                textSize = 12.5f
+                setTextColor(Color.parseColor("#065F46"))
+                setPadding(38, 4, 0, 0)
+                visibility = View.GONE
+            }
+            val toggle = TextView(this).apply {
+                text = "Show Answer \u25be"
+                textSize = 12f
+                setTextColor(Color.parseColor("#2563EB"))
+                setPadding(38, 4, 0, 0)
+                setOnClickListener {
+                    val show = answerView.visibility == View.GONE
+                    answerView.visibility = if (show) View.VISIBLE else View.GONE
+                    text = if (show) "Hide Answer \u25b4" else "Show Answer \u25be"
+                }
+            }
+            container.addView(toggle)
+            container.addView(answerView)
+        }
+        container.addView(divider())
+        return container
+    }
+
+    private fun updateCounters() {
+        val type = currentType()
+        if (type == PaperType.MCQS || type == PaperType.COMBINED) {
+            val e = eligibleMcqs()
+            tvMcqCounter?.text = "Selected: ${e.count { it.id in selectedMcqIds }} of ${e.size} MCQs"
+        }
+        if (type == PaperType.SHORT || type == PaperType.COMBINED) {
+            val e = eligibleShorts()
+            tvShortCounter?.text = "Selected: ${e.count { it.id in selectedShortIds }} of ${e.size} Short Questions"
+        }
+        if (type == PaperType.LONG || type == PaperType.COMBINED) {
+            val e = eligibleLongs()
+            tvLongCounter?.text = "Selected: ${e.count { it.id in selectedLongIds }} of ${e.size} Long Questions"
+        }
+    }
+
+    private fun renderQuestions() {
+        if (!::layoutQuestions.isInitialized || !::radioModeManual.isInitialized) return
+        if (!isManualMode()) return
+        layoutQuestions.removeAllViews()
+        tvMcqCounter = null
+        tvShortCounter = null
+        tvLongCounter = null
+        val type = currentType()
+        val query = etSearch.text.toString().trim().lowercase()
+        if (type == PaperType.MCQS || type == PaperType.COMBINED) {
+            val eligible = eligibleMcqs()
+            val visible = eligible.filter {
+                query.isBlank() || it.questionText.lowercase().contains(query) ||
+                    it.options.any { o -> o.lowercase().contains(query) }
+            }
+            layoutQuestions.addView(sectionHeader("MCQs", visible.map { it.id }, selectedMcqIds))
+            tvMcqCounter = counterView()
+            layoutQuestions.addView(tvMcqCounter)
+            when {
+                eligible.isEmpty() -> layoutQuestions.addView(noteView("No MCQs available for the selected chapters."))
+                visible.isEmpty() -> layoutQuestions.addView(noteView("No MCQs match your search."))
+                else -> visible.forEach { layoutQuestions.addView(mcqRow(it)) }
+            }
+        }
+        if (type == PaperType.SHORT || type == PaperType.COMBINED) {
+            val eligible = eligibleShorts()
+            val visible = eligible.filter {
+                query.isBlank() || it.question.lowercase().contains(query)
+            }
+            layoutQuestions.addView(sectionHeader("Short Questions", visible.map { it.id }, selectedShortIds))
+            tvShortCounter = counterView()
+            layoutQuestions.addView(tvShortCounter)
+            when {
+                eligible.isEmpty() && shortAll.isEmpty() ->
+                    layoutQuestions.addView(noteView("No Short Questions available yet for this class/subject. Add data in the 'Shorts' tab of the Google Sheet."))
+                eligible.isEmpty() -> layoutQuestions.addView(noteView("No Short Questions available for the selected chapters."))
+                visible.isEmpty() -> layoutQuestions.addView(noteView("No Short Questions match your search."))
+                else -> visible.forEach { layoutQuestions.addView(writtenRow(it, selectedShortIds)) }
+            }
+        }
+        if (type == PaperType.LONG || type == PaperType.COMBINED) {
+            val eligible = eligibleLongs()
+            val visible = eligible.filter {
+                query.isBlank() || it.question.lowercase().contains(query)
+            }
+            layoutQuestions.addView(sectionHeader("Long Questions", visible.map { it.id }, selectedLongIds))
+            tvLongCounter = counterView()
+            layoutQuestions.addView(tvLongCounter)
+            when {
+                eligible.isEmpty() && longAll.isEmpty() ->
+                    layoutQuestions.addView(noteView("No Long Questions available yet for this class/subject. Add data in the 'Longs' tab of the Google Sheet."))
+                eligible.isEmpty() -> layoutQuestions.addView(noteView("No Long Questions available for the selected chapters."))
+                visible.isEmpty() -> layoutQuestions.addView(noteView("No Long Questions match your search."))
+                else -> visible.forEach { layoutQuestions.addView(writtenRow(it, selectedLongIds)) }
+            }
+        }
+        updateCounters()
+    }
+
+    /** Automatic-mode picking: first-N or random selection (no repeats).
+     *  A blank/invalid count field means "all available". Returns the picked
+     *  list plus an optional shortfall note. */
+    private fun <T> applyCount(pool: List<T>, field: EditText, label: String): Pair<List<T>, String?> {
+        val n = field.text.toString().toIntOrNull()
+        if (n == null || n < 1) return pool to null
+        val picked = if (radioSelectRandom.isChecked) pool.shuffled().take(n) else pool.take(n)
+        val note = if (n > pool.size) "Only ${pool.size} $label available - all included." else null
+        return picked to note
+    }
+
     private fun generate() {
         if (loading) {
-            Toast.makeText(this, "Please wait — questions are loading", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Please wait \u2014 questions are loading", Toast.LENGTH_SHORT).show()
             return
         }
         val type = currentType()
-        val selected: List<String> = if (checkAllChapters.isChecked) {
-            chapterNames
-        } else {
-            chapterChecks.filter { it.isChecked }.map { it.tag as String }
+        if (chapterNames.isEmpty()) {
+            Toast.makeText(
+                this,
+                "No chapters are loaded for this subject yet. Check your internet connection or choose another subject.",
+                Toast.LENGTH_LONG
+            ).show()
+            return
         }
+        val selected = selectedChapterLabels()
         if (selected.isEmpty()) {
             Toast.makeText(this, "Select at least one chapter", Toast.LENGTH_SHORT).show()
             return
@@ -337,31 +662,51 @@ class PaperGeneratorActivity : AppCompatActivity() {
         var mcqs: List<Question> = emptyList()
         var shorts: List<WrittenQuestion> = emptyList()
         var longs: List<WrittenQuestion> = emptyList()
-        if (type == PaperType.MCQS || type == PaperType.COMBINED) {
-            mcqs = mcqAll.filter { it.chapter in selected }.sortedBy { it.id }
-        }
-        if (type == PaperType.SHORT || type == PaperType.COMBINED) {
-            shorts = shortAll.filter { wq -> selected.any { writtenInChapter(wq, it) } }.sortedBy { it.id }
-        }
-        if (type == PaperType.LONG || type == PaperType.COMBINED) {
-            longs = longAll.filter { wq -> selected.any { writtenInChapter(wq, it) } }.sortedBy { it.id }
+        var shortfallNote = ""
+        if (isManualMode()) {
+            if (type == PaperType.MCQS || type == PaperType.COMBINED) {
+                mcqs = eligibleMcqs().filter { it.id in selectedMcqIds }
+            }
+            if (type == PaperType.SHORT || type == PaperType.COMBINED) {
+                shorts = eligibleShorts().filter { it.id in selectedShortIds }
+            }
+            if (type == PaperType.LONG || type == PaperType.COMBINED) {
+                longs = eligibleLongs().filter { it.id in selectedLongIds }
+            }
+            if (mcqs.size + shorts.size + longs.size == 0) {
+                Toast.makeText(
+                    this,
+                    "Select at least one question to include in the paper",
+                    Toast.LENGTH_LONG
+                ).show()
+                return
+            }
+        } else {
+            if (type == PaperType.MCQS || type == PaperType.COMBINED) mcqs = eligibleMcqs()
+            if (type == PaperType.SHORT || type == PaperType.COMBINED) shorts = eligibleShorts()
+            if (type == PaperType.LONG || type == PaperType.COMBINED) longs = eligibleLongs()
+            if (radioCustom.isChecked) {
+                val notes = mutableListOf<String>()
+                if (type == PaperType.MCQS || type == PaperType.COMBINED) {
+                    val r = applyCount(mcqs, etCustomCount, "MCQs"); mcqs = r.first; r.second?.let { notes += it }
+                }
+                if (type == PaperType.SHORT || type == PaperType.COMBINED) {
+                    val r = applyCount(shorts, etCountShort, "Short Questions"); shorts = r.first; r.second?.let { notes += it }
+                }
+                if (type == PaperType.LONG || type == PaperType.COMBINED) {
+                    val r = applyCount(longs, etCountLong, "Long Questions"); longs = r.first; r.second?.let { notes += it }
+                }
+                shortfallNote = notes.joinToString(" ")
+            }
+            if (mcqs.size + shorts.size + longs.size == 0) {
+                Toast.makeText(this, "No questions in the selected chapters", Toast.LENGTH_SHORT).show()
+                return
+            }
         }
         if (radioRandom.isChecked) {
             mcqs = mcqs.shuffled(); shorts = shorts.shuffled(); longs = longs.shuffled()
         }
-        if (radioCustom.isChecked) {
-            val n = etCustomCount.text.toString().toIntOrNull()
-            if (n == null || n < 1) {
-                Toast.makeText(this, "Enter a valid number of questions", Toast.LENGTH_SHORT).show()
-                return
-            }
-            mcqs = mcqs.take(n); shorts = shorts.take(n); longs = longs.take(n)
-        }
         val total = mcqs.size + shorts.size + longs.size
-        if (total == 0) {
-            Toast.makeText(this, "No questions in the selected chapters", Toast.LENGTH_SHORT).show()
-            return
-        }
         val defaultTitle = when (type) {
             PaperType.MCQS -> "MCQs Test Paper"
             PaperType.SHORT -> "Short Questions Paper"
@@ -370,9 +715,11 @@ class PaperGeneratorActivity : AppCompatActivity() {
         }
         val title = etTitle.text.toString().trim().ifBlank { defaultTitle }
         val time = etTime.text.toString().trim().ifBlank { "$total Minutes" }
+        val contributing = (mcqs.map { it.chapter } + shorts.map { it.chapterLabel } + longs.map { it.chapterLabel }).distinct()
         val chaptersLabel = when {
-            selected.size == chapterNames.size -> "Full Book (All Chapters)"
-            selected.size == 1 -> selected[0]
+            contributing.size == chapterNames.size && contributing.isNotEmpty() -> "Full Book (All Chapters)"
+            contributing.size == 1 -> contributing[0]
+            contributing.isNotEmpty() -> contributing.joinToString(", ")
             else -> selected.joinToString(", ")
         }
         val data = PaperPdfGenerator.PaperData(
@@ -403,7 +750,9 @@ class PaperGeneratorActivity : AppCompatActivity() {
             if (file != null && file.exists()) {
                 lastFile = file
                 layoutActions.visibility = View.VISIBLE
-                tvStatus.text = "PDF ready: $total questions (${mcqs.size} MCQs, ${shorts.size} Short, ${longs.size} Long) • ${file.name}"
+                var msg = "PDF ready: $total questions (${mcqs.size} MCQs, ${shorts.size} Short, ${longs.size} Long) \u2022 ${file.name}"
+                if (shortfallNote.isNotBlank()) msg += " $shortfallNote"
+                tvStatus.text = msg
                 Toast.makeText(this@PaperGeneratorActivity, "Paper PDF generated", Toast.LENGTH_SHORT).show()
             } else {
                 tvStatus.text = "PDF generation failed. Please try again."

@@ -149,7 +149,8 @@
             android:exported="false" />
         <activity
             android:name=".practicetest.PaperGeneratorActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
 
         <!-- Firebase / Google Services metadata -->
         <meta-data
