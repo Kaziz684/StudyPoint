@@ -8,6 +8,7 @@ import android.graphics.Paint
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.graphics.pdf.PdfDocument
+import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
 import java.io.File
@@ -91,6 +92,220 @@ object TestPdfGenerator {
             c.restore()
         }
 
+    // ---------- MCQ table (rows & columns, light-blue design) ----------
+    private val TBL_HEAD_BG = Color.rgb(219, 234, 248)
+    private val TBL_NUM_BG = Color.rgb(235, 243, 251)
+    private val TBL_LINE = Color.rgb(120, 155, 195)
+    private const val TBL_NUM_W = 36
+    private const val TBL_OPT_W = 64
+    private const val TBL_HEAD_H = 30
+    private const val TBL_Q_W = CONTENT_W - TBL_NUM_W - 4 * TBL_OPT_W
+
+    private fun centeredLayout(text: String, p: TextPaint, width: Int): StaticLayout =
+        StaticLayout.Builder.obtain(text, 0, text.length, p, width)
+            .setAlignment(Layout.Alignment.ALIGN_CENTER).build()
+
+    /** Replicates the pagination pass so MCQ table chunks know where pages break. */
+    private fun simulateEnd(units: List<Block>): Pair<Int, Int> {
+        var page = 0
+        var y = topFor(0)
+        var has = false
+        for (b in units) {
+            if (b.forceNewPage) {
+                if (has) {
+                    page++
+                    y = topFor(page)
+                    has = false
+                }
+                y += b.height
+                has = true
+                continue
+            }
+            if (y + b.height > PAGE_H - MARGIN && has) {
+                page++
+                y = topFor(page)
+                has = false
+            }
+            y += b.height
+            has = true
+        }
+        return page to y
+    }
+
+    private class McqRow(
+        val numLayout: StaticLayout,
+        val qLayout: StaticLayout,
+        val optLayouts: List<StaticLayout>,
+        val height: Int
+    )
+
+    private fun mcqRow(q: Question, index: Int): McqRow {
+        val numLayout = centeredLayout("${index + 1}", paint(11.5f, bold = true, color = NAVY), TBL_NUM_W - 8)
+        val qLayout = layoutOf(q.questionText, paint(11f), TBL_Q_W - 12)
+        val optLayouts = q.options.map { layoutOf(it, paint(10.5f), TBL_OPT_W - 24) }
+        val h = maxOf(numLayout.height, qLayout.height, optLayouts.maxOfOrNull { it.height } ?: 0) + 14
+        return McqRow(numLayout, qLayout, optLayouts, h)
+    }
+
+    private fun drawTableHeader(c: Canvas, x: Int, y: Int) {
+        val bg = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = TBL_HEAD_BG; style = Paint.Style.FILL }
+        c.drawRect(x.toFloat(), y.toFloat(), (x + CONTENT_W).toFloat(), (y + TBL_HEAD_H).toFloat(), bg)
+        val border = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = TBL_LINE; style = Paint.Style.STROKE; strokeWidth = 1f
+        }
+        c.drawRect(x.toFloat(), y.toFloat(), (x + CONTENT_W).toFloat(), (y + TBL_HEAD_H).toFloat(), border)
+        var vx = x + TBL_NUM_W
+        for (w in listOf(TBL_Q_W, TBL_OPT_W, TBL_OPT_W, TBL_OPT_W)) {
+            c.drawLine(vx.toFloat(), y.toFloat(), vx.toFloat(), (y + TBL_HEAD_H).toFloat(), border)
+            vx += w
+        }
+        val hp = paint(11f, bold = true, color = NAVY)
+        val labels = listOf("Q. No", "Question", "A", "B", "C", "D")
+        val widths = listOf(TBL_NUM_W, TBL_Q_W, TBL_OPT_W, TBL_OPT_W, TBL_OPT_W, TBL_OPT_W)
+        var lx = x
+        for (i in labels.indices) {
+            val l = centeredLayout(labels[i], hp, widths[i] - 4)
+            c.save()
+            c.translate((lx + 2).toFloat(), (y + (TBL_HEAD_H - l.height) / 2).toFloat())
+            l.draw(c)
+            c.restore()
+            lx += widths[i]
+        }
+    }
+
+    private fun drawTableRow(c: Canvas, x: Int, y: Int, row: McqRow) {
+        val h = row.height
+        val numBg = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = TBL_NUM_BG; style = Paint.Style.FILL }
+        c.drawRect(x.toFloat(), y.toFloat(), (x + TBL_NUM_W).toFloat(), (y + h).toFloat(), numBg)
+        val border = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = TBL_LINE; style = Paint.Style.STROKE; strokeWidth = 1f
+        }
+        c.drawRect(x.toFloat(), y.toFloat(), (x + CONTENT_W).toFloat(), (y + h).toFloat(), border)
+        var vx = x + TBL_NUM_W
+        for (w in listOf(TBL_Q_W, TBL_OPT_W, TBL_OPT_W, TBL_OPT_W)) {
+            c.drawLine(vx.toFloat(), y.toFloat(), vx.toFloat(), (y + h).toFloat(), border)
+            vx += w
+        }
+        c.save()
+        c.translate((x + 4).toFloat(), (y + (h - row.numLayout.height) / 2).toFloat())
+        row.numLayout.draw(c)
+        c.restore()
+        c.save()
+        c.translate((x + TBL_NUM_W + 6).toFloat(), (y + (h - row.qLayout.height) / 2).toFloat())
+        row.qLayout.draw(c)
+        c.restore()
+        val circle = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.rgb(71, 85, 105); style = Paint.Style.STROKE; strokeWidth = 1.1f
+        }
+        var ox = x + TBL_NUM_W + TBL_Q_W
+        for (ol in row.optLayouts) {
+            c.drawCircle((ox + 11).toFloat(), (y + h / 2).toFloat(), 4.2f, circle)
+            c.save()
+            c.translate((ox + 20).toFloat(), (y + (h - ol.height) / 2).toFloat())
+            ol.draw(c)
+            c.restore()
+            ox += TBL_OPT_W
+        }
+    }
+
+    /** Classic stacked layout, kept as the fallback for MCQs that cannot be tabled. */
+    private fun addStackedFallback(units: MutableList<Block>, q: Question, index: Int) {
+        val n = index + 1
+        val qLayout = layoutOf("$n.  ${q.questionText}", paint(11.5f))
+        val optLayouts = q.options.mapIndexed { oi, opt ->
+            layoutOf("        ${'A' + oi})   $opt", paint(11f))
+        }
+        val all = listOf(qLayout) + optLayouts
+        val totalH = all.sumOf { it.height } + 10
+        val maxBlockH = pageContentHeight()
+        if (totalH <= maxBlockH) {
+            units += Block(totalH, draw = stackDraw(all))
+            return
+        }
+        var cur = mutableListOf<Triple<StaticLayout, Int, Int>>()
+        var curH = 0
+        fun flush() {
+            if (cur.isEmpty()) return
+            val chunk = cur.toList()
+            val h = curH
+            units += Block(h) { c, x, y ->
+                var yy = y
+                for ((l, s, e) in chunk) {
+                    lineRangeDraw(l, s, e)(c, x, yy)
+                    yy += l.getLineBottom(e - 1) - l.getLineTop(s)
+                }
+            }
+            cur = mutableListOf()
+            curH = 0
+        }
+        for (l in all) {
+            var s = 0
+            while (s < l.lineCount) {
+                var e = s
+                var h = 0
+                while (e < l.lineCount) {
+                    val lh = l.getLineBottom(e) - l.getLineTop(e)
+                    if (curH + h + lh > maxBlockH && (cur.isNotEmpty() || h > 0)) break
+                    h += lh
+                    e++
+                }
+                if (e == s) {
+                    e = s + 1
+                    h = l.getLineBottom(s) - l.getLineTop(s)
+                }
+                cur += Triple(l, s, e)
+                curH += h
+                s = e
+                if (s < l.lineCount) flush()
+            }
+        }
+        flush()
+        units += Block(10) { _, _, _ -> }
+    }
+
+    /**
+     * Appends the MCQs as a table: one row per MCQ, options in A/B/C/D columns.
+     * The header row repeats at the top of every page the table flows onto
+     * (header and its first row are fused into one block so the header is
+     * never left alone at a page bottom).
+     */
+    private fun addMcqTable(units: MutableList<Block>, questions: List<Question>) {
+        if (questions.isEmpty()) return
+        var end = simulateEnd(units)
+        var page = end.first
+        var y = end.second
+        var chunkStart = true
+        questions.forEachIndexed { idx, q ->
+            val row = mcqRow(q, idx)
+            if (q.options.size != 4 || row.height > pageContentHeight() - TBL_HEAD_H) {
+                addStackedFallback(units, q, idx)
+                end = simulateEnd(units)
+                page = end.first
+                y = end.second
+                chunkStart = true
+                return@forEachIndexed
+            }
+            val need = row.height + if (chunkStart) TBL_HEAD_H else 0
+            if (chunkStart || y + need > PAGE_H - MARGIN) {
+                if (y + TBL_HEAD_H + row.height > PAGE_H - MARGIN) {
+                    page += 1
+                    y = topFor(page)
+                }
+                val r = row
+                units += Block(TBL_HEAD_H + r.height) { c, x, yy ->
+                    drawTableHeader(c, x, yy)
+                    drawTableRow(c, x, yy + TBL_HEAD_H, r)
+                }
+                y += TBL_HEAD_H + row.height
+                chunkStart = false
+            } else {
+                val r = row
+                units += Block(r.height) { c, x, yy -> drawTableRow(c, x, yy, r) }
+                y += row.height
+            }
+        }
+    }
+
     fun generate(context: Context, data: TestPaperData, outFile: File): File {
         val units = mutableListOf<Block>()
 
@@ -159,63 +374,8 @@ object TestPdfGenerator {
             c.drawLine(x.toFloat(), ly.toFloat(), (x + CONTENT_W).toFloat(), ly.toFloat(), linePaint)
         }
 
-        // ---------- Questions ----------
-        val qPaint = paint(11.5f)
-        val optPaint = paint(11f)
-        val maxBlockH = pageContentHeight()
-        data.questions.forEachIndexed { idx, q ->
-            val n = idx + 1
-            val qLayout = layoutOf("$n.  ${q.questionText}", qPaint)
-            val optLayouts = q.options.mapIndexed { oi, opt ->
-                layoutOf("        ${'A' + oi})   $opt", optPaint)
-            }
-            val all = listOf(qLayout) + optLayouts
-            val totalH = all.sumOf { it.height } + 10
-            if (totalH <= maxBlockH) {
-                units += Block(totalH, draw = stackDraw(all))
-            } else {
-                // Rare fallback: split this question line-by-line across pages.
-                var cur = mutableListOf<Triple<StaticLayout, Int, Int>>()
-                var curH = 0
-                fun flush() {
-                    if (cur.isEmpty()) return
-                    val chunk = cur.toList()
-                    val h = curH
-                    units += Block(h) { c, x, y ->
-                        var yy = y
-                        for ((l, s, e) in chunk) {
-                            lineRangeDraw(l, s, e)(c, x, yy)
-                            yy += l.getLineBottom(e - 1) - l.getLineTop(s)
-                        }
-                    }
-                    cur = mutableListOf()
-                    curH = 0
-                }
-                for (l in all) {
-                    var s = 0
-                    while (s < l.lineCount) {
-                        var e = s
-                        var h = 0
-                        while (e < l.lineCount) {
-                            val lh = l.getLineBottom(e) - l.getLineTop(e)
-                            if (curH + h + lh > maxBlockH && (cur.isNotEmpty() || h > 0)) break
-                            h += lh
-                            e++
-                        }
-                        if (e == s) { // a single line taller than a page: force it
-                            e = s + 1
-                            h = l.getLineBottom(s) - l.getLineTop(s)
-                        }
-                        cur += Triple(l, s, e)
-                        curH += h
-                        s = e
-                        if (s < l.lineCount) flush()
-                    }
-                }
-                flush()
-                units += Block(10) { _, _, _ -> }
-            }
-        }
+        // ---------- Questions (table layout: one row per MCQ, options in A/B/C/D columns) ----------
+        addMcqTable(units, data.questions)
 
         // ---------- Answer key ----------
         var missingAnswers = 0
