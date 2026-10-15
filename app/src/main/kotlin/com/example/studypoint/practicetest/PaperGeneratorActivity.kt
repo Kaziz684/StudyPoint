@@ -793,9 +793,110 @@ class PaperGeneratorActivity : AppCompatActivity() {
         }
     }
 
-    /** Board Pattern paper (Class 10 English): fixed BISE structure. */
+    /** Board Pattern paper (Class 10 English): fixed BISE structure —
+     *  Q.1 19 MCQs, Q.2 shorts (any 5 of 8), Q.3-Q.8 from the content pack. */
     private fun generateBoardPattern() {
-        Toast.makeText(this, "Board Pattern is currently available for Class 10 English only", Toast.LENGTH_LONG).show()
+        val sheet = classSheets[spinnerClass.selectedItemPosition.coerceIn(0, classSheets.lastIndex)]
+        val subject = spinnerSubject.selectedItem?.toString() ?: ""
+        if (sheet != "Class_10th" || !subject.equals("English", ignoreCase = true)) {
+            Toast.makeText(
+                this,
+                "Board Pattern is currently available for Class 10 English only",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        if (mcqAll.size < 19) {
+            Toast.makeText(
+                this,
+                "Not enough MCQs loaded yet (${mcqAll.size} found, 19 needed). Check your internet connection.",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        val diMcqs = mcqAll.filter {
+            it.chapter.contains("Direct", ignoreCase = true) &&
+                it.chapter.contains("Indirect", ignoreCase = true)
+        }
+        if (diMcqs.size < 8) {
+            Toast.makeText(
+                this,
+                "Direct and Indirect Speech questions are not loaded yet (needed for Q.6).",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        if (shortAll.size < 8) {
+            Toast.makeText(
+                this,
+                "Not enough Short Questions loaded yet (${shortAll.size} found, 8 needed for Q.2).",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        val pack = BoardPatternPack.load(applicationContext)
+        if (pack == null || pack.q3Paragraphs.isEmpty() || pack.q8Paragraphs.isEmpty() ||
+            pack.pairs.size < 8 || pack.essayTopics.size < 3 || pack.paragraphTopics.size < 3 ||
+            pack.summaryPoems.isEmpty() || pack.paraphraseSets.isEmpty() || pack.tenSentenceTopics.isEmpty()
+        ) {
+            Toast.makeText(this, "Board pattern content is missing in this build", Toast.LENGTH_LONG).show()
+            return
+        }
+        val rnd = kotlin.random.Random.Default
+        fun <T> pick(list: List<T>, n: Int): List<T> = list.shuffled(rnd).take(n)
+        val narration = pick(diMcqs, 8).map { q ->
+            val sentence = q.questionText
+                .replace("Grammar: Choose the correct indirect speech of: ", "")
+                .replace("Choose the correct indirect speech of: ", "")
+                .trim()
+            PaperPdfGenerator.NarrItem(
+                sentence,
+                q.options.getOrNull(q.correctAnswerIndex) ?: ""
+            )
+        }
+        val typedTitle = etTitle.text.toString().trim()
+        val title = if (typedTitle.isBlank() || typedTitle == "Question Paper") {
+            "Board Pattern Paper"
+        } else typedTitle
+        val data = PaperPdfGenerator.BoardPaperData(
+            testTitle = title,
+            classLabel = "Class 10th",
+            subject = "English",
+            mcqs = pick(mcqAll, 19),
+            shorts = pick(shortAll, 8),
+            q3 = pack.q3Paragraphs.random(rnd),
+            poemSummary = pack.summaryPoems.random(rnd),
+            paraphrase = pack.paraphraseSets.random(rnd),
+            essayTopics = pick(pack.essayTopics, 3),
+            paragraphTopics = pick(pack.paragraphTopics, 3),
+            narration = narration,
+            pairs = pick(pack.pairs, 8),
+            q8 = pack.q8Paragraphs.random(rnd),
+            tenSentenceTopic = pack.tenSentenceTopics.random(rnd),
+            includeAnswers = radioSolved.isChecked
+        )
+        btnGenerate.isEnabled = false
+        tvStatus.text = "Generating PDF..."
+        scope.launch {
+            val file = try {
+                withContext(Dispatchers.IO) {
+                    val ts = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
+                    val out = File(File(cacheDir, "papers"), "BoardPattern_English10_$ts.pdf")
+                    PaperPdfGenerator.generateBoardPattern(applicationContext, data, out)
+                }
+            } catch (e: Exception) {
+                null
+            }
+            btnGenerate.isEnabled = true
+            if (file != null && file.exists()) {
+                lastFile = file
+                layoutActions.visibility = View.VISIBLE
+                tvStatus.text = "PDF ready: Board Pattern Paper (Q.1: 19 MCQs, Q.2-Q.8 complete) \u2022 ${file.name}"
+                Toast.makeText(this@PaperGeneratorActivity, "Board Pattern paper generated", Toast.LENGTH_SHORT).show()
+            } else {
+                tvStatus.text = "PDF generation failed. Please try again."
+            }
+        }
     }
 
     private fun pdfUri(file: File) =
