@@ -117,6 +117,13 @@ class NotesActivity : AppCompatActivity() {
             return
         }
 
+        // Chapter picked from the chapter list (SectionsActivity): open THAT chapter's
+        // content directly below (once the pdf links are built) - never show the full
+        // chapter list again inside a chapter.
+        val chapterExtra = intent.getStringExtra("chapter") ?: ""
+        val wantsChapterDirect = material.equals("Notes", ignoreCase = true) &&
+            (chapterTitle.isNotBlank() || chapterExtra.isNotBlank())
+
         // Comprehensive pdfLinks Map with all PCTB Subjects according to curriculum rules:
         // - All Classes (9th, 10th, 11th, 12th): Must include "Tarjuma-tul-Quran" as a dedicated subject section.
         // - 9th & 11th Classes: Must include "Islamiyat" compulsory (Pak Studies omitted).
@@ -813,6 +820,38 @@ class NotesActivity : AppCompatActivity() {
             ?: subjectMap["Math"]
             ?: subjectMap["Computer"]
             ?: defaultFallbackMap
+
+        // Direct chapter open: the student already picked a chapter in the chapter
+        // list, so open that chapter's own notes PDF right away (or honestly say
+        // Coming Soon). Never fall through to the subject-level chapter list.
+        if (wantsChapterDirect) {
+            val chapterNum = Regex("""\d+""").find(chapterExtra)?.value?.toIntOrNull()
+                ?: Regex("""(?:Chapter|Ch\.?|Unit)\s*(\d+)""", RegexOption.IGNORE_CASE)
+                    .find(chapterTitle)?.groupValues?.get(1)?.toIntOrNull()
+            val notesAny = resolvedSubjectData["Notes"]
+            val directUrl: String? = when (notesAny) {
+                is Map<*, *> -> {
+                    @Suppress("UNCHECKED_CAST")
+                    val nMap = notesAny as Map<String, String>
+                    nMap.entries.firstOrNull { e ->
+                        val keyNum = Regex("""(?:Chapter|Ch\.?|Unit)\s*(\d+)""", RegexOption.IGNORE_CASE)
+                            .find(e.key)?.groupValues?.get(1)?.toIntOrNull()
+                        (chapterNum != null && keyNum == chapterNum) ||
+                            e.key.equals(chapterTitle, ignoreCase = true)
+                    }?.value
+                }
+                is List<*> -> notesAny.filterIsInstance<String>().firstOrNull()
+                is String -> notesAny
+                else -> null
+            }
+            if (!directUrl.isNullOrBlank() && !isPlaceholderUrl(directUrl)) {
+                open(directUrl, chapterTitle.ifBlank { "${rawSubject.ifBlank { normalizedSubject }} Notes" }, gradeKey, normalizedSubject)
+            } else {
+                Toast.makeText(this, "Notes Coming Soon", Toast.LENGTH_SHORT).show()
+            }
+            finish()
+            return
+        }
 
         // If material is MCQs, launch QuizActivity directly
         if (material.equals("MCQs", ignoreCase = true) || material.equals("MCQ Practice", ignoreCase = true)) {
