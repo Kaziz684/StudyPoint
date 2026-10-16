@@ -394,7 +394,21 @@ class NotesActivity : AppCompatActivity() {
                 "Chemistry" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=1hL9-HeRrPnOQwXGUJCkcldyqTy2y3Kd0",
                     "Book" to "https://drive.google.com/uc?export=download&id=1hL9-HeRrPnOQwXGUJCkcldyqTy2y3Kd0",
-                    "Notes" to listOf("COMING_SOON"),
+                    "Notes" to mapOf(
+                        "Chapter 14: States of Matter and Phase Changes" to "https://drive.google.com/uc?export=download&id=1GFFziQYeuCG47W82RuaJ2l2EJ2kxUxY1",
+                        "Chapter 15: Stoichiometry" to "https://drive.google.com/uc?export=download&id=1SUhEFmeJQdyfDp5JrNNNn7yalEWkwLIj",
+                        "Chapter 16: Electrochemistry" to "https://drive.google.com/uc?export=download&id=1aIJztg5Ef3GiK7yvrlycmh0XqeRUrdFk",
+                        "Chapter 17: Reaction Kinetics" to "https://drive.google.com/uc?export=download&id=1rHnBQTQgQDh5ql0QXMRoxmYmQy0IVYPW",
+                        "Chapter 18: Salts" to "https://drive.google.com/uc?export=download&id=1UmLnn8ifVXE3jK_ekaDJ68kZ2rXyAFEN",
+                        "Chapter 19: Nitrogen and Sulphur" to "https://drive.google.com/uc?export=download&id=1ntgzEN04u6z_VvrUyIsFOkr0j17xxdrm",
+                        "Chapter 20: Water" to "https://drive.google.com/uc?export=download&id=1vYKpwd0--j1YYbYU89_CuzL5GsrO5Dz1",
+                        "Chapter 21: Organic Chemistry" to "https://drive.google.com/uc?export=download&id=1rgLjGOUzZ8r4P1JQp_cotnwD-qon5LwP",
+                        "Chapter 22: Hydrocarbons" to "https://drive.google.com/uc?export=download&id=1Zaabyu3ExqQueY5gJ9G-q1rU8VSYHqDV",
+                        "Chapter 23: Monohydroxy Alkanes or Alcohols" to "https://drive.google.com/uc?export=download&id=1FKJ0XE-ZKyXVuTMO3MATsu6vupaUmNp4",
+                        "Chapter 24: Carboxylic Acids" to "https://drive.google.com/uc?export=download&id=1RjLvA5UJCVE5kcXL_ddh2gjvzClyF7VD",
+                        "Chapter 25" to "COMING_SOON",
+                        "Chapter 26: Polymers" to "https://drive.google.com/uc?export=download&id=1GUCWIAEMCi1yMrvsTIlfeZveOShTvOo8"
+                    ),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=10_CHEM_PP_2022",
                         "2023" to "https://drive.google.com/uc?export=download&id=10_CHEM_PP_2023",
@@ -411,7 +425,22 @@ class NotesActivity : AppCompatActivity() {
                 "Urdu" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=1YGc4bd5mdSXthR73Hw86pvoewqkvEzYk",
                     "Book" to "https://drive.google.com/uc?export=download&id=1YGc4bd5mdSXthR73Hw86pvoewqkvEzYk",
-                    "Notes" to listOf("COMING_SOON"),
+                    "Notes" to mapOf(
+                        "Chapter 1: حمد" to "https://drive.google.com/uc?export=download&id=1XzPkkfNGX4nFFXEu8nlpPhbqT6fDPdNR",
+                        "Chapter 2: نعت" to "https://drive.google.com/uc?export=download&id=1ue3vB61wAA10pyQaA6uGig8i6-mawD1D",
+                        "Chapter 3: اخلاق نبوی خاتم النبیین ﷺ" to "https://drive.google.com/uc?export=download&id=1qZ1NVIk6CfwqncxmolfXNL3wBDL-gmB8",
+                        "Chapter 4: سرسید کا بچپن" to "https://drive.google.com/uc?export=download&id=1fX-XfDlIihF8fkbERkwOIE6tsWHurVxc",
+                        "Chapter 5: محسن محلہ" to "https://drive.google.com/uc?export=download&id=1KQYr9KdvMlD2TFh-KivCiDQu3pJpW-jg",
+                        "Chapter 6: کفارہ" to "https://drive.google.com/uc?export=download&id=1rmGA8Q-cpmGPi-y0heBKLAGybkpzIimq",
+                        "Chapter 7: سویرے جو کل آنکھ میری کھلی" to "https://drive.google.com/uc?export=download&id=1R1V6sRMw0TRxNm75EpL_kWNNNtuVlDUq",
+                        "Chapter 8: دوستی کا پھل" to "https://drive.google.com/uc?export=download&id=1KuI-w5ZkDFD6NdLc72t9MvDyMPCP4zeV",
+                        "Chapter 9: میرا گاؤں" to "https://drive.google.com/uc?export=download&id=1xH12sejiNwx4O7og3Q3vnXNvC8xrVBMn",
+                        "Chapter 10: بابل کے کھنڈر" to "https://drive.google.com/uc?export=download&id=1EZqqpimhtPTyApMvD51vN8VD_pqrjRWX",
+                        "Chapter 11: اولڈ ایج ہوم" to "https://drive.google.com/uc?export=download&id=1E1NQurJMLk0Y6FlSHme4qqfqn-5ZadgX",
+                        "Chapter 12: کچھ ذریعہ تعلیم کے باب میں" to "https://drive.google.com/uc?export=download&id=15vwBmYcna5RKMXFCcyeus431nylAWSqV",
+                        "Grammar: Mazameen (Essays)" to "https://drive.google.com/uc?export=download&id=19DdZGkJJkse7fkUxIS557vUmT7C0ImX-",
+                        "Grammar: Tafheem-e-Ebaraat (Comprehension)" to "https://drive.google.com/uc?export=download&id=1FvVtrRCmRWbeIpD7J8l0rc2En6v7gNqu"
+                    ),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=10_URDU_PP_2022",
                         "2023" to "https://drive.google.com/uc?export=download&id=10_URDU_PP_2023",
@@ -472,7 +501,23 @@ class NotesActivity : AppCompatActivity() {
                 "Tarjuma-tul-Quran" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=10_TQ_BOOK",
                     "Book" to "https://drive.google.com/uc?export=download&id=10_TQ_BOOK",
-                    "Notes" to listOf("COMING_SOON"),
+                    "Notes" to mapOf(
+                        "Chapter 1: Surah Al Anam" to "COMING_SOON",
+                        "Chapter 2: Surah A'araf" to "COMING_SOON",
+                        "Chapter 3: Surah Yunus" to "COMING_SOON",
+                        "Chapter 4: Surah Hud" to "COMING_SOON",
+                        "Chapter 5: Surah Ra'ad" to "COMING_SOON",
+                        "Chapter 6: Surah Ibrahim" to "COMING_SOON",
+                        "Chapter 7: Surah Hijr" to "COMING_SOON",
+                        "Chapter 8: Surah Nahl" to "COMING_SOON",
+                        "Chapter 9: Surah Isra / Bani Israel" to "COMING_SOON",
+                        "Chapter 10: Surah Kahf" to "COMING_SOON",
+                        "Chapter 11: Surah Mominoon" to "COMING_SOON",
+                        "Chapter 12: Surah Zumar" to "COMING_SOON",
+                        "Chapter 13: Surah Ghafir / Momin" to "COMING_SOON",
+                        "Chapter 14: Surah Fussilat / Hamim Sajdah" to "COMING_SOON",
+                        "Chapter 15: Surah Shura" to "COMING_SOON"
+                    ),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=10_TQ_PP_2022",
                         "2023" to "https://drive.google.com/uc?export=download&id=10_TQ_PP_2023",
@@ -680,7 +725,9 @@ class NotesActivity : AppCompatActivity() {
                 "Physics" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=12_PHY_BOOK",
                     "Book" to "https://drive.google.com/uc?export=download&id=12_PHY_BOOK",
-                    "Notes" to listOf("COMING_SOON"),
+                    "Notes" to mapOf(
+                        "Chapter 13: Thermal Physics" to "https://drive.google.com/uc?export=download&id=1Oy9DnC_ItnZYnUt47AnhJkU63Dy4WNxR"
+                    ),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=12_PHY_PP_2022",
                         "2023" to "https://drive.google.com/uc?export=download&id=12_PHY_PP_2023",
