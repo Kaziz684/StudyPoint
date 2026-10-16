@@ -144,7 +144,12 @@ class NotesActivity : AppCompatActivity() {
                 "Biology" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=1E82PoD4JjzKcH-08RfgrCcCDEkC3lTkz",
                     "Book" to "https://drive.google.com/uc?export=download&id=1E82PoD4JjzKcH-08RfgrCcCDEkC3lTkz",
-                    "Notes" to listOf("https://drive.google.com/uc?export=download&id=9_BIO_NOTE"),
+                    "Notes" to mapOf(
+                        "Chapter 1: The Science of Biology" to "https://drive.google.com/uc?export=download&id=1SWtScvfaxJfeCUtEctlRBhdCo8uwKr8S",
+                        "Chapter 2: Biodiversity" to "https://drive.google.com/uc?export=download&id=1miZBqZTb8HQ-b-K4rHqHG7QhnjrBGtoA",
+                        "Chapter 3: The Cell" to "https://drive.google.com/uc?export=download&id=1A4ZIy3iC7zr2_Wl_1sOxeuu7IwvXwR-4",
+                        "Chapter 4: Cell Cycle" to "https://drive.google.com/uc?export=download&id=1PD-yhDuqocbK0tTn3PiRDO9HzzkM-Dsq"
+                    ),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=9_BIO_PP_2022",
                         "2023" to "https://drive.google.com/uc?export=download&id=9_BIO_PP_2023",
@@ -875,6 +880,20 @@ class NotesActivity : AppCompatActivity() {
                 btn.text = "Past Paper $year"
                 btn.setOnClickListener {
                     open(url, "$displaySubject Past Paper $year", gradeKey, displaySubject)
+                }
+            }
+        } else if (material.equals("Notes", ignoreCase = true) &&
+            resolvedSubjectData["Notes"] is Map<*, *>
+        ) {
+            @Suppress("UNCHECKED_CAST")
+            val notesMap = resolvedSubjectData["Notes"] as Map<String, String>
+
+            ids.zip(notesMap.entries.toList()).forEach { (id, entry) ->
+                val btn = findViewById<MaterialButton>(id)
+                btn.visibility = View.VISIBLE
+                btn.text = entry.key
+                btn.setOnClickListener {
+                    open(entry.value, "$displaySubject ${entry.key}", gradeKey, displaySubject)
                 }
             }
         } else if (material.equals("Guess Papers", ignoreCase = true) &&
