@@ -50,7 +50,7 @@ class SectionsActivity : AppCompatActivity() {
         // Single-column list rows: full width, title wraps to 2 lines with
         // ellipsis, Urdu gloss / category-author shown as subtitle line.
         val gridItems = items.map { s ->
-            GridItem(s.id, s.title, R.drawable.ic_solved_notes, s.titleUrdu)
+            GridItem(s.id, s.title, ChapterIcons.forChapter(subject, s.id, s.title), s.titleUrdu)
         }
 
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
