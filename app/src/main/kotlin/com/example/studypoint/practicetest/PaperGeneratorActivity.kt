@@ -324,7 +324,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
             PaperType.SHORT -> "Short Questions"
             PaperType.LONG -> "Long Questions"
             PaperType.COMBINED -> "Mixed Paper (MCQs + Short + Long)"
-            PaperType.BOARD -> "Board Pattern Paper (Class 10 English)"
+            PaperType.BOARD -> "Board Pattern Paper"
         }
         val classLabel = classLabels[spinnerClass.selectedItemPosition.coerceIn(0, classLabels.lastIndex)]
         val subject = spinnerSubject.selectedItem?.toString() ?: ""
@@ -333,8 +333,14 @@ class PaperGeneratorActivity : AppCompatActivity() {
         sb.append("Class:  $classLabel\n")
         sb.append("Subject:  $subject\n")
         if (currentType() == PaperType.BOARD) {
-            sb.append("Total Marks:  75  •  Time:  2 Hours 30 Minutes\n")
-            sb.append("Structure:  Q.1: 19 MCQs • Q.2: Short answers (any 5 of 8) • Q.3–Q.8: Board pattern sections\n")
+            val sheetNow = classSheets[spinnerClass.selectedItemPosition.coerceIn(0, classSheets.lastIndex)]
+            if (sheetNow == "Class_9th" && subject.equals("Computer Science", ignoreCase = true)) {
+                sb.append("Total Marks:  50  •  Time:  2 Hours\n")
+                sb.append("Structure:  Q.1: 10 MCQs • Q.2–Q.4: Short answers (any 4 of 6 each) • Q.5–Q.7: Long questions (any 2 of 3)\n")
+            } else {
+                sb.append("Total Marks:  75  •  Time:  2 Hours 30 Minutes\n")
+                sb.append("Structure:  Q.1: 19 MCQs • Q.2: Short answers (any 5 of 8) • Q.3–Q.8: Board pattern sections\n")
+            }
         } else {
             val chapters = when {
                 checkAllChapters.isChecked -> "All Chapters / Full Book"
@@ -381,7 +387,8 @@ class PaperGeneratorActivity : AppCompatActivity() {
     }
 
     /** Board Pattern mode hides the chapter / selection-mode / order blocks —
-     *  the full BISE structure is fixed. Currently Class 10 English only. */
+     *  the full BISE structure is fixed. Supported: Class 10 English and
+     *  Class 9 Computer Science. */
     private fun applyBoardVisibility() {
         if (!::tvBoardInfo.isInitialized) return
         val board = currentType() == PaperType.BOARD
@@ -389,9 +396,6 @@ class PaperGeneratorActivity : AppCompatActivity() {
         layoutChapterSection.visibility = if (board) View.GONE else View.VISIBLE
         layoutModeSection.visibility = if (board) View.GONE else View.VISIBLE
         layoutOrderSection.visibility = if (board) View.GONE else View.VISIBLE
-        if (board && spinnerClass.selectedItemPosition != classSheets.indexOf("Class_10th")) {
-            spinnerClass.setSelection(classSheets.indexOf("Class_10th"))
-        }
     }
 
     private fun subjectsFor(sheet: String): List<String> = when (sheet) {
@@ -446,7 +450,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
                 }
                 shortTabLoaded = true
             }
-            if ((type == PaperType.LONG || type == PaperType.COMBINED) && !longTabLoaded) {
+            if ((type == PaperType.LONG || type == PaperType.COMBINED || type == PaperType.BOARD) && !longTabLoaded) {
                 longRaw = try {
                     paperRepository.fetchWritten(PaperRepository.TAB_LONGS)
                 } catch (e: Exception) {
@@ -933,10 +937,14 @@ class PaperGeneratorActivity : AppCompatActivity() {
     private fun generateBoardPattern() {
         val sheet = classSheets[spinnerClass.selectedItemPosition.coerceIn(0, classSheets.lastIndex)]
         val subject = spinnerSubject.selectedItem?.toString() ?: ""
+        if (sheet == "Class_9th" && subject.equals("Computer Science", ignoreCase = true)) {
+            generateBoardPatternCs()
+            return
+        }
         if (sheet != "Class_10th" || !subject.equals("English", ignoreCase = true)) {
             Toast.makeText(
                 this,
-                "Board Pattern is currently available for Class 10 English only",
+                "Board Pattern is available for Class 10 English and Class 9 Computer Science only",
                 Toast.LENGTH_LONG
             ).show()
             return
@@ -1027,6 +1035,73 @@ class PaperGeneratorActivity : AppCompatActivity() {
                 lastFile = file
                 layoutActions.visibility = View.VISIBLE
                 tvStatus.text = "PDF ready: Board Pattern Paper (Q.1: 19 MCQs, Q.2-Q.8 complete) \u2022 ${file.name}"
+                Toast.makeText(this@PaperGeneratorActivity, "Board Pattern paper generated", Toast.LENGTH_SHORT).show()
+            } else {
+                tvStatus.text = "PDF generation failed. Please try again."
+            }
+        }
+    }
+
+    /** Board Pattern paper (Class 9 Computer Science): fixed BISE structure —
+     *  Q.1 10 MCQs, Q.2-Q.4 shorts (any 4 of 6 each), Q.5-Q.7 longs (any 2 of 3). */
+    private fun generateBoardPatternCs() {
+        if (mcqAll.size < 10) {
+            Toast.makeText(
+                this,
+                "Not enough MCQs loaded yet (${mcqAll.size} found, 10 needed). Check your internet connection.",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        if (shortAll.size < 18) {
+            Toast.makeText(
+                this,
+                "Not enough Short Questions loaded yet (${shortAll.size} found, 18 needed for Q.2-Q.4).",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        if (longAll.size < 3) {
+            Toast.makeText(
+                this,
+                "Not enough Long Questions loaded yet (${longAll.size} found, 3 needed for Q.5-Q.7).",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        val rnd = kotlin.random.Random.Default
+        fun <T> pick(list: List<T>, n: Int): List<T> = list.shuffled(rnd).take(n)
+        val shortPool = pick(shortAll, 18)
+        val typedTitle = etTitle.text.toString().trim()
+        val title = if (typedTitle.isBlank() || typedTitle == "Question Paper") {
+            "Board Pattern Paper"
+        } else typedTitle
+        val data = PaperPdfGenerator.CsBoardPaperData(
+            testTitle = title,
+            classLabel = "Class 9th",
+            subject = "Computer Science",
+            mcqs = pick(mcqAll, 10),
+            shortSections = listOf(shortPool.take(6), shortPool.drop(6).take(6), shortPool.drop(12).take(6)),
+            longs = pick(longAll, 3),
+            includeAnswers = radioSolved.isChecked
+        )
+        btnGenerate.isEnabled = false
+        tvStatus.text = "Generating PDF..."
+        scope.launch {
+            val file = try {
+                withContext(Dispatchers.IO) {
+                    val ts = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
+                    val out = File(File(cacheDir, "papers"), "BoardPattern_CS9_$ts.pdf")
+                    PaperPdfGenerator.generateBoardPatternCs(applicationContext, data, out)
+                }
+            } catch (e: Exception) {
+                null
+            }
+            btnGenerate.isEnabled = true
+            if (file != null && file.exists()) {
+                lastFile = file
+                layoutActions.visibility = View.VISIBLE
+                tvStatus.text = "PDF ready: Board Pattern Paper (Q.1: 10 MCQs, Q.2-Q.4 Shorts, Q.5-Q.7 Longs) • ${file.name}"
                 Toast.makeText(this@PaperGeneratorActivity, "Board Pattern paper generated", Toast.LENGTH_SHORT).show()
             } else {
                 tvStatus.text = "PDF generation failed. Please try again."
