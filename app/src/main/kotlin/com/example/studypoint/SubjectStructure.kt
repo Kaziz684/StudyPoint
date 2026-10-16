@@ -56,6 +56,10 @@ object SubjectStructure {
                     StudySection("n5", "پیامِ لطیف", "نظم — شیخ ایاز", "chapter"),
                     StudySection("n6", "کرکٹ اور مشاعرہ", "نظم — دلاور فگار", "chapter")
                 )
+                "10" -> listOf(
+                    StudySection("n1", "Chapter 1: حمد", "نظم — امیر مینائی", "chapter"),
+                    StudySection("n2", "Chapter 2: نعت", "نظم", "chapter")
+                )
                 else -> listOf(
                     StudySection("n1", "Nazm 1", "نظم ۱", "chapter"),
                     StudySection("n2", "Nazm 2", "نظم ۲", "chapter"),
@@ -74,6 +78,20 @@ object SubjectStructure {
                     StudySection("s7", "ابتدائی حساب", "سبق — ابنِ انشاء", "chapter"),
                     StudySection("s8", "لڑی میں پروئے ہوئے منتظر", "سبق — رضا علی عابدی", "chapter"),
                     StudySection("s9", "بھیڑیا", "سبق — فاروق سرور", "chapter")
+                )
+                "10" -> listOf(
+                    StudySection("s1", "Chapter 1: حمد", "نظم — امیر مینائی", "chapter"),
+                    StudySection("s2", "Chapter 2: نعت", "نظم", "chapter"),
+                    StudySection("s3", "Chapter 3: اخلاق نبوی خاتم النبیین ﷺ", "سبق", "chapter"),
+                    StudySection("s4", "Chapter 4: سرسید کا بچپن", "سبق", "chapter"),
+                    StudySection("s5", "Chapter 5: محسن محلہ", "سبق", "chapter"),
+                    StudySection("s6", "Chapter 6: کفارہ", "سبق", "chapter"),
+                    StudySection("s7", "Chapter 7: سویرے جو کل آنکھ میری کھلی", "سبق — پیٹرن بخاری", "chapter"),
+                    StudySection("s8", "Chapter 8: دوستی کا پھل", "سبق — شیخ عقیل", "chapter"),
+                    StudySection("s9", "Chapter 9: میرا گاؤں", "سبق — سید غلام التقلین نقوی", "chapter"),
+                    StudySection("s10", "Chapter 10: بابل کے کھنڈر", "سبق — جمیل الدین عالی", "chapter"),
+                    StudySection("s11", "Chapter 11: اولڈ ایج ہوم", "سبق — مرزا ادیب", "chapter"),
+                    StudySection("s12", "Chapter 12: کچھ ذریعہ تعلیم کے باب میں", "سبق — ڈاکٹر ابواللیث صدیقی", "chapter")
                 )
                 else -> (1..12).map {
                     StudySection("s$it", "Sabaq $it", "سبق $it", "chapter")
@@ -169,6 +187,7 @@ object SubjectStructure {
             s.contains("computer") -> getComputerChapters(grade)
             s.contains("math") -> getMathChapters(grade)
             s.contains("pak") -> getPakStudiesChapters(grade)
+            s.contains("tarjuma") || s.contains("quran") -> getTarjumaChapters(grade)
             else -> emptyList()
         }
     }
@@ -259,6 +278,17 @@ object SubjectStructure {
             StudySection("p21", "Chapter 21: Space and Environment", "خلا اور ماحول", "chapter")
         )
         "11" -> (1..11).map { StudySection("p$it", "Chapter $it", "", "chapter") }
+        "12" -> listOf(
+            StudySection("p13", "Chapter 13: Thermal Physics", "", "chapter"),
+            StudySection("p14", "Chapter 14: Simple Harmonic Motion", "", "chapter"),
+            StudySection("p15", "Chapter 15: Physical Optics", "", "chapter"),
+            StudySection("p16", "Chapter 16: Electrostatics", "", "chapter"),
+            StudySection("p17", "Chapter 17: Alternating Current", "", "chapter"),
+            StudySection("p18", "Chapter 18: Quantum Physics", "", "chapter"),
+            StudySection("p19", "Chapter 19: Nuclear and Particle Physics", "", "chapter"),
+            StudySection("p20", "Chapter 20: Medical Physics", "", "chapter"),
+            StudySection("p21", "Chapter 21: Space and Environment", "", "chapter")
+        )
         else -> (1..10).map { StudySection("p$it", "Chapter $it", "", "chapter") }
     }
 
@@ -278,7 +308,21 @@ object SubjectStructure {
             StudySection("c12", "Chapter 12: Empirical Data Collection and Analysis", "", "chapter"),
             StudySection("c13", "Chapter 13: Laboratory and Practical Skills", "", "chapter")
         )
-        "10" -> (1..9).map { StudySection("c$it", "Chapter $it", "", "chapter") }
+        "10" -> listOf(
+            StudySection("c14", "Chapter 14: States of Matter and Phase Changes", "", "chapter"),
+            StudySection("c15", "Chapter 15: Stoichiometry", "", "chapter"),
+            StudySection("c16", "Chapter 16: Electrochemistry", "", "chapter"),
+            StudySection("c17", "Chapter 17: Reaction Kinetics", "", "chapter"),
+            StudySection("c18", "Chapter 18: Salts", "", "chapter"),
+            StudySection("c19", "Chapter 19: Nitrogen and Sulphur", "", "chapter"),
+            StudySection("c20", "Chapter 20: Water", "", "chapter"),
+            StudySection("c21", "Chapter 21: Organic Chemistry", "", "chapter"),
+            StudySection("c22", "Chapter 22: Hydrocarbons", "", "chapter"),
+            StudySection("c23", "Chapter 23: Monohydroxy Alkanes or Alcohols", "", "chapter"),
+            StudySection("c24", "Chapter 24: Carboxylic Acids", "", "chapter"),
+            StudySection("c25", "Chapter 25", "", "chapter"),
+            StudySection("c26", "Chapter 26: Polymers", "", "chapter")
+        )
         "11" -> (1..11).map { StudySection("c$it", "Chapter $it", "", "chapter") }
         else -> (1..10).map { StudySection("c$it", "Chapter $it", "", "chapter") }
     }
@@ -355,7 +399,30 @@ object SubjectStructure {
         val s = subject.lowercase()
         return s.contains("physics") || s.contains("chemistry") ||
                s.contains("biology") || s.contains("bio") || s.contains("computer") ||
-               s.contains("math") || s.contains("pak")
+               s.contains("math") || s.contains("pak") ||
+               s.contains("tarjuma") || s.contains("quran")
+    }
+
+    // Tarjuma-tul-Quran — PCTB new syllabus (Grade 10: 15 surahs, list from his book/ustad360 photo 2026-10-16)
+    private fun getTarjumaChapters(grade: String): List<StudySection> = when (grade) {
+        "10" -> listOf(
+            StudySection("t1", "Ch 1: Surah Al Anam", "سورة الأنعام", "chapter"),
+            StudySection("t2", "Ch 2: Surah A'araf", "سورة الأعراف", "chapter"),
+            StudySection("t3", "Ch 3: Surah Yunus", "سورة يونس", "chapter"),
+            StudySection("t4", "Ch 4: Surah Hud", "سورة هود", "chapter"),
+            StudySection("t5", "Ch 5: Surah Ra'ad", "سورة الرعد", "chapter"),
+            StudySection("t6", "Ch 6: Surah Ibrahim", "سورة إبراهيم", "chapter"),
+            StudySection("t7", "Ch 7: Surah Hijr", "سورة الحجر", "chapter"),
+            StudySection("t8", "Ch 8: Surah Nahl", "سورة النحل", "chapter"),
+            StudySection("t9", "Ch 9: Surah Isra / Bani Israel", "سورة الإسراء", "chapter"),
+            StudySection("t10", "Ch 10: Surah Kahf", "سورة الكهف", "chapter"),
+            StudySection("t11", "Ch 11: Surah Mominoon", "سورة المؤمنون", "chapter"),
+            StudySection("t12", "Ch 12: Surah Zumar", "سورة الزمر", "chapter"),
+            StudySection("t13", "Ch 13: Surah Ghafir / Momin", "سورة غافر", "chapter"),
+            StudySection("t14", "Ch 14: Surah Fussilat / Hamim Sajdah", "سورة فصلت", "chapter"),
+            StudySection("t15", "Ch 15: Surah Shura", "سورة الشورى", "chapter")
+        )
+        else -> (1..15).map { StudySection("t$it", "Chapter $it", "", "chapter") }
     }
 
     fun getSections(grade: String, subject: String): List<StudySection> {
