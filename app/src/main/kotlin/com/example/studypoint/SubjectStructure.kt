@@ -26,6 +26,13 @@ object SubjectStructure {
 
     fun getUrduContent(grade: String, sectionId: String): List<StudySection> {
         return when (sectionId) {
+            "urdu_grammar" -> when (grade) {
+                "10" -> listOf(
+                    StudySection("ug1", "مضامین", "Essays (Mazameen)", "chapter"),
+                    StudySection("ug2", "تفہیم عبارات", "Comprehension (Tafheem-e-Ebaraat)", "chapter")
+                )
+                else -> emptyList()
+            }
             "urdu_ghazal" -> when (grade) {
                 "9" -> listOf(
                     StudySection("g1", "فقیرانہ آئے صدا کر چلے", "غزل — میر تقی میر", "chapter"),
@@ -161,8 +168,24 @@ object SubjectStructure {
             s.contains("biology") || s.contains("bio") -> getBiologyChapters(grade)
             s.contains("computer") -> getComputerChapters(grade)
             s.contains("math") -> getMathChapters(grade)
+            s.contains("pak") -> getPakStudiesChapters(grade)
             else -> emptyList()
         }
+    }
+
+    // Pak Studies — PCTB new syllabus (Grade 10: 8 chapters; cleaned notes received 2026-10-16)
+    private fun getPakStudiesChapters(grade: String): List<StudySection> = when (grade) {
+        "10" -> listOf(
+            StudySection("p1", "Chapter 1: پاکستان کی نظریاتی اساس (حصہ اول)", "", "chapter"),
+            StudySection("p2", "Chapter 2: تحریک پاکستان (حصہ اول)", "", "chapter"),
+            StudySection("p3", "Chapter 3: پاکستان کی تاریخ (1947ء تاحال) اور پاکستان میں آئینی ترقی (حصہ اول)", "", "chapter"),
+            StudySection("p4", "Chapter 4: پاکستان کا جغرافیہ (حصہ اول)", "", "chapter"),
+            StudySection("p5", "Chapter 5: پاکستان اور بین الاقوامی امور", "", "chapter"),
+            StudySection("p6", "Chapter 6: پاکستان کے وسائل اور معاشی ترقی (حصہ اول)", "", "chapter"),
+            StudySection("p7", "Chapter 7: آبادی، معاشرہ اور پاکستان میں ثقافتی تنوع (حصہ اول)", "", "chapter"),
+            StudySection("p8", "Chapter 8: پاکستان میں خواتین کو با اختیار بنانا (حصہ اول)", "", "chapter")
+        )
+        else -> emptyList()
     }
 
     // Mathematics — PCTB new syllabus (Grade 9: 13 units + backmatter)
@@ -332,7 +355,7 @@ object SubjectStructure {
         val s = subject.lowercase()
         return s.contains("physics") || s.contains("chemistry") ||
                s.contains("biology") || s.contains("bio") || s.contains("computer") ||
-               s.contains("math")
+               s.contains("math") || s.contains("pak")
     }
 
     fun getSections(grade: String, subject: String): List<StudySection> {

@@ -117,6 +117,20 @@ class NotesActivity : AppCompatActivity() {
             return
         }
 
+        // Grammar topic PDFs (Class 10 Urdu): open the topic's own PDF directly
+        val urduGrammarTopicPdf = if (gradeKey == "10" && normalizedSubject == "Urdu") {
+            when (chapterTitle) {
+                "مضامین" -> "https://drive.google.com/uc?export=download&id=19DdZGkJJkse7fkUxIS557vUmT7C0ImX-"
+                "تفہیم عبارات" -> "https://drive.google.com/uc?export=download&id=1FvVtrRCmRWbeIpD7J8l0rc2En6v7gNqu"
+                else -> null
+            }
+        } else null
+        if (urduGrammarTopicPdf != null) {
+            open(urduGrammarTopicPdf, chapterTitle, rawGrade, normalizedSubject)
+            finish()
+            return
+        }
+
         // Chapter picked from the chapter list (SectionsActivity): open THAT chapter's
         // content directly below (once the pdf links are built) - never show the full
         // chapter list again inside a chapter.
@@ -432,7 +446,16 @@ class NotesActivity : AppCompatActivity() {
                 "Pak Studies" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=10_PS_BOOK",
                     "Book" to "https://drive.google.com/uc?export=download&id=10_PS_BOOK",
-                    "Notes" to listOf("COMING_SOON"),
+                    "Notes" to mapOf(
+                        "Chapter 1: پاکستان کی نظریاتی اساس (حصہ اول)" to "https://drive.google.com/uc?export=download&id=1fEPcK5DLoTY9EIHjZbqrWdt4m7EUG4hp",
+                        "Chapter 2: تحریک پاکستان (حصہ اول)" to "https://drive.google.com/uc?export=download&id=1DE8Z8I-lCtfN3X8nqr7DReaatxqphn2l",
+                        "Chapter 3: پاکستان کی تاریخ (1947ء تاحال) اور پاکستان میں آئینی ترقی (حصہ اول)" to "https://drive.google.com/uc?export=download&id=1oMo6TC-x-dC3lUynJESeoyyx68Q2ZqOo",
+                        "Chapter 4: پاکستان کا جغرافیہ (حصہ اول)" to "https://drive.google.com/uc?export=download&id=1qOLkRmEvFklK77OwaGsYL4NzIOK4JAQi",
+                        "Chapter 5: پاکستان اور بین الاقوامی امور" to "https://drive.google.com/uc?export=download&id=1pX6QklrIPE-pM2Yq10XrNMaIBrol9Bmc",
+                        "Chapter 6: پاکستان کے وسائل اور معاشی ترقی (حصہ اول)" to "https://drive.google.com/uc?export=download&id=1sJUIbgIc95rED7Jww-FAGtBgExCcdMaT",
+                        "Chapter 7: آبادی، معاشرہ اور پاکستان میں ثقافتی تنوع (حصہ اول)" to "https://drive.google.com/uc?export=download&id=1Ae7ZQFwYUyhFLRtQH9oYIs8Jrrr3jTpJ",
+                        "Chapter 8: پاکستان میں خواتین کو با اختیار بنانا (حصہ اول)" to "https://drive.google.com/uc?export=download&id=1eFTP0ebAoWbRp3NkxaG23kK0GefVMGRl"
+                    ),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=10_PS_PP_2022",
                         "2023" to "https://drive.google.com/uc?export=download&id=10_PS_PP_2023",

@@ -36,8 +36,10 @@ class MaterialSelectionActivity : AppCompatActivity() {
             materials.add(GridItem("Grammar", "Grammar", R.drawable.ic_mat_notes))
         }
 
-        // Urdu: add 3 sections as materials
+        // Urdu: replace the generic Notes card with Grammar (lessons live in the Asbaq section)
         if (subjectLower.contains("urdu")) {
+            materials.removeAll { it.id == "Notes" }
+            materials.add(1, GridItem("Grammar", "Grammar", R.drawable.ic_mat_notes))
             materials.add(GridItem("urdu_ghazal", "حصہ غزل", R.drawable.ic_mat_textbook))
             materials.add(GridItem("urdu_nazm", "حصہ نظم", R.drawable.ic_mat_textbook))
             materials.add(GridItem("urdu_asbaq", "اسباق", R.drawable.ic_mat_textbook))
@@ -75,13 +77,13 @@ class MaterialSelectionActivity : AppCompatActivity() {
                     startActivity(intent)
                 }
                 item.id == "Grammar" -> {
-                    // English Grammar -> topic list -> DIRECT to content
+                    // Grammar -> topic list -> DIRECT to content
                     val intent = Intent(this, SectionsActivity::class.java).apply {
                         putExtra("grade", gradeNum)
                         putExtra("class", gradeNum)
                         putExtra("subject", subject)
                         putExtra("mode", "content")
-                        putExtra("sectionId", "eng_grammar")
+                        putExtra("sectionId", if (subjectLower.contains("urdu")) "urdu_grammar" else "eng_grammar")
                         putExtra("sectionTitle", "Grammar")
                     }
                     startActivity(intent)
