@@ -290,7 +290,7 @@
                     android:background="@drawable/type_card_selector"
                     android:button="@null"
                     android:padding="14dp"
-                    android:text="Board Pattern Paper (Class 10 English)"
+                    android:text="Board Pattern Paper (English 10 / Computer Science 9)"
                     android:textSize="15sp" />
             </RadioGroup>
 
@@ -301,7 +301,7 @@
                 android:layout_marginTop="8dp"
                 android:background="@drawable/input_field_bg"
                 android:padding="10dp"
-                android:text="Board Pattern (75 Marks, 2 Hours 30 Minutes)\nQ.1: 19 MCQs  •  Q.2: Short answers (any 5 of 8)\nQ.3: Paragraph translation / simple English  •  Q.4: Poem summary / paraphrase\nQ.5: Essay or Paragraph  •  Q.6: Direct to Indirect (any 5 of 8)\nQ.7: Pair of Words (any 5 of 8)  •  Q.8: Urdu paragraph to English / ten sentences\nSelect Class 10 and English below — all sections are added automatically."
+                android:text="Board Pattern Papers\n\nClass 10 English — 75 Marks, 2 Hours 30 Minutes\nQ.1: 19 MCQs  •  Q.2: Short answers (any 5 of 8)\nQ.3: Paragraph translation / simple English  •  Q.4: Poem summary / paraphrase\nQ.5: Essay or Paragraph  •  Q.6: Direct to Indirect (any 5 of 8)\nQ.7: Pair of Words (any 5 of 8)  •  Q.8: Urdu paragraph to English / ten sentences\n\nClass 9 Computer Science — 50 Marks, 2 Hours\nQ.1: 10 MCQs  •  Q.2–Q.4: Short answers (any 4 of 6 each)\nQ.5–Q.7: Long questions (attempt any 2 of 3)\n\nSelect the class and subject in Step 1 — all sections are added automatically."
                 android:textColor="#334155"
                 android:textSize="13sp"
                 android:visibility="gone" />
