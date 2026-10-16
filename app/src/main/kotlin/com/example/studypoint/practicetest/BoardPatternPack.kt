@@ -85,4 +85,66 @@ object BoardPatternPack {
     } catch (e: Exception) {
         null
     }
+
+    data class Eng11Pack(
+        val letters: List<String>,
+        val applications: List<String>,
+        val stories: List<String>,
+        val pairs: List<PairWords>,
+        val referenceSets: List<ParaSet>,
+        val punctuation: List<String>,
+        val translationParas: List<Q3Para>,
+        val essayTopics: List<String>
+    )
+
+    /** Class 11 English board-pattern pack (board_pattern_english11.json):
+     *  letter / application topics for Q.5, story topics for Q.6, reference
+     *  lines, punctuation passages and pairs for Q.7, and the English
+     *  translation passage for Q.8 — all from the PECTAA model paper and
+     *  the student's own grammar book contents. */
+    fun loadEnglish11(context: Context): Eng11Pack? = try {
+        val raw = context.assets.open("board_pattern_english11.json")
+            .bufferedReader(Charsets.UTF_8).use { it.readText() }
+        val root = JSONObject(raw)
+        fun strings(name: String): List<String> {
+            val arr = root.optJSONArray(name) ?: return emptyList()
+            return (0 until arr.length()).map { arr.optString(it) }
+        }
+        val pairs = mutableListOf<PairWords>()
+        root.optJSONArray("pairs")?.let { arr ->
+            for (i in 0 until arr.length()) {
+                val o = arr.getJSONObject(i)
+                pairs += PairWords(
+                    o.optString("first"), o.optString("exampleFirst"),
+                    o.optString("second"), o.optString("exampleSecond")
+                )
+            }
+        }
+        val refs = mutableListOf<ParaSet>()
+        root.optJSONArray("referenceSets")?.let { arr ->
+            for (i in 0 until arr.length()) {
+                val o = arr.getJSONObject(i)
+                refs += ParaSet(o.optString("poem"), o.optString("lines"))
+            }
+        }
+        val trans = mutableListOf<Q3Para>()
+        root.optJSONArray("translationParas")?.let { arr ->
+            for (i in 0 until arr.length()) {
+                val o = arr.getJSONObject(i)
+                trans += Q3Para(o.optString("text"), o.optString("urdu"))
+            }
+        }
+        Eng11Pack(
+            letters = strings("letters"),
+            applications = strings("applications"),
+            stories = strings("stories"),
+            pairs = pairs,
+            referenceSets = refs,
+            punctuation = strings("punctuation"),
+            translationParas = trans,
+            essayTopics = strings("essayTopics")
+        )
+    } catch (e: Exception) {
+        null
+    }
 }

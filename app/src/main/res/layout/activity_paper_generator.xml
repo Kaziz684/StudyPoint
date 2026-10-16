@@ -301,7 +301,7 @@
                 android:layout_marginTop="8dp"
                 android:background="@drawable/input_field_bg"
                 android:padding="10dp"
-                android:text="Board Pattern Papers\n\nClass 10 English — 75 Marks, 2 Hours 30 Minutes\nQ.1: 19 MCQs  •  Q.2: Short answers (any 5 of 8)\nQ.3: Paragraph translation / simple English  •  Q.4: Poem summary / paraphrase\nQ.5: Essay or Paragraph  •  Q.6: Direct to Indirect (any 5 of 8)\nQ.7: Pair of Words (any 5 of 8)  •  Q.8: Urdu paragraph to English / ten sentences\n\nClass 9 Computer Science — 50 Marks, 2 Hours\nQ.1: 10 MCQs  •  Q.2–Q.4: Short answers (any 4 of 6 each)\nQ.5–Q.7: Long questions (attempt any 2 of 3)\n\nSelect the class and subject in Step 1 — all sections are added automatically."
+                android:text="Board Pattern Papers\n\nClass 10 English — 75 Marks, 2 Hours 30 Minutes\nQ.1: 19 MCQs  •  Q.2: Short answers (any 5 of 8)\nQ.3: Paragraph translation / simple English  •  Q.4: Poem summary / paraphrase\nQ.5: Essay or Paragraph  •  Q.6: Direct to Indirect (any 5 of 8)\nQ.7: Pair of Words (any 5 of 8)  •  Q.8: Urdu paragraph to English / ten sentences\n\nClass 9 Computer Science — 50 Marks, 2 Hours\nQ.1: 10 MCQs  •  Q.2–Q.4: Short answers (any 4 of 6 each)\nQ.5–Q.7: Long questions (attempt any 2 of 3)\n\nClass 11 English — 100 Marks, 3 Hours\nQ.1: 20 MCQs  •  Q.2: Prose short answers (any 7 of 10)\nQ.3: Poem short answers (any 5 of 8)  •  Q.4: Play short answers (any 3 of 5)\nQ.5: Letter or Application  •  Q.6: Story\nQ.7: Reference to context / Punctuation / Pair of Words\nQ.8: English passage translation into Urdu\n\nClass 12 Physics — 85 Marks, 3 Hours (Pairing Scheme)\nQ.1: 17 MCQs (Chapters 13–21)\nQ.2: Short answers Ch 13–15 (any 8 of 12)  •  Q.3: Short answers Ch 16–18 (any 8 of 12)\nQ.4: Short answers Ch 19–21 (any 6 of 9)\nQ.5–Q.9: Detailed questions / numericals (attempt any 3 of 5)\n\nClass 10 Chemistry — 60 Marks, 2 Hours (Pairing Scheme)\nQ.1: 12 MCQs (one each from Chapters 14–24 and 26)\nQ.2: Short answers Ch 14–18 (any 5 of 8)  •  Q.3: Short answers Ch 19–22 (any 5 of 8)\nQ.4: Short answers Ch 23–26 (any 5 of 8)\nQ.5–Q.7: Detailed questions (attempt any 2 of 3; part a = 5 marks, part b = 4 marks)\n\nSelect the class and subject in Step 1 — all sections are added automatically."
                 android:textColor="#334155"
                 android:textSize="13sp"
                 android:visibility="gone" />
@@ -651,6 +651,173 @@
                 android:text="30 Minutes"
                 android:textSize="15sp" />
 
+            <!-- Paper header (school) -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:textColor="@color/edu_navy"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:text="Paper Header (School)" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textColor="#64748B"
+                android:textSize="12sp"
+                android:text="Printed at the top of every generated paper. Saved automatically." />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:textColor="@color/edu_navy"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:text="School Name" />
+            <EditText
+                android:id="@+id/etSchoolName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/input_field_bg"
+                android:hint="School name"
+                android:padding="12dp"
+                android:textSize="15sp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:textColor="@color/edu_navy"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:text="Address" />
+            <EditText
+                android:id="@+id/etSchoolAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/input_field_bg"
+                android:hint="School address"
+                android:padding="12dp"
+                android:textSize="15sp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:textColor="@color/edu_navy"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:text="Phone" />
+            <EditText
+                android:id="@+id/etSchoolPhone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/input_field_bg"
+                android:inputType="phone"
+                android:hint="Phone number"
+                android:padding="12dp"
+                android:textSize="15sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:textColor="@color/edu_navy"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:text="Paper Code" />
+            <EditText
+                android:id="@+id/etPaperCode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/input_field_bg"
+                android:hint="Optional"
+                android:padding="12dp"
+                android:textSize="15sp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:textColor="@color/edu_navy"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:text="Passing Marks" />
+            <EditText
+                android:id="@+id/etPassingMarks"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/input_field_bg"
+                android:inputType="number"
+                android:hint="Optional"
+                android:padding="12dp"
+                android:textSize="15sp" />
+
+                </LinearLayout>
+            </LinearLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:textColor="@color/edu_navy"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:text="School Logo" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/ivSchoolLogo"
+                    android:layout_width="52dp"
+                    android:layout_height="52dp"
+                    android:background="@drawable/input_field_bg"
+                    android:padding="4dp"
+                    android:scaleType="centerCrop" />
+
+                <Button
+                    android:id="@+id/btnPickLogo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="Choose Logo" />
+
+                <Button
+                    android:id="@+id/btnRemoveLogo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="Remove" />
+            </LinearLayout>
+
             </LinearLayout>
 
             <!-- ================= STEP 4: Preview & Generate ================= -->
@@ -684,8 +851,37 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:textColor="@color/edu_navy"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:text="Format" />
+
+            <RadioGroup
+                android:id="@+id/radioFormatGroupPaper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp">
+
+                <RadioButton
+                    android:id="@+id/radioFormatPdfPaper"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="PDF" />
+
+                <RadioButton
+                    android:id="@+id/radioFormatDocxPaper"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="MS Word (.docx)" />
+            </RadioGroup>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="Tap Generate Paper below to create the PDF. After generation you can preview, share or save it."
+                android:text="Tap Generate Paper below to create the paper. After generation you can preview, share or save it."
                 android:textColor="#64748B"
                 android:textSize="12.5sp" />
 
