@@ -276,14 +276,15 @@ object SubjectStructure {
         )
         "10" -> listOf(
             StudySection("b1", "Ch 1: Human Digestive System", "", "chapter"),
-            StudySection("b2", "Ch 2: Homeostasis", "", "chapter"),
-            StudySection("b3", "Ch 3: Coordination & Control", "", "chapter"),
-            StudySection("b4", "Ch 4: Support & Movement", "", "chapter"),
-            StudySection("b5", "Ch 5: Reproduction", "", "chapter"),
-            StudySection("b6", "Ch 6: Inheritance", "", "chapter"),
-            StudySection("b7", "Ch 7: Man & His Environment", "", "chapter"),
+            StudySection("b2", "Ch 2: Human Respiratory System", "", "chapter"),
+            StudySection("b3", "Ch 3: Human Blood Circulatory System", "", "chapter"),
+            StudySection("b4", "Ch 4: Human Urinary System", "", "chapter"),
+            StudySection("b5", "Ch 5: Coordination", "", "chapter"),
+            StudySection("b6", "Ch 6: Reproduction", "", "chapter"),
+            StudySection("b7", "Ch 7: Inheritance", "", "chapter"),
             StudySection("b8", "Ch 8: Biotechnology", "", "chapter"),
-            StudySection("b9", "Ch 9: Pharmacology", "", "chapter")
+            StudySection("b9", "Ch 9: Diseases and Immunity", "", "chapter"),
+            StudySection("b10", "Ch 10: Evolution", "", "chapter")
         )
         "11" -> listOf(
             StudySection("b1", "Ch 1: Introduction to Biology", "", "chapter"),

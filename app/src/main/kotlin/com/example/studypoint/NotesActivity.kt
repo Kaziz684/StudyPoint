@@ -148,7 +148,14 @@ class NotesActivity : AppCompatActivity() {
                         "Chapter 1: The Science of Biology" to "https://drive.google.com/uc?export=download&id=1SWtScvfaxJfeCUtEctlRBhdCo8uwKr8S",
                         "Chapter 2: Biodiversity" to "https://drive.google.com/uc?export=download&id=1miZBqZTb8HQ-b-K4rHqHG7QhnjrBGtoA",
                         "Chapter 3: The Cell" to "https://drive.google.com/uc?export=download&id=1A4ZIy3iC7zr2_Wl_1sOxeuu7IwvXwR-4",
-                        "Chapter 4: Cell Cycle" to "https://drive.google.com/uc?export=download&id=1PD-yhDuqocbK0tTn3PiRDO9HzzkM-Dsq"
+                        "Chapter 4: Cell Cycle" to "https://drive.google.com/uc?export=download&id=1PD-yhDuqocbK0tTn3PiRDO9HzzkM-Dsq",
+                        "Chapter 5: Tissues, Organs and Organ Systems" to "https://drive.google.com/uc?export=download&id=1T4FDdzrQwYvevnSedwZQ4Zi-OoO9yyiy",
+                        "Chapter 6: Biomolecules" to "https://drive.google.com/uc?export=download&id=1fdnlbWwR7OXeY7a3oXpeRPLFtTfofkrF",
+                        "Chapter 7: Enzymes" to "https://drive.google.com/uc?export=download&id=1OTmEUvZcHCccudlV0EeIG1Ah_9ZchWXb",
+                        "Chapter 8: Bioenergetics" to "https://drive.google.com/uc?export=download&id=1d0keiAwcjOs2O7U_tq11ESnJfcpCoxWv",
+                        "Chapter 9: Plant Physiology" to "https://drive.google.com/uc?export=download&id=1ZIOP8Kedi3MLEZyt803p8BHog1wdUwEd",
+                        "Chapter 10: Reproduction in Plants" to "https://drive.google.com/uc?export=download&id=1pgyW3NqeN7KuusIO7ZYqccwoAQlLpZmg",
+                        "Chapter 11: Biostatistics" to "https://drive.google.com/uc?export=download&id=1rEfUNmlBH45UAKTVIGNrkpaXbuW2DS_R"
                     ),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=9_BIO_PP_2022",
@@ -321,7 +328,18 @@ class NotesActivity : AppCompatActivity() {
                 "Biology" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=1mPdYAMYe1iBGLC_2ZCJHVLhZoQxVxxGL",
                     "Book" to "https://drive.google.com/uc?export=download&id=1mPdYAMYe1iBGLC_2ZCJHVLhZoQxVxxGL",
-                    "Notes" to listOf("COMING_SOON"),
+                    "Notes" to mapOf(
+                        "Chapter 1: Human Digestive System" to "https://drive.google.com/uc?export=download&id=1akb1GWw05hW9SMqi5vksbL0OVnDxjDPT",
+                        "Chapter 2: Human Respiratory System" to "https://drive.google.com/uc?export=download&id=1Yt4cVxbQE65iAa_B8XltL3_xC4IDySiQ",
+                        "Chapter 3: Human Blood Circulatory System" to "https://drive.google.com/uc?export=download&id=167MtIybLuyimrCG_1-8SQOHtRDJmrB5I",
+                        "Chapter 4: Human Urinary System" to "https://drive.google.com/uc?export=download&id=11FRGcGs9tqCHmP77iny-E756PjLms45K",
+                        "Chapter 5: Coordination" to "https://drive.google.com/uc?export=download&id=13rd_pgHlqQmMO4OfSUrw63pcAqYfgrce",
+                        "Chapter 6: Reproduction" to "https://drive.google.com/uc?export=download&id=1slN3z4leLxbPJujT80pl0ojNdP-iC3Q4",
+                        "Chapter 7: Inheritance" to "https://drive.google.com/uc?export=download&id=14YSKylhTBUhlJ8JaE5iwbTmNQQO3JSWr",
+                        "Chapter 8: Biotechnology" to "https://drive.google.com/uc?export=download&id=1Y18NoI9-RHzbo8suJmfGT6n9b8Uca3Rx",
+                        "Chapter 9: Diseases and Immunity" to "https://drive.google.com/uc?export=download&id=1Km3skwuXcUrUYe0Oee1ozhpwQdYDUW7Q",
+                        "Chapter 10: Evolution" to "https://drive.google.com/uc?export=download&id=1F2hqH7ptmRQT08Xak7yLv2ZzJxXlKNcK"
+                    ),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=10_BIO_PP_2022",
                         "2023" to "https://drive.google.com/uc?export=download&id=10_BIO_PP_2023",
@@ -812,7 +830,8 @@ class NotesActivity : AppCompatActivity() {
         val ids = listOf(
             R.id.btnCh1, R.id.btnCh2, R.id.btnCh3,
             R.id.btnCh4, R.id.btnCh5, R.id.btnCh6,
-            R.id.btnCh7, R.id.btnCh8, R.id.btnCh9
+            R.id.btnCh7, R.id.btnCh8, R.id.btnCh9,
+            R.id.btnCh10, R.id.btnCh11
         )
 
         // Reset visibility of all buttons initially
