@@ -2,6 +2,7 @@ package com.example.studypoint.practicetest
 
 import android.app.Activity
 import android.graphics.Color
+import android.graphics.BitmapFactory
 import android.graphics.Typeface
 import android.text.Editable
 import android.text.TextWatcher
@@ -13,6 +14,7 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.RadioButton
@@ -72,8 +74,17 @@ class PaperGeneratorActivity : AppCompatActivity() {
     private lateinit var etCustomCount: EditText
     private lateinit var radioSolved: RadioButton
     private lateinit var radioRandom: RadioButton
+    private lateinit var radioFormatDocx: RadioButton
     private lateinit var etTitle: EditText
     private lateinit var etTime: EditText
+    private lateinit var etSchoolName: EditText
+    private lateinit var etSchoolAddress: EditText
+    private lateinit var etSchoolPhone: EditText
+    private lateinit var etPaperCode: EditText
+    private lateinit var etPassingMarks: EditText
+    private lateinit var ivSchoolLogo: ImageView
+    private lateinit var btnPickLogo: Button
+    private lateinit var btnRemoveLogo: Button
     private lateinit var btnGenerate: Button
     private lateinit var tvStatus: TextView
     private lateinit var layoutActions: LinearLayout
@@ -139,7 +150,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
                     }
                     Toast.makeText(
                         this@PaperGeneratorActivity,
-                        if (ok) "PDF saved" else "Save failed",
+                        if (ok) "Saved" else "Save failed",
                         Toast.LENGTH_SHORT
                     ).show()
                 }
@@ -172,8 +183,18 @@ class PaperGeneratorActivity : AppCompatActivity() {
         etCustomCount = findViewById(R.id.etCustomCountPaper)
         radioSolved = findViewById(R.id.radioSolvedPaper)
         radioRandom = findViewById(R.id.radioRandomPaper)
+        radioFormatDocx = findViewById(R.id.radioFormatDocxPaper)
         etTitle = findViewById(R.id.etPaperTitle)
         etTime = findViewById(R.id.etTimePaper)
+        etSchoolName = findViewById(R.id.etSchoolName)
+        etSchoolAddress = findViewById(R.id.etSchoolAddress)
+        etSchoolPhone = findViewById(R.id.etSchoolPhone)
+        etPaperCode = findViewById(R.id.etPaperCode)
+        etPassingMarks = findViewById(R.id.etPassingMarks)
+        ivSchoolLogo = findViewById(R.id.ivSchoolLogo)
+        btnPickLogo = findViewById(R.id.btnPickLogo)
+        btnRemoveLogo = findViewById(R.id.btnRemoveLogo)
+        setupPaperHeader()
         radioModeManual = findViewById(R.id.radioModeManualPaper)
         layoutAuto = findViewById(R.id.layoutAutoPaper)
         layoutManual = findViewById(R.id.layoutManualPaper)
@@ -289,6 +310,80 @@ class PaperGeneratorActivity : AppCompatActivity() {
 
     // --- Wizard step navigation ---
 
+    // ---------- Paper header (school name / logo, editable + remembered) ----------
+    private fun headerPrefs() = getSharedPreferences("paper_header", MODE_PRIVATE)
+
+    private fun logoFile() = File(filesDir, "paper_logo.png")
+
+    private val logoPicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) {
+            try {
+                contentResolver.openInputStream(uri)?.use { input ->
+                    logoFile().outputStream().use { output -> input.copyTo(output) }
+                }
+                headerPrefs().edit().putString("logo_path", logoFile().absolutePath).apply()
+                refreshLogoPreview()
+                Toast.makeText(this, "Logo saved", Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                Toast.makeText(this, "Could not save logo", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun setupPaperHeader() {
+        val prefs = headerPrefs()
+        etSchoolName.setText(prefs.getString("school_name", "AL QURAN SYSTEM OF EDUCATION"))
+        etSchoolAddress.setText(prefs.getString("address", "Hussaini Chowk, Satellite Town, Bahawalpur"))
+        etSchoolPhone.setText(prefs.getString("phone", "0300 5675271"))
+        etPaperCode.setText(prefs.getString("paper_code", ""))
+        etPassingMarks.setText(prefs.getString("passing_marks", ""))
+        refreshLogoPreview()
+        btnPickLogo.setOnClickListener { logoPicker.launch("image/*") }
+        btnRemoveLogo.setOnClickListener {
+            logoFile().delete()
+            headerPrefs().edit().remove("logo_path").apply()
+            refreshLogoPreview()
+            Toast.makeText(this, "Logo removed", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun refreshLogoPreview() {
+        val f = logoFile()
+        if (f.exists()) {
+            val bmp = BitmapFactory.decodeFile(f.absolutePath)
+            if (bmp != null) {
+                ivSchoolLogo.setImageBitmap(bmp)
+                return
+            }
+        }
+        try {
+            ivSchoolLogo.setImageDrawable(packageManager.getApplicationIcon(packageName))
+        } catch (e: Exception) { /* keep the placeholder background */ }
+    }
+
+    private fun currentHeader(): PaperPdfGenerator.SchoolHeader {
+        val name = etSchoolName.text.toString().trim()
+        val address = etSchoolAddress.text.toString().trim()
+        val phone = etSchoolPhone.text.toString().trim()
+        val code = etPaperCode.text.toString().trim()
+        val passing = etPassingMarks.text.toString().trim()
+        headerPrefs().edit()
+            .putString("school_name", name)
+            .putString("address", address)
+            .putString("phone", phone)
+            .putString("paper_code", code)
+            .putString("passing_marks", passing)
+            .apply()
+        return PaperPdfGenerator.SchoolHeader(
+            schoolName = name.ifBlank { "AL QURAN SYSTEM OF EDUCATION" },
+            address = address,
+            phone = phone,
+            paperCode = code,
+            passingMarks = passing,
+            logoPath = if (logoFile().exists()) logoFile().absolutePath else ""
+        )
+    }
+
     private fun showStep(n: Int) {
         currentStep = n.coerceIn(1, 4)
         stepContainers.forEachIndexed { i, v ->
@@ -332,11 +427,21 @@ class PaperGeneratorActivity : AppCompatActivity() {
         sb.append("Paper Type:  $typeLabel\n")
         sb.append("Class:  $classLabel\n")
         sb.append("Subject:  $subject\n")
+        sb.append("School:  ${etSchoolName.text.toString().trim().ifBlank { "AL QURAN SYSTEM OF EDUCATION" }}\n")
         if (currentType() == PaperType.BOARD) {
             val sheetNow = classSheets[spinnerClass.selectedItemPosition.coerceIn(0, classSheets.lastIndex)]
             if (sheetNow == "Class_9th" && subject.equals("Computer Science", ignoreCase = true)) {
                 sb.append("Total Marks:  50  •  Time:  2 Hours\n")
                 sb.append("Structure:  Q.1: 10 MCQs • Q.2–Q.4: Short answers (any 4 of 6 each) • Q.5–Q.7: Long questions (any 2 of 3)\n")
+            } else if (sheetNow == "Class_11th" && subject.equals("English", ignoreCase = true)) {
+                sb.append("Total Marks:  100  •  Time:  3 Hours\n")
+                sb.append("Structure:  Q.1: 20 MCQs • Q.2: Prose shorts (any 7 of 10) • Q.3: Poem shorts (any 5 of 8) • Q.4: Play shorts (any 3 of 5) • Q.5: Letter/Application • Q.6: Story • Q.7: Reference/Punctuation/Pairs • Q.8: Translation\n")
+            } else if (sheetNow == "Class_12th" && subject.equals("Physics", ignoreCase = true)) {
+                sb.append("Total Marks:  85  •  Time:  3 Hours\n")
+                sb.append("Structure:  Q.1: 17 MCQs • Q.2: Shorts Ch 13-15 (any 8 of 12) • Q.3: Shorts Ch 16-18 (any 8 of 12) • Q.4: Shorts Ch 19-21 (any 6 of 9) • Q.5-Q.9: Detailed questions (any 3 of 5)\n")
+            } else if (sheetNow == "Class_10th" && subject.equals("Chemistry", ignoreCase = true)) {
+                sb.append("Total Marks:  60  •  Time:  2 Hours\n")
+                sb.append("Structure:  Q.1: 12 MCQs (one per chapter, Ch 14-24 and 26) • Q.2: Shorts Ch 14-18 (any 5 of 8) • Q.3: Shorts Ch 19-22 (any 5 of 8) • Q.4: Shorts Ch 23-26 (any 5 of 8) • Q.5-Q.7: Detailed questions (any 2 of 3)\n")
             } else {
                 sb.append("Total Marks:  75  •  Time:  2 Hours 30 Minutes\n")
                 sb.append("Structure:  Q.1: 19 MCQs • Q.2: Short answers (any 5 of 8) • Q.3–Q.8: Board pattern sections\n")
@@ -370,6 +475,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
             }
         }
         sb.append("Paper Mode:  ${if (radioSolved.isChecked) "Solved (with answers)" else "Unsolved (no answers)"}\n")
+        sb.append("Format:  ${if (radioFormatDocx.isChecked) "MS Word (.docx)" else "PDF"}\n")
         if (currentType() != PaperType.BOARD) {
             sb.append("Order:  ${if (radioRandom.isChecked) "Random (shuffle)" else "Original"}\n")
             sb.append("Title:  ${etTitle.text.toString().trim().ifBlank { "Question Paper" }}\n")
@@ -387,8 +493,8 @@ class PaperGeneratorActivity : AppCompatActivity() {
     }
 
     /** Board Pattern mode hides the chapter / selection-mode / order blocks —
-     *  the full BISE structure is fixed. Supported: Class 10 English and
-     *  Class 9 Computer Science. */
+     *  the full BISE structure is fixed. Supported: Class 10 English,
+     *  Class 11 English, Class 12 Physics, Class 10 Chemistry and Class 9 Computer Science. */
     private fun applyBoardVisibility() {
         if (!::tvBoardInfo.isInitialized) return
         val board = currentType() == PaperType.BOARD
@@ -898,6 +1004,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
             testTitle = title,
             classLabel = classLabels[spinnerClass.selectedItemPosition.coerceIn(0, classLabels.lastIndex)],
             subject = spinnerSubject.selectedItem?.toString() ?: "",
+            header = currentHeader(),
             chaptersLabel = chaptersLabel,
             timeAllowed = time,
             mcqs = mcqs,
@@ -906,14 +1013,16 @@ class PaperGeneratorActivity : AppCompatActivity() {
             includeAnswers = radioSolved.isChecked
         )
         btnGenerate.isEnabled = false
-        tvStatus.text = "Generating PDF..."
+        tvStatus.text = "Generating paper..."
         scope.launch {
             val file = try {
                 withContext(Dispatchers.IO) {
                     val safeSubject = data.subject.replace(Regex("[^A-Za-z0-9]+"), "_")
                     val ts = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
-                    val out = File(File(cacheDir, "papers"), "Paper_${safeSubject}_$ts.pdf")
-                    PaperPdfGenerator.generate(applicationContext, data, out)
+                    val docx = isDocx()
+                    val out = File(File(cacheDir, "papers"), "Paper_${safeSubject}_$ts." + if (docx) "docx" else "pdf")
+                    if (docx) PaperDocxGenerator.generate(applicationContext, data, out)
+                    else PaperPdfGenerator.generate(applicationContext, data, out)
                 }
             } catch (e: Exception) {
                 null
@@ -922,12 +1031,12 @@ class PaperGeneratorActivity : AppCompatActivity() {
             if (file != null && file.exists()) {
                 lastFile = file
                 layoutActions.visibility = View.VISIBLE
-                var msg = "PDF ready: $total questions (${mcqs.size} MCQs, ${shorts.size} Short, ${longs.size} Long) \u2022 ${file.name}"
+                var msg = "Paper ready: $total questions (${mcqs.size} MCQs, ${shorts.size} Short, ${longs.size} Long) \u2022 ${file.name}"
                 if (shortfallNote.isNotBlank()) msg += " $shortfallNote"
                 tvStatus.text = msg
-                Toast.makeText(this@PaperGeneratorActivity, "Paper PDF generated", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@PaperGeneratorActivity, "Paper generated", Toast.LENGTH_SHORT).show()
             } else {
-                tvStatus.text = "PDF generation failed. Please try again."
+                tvStatus.text = "Paper generation failed. Please try again."
             }
         }
     }
@@ -941,10 +1050,22 @@ class PaperGeneratorActivity : AppCompatActivity() {
             generateBoardPatternCs()
             return
         }
+        if (sheet == "Class_11th" && subject.equals("English", ignoreCase = true)) {
+            generateBoardPatternEng11()
+            return
+        }
+        if (sheet == "Class_12th" && subject.equals("Physics", ignoreCase = true)) {
+            generateBoardPatternPhy12()
+            return
+        }
+        if (sheet == "Class_10th" && subject.equals("Chemistry", ignoreCase = true)) {
+            generateBoardPatternChem10()
+            return
+        }
         if (sheet != "Class_10th" || !subject.equals("English", ignoreCase = true)) {
             Toast.makeText(
                 this,
-                "Board Pattern is available for Class 10 English and Class 9 Computer Science only",
+                "Board Pattern is available for Class 10 English, Class 10 Chemistry, Class 11 English, Class 12 Physics and Class 9 Computer Science only",
                 Toast.LENGTH_LONG
             ).show()
             return
@@ -1005,6 +1126,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
             testTitle = title,
             classLabel = "Class 10th",
             subject = "English",
+            header = currentHeader(),
             mcqs = pick(mcqAll, 19),
             shorts = pick(shortAll, 8),
             q3 = pack.q3Paragraphs.random(rnd),
@@ -1019,13 +1141,15 @@ class PaperGeneratorActivity : AppCompatActivity() {
             includeAnswers = radioSolved.isChecked
         )
         btnGenerate.isEnabled = false
-        tvStatus.text = "Generating PDF..."
+        tvStatus.text = "Generating paper..."
         scope.launch {
             val file = try {
                 withContext(Dispatchers.IO) {
                     val ts = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
-                    val out = File(File(cacheDir, "papers"), "BoardPattern_English10_$ts.pdf")
-                    PaperPdfGenerator.generateBoardPattern(applicationContext, data, out)
+                    val docx = isDocx()
+                    val out = File(File(cacheDir, "papers"), "BoardPattern_English10_$ts." + if (docx) "docx" else "pdf")
+                    if (docx) PaperDocxGenerator.generateBoardPattern(applicationContext, data, out)
+                    else PaperPdfGenerator.generateBoardPattern(applicationContext, data, out)
                 }
             } catch (e: Exception) {
                 null
@@ -1034,10 +1158,374 @@ class PaperGeneratorActivity : AppCompatActivity() {
             if (file != null && file.exists()) {
                 lastFile = file
                 layoutActions.visibility = View.VISIBLE
-                tvStatus.text = "PDF ready: Board Pattern Paper (Q.1: 19 MCQs, Q.2-Q.8 complete) \u2022 ${file.name}"
+                tvStatus.text = "Paper ready: Board Pattern Paper (Q.1: 19 MCQs, Q.2-Q.8 complete) \u2022 ${file.name}"
                 Toast.makeText(this@PaperGeneratorActivity, "Board Pattern paper generated", Toast.LENGTH_SHORT).show()
             } else {
-                tvStatus.text = "PDF generation failed. Please try again."
+                tvStatus.text = "Paper generation failed. Please try again."
+            }
+        }
+    }
+
+    /** Board Pattern paper (Class 11 English, PECTAA model paper): 100 marks —
+     *  Q.1 20 MCQs; Q.2 prose shorts (any 7 of 10); Q.3 poem shorts (any 5 of 8);
+     *  Q.4 play shorts (any 3 of 5); Q.5 letter OR application; Q.6 story;
+     *  Q.7 reference / punctuation / pairs; Q.8 translation into Urdu. */
+    private fun generateBoardPatternEng11() {
+        fun isPlay(q: WrittenQuestion): Boolean {
+            val s = (q.chapterName + " " + q.chapterLabel).lowercase()
+            return s.contains("play") || s.contains("end of the beginning")
+        }
+        fun isPoem(q: WrittenQuestion): Boolean {
+            val s = (q.chapterName + " " + q.chapterLabel).lowercase()
+            return s.contains("poem") || s.contains("poetry") ||
+                s.contains("echoing green") || s.contains("winter sundays") ||
+                s.contains("ruba") || s.contains("bird came down")
+        }
+        val prosePool = shortAll.filter { !isPlay(it) && !isPoem(it) }
+        val poemPool = shortAll.filter { isPoem(it) && !isPlay(it) }
+        val playPool = shortAll.filter { isPlay(it) }
+        if (mcqAll.size < 20) {
+            Toast.makeText(
+                this,
+                "Not enough MCQs loaded yet (${mcqAll.size} found, 20 needed). Check your internet connection.",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        if (prosePool.size < 10) {
+            Toast.makeText(
+                this,
+                "Not enough prose Short Questions loaded yet (${prosePool.size} found, 10 needed for Q.2).",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        if (poemPool.size < 8) {
+            Toast.makeText(
+                this,
+                "Not enough poem Short Questions loaded yet (${poemPool.size} found, 8 needed for Q.3).",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        if (playPool.size < 5) {
+            Toast.makeText(
+                this,
+                "Not enough play Short Questions loaded yet (${playPool.size} found, 5 needed for Q.4).",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        val pack = BoardPatternPack.loadEnglish11(applicationContext)
+        if (pack == null || pack.letters.isEmpty() || pack.applications.isEmpty() ||
+            pack.stories.size < 2 || pack.pairs.size < 8 || pack.referenceSets.isEmpty() ||
+            pack.punctuation.isEmpty() || pack.translationParas.isEmpty() || pack.essayTopics.isEmpty()
+        ) {
+            Toast.makeText(this, "Board pattern content is missing in this build", Toast.LENGTH_LONG).show()
+            return
+        }
+        val rnd = kotlin.random.Random.Default
+        fun <T> pick(list: List<T>, n: Int): List<T> = list.shuffled(rnd).take(n)
+        val stories = pick(pack.stories, 2)
+        val typedTitle = etTitle.text.toString().trim()
+        val title = if (typedTitle.isBlank() || typedTitle == "Question Paper") {
+            "Board Pattern Paper"
+        } else typedTitle
+        val data = PaperPdfGenerator.Eng11BoardPaperData(
+            testTitle = title,
+            classLabel = "Class 11th",
+            subject = "English",
+            header = currentHeader(),
+            mcqs = pick(mcqAll, 20),
+            proseShorts = pick(prosePool, 10),
+            poemShorts = pick(poemPool, 8),
+            playShorts = pick(playPool, 5),
+            letterTopic = pack.letters.random(rnd),
+            applicationTopic = pack.applications.random(rnd),
+            storyA = stories[0],
+            storyB = stories[1],
+            refLines = pack.referenceSets.random(rnd).lines,
+            punctuation = pack.punctuation.random(rnd),
+            pairs = pick(pack.pairs, 8),
+            translation = pack.translationParas.random(rnd),
+            essayTopic = pack.essayTopics.random(rnd),
+            includeAnswers = radioSolved.isChecked
+        )
+        btnGenerate.isEnabled = false
+        tvStatus.text = "Generating paper..."
+        scope.launch {
+            val file = try {
+                withContext(Dispatchers.IO) {
+                    val ts = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
+                    val docx = isDocx()
+                    val out = File(File(cacheDir, "papers"), "BoardPattern_English11_$ts." + if (docx) "docx" else "pdf")
+                    if (docx) PaperDocxGenerator.generateBoardPatternEng11(applicationContext, data, out)
+                    else PaperPdfGenerator.generateBoardPatternEng11(applicationContext, data, out)
+                }
+            } catch (e: Exception) {
+                null
+            }
+            btnGenerate.isEnabled = true
+            if (file != null && file.exists()) {
+                lastFile = file
+                layoutActions.visibility = View.VISIBLE
+                tvStatus.text = "Paper ready: Board Pattern Paper (Q.1: 20 MCQs, Q.2-Q.8 complete) • ${file.name}"
+                Toast.makeText(this@PaperGeneratorActivity, "Board Pattern paper generated", Toast.LENGTH_SHORT).show()
+            } else {
+                tvStatus.text = "Paper generation failed. Please try again."
+            }
+        }
+    }
+
+    /** Board Pattern paper (Class 12 Physics, official pairing scheme): 85 marks —
+     *  Q.1 17 MCQs (2 each from Chapters 13-20, 1 from Chapter 21); Q.2 shorts
+     *  from Chapters 13-15 (any 8 of 12); Q.3 from Chapters 16-18 (any 8 of 12);
+     *  Q.4 from Chapters 19-21 (any 6 of 9); Q.5-Q.9 detailed (any 3 of 5). */
+    private fun generateBoardPatternPhy12() {
+        fun mcqChapter(q: Question): Int =
+            Regex("^Chapter\\s+(\\d+)").find(q.chapter.trim())?.groupValues?.get(1)?.toIntOrNull() ?: -1
+        fun wqChapter(q: WrittenQuestion): Int =
+            q.chapterNumber.filter { it.isDigit() }.toIntOrNull() ?: -1
+        if (mcqAll.size < 17) {
+            Toast.makeText(
+                this,
+                "Not enough MCQs loaded yet (${mcqAll.size} found, 17 needed). Check your internet connection.",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        val rnd = kotlin.random.Random.Default
+        fun <T> pick(list: List<T>, n: Int): List<T> = list.shuffled(rnd).take(n)
+
+        // Q.1 chapter distribution per the pairing scheme
+        val mcqByCh = mcqAll.groupBy { mcqChapter(it) }
+        val pickedMcqs = mutableListOf<Question>()
+        for (ch in 13..20) pickedMcqs += pick(mcqByCh[ch] ?: emptyList(), 2)
+        pickedMcqs += pick(mcqByCh[21] ?: emptyList(), 1)
+        if (pickedMcqs.size < 17) {
+            pickedMcqs += pick(mcqAll - pickedMcqs.toSet(), 17 - pickedMcqs.size)
+        }
+        val mcqs = pickedMcqs.take(17).shuffled(rnd)
+
+        fun shortsQuota(chapters: List<Int>, perChapter: Int, total: Int): List<WrittenQuestion> {
+            val out = mutableListOf<WrittenQuestion>()
+            for (ch in chapters) {
+                out += pick(shortAll.filter { wqChapter(it) == ch }, perChapter)
+            }
+            if (out.size < total) {
+                val rest = shortAll.filter { wqChapter(it) in chapters } - out.toSet()
+                out += pick(rest, total - out.size)
+            }
+            return out.take(total)
+        }
+        val q2 = shortsQuota(listOf(13, 14, 15), 4, 12)
+        if (q2.size < 12) {
+            Toast.makeText(
+                this,
+                "Not enough Short Questions from Chapters 13-15 loaded yet (${q2.size} found, 12 needed for Q.2).",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        val q3 = shortsQuota(listOf(16, 17, 18), 4, 12)
+        if (q3.size < 12) {
+            Toast.makeText(
+                this,
+                "Not enough Short Questions from Chapters 16-18 loaded yet (${q3.size} found, 12 needed for Q.3).",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        val q4 = shortsQuota(listOf(19, 20, 21), 3, 9)
+        if (q4.size < 9) {
+            Toast.makeText(
+                this,
+                "Not enough Short Questions from Chapters 19-21 loaded yet (${q4.size} found, 9 needed for Q.4).",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        val pairGroups = listOf(listOf(13, 14), listOf(15, 16), listOf(17), listOf(18, 19), listOf(20, 21))
+        val detailed = mutableListOf<WrittenQuestion>()
+        for (g in pairGroups) {
+            val pool = longAll.filter { wqChapter(it) in g }
+            if (pool.isNotEmpty()) detailed += pick(pool, 1)
+        }
+        if (detailed.size < 5) {
+            detailed += pick(longAll - detailed.toSet(), 5 - detailed.size)
+        }
+        if (detailed.size < 5) {
+            Toast.makeText(
+                this,
+                "Not enough Long Questions loaded yet (${longAll.size} found, 5 needed for Q.5-Q.9).",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        val typedTitle = etTitle.text.toString().trim()
+        val title = if (typedTitle.isBlank() || typedTitle == "Question Paper") {
+            "Board Pattern Paper"
+        } else typedTitle
+        val data = PaperPdfGenerator.Phy12BoardPaperData(
+            testTitle = title,
+            classLabel = "Class 12th",
+            subject = "Physics",
+            header = currentHeader(),
+            mcqs = mcqs,
+            q2Shorts = q2,
+            q3Shorts = q3,
+            q4Shorts = q4,
+            detailed = detailed.take(5),
+            includeAnswers = radioSolved.isChecked
+        )
+        btnGenerate.isEnabled = false
+        tvStatus.text = "Generating paper..."
+        scope.launch {
+            val file = try {
+                withContext(Dispatchers.IO) {
+                    val ts = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
+                    val docx = isDocx()
+                    val out = File(File(cacheDir, "papers"), "BoardPattern_Physics12_$ts." + if (docx) "docx" else "pdf")
+                    if (docx) PaperDocxGenerator.generateBoardPatternPhy12(applicationContext, data, out)
+                    else PaperPdfGenerator.generateBoardPatternPhy12(applicationContext, data, out)
+                }
+            } catch (e: Exception) {
+                null
+            }
+            btnGenerate.isEnabled = true
+            if (file != null && file.exists()) {
+                lastFile = file
+                layoutActions.visibility = View.VISIBLE
+                tvStatus.text = "Paper ready: Board Pattern Paper (Q.1: 17 MCQs, Q.2-Q.9 complete) • ${file.name}"
+                Toast.makeText(this@PaperGeneratorActivity, "Board Pattern paper generated", Toast.LENGTH_SHORT).show()
+            } else {
+                tvStatus.text = "Paper generation failed. Please try again."
+            }
+        }
+    }
+
+    /** Board Pattern paper (Class 10 Chemistry, official pairing scheme):
+     *  60 marks — Q.1 12 MCQs (one per chapter), Q.2-Q.4 shorts (any 5 of 8),
+     *  Q.5-Q.7 detailed (any 2 of 3). */
+    private fun generateBoardPatternChem10() {
+        fun mcqChapter(q: Question): Int =
+            Regex("^Chapter\\s+(\\d+)").find(q.chapter.trim())?.groupValues?.get(1)?.toIntOrNull() ?: -1
+        fun wqChapter(q: WrittenQuestion): Int =
+            q.chapterNumber.filter { it.isDigit() }.toIntOrNull() ?: -1
+        if (mcqAll.size < 12) {
+            Toast.makeText(
+                this,
+                "Not enough MCQs loaded yet (${mcqAll.size} found, 12 needed). Check your internet connection.",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        val rnd = kotlin.random.Random.Default
+        fun <T> pick(list: List<T>, n: Int): List<T> = list.shuffled(rnd).take(n)
+
+        // Q.1: one MCQ from each chapter of the pairing scheme (Ch 25 has none)
+        val mcqChapters = listOf(14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 26)
+        val mcqByCh = mcqAll.groupBy { mcqChapter(it) }
+        val pickedMcqs = mutableListOf<Question>()
+        for (ch in mcqChapters) pickedMcqs += pick(mcqByCh[ch] ?: emptyList(), 1)
+        if (pickedMcqs.size < 12) {
+            pickedMcqs += pick(mcqAll - pickedMcqs.toSet(), 12 - pickedMcqs.size)
+        }
+        val mcqs = pickedMcqs.take(12).shuffled(rnd)
+
+        fun shortsByCounts(counts: Map<Int, Int>, total: Int): List<WrittenQuestion> {
+            val out = mutableListOf<WrittenQuestion>()
+            for ((ch, n) in counts) {
+                out += pick(shortAll.filter { wqChapter(it) == ch }, n)
+            }
+            if (out.size < total) {
+                val rest = shortAll.filter { wqChapter(it) in counts.keys } - out.toSet()
+                out += pick(rest, total - out.size)
+            }
+            return out.take(total)
+        }
+        val q2 = shortsByCounts(mapOf(14 to 2, 15 to 1, 16 to 1, 17 to 2, 18 to 2), 8)
+        if (q2.size < 8) {
+            Toast.makeText(
+                this,
+                "Not enough Short Questions from Chapters 14-18 loaded yet (${q2.size} found, 8 needed for Q.2).",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        val q3 = shortsByCounts(mapOf(19 to 2, 20 to 2, 21 to 2, 22 to 2), 8)
+        if (q3.size < 8) {
+            Toast.makeText(
+                this,
+                "Not enough Short Questions from Chapters 19-22 loaded yet (${q3.size} found, 8 needed for Q.3).",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        val q4 = shortsByCounts(mapOf(23 to 2, 24 to 2, 25 to 2, 26 to 2), 8)
+        if (q4.size < 8) {
+            Toast.makeText(
+                this,
+                "Not enough Short Questions from Chapters 23-26 loaded yet (${q4.size} found, 8 needed for Q.4).",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        val pairGroups = listOf(listOf(14, 15), listOf(20, 22), listOf(23, 25))
+        val detailed = mutableListOf<WrittenQuestion>()
+        for (g in pairGroups) {
+            val pool = longAll.filter { wqChapter(it) in g }
+            if (pool.isNotEmpty()) detailed += pick(pool, 1)
+        }
+        if (detailed.size < 3) {
+            detailed += pick(longAll - detailed.toSet(), 3 - detailed.size)
+        }
+        if (detailed.size < 3) {
+            Toast.makeText(
+                this,
+                "Not enough Long Questions loaded yet (${longAll.size} found, 3 needed for Q.5-Q.7).",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        val typedTitle = etTitle.text.toString().trim()
+        val title = if (typedTitle.isBlank() || typedTitle == "Question Paper") {
+            "Board Pattern Paper"
+        } else typedTitle
+        val data = PaperPdfGenerator.Chem10BoardPaperData(
+            testTitle = title,
+            classLabel = "Class 10th",
+            subject = "Chemistry",
+            header = currentHeader(),
+            mcqs = mcqs,
+            q2Shorts = q2,
+            q3Shorts = q3,
+            q4Shorts = q4,
+            detailed = detailed.take(3),
+            includeAnswers = radioSolved.isChecked
+        )
+        btnGenerate.isEnabled = false
+        tvStatus.text = "Generating paper..."
+        scope.launch {
+            val file = try {
+                withContext(Dispatchers.IO) {
+                    val ts = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
+                    val docx = isDocx()
+                    val out = File(File(cacheDir, "papers"), "BoardPattern_Chemistry10_$ts." + if (docx) "docx" else "pdf")
+                    if (docx) PaperDocxGenerator.generateBoardPatternChem10(applicationContext, data, out)
+                    else PaperPdfGenerator.generateBoardPatternChem10(applicationContext, data, out)
+                }
+            } catch (e: Exception) {
+                null
+            }
+            btnGenerate.isEnabled = true
+            if (file != null && file.exists()) {
+                lastFile = file
+                layoutActions.visibility = View.VISIBLE
+                tvStatus.text = "Paper ready: Board Pattern Paper (Q.1: 12 MCQs, Q.2-Q.7 complete) • ${file.name}"
+                Toast.makeText(this@PaperGeneratorActivity, "Board Pattern paper generated", Toast.LENGTH_SHORT).show()
+            } else {
+                tvStatus.text = "Paper generation failed. Please try again."
             }
         }
     }
@@ -1080,19 +1568,22 @@ class PaperGeneratorActivity : AppCompatActivity() {
             testTitle = title,
             classLabel = "Class 9th",
             subject = "Computer Science",
+            header = currentHeader(),
             mcqs = pick(mcqAll, 10),
             shortSections = listOf(shortPool.take(6), shortPool.drop(6).take(6), shortPool.drop(12).take(6)),
             longs = pick(longAll, 3),
             includeAnswers = radioSolved.isChecked
         )
         btnGenerate.isEnabled = false
-        tvStatus.text = "Generating PDF..."
+        tvStatus.text = "Generating paper..."
         scope.launch {
             val file = try {
                 withContext(Dispatchers.IO) {
                     val ts = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
-                    val out = File(File(cacheDir, "papers"), "BoardPattern_CS9_$ts.pdf")
-                    PaperPdfGenerator.generateBoardPatternCs(applicationContext, data, out)
+                    val docx = isDocx()
+                    val out = File(File(cacheDir, "papers"), "BoardPattern_CS9_$ts." + if (docx) "docx" else "pdf")
+                    if (docx) PaperDocxGenerator.generateBoardPatternCs(applicationContext, data, out)
+                    else PaperPdfGenerator.generateBoardPatternCs(applicationContext, data, out)
                 }
             } catch (e: Exception) {
                 null
@@ -1101,10 +1592,10 @@ class PaperGeneratorActivity : AppCompatActivity() {
             if (file != null && file.exists()) {
                 lastFile = file
                 layoutActions.visibility = View.VISIBLE
-                tvStatus.text = "PDF ready: Board Pattern Paper (Q.1: 10 MCQs, Q.2-Q.4 Shorts, Q.5-Q.7 Longs) • ${file.name}"
+                tvStatus.text = "Paper ready: Board Pattern Paper (Q.1: 10 MCQs, Q.2-Q.4 Shorts, Q.5-Q.7 Longs) • ${file.name}"
                 Toast.makeText(this@PaperGeneratorActivity, "Board Pattern paper generated", Toast.LENGTH_SHORT).show()
             } else {
-                tvStatus.text = "PDF generation failed. Please try again."
+                tvStatus.text = "Paper generation failed. Please try again."
             }
         }
     }
@@ -1112,16 +1603,25 @@ class PaperGeneratorActivity : AppCompatActivity() {
     private fun pdfUri(file: File) =
         FileProvider.getUriForFile(this, "$packageName.fileprovider", file)
 
+    private fun isDocx(): Boolean = radioFormatDocx.isChecked
+
+    private fun mimeFor(file: File): String =
+        if (file.extension.equals("docx", ignoreCase = true)) {
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        } else {
+            "application/pdf"
+        }
+
     private fun previewPdf() {
         val file = lastFile ?: return
         try {
             val intent = Intent(Intent.ACTION_VIEW).apply {
-                setDataAndType(pdfUri(file), "application/pdf")
+                setDataAndType(pdfUri(file), mimeFor(file))
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
             startActivity(intent)
         } catch (e: Exception) {
-            Toast.makeText(this, "No PDF viewer found on this device", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "No viewer app found for this file", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -1129,12 +1629,12 @@ class PaperGeneratorActivity : AppCompatActivity() {
         val file = lastFile ?: return
         try {
             val intent = Intent(Intent.ACTION_SEND).apply {
-                type = "application/pdf"
+                type = mimeFor(file)
                 putExtra(Intent.EXTRA_STREAM, pdfUri(file))
                 putExtra(Intent.EXTRA_SUBJECT, "StudyPoint Question Paper")
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
-            startActivity(Intent.createChooser(intent, "Share Paper PDF"))
+            startActivity(Intent.createChooser(intent, "Share Paper"))
         } catch (e: Exception) {
             Toast.makeText(this, "Sharing failed", Toast.LENGTH_SHORT).show()
         }
@@ -1144,7 +1644,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
         val file = lastFile ?: return
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
-            type = "application/pdf"
+            type = mimeFor(file)
             putExtra(Intent.EXTRA_TITLE, file.name)
         }
         saveLauncher.launch(intent)
