@@ -1,0 +1,175 @@
+{
+ "letters": [
+  "Write a letter to your friend inviting him to spend the summer vacation.",
+  "Write a letter to your friend telling him about the profession you wish to adopt.",
+  "Write a letter to your younger brother advising him to improve his English language.",
+  "Write a letter to your father telling him about your health and studies.",
+  "Write a letter to your brother advising him to give up bad company.",
+  "Write a letter to your friend asking him to lend you some books.",
+  "Write a letter to your mother telling her about your performance in the examination.",
+  "Write a letter to your father telling him about your first day at college.",
+  "Write a letter to your father requesting him to allow you to join the educational tour.",
+  "Write a letter to your father justifying your poor performance in the examination.",
+  "Write a letter to your father requesting him to hire a private tutor for you.",
+  "Write a letter to your friend asking him to participate in games.",
+  "Write a letter to your friend inviting him to attend the marriage ceremony of your sister.",
+  "Write a letter to your friend who had an accident, enquiring after his health.",
+  "Write a letter to your friend telling him about your performance in the examination.",
+  "Write a letter to your friend condoling with him on his father's death.",
+  "Write a letter to your friend inviting him to your birthday party.",
+  "Write a letter to your friend inviting him for a trip or a holiday.",
+  "Write a letter to your friend apologizing for the mistake you have done.",
+  "Write a letter to your friend congratulating him on his success.",
+  "Write a letter to your friend asking about his well-being.",
+  "Write a letter to your friend inviting him to attend a marriage.",
+  "Write a letter to your friend seeking his help.",
+  "Write a letter to your friend informing him about a death in your family.",
+  "Write a letter to your father requesting him to increase your monthly allowance.",
+  "Write a letter to your friend sympathising with him on his failure in the examination.",
+  "Write a letter to your father or uncle about your English paper.",
+  "Write a letter to your relative or friend describing a fatal accident.",
+  "Write a letter to your friend about your first impression of college.",
+  "Write a letter to your friend requesting him to lend you a camera.",
+  "Write a letter to your brother pointing out to him the evils of cramming.",
+  "Write a letter to your mother telling her why you dislike hostel life.",
+  "Write a letter to your son who studies in a college away from his home.",
+  "Write a letter to your brother/sister suggesting some interesting books to read.",
+  "Write a letter to your uncle thanking him for a birthday gift.",
+  "Write a letter to your father seeking permission to go on a one-day trip.",
+  "Write a letter to your father asking him about your mother's health.",
+  "Write a letter to your father requesting him to purchase a computer for you.",
+  "Write a letter to your father telling him about the curricular activities at your college.",
+  "Write a letter to your father seeking permission to spend a few days with your friend at his village.",
+  "Write a letter to your father telling him about the illness of your mother.",
+  "Write a letter to your friend telling him about your annual sports at college.",
+  "Write a letter to your friend telling him how you passed the time at the hill station."
+ ],
+ "applications": [
+  "Write an application to the principal for sick leave.",
+  "Write an application to the principal for full fee concession.",
+  "Write an application to the principal for a character certificate.",
+  "Write an application to the principal for a scholarship.",
+  "Write an application to the principal for the refund of library security fee.",
+  "Write an application to the principal for an urgent piece of work.",
+  "Write an application to the principal for leave to attend your sick mother.",
+  "Write an application to the principal for leave to attend a funeral.",
+  "Write an application to the principal for the remission of absence fine.",
+  "Write an application to the principal for a college leaving certificate.",
+  "Write an application to the principal requesting leave to attend a seminar.",
+  "Write an application to the principal seeking permission for organizing a sports gala.",
+  "Write an application to the principal requesting him to arrange make-up classes for English.",
+  "Write an application to the principal requesting one month's medical leave.",
+  "Write an application to the principal requesting him to condone your shortage of lectures.",
+  "Write an application to the principal for one week's leave for your sister's marriage.",
+  "Write an application to the principal seeking apology for misconduct.",
+  "Write an application to the principal requesting him to change your section.",
+  "Write an application to the principal to remit your library fine.",
+  "Write an application to the principal of your college for financial help from a special fund.",
+  "Write an application to the principal for readmission.",
+  "Write an application to the principal requesting him to improve the availability of medicines in the college dispensary."
+ ],
+ "stories": [
+  "Honesty is the Best Policy",
+  "A Friend in Need is a Friend Indeed",
+  "Union is Strength",
+  "The Mouse and the Lion",
+  "The Foolish Stag",
+  "The King and the Spider",
+  "Greed is a Curse",
+  "As You Sow, So Shall You Reap",
+  "Look Before You Leap",
+  "The Thief and his Mother",
+  "The Hare and the Tortoise",
+  "The Crow and the Pitcher",
+  "A Stitch in Time, Saves Nine",
+  "A Rolling Stone Gathers No Moss",
+  "An Arab and His Camel",
+  "The Bee and the Dove",
+  "The Little Fish",
+  "The Hen that Laid Golden Eggs",
+  "The Wolf and the Lamb",
+  "King Midas and the Golden Touch",
+  "The Boy Who Cried Wolf",
+  "A Wise Counting",
+  "The Blue Jackal",
+  "Three Friends and a Bag of Gold",
+  "The Hunter and His Hound",
+  "The Slave and the Lion",
+  "The Ants and the Cricket",
+  "The Foolish Crow",
+  "The Fox and the Grapes",
+  "The Miller and His Donkey",
+  "Building Castles in the Air / Day Dreamer",
+  "A Wealthy Merchant and a Robber",
+  "A Hare and a Lion",
+  "A Fox and the Crane"
+ ],
+ "pairs": [
+  {
+   "first": "die",
+   "exampleFirst": "Heroes never die.",
+   "second": "dye",
+   "exampleSecond": "Please dye my shirt."
+  },
+  {
+   "first": "waste",
+   "exampleFirst": "Do not waste your time in idle pursuits.",
+   "second": "waist",
+   "exampleSecond": "His waist disappeared in the water while crossing the stream."
+  },
+  {
+   "first": "principal",
+   "exampleFirst": "The principal of our college is very kind.",
+   "second": "principle",
+   "exampleSecond": "The Quaid was a man of principles."
+  },
+  {
+   "first": "sight",
+   "exampleFirst": "",
+   "second": "site",
+   "exampleSecond": ""
+  },
+  {
+   "first": "canvas",
+   "exampleFirst": "",
+   "second": "canvass",
+   "exampleSecond": ""
+  },
+  {
+   "first": "bored",
+   "exampleFirst": "",
+   "second": "board",
+   "exampleSecond": ""
+  },
+  {
+   "first": "elicit",
+   "exampleFirst": "",
+   "second": "illicit",
+   "exampleSecond": ""
+  },
+  {
+   "first": "naval",
+   "exampleFirst": "",
+   "second": "navel",
+   "exampleSecond": ""
+  }
+ ],
+ "referenceSets": [
+  {
+   "poem": "The Echoing Green",
+   "lines": "Till the little ones weary\nNo more can be merry\nThe sun does descend,\nAnd our sports have an end:"
+  }
+ ],
+ "punctuation": [
+  "freedom however does not mean license it does not mean that you can now behave just as you please and do what you like irrespective of the interests of other people or of the state"
+ ],
+ "translationParas": [
+  {
+   "text": "Clean water is vital for agriculture and food production. Inadequate access to clean water can hinder agriculture productivity and food security. Farmers rely on water for irrigation, livestock watering, and crop production.",
+   "urdu": ""
+  }
+ ],
+ "essayTopics": [
+  "Village Life"
+ ]
+}
