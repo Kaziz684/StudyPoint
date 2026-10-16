@@ -275,7 +275,7 @@ object SubjectStructure {
             StudySection("b11", "Chapter 11: Biostatistics", "", "chapter")
         )
         "10" -> listOf(
-            StudySection("b1", "Ch 1: Gaseous Exchange", "", "chapter"),
+            StudySection("b1", "Ch 1: Human Digestive System", "", "chapter"),
             StudySection("b2", "Ch 2: Homeostasis", "", "chapter"),
             StudySection("b3", "Ch 3: Coordination & Control", "", "chapter"),
             StudySection("b4", "Ch 4: Support & Movement", "", "chapter"),
