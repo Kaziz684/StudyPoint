@@ -978,7 +978,7 @@ object PaperDocxGenerator {
             add("word/styles.xml", styles.toByteArray(Charsets.UTF_8))
             add("word/footer1.xml", footer.toString().toByteArray(Charsets.UTF_8))
             add("word/_rels/document.xml.rels", docRels.toString().toByteArray(Charsets.UTF_8))
-            if (hasLogo) add("word/media/logo.png", logo)
+            if (logo != null) add("word/media/logo.png", logo)
         }
         return outFile
     }
