@@ -332,9 +332,18 @@ class PaperGeneratorActivity : AppCompatActivity() {
 
     private fun setupPaperHeader() {
         val prefs = headerPrefs()
-        etSchoolName.setText(prefs.getString("school_name", "AL QURAN SYSTEM OF EDUCATION"))
-        etSchoolAddress.setText(prefs.getString("address", "Hussaini Chowk, Satellite Town, Bahawalpur"))
-        etSchoolPhone.setText(prefs.getString("phone", "0300 5675271"))
+        val savedName = prefs.getString("school_name", null)
+        val savedAddress = prefs.getString("address", null)
+        val savedPhone = prefs.getString("phone", null)
+        etSchoolName.setText(
+            if (savedName == null || savedName == "AL QURAN SYSTEM OF EDUCATION") "AL SAMAD ACADEMY BWP" else savedName
+        )
+        etSchoolAddress.setText(
+            if (savedAddress == null || savedAddress == "Hussaini Chowk, Satellite Town, Bahawalpur") "" else savedAddress
+        )
+        etSchoolPhone.setText(
+            if (savedPhone == null || savedPhone == "0300 5675271") "0301 23456789" else savedPhone
+        )
         etPaperCode.setText(prefs.getString("paper_code", ""))
         etPassingMarks.setText(prefs.getString("passing_marks", ""))
         refreshLogoPreview()
@@ -375,7 +384,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
             .putString("passing_marks", passing)
             .apply()
         return PaperPdfGenerator.SchoolHeader(
-            schoolName = name.ifBlank { "AL QURAN SYSTEM OF EDUCATION" },
+            schoolName = name.ifBlank { "AL SAMAD ACADEMY BWP" },
             address = address,
             phone = phone,
             paperCode = code,
@@ -427,7 +436,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
         sb.append("Paper Type:  $typeLabel\n")
         sb.append("Class:  $classLabel\n")
         sb.append("Subject:  $subject\n")
-        sb.append("School:  ${etSchoolName.text.toString().trim().ifBlank { "AL QURAN SYSTEM OF EDUCATION" }}\n")
+        sb.append("School:  ${etSchoolName.text.toString().trim().ifBlank { "AL SAMAD ACADEMY BWP" }}\n")
         if (currentType() == PaperType.BOARD) {
             val sheetNow = classSheets[spinnerClass.selectedItemPosition.coerceIn(0, classSheets.lastIndex)]
             if (sheetNow == "Class_9th" && subject.equals("Computer Science", ignoreCase = true)) {
@@ -499,6 +508,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
         if (!::tvBoardInfo.isInitialized) return
         val board = currentType() == PaperType.BOARD
         tvBoardInfo.visibility = if (board) View.VISIBLE else View.GONE
+        if (board) tvBoardInfo.text = boardInfoText()
         layoutChapterSection.visibility = if (board) View.GONE else View.VISIBLE
         layoutModeSection.visibility = if (board) View.GONE else View.VISIBLE
         layoutOrderSection.visibility = if (board) View.GONE else View.VISIBLE
@@ -522,6 +532,46 @@ class PaperGeneratorActivity : AppCompatActivity() {
         spinnerSubject.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, subjects)
         val idx = subjects.indexOfFirst { it.equals(incomingSubject, ignoreCase = true) }
         if (idx >= 0) spinnerSubject.setSelection(idx)
+    }
+
+    /** English writing sections (essays, paragraphs, letters, applications,
+     *  stories) have no rows in the sheet - they are built from the board
+     *  pattern content packs and offered as selectable "Writing:" chapters
+     *  of long questions in the custom / mixed paper modes. */
+    private fun englishWritingQuestions(sheet: String): List<WrittenQuestion> {
+        val out = mutableListOf<WrittenQuestion>()
+        fun add(idBase: Int, classNum: String, chapter: String, questions: List<String>) {
+            questions.forEachIndexed { i, q ->
+                if (q.isNotBlank()) out += WrittenQuestion(
+                    id = -(idBase + i), classNum = classNum, subject = "English",
+                    chapterNumber = "", chapterName = chapter,
+                    question = q, answer = "", marks = ""
+                )
+            }
+        }
+        try {
+            if (sheet == "Class_10th") {
+                val pack = BoardPatternPack.load(applicationContext)
+                if (pack != null) {
+                    add(1000, "10th", "Writing: Essays",
+                        pack.essayTopics.map { "Write an essay of 150-200 words on the topic: \"" + it + "\"" })
+                    add(2000, "10th", "Writing: Paragraphs",
+                        pack.paragraphTopics.map { "Write a paragraph of 100-150 words on the topic: \"" + it + "\"" } +
+                            pack.tenSentenceTopics.map { "Write ten sentences on the topic: \"" + it + "\"" })
+                }
+            } else if (sheet == "Class_11th") {
+                val pack = BoardPatternPack.loadEnglish11(applicationContext)
+                if (pack != null) {
+                    add(3000, "11th", "Writing: Letters", pack.letters)
+                    add(4000, "11th", "Writing: Applications", pack.applications)
+                    add(5000, "11th", "Writing: Stories",
+                        pack.stories.map { "Write a story on the topic: \"" + it + "\"" })
+                    add(6000, "11th", "Writing: Essays",
+                        pack.essayTopics.map { "Write an essay on the topic: \"" + it + "\"" })
+                }
+            }
+        } catch (e: Exception) { /* content packs are best-effort */ }
+        return out
     }
 
     private fun writtenMatches(q: WrittenQuestion, sheet: String, subject: String): Boolean {
@@ -548,7 +598,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
                 }
                 mcqAll = fetched.filter { subjectsMatch(it.subject, subject) }
             }
-            if ((type == PaperType.SHORT || type == PaperType.COMBINED || type == PaperType.BOARD) && !shortTabLoaded) {
+            if ((type == PaperType.SHORT || type == PaperType.COMBINED || type == PaperType.BOARD) && shortRaw.isEmpty()) {
                 shortRaw = try {
                     paperRepository.fetchWritten(PaperRepository.TAB_SHORTS)
                 } catch (e: Exception) {
@@ -556,7 +606,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
                 }
                 shortTabLoaded = true
             }
-            if ((type == PaperType.LONG || type == PaperType.COMBINED || type == PaperType.BOARD) && !longTabLoaded) {
+            if ((type == PaperType.LONG || type == PaperType.COMBINED || type == PaperType.BOARD) && longRaw.isEmpty()) {
                 longRaw = try {
                     paperRepository.fetchWritten(PaperRepository.TAB_LONGS)
                 } catch (e: Exception) {
@@ -566,6 +616,9 @@ class PaperGeneratorActivity : AppCompatActivity() {
             }
             shortAll = shortRaw.filter { writtenMatches(it, sheet, subject) }
             longAll = longRaw.filter { writtenMatches(it, sheet, subject) }
+            if (type != PaperType.BOARD && subject.equals("English", ignoreCase = true)) {
+                longAll = longAll + englishWritingQuestions(sheet)
+            }
 
             val labels = sortedSetOf(
                 compareBy<String>({ chapterNumber(it) ?: Int.MAX_VALUE }, { it.lowercase() })
@@ -581,6 +634,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
                     text = "$ch  ($count questions)"
                     tag = ch
                     textSize = 14.5f
+                    setTextColor(Color.parseColor("#1E293B"))
                     isEnabled = !checkAllChapters.isChecked
                     setOnCheckedChangeListener { _, _ -> renderQuestions() }
                 }
@@ -588,10 +642,52 @@ class PaperGeneratorActivity : AppCompatActivity() {
                 layoutChapters.addView(cb)
             }
             tvChapterStatus.text = statusText(type)
+            tvBoardInfo.text = boardInfoText()
             progress.visibility = View.GONE
             loading = false
             updateCountFieldsEnabled()
             renderQuestions()
+        }
+    }
+
+    /** Board Pattern info line for the CURRENTLY selected class + subject only. */
+    private fun boardInfoText(): String {
+        val sheet = classSheets[spinnerClass.selectedItemPosition.coerceIn(0, classSheets.lastIndex)]
+        val subject = spinnerSubject.selectedItem?.toString() ?: ""
+        return when {
+            sheet == "Class_10th" && subject.equals("English", ignoreCase = true) ->
+                "Board Pattern - Class 10 English (75 Marks, 2 Hours 30 Minutes)\n" +
+                    "Q.1: 19 MCQs  -  Q.2: Short answers (any 5 of 8)\n" +
+                    "Q.3: Paragraph translation / simple English  -  Q.4: Poem summary / paraphrase\n" +
+                    "Q.5: Essay or Paragraph  -  Q.6: Direct to Indirect (any 5 of 8)\n" +
+                    "Q.7: Pair of Words (any 5 of 8)  -  Q.8: Urdu paragraph translation / ten sentences"
+            sheet == "Class_10th" && subject.equals("Chemistry", ignoreCase = true) ->
+                "Board Pattern - Class 10 Chemistry (60 Marks, 2 Hours)\n" +
+                    "Q.1: 12 MCQs (one per chapter, Ch 14-24 and 26)\n" +
+                    "Q.2: Shorts Ch 14-18 (any 5 of 8)  -  Q.3: Shorts Ch 19-22 (any 5 of 8)\n" +
+                    "Q.4: Shorts Ch 23-26 (any 5 of 8)  -  Q.5-Q.7: Detailed questions (any 2 of 3)"
+            sheet == "Class_10th" && subject.contains("Tarjuma", ignoreCase = true) ->
+                "Board Pattern - Class 10 Tarjuma-tul-Quran (50 Marks)\n" +
+                    "Q.1: 10 MCQs  -  Q.2: Short answers (any 5 of 8)\n" +
+                    "Q.3: Word meanings (any 5 of 8)  -  Q.4: Ayat translation (any 3 of 5)\n" +
+                    "Q.5: Detailed question (any 1 of 2)"
+            sheet == "Class_11th" && subject.equals("English", ignoreCase = true) ->
+                "Board Pattern - Class 11 English (100 Marks, 3 Hours)\n" +
+                    "Q.1: 20 MCQs  -  Q.2: Prose shorts (any 7 of 10)  -  Q.3: Poem shorts (any 5 of 8)\n" +
+                    "Q.4: Play shorts (any 3 of 5)  -  Q.5: Letter or Application  -  Q.6: Story\n" +
+                    "Q.7: Reference / Punctuation / Pairs  -  Q.8: Translation into Urdu"
+            sheet == "Class_12th" && subject.equals("Physics", ignoreCase = true) ->
+                "Board Pattern - Class 12 Physics (85 Marks, 3 Hours)\n" +
+                    "Q.1: 17 MCQs  -  Q.2: Shorts Ch 13-15 (any 8 of 12)  -  Q.3: Shorts Ch 16-18 (any 8 of 12)\n" +
+                    "Q.4: Shorts Ch 19-21 (any 6 of 9)  -  Q.5-Q.9: Detailed questions (any 3 of 5)"
+            sheet == "Class_9th" && subject.equals("Computer Science", ignoreCase = true) ->
+                "Board Pattern - Class 9 Computer Science (50 Marks, 2 Hours)\n" +
+                    "Q.1: 10 MCQs  -  Q.2-Q.4: Short answers (any 4 of 6 each)\n" +
+                    "Q.5-Q.7: Long questions (any 2 of 3)"
+            else ->
+                "Board Pattern is available for Class 10 English, Class 10 Chemistry, " +
+                    "Class 10 Tarjuma-tul-Quran, Class 11 English, Class 12 Physics and " +
+                    "Class 9 Computer Science. Select one of these to generate a board pattern paper."
         }
     }
 
@@ -760,7 +856,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
         container.addView(TextView(this).apply {
             text = q.chapter
             textSize = 10.5f
-            setTextColor(Color.parseColor("#94A3B8"))
+            setTextColor(Color.parseColor("#475569"))
             setPadding(38, 2, 0, 0)
         })
         if (radioSolved.isChecked) {
@@ -797,7 +893,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
         container.addView(TextView(this).apply {
             text = q.chapterLabel + if (q.marks.isNotBlank()) " \u2022 ${q.marks} marks" else ""
             textSize = 10.5f
-            setTextColor(Color.parseColor("#94A3B8"))
+            setTextColor(Color.parseColor("#475569"))
             setPadding(38, 2, 0, 0)
         })
         if (radioSolved.isChecked) {
