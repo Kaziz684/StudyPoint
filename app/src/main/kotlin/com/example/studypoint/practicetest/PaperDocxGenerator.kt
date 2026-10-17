@@ -34,9 +34,28 @@ object PaperDocxGenerator {
 
     // ---------------- XML helpers ----------------
 
-    private fun esc(s: String): String = s
-        .replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-        .replace("\"", "&quot;")
+    private fun esc(s: String): String {
+        // Strip characters that are illegal in XML 1.0 (control characters,
+        // unpaired surrogates, U+FFFE/U+FFFF): a single one in a question or
+        // answer makes MS Word refuse to open the whole file.
+        val sb = StringBuilder(s.length)
+        var i = 0
+        while (i < s.length) {
+            val c = s[i]
+            val code = c.code
+            when {
+                c == '\t' || c == '\n' || c == '\r' -> sb.append(c)
+                code >= 0x20 && code < 0xD800 && code != 0xFFFE && code != 0xFFFF -> sb.append(c)
+                code in 0xD800..0xDBFF && i + 1 < s.length && s[i + 1].code in 0xDC00..0xDFFF -> {
+                    sb.append(c); sb.append(s[i + 1]); i++
+                }
+            }
+            i++
+        }
+        return sb.toString()
+            .replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+            .replace("\"", "&quot;")
+    }
 
     /** One text run. [size] is in half-points (23 = 11.5pt). */
     private fun run(
@@ -144,8 +163,12 @@ object PaperDocxGenerator {
         sb.append("</w:tblGrid>")
         for (row in rows) {
             sb.append("<w:tr>")
+            var colIdx = 0
             for (cell in row) {
-                sb.append("<w:tc><w:tcPr><w:tcW w:w=\"").append(cell.width)
+                val cellW = if (cell.width > 0) cell.width else
+                    (colIdx until minOf(colIdx + cell.span, widths.size)).sumOf { widths[it] }
+                colIdx += cell.span
+                sb.append("<w:tc><w:tcPr><w:tcW w:w=\"").append(cellW)
                     .append("\" w:type=\"dxa\"/>")
                 if (cell.span > 1) sb.append("<w:gridSpan w:val=\"").append(cell.span).append("\"/>")
                 if (cell.shade != null) {
@@ -998,6 +1021,9 @@ object PaperDocxGenerator {
                 " xmlns:pic=\"http://schemas.openxmlformats.org/drawingml/2006/picture\">"
         )
         documentXml.append("<w:body>").append(bodyXml)
+        // A body must not end with a table (strict readers reject it) - close
+        // with an empty paragraph before the section properties.
+        documentXml.append("<w:p/>")
         documentXml.append(
             "<w:sectPr><w:footerReference w:type=\"default\" r:id=\"rId1\"/>" +
                 "<w:pgSz w:w=\"11906\" w:h=\"16838\"/>" +

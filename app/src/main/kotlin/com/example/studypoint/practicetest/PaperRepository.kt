@@ -23,20 +23,36 @@ class PaperRepository {
         const val TAB_LONGS = "Longs"
     }
 
-    private val client = OkHttpClient()
+    private val client = OkHttpClient.Builder()
+        .connectTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+        .readTimeout(90, java.util.concurrent.TimeUnit.SECONDS)
+        .writeTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+        .build()
 
     suspend fun fetchWritten(tab: String, context: Context? = null): List<WrittenQuestion> =
         withContext(Dispatchers.IO) {
-            try {
-                val url = "https://docs.google.com/spreadsheets/d/$SPREADSHEET_ID/gviz/tq?tqx=out:csv&sheet=$tab"
-                val request = Request.Builder().url(url).build()
-                val response = client.newCall(request).execute()
-                val csv = response.body?.string() ?: return@withContext emptyList()
-                parseWrittenCsv(csv)
-            } catch (e: Exception) {
-                e.printStackTrace()
-                emptyList()
+            val url = "https://docs.google.com/spreadsheets/d/$SPREADSHEET_ID/gviz/tq?tqx=out:csv&sheet=$tab"
+            var lastError: Exception? = null
+            // The Shorts/Longs CSVs are large (1-4 MB): retry a few times so a
+            // slow connection does not leave the Paper Generator empty.
+            repeat(3) { attempt ->
+                try {
+                    val request = Request.Builder().url(url)
+                        .header("User-Agent", "StudyPoint-Android-App")
+                        .build()
+                    val response = client.newCall(request).execute()
+                    val csv = response.body?.string()
+                    if (response.isSuccessful && !csv.isNullOrBlank()) {
+                        val parsed = parseWrittenCsv(csv)
+                        if (parsed.isNotEmpty()) return@withContext parsed
+                    }
+                } catch (e: Exception) {
+                    lastError = e
+                }
+                if (attempt < 2) Thread.sleep(700)
             }
+            lastError?.printStackTrace()
+            emptyList()
         }
 
     private fun parseWrittenCsv(csv: String): List<WrittenQuestion> {
