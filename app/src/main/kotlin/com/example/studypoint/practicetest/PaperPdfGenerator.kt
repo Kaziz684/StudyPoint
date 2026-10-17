@@ -665,6 +665,19 @@ object PaperPdfGenerator {
         val header: SchoolHeader = SchoolHeader()
     )
 
+    data class TqBoardPaperData(
+        val testTitle: String,
+        val classLabel: String,
+        val subject: String,
+        val mcqs: List<Question>,
+        val shorts: List<WrittenQuestion>,
+        val meanings: List<BoardPatternPack.WordMeaning>,
+        val ayat: List<WrittenQuestion>,
+        val longs: List<WrittenQuestion>,
+        val includeAnswers: Boolean,
+        val header: SchoolHeader = SchoolHeader()
+    )
+
     /** Board Pattern paper (Class 9 Computer Science): 50 marks —
      *  Q.1 10 MCQs; Q.2-Q.4 shorts (any 4 of 6 each); Q.5-Q.7 longs (any 2 of 3). */
     fun generateBoardPatternCs(context: Context, data: CsBoardPaperData, outFile: File): File {
@@ -775,6 +788,212 @@ object PaperPdfGenerator {
                     blocks += blocksFor(listOf(layoutOf(boldPrefix(label, wq.answer), ansPaint)), gapAfter = 6)
                 } else {
                     blocks += blocksFor(listOf(layoutOf("$label(Answer not available in the source data)", missPaint)), gapAfter = 6)
+                }
+            }
+        }
+
+        // ---------- Pagination ----------
+        val placements = mutableListOf<Placement>()
+        var page = 0
+        var y = topFor(0)
+        var pageHasContent = false
+        for (block in blocks) {
+            if (block.forceNewPage) {
+                if (pageHasContent) {
+                    page++
+                    y = topFor(page)
+                    pageHasContent = false
+                }
+                placements += Placement(block, page, y)
+                y += block.height
+                pageHasContent = true
+                continue
+            }
+            if (y + block.height > PAGE_H - MARGIN && pageHasContent) {
+                page++
+                y = topFor(page)
+                pageHasContent = false
+            }
+            placements += Placement(block, page, y)
+            y += block.height
+            pageHasContent = true
+        }
+        val totalPages = page + 1
+
+        // ---------- Render ----------
+        val doc = PdfDocument()
+        val miniPaint = paint(9f, color = MUTED)
+        val footerPaint = paint(8.5f, color = MUTED)
+        val linePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.rgb(203, 213, 225); strokeWidth = 1f }
+        for (p in 0 until totalPages) {
+            val pageInfo = PdfDocument.PageInfo.Builder(PAGE_W, PAGE_H, p + 1).create()
+            val pg = doc.startPage(pageInfo)
+            val c = pg.canvas
+            if (p > 0) {
+                c.drawText("StudyPoint — ${data.testTitle}", MARGIN.toFloat(), (MARGIN + 9).toFloat(), miniPaint)
+                c.drawLine(
+                    MARGIN.toFloat(), (MARGIN + 14).toFloat(),
+                    (MARGIN + CONTENT_W).toFloat(), (MARGIN + 14).toFloat(), linePaint
+                )
+            }
+            placements.filter { it.page == p }.forEach { it.block.draw(c, MARGIN, it.y) }
+            c.drawLine(
+                MARGIN.toFloat(), (FOOTER_Y - 10).toFloat(),
+                (MARGIN + CONTENT_W).toFloat(), (FOOTER_Y - 10).toFloat(), linePaint
+            )
+            c.drawText("StudyPoint — ${data.testTitle}", MARGIN.toFloat(), FOOTER_Y.toFloat(), footerPaint)
+            val pageText = "Page ${p + 1} of $totalPages"
+            val w = footerPaint.measureText(pageText)
+            c.drawText(pageText, (PAGE_W - MARGIN - w), FOOTER_Y.toFloat(), footerPaint)
+            doc.finishPage(pg)
+        }
+        outFile.parentFile?.mkdirs()
+        FileOutputStream(outFile).use { doc.writeTo(it) }
+        doc.close()
+        return outFile
+    }
+
+    /** Board Pattern paper (Class 10 Tarjuma-tul-Quran): 50 marks —
+     *  Q.1 10 MCQs; Q.2 shorts (any 5 of 8); Q.3 word meanings (any 5 of 8);
+     *  Q.4 ayat translation (any 3 of 5); Q.5 detailed (any 1 of 2). */
+    fun generateBoardPatternTq(context: Context, data: TqBoardPaperData, outFile: File): File {
+        val blocks = mutableListOf<Block>()
+
+        // ---------- Header (school banner + info grid) ----------
+        blocks += schoolHeaderBlocks(
+            context, data.header, data.testTitle, data.subject, data.classLabel,
+            "2 Hours", "50"
+        )
+
+        val instrText = if (data.includeAnswers) {
+            "Solved paper: the answer key is given at the end. Note: Q.1 is compulsory. In each subjective question, attempt only the required number of parts."
+        } else {
+            "Note: Q.1 is compulsory. In each subjective question, attempt only the required number of parts. Write your answers neatly in the answer copy."
+        }
+        val instrLayout = layoutOf(instrText, paint(10.5f, color = MUTED))
+        blocks += Block(instrLayout.height + 12) { c, x, y ->
+            c.save(); c.translate(x.toFloat(), y.toFloat()); instrLayout.draw(c); c.restore()
+            val linePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.rgb(203, 213, 225); strokeWidth = 1f }
+            val ly = y + instrLayout.height + 6
+            c.drawLine(x.toFloat(), ly.toFloat(), (x + CONTENT_W).toFloat(), ly.toFloat(), linePaint)
+        }
+
+        fun partBanner(text: String) {
+            val h = layoutOf(text, paint(14f, bold = true, color = NAVY))
+            blocks += Block(h.height + 16) { c, x, y ->
+                val tx = x + (CONTENT_W - h.width) / 2
+                c.save(); c.translate(tx.toFloat(), (y + 6).toFloat()); h.draw(c); c.restore()
+                val rp = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = GREEN; strokeWidth = 1.6f }
+                c.drawLine(x.toFloat(), (y + 6 + h.height + 4).toFloat(), (x + CONTENT_W).toFloat(), (y + 6 + h.height + 4).toFloat(), rp)
+            }
+        }
+        fun qHeading(text: String) {
+            val h = layoutOf(text, paint(12.5f, bold = true, color = NAVY))
+            blocks += Block(h.height + 8, draw = stackDraw(listOf(h)))
+        }
+        fun body(text: String, p: TextPaint = paint(11.5f)) {
+            blocks += blocksFor(listOf(layoutOf(text, p)), gapAfter = 8)
+        }
+
+        // ---------- OBJECTIVE PART ----------
+        partBanner("OBJECTIVE PART")
+        qHeading("Q.1  Choose the correct option:   (10 x 1 = 10)")
+        addMcqTable(blocks, data.mcqs)
+
+        // ---------- SUBJECTIVE PART ----------
+        partBanner("SUBJECTIVE PART")
+        body("Time Allowed: 1 Hour 45 Minutes   •   Total Marks: 40", paint(11f, bold = true, color = NAVY))
+
+        qHeading("Q.2  Write short answers to any FIVE (5) questions.   (2 x 5 = 10)")
+        data.shorts.forEachIndexed { i, wq ->
+            body("${roman(i)}  ${wq.question}")
+        }
+
+        qHeading("Q.3  Write the meanings of any FIVE (5) of the following words.   (1 x 5 = 5)")
+        val colW = CONTENT_W / 2
+        val wordPaint = paint(11.5f)
+        val meanWords = data.meanings.mapIndexed { idx, m -> "${roman(idx)}  ${m.word}" }
+        meanWords.chunked(2).forEach { row ->
+            blocks += Block(19) { c, x, y ->
+                row.forEachIndexed { col, text ->
+                    c.drawText(text, (x + col * colW).toFloat(), (y + 13).toFloat(), wordPaint)
+                }
+            }
+        }
+        blocks += Block(8) { _, _, _ -> }
+
+        qHeading("Q.4  Translate the following verses into idiomatic Urdu. Attempt any THREE (3).   (3 x 5 = 15)")
+        data.ayat.forEachIndexed { i, wq ->
+            body("${roman(i)}  ${wq.question}")
+        }
+
+        qHeading("Q.5  Write a detailed answer to any ONE (1) of the following questions.   (1 x 10 = 10)")
+        data.longs.forEachIndexed { i, wq ->
+            body("${roman(i)}  ${wq.question}")
+        }
+
+        // ---------- Answer key ----------
+        if (data.includeAnswers) {
+            val keyTitle = layoutOf("ANSWER KEY", paint(15f, bold = true, color = NAVY))
+            blocks += Block(40, forceNewPage = true) { c, x, y ->
+                val tx = x + (CONTENT_W - keyTitle.width) / 2
+                c.save(); c.translate(tx.toFloat(), y.toFloat()); keyTitle.draw(c); c.restore()
+                val rulePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = GREEN; strokeWidth = 2f }
+                c.drawLine(x.toFloat(), (y + 30).toFloat(), (x + CONTENT_W).toFloat(), (y + 30).toFloat(), rulePaint)
+            }
+            val ansPaint = paint(11f, color = ANS_COLOR)
+            val missPaint = paint(10.5f, color = MUTED)
+            val keyPaint = paint(11.5f)
+            qHeading("Q.1  (MCQs)")
+            val kcolW = CONTENT_W / 4
+            val entries = data.mcqs.mapIndexed { idx, q ->
+                val letter = if (q.correctAnswerIndex in q.options.indices) {
+                    ('A' + q.correctAnswerIndex).toString()
+                } else "?"
+                "${idx + 1}.  $letter"
+            }
+            entries.chunked(4).forEach { row ->
+                blocks += Block(19) { c, x, y ->
+                    row.forEachIndexed { col, text ->
+                        c.drawText(text, (x + col * kcolW).toFloat(), (y + 13).toFloat(), keyPaint)
+                    }
+                }
+            }
+            blocks += Block(10) { _, _, _ -> }
+
+            qHeading("Q.2  (Short Answers)")
+            data.shorts.forEachIndexed { i, wq ->
+                val r = roman(i)
+                if (wq.answer.isNotBlank()) {
+                    blocks += blocksFor(listOf(layoutOf(boldPrefix("$r  ", wq.answer), ansPaint)), gapAfter = 6)
+                } else {
+                    blocks += blocksFor(listOf(layoutOf("$r  (Answer not available in the source data)", missPaint)), gapAfter = 6)
+                }
+            }
+
+            qHeading("Q.3  (Word Meanings)")
+            data.meanings.forEachIndexed { i, m ->
+                val r = roman(i)
+                blocks += blocksFor(listOf(layoutOf(boldPrefix("$r  ", "${m.word} — ${m.meaning}"), ansPaint)), gapAfter = 6)
+            }
+
+            qHeading("Q.4  (Translations)")
+            data.ayat.forEachIndexed { i, wq ->
+                val r = roman(i)
+                if (wq.answer.isNotBlank()) {
+                    blocks += blocksFor(listOf(layoutOf(boldPrefix("$r  ", wq.answer), ansPaint)), gapAfter = 6)
+                } else {
+                    blocks += blocksFor(listOf(layoutOf("$r  (Answer not available in the source data)", missPaint)), gapAfter = 6)
+                }
+            }
+
+            qHeading("Q.5  (Detailed Answer)")
+            data.longs.forEachIndexed { i, wq ->
+                val r = roman(i)
+                if (wq.answer.isNotBlank()) {
+                    blocks += blocksFor(listOf(layoutOf(boldPrefix("$r  ", wq.answer), ansPaint)), gapAfter = 6)
+                } else {
+                    blocks += blocksFor(listOf(layoutOf("$r  (Answer not available in the source data)", missPaint)), gapAfter = 6)
                 }
             }
         }
