@@ -587,6 +587,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
         loading = true
         progress.visibility = View.VISIBLE
         tvChapterStatus.text = "Loading questions..."
+        val prevChecked = chapterChecks.filter { it.isChecked }.map { it.tag as String }.toSet()
         layoutChapters.removeAllViews()
         chapterChecks.clear()
         loadJob = scope.launch {
@@ -634,7 +635,9 @@ class PaperGeneratorActivity : AppCompatActivity() {
                     text = "$ch  ($count questions)"
                     tag = ch
                     textSize = 14.5f
-                    setTextColor(Color.parseColor("#1E293B"))
+                    setTextColor(selectColors())
+                    buttonTintList = selectColors()
+                    isChecked = prevChecked.contains(ch)
                     isEnabled = !checkAllChapters.isChecked
                     setOnCheckedChangeListener { _, _ -> renderQuestions() }
                 }
@@ -775,6 +778,14 @@ class PaperGeneratorActivity : AppCompatActivity() {
         return longAll.filter { wq -> sel.any { writtenInChapter(wq, it) } }.sortedBy { it.id }
     }
 
+    /** Selection colours (user-requested): green when an item is selected,
+     *  red when it is not - one glance shows what is picked. */
+    private fun selectColors(): android.content.res.ColorStateList =
+        android.content.res.ColorStateList(
+            arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()),
+            intArrayOf(Color.parseColor("#16A34A"), Color.parseColor("#DC2626"))
+        )
+
     private fun divider(): View = View(this).apply {
         layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1)
         setBackgroundColor(Color.parseColor("#E2E8F0"))
@@ -840,6 +851,8 @@ class PaperGeneratorActivity : AppCompatActivity() {
         val cb = CheckBox(this).apply {
             text = q.questionText
             textSize = 13.5f
+            setTextColor(selectColors())
+            buttonTintList = selectColors()
             isChecked = q.id in selectedMcqIds
             setOnCheckedChangeListener { _, checked ->
                 if (checked) selectedMcqIds += q.id else selectedMcqIds -= q.id
@@ -883,6 +896,8 @@ class PaperGeneratorActivity : AppCompatActivity() {
         val cb = CheckBox(this).apply {
             text = q.question
             textSize = 13.5f
+            setTextColor(selectColors())
+            buttonTintList = selectColors()
             isChecked = q.id in selection
             setOnCheckedChangeListener { _, checked ->
                 if (checked) selection += q.id else selection -= q.id
@@ -1116,7 +1131,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
                     val safeSubject = data.subject.replace(Regex("[^A-Za-z0-9]+"), "_")
                     val ts = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
                     val docx = isDocx()
-                    val out = File(File(cacheDir, "papers"), "Paper_${safeSubject}_$ts." + if (docx) "docx" else "pdf")
+                    val out = File(papersDir(), "Paper_${safeSubject}_$ts." + if (docx) "docx" else "pdf")
                     if (docx) PaperDocxGenerator.generate(applicationContext, data, out)
                     else PaperPdfGenerator.generate(applicationContext, data, out)
                 }
@@ -1247,7 +1262,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
                 withContext(Dispatchers.IO) {
                     val ts = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
                     val docx = isDocx()
-                    val out = File(File(cacheDir, "papers"), "BoardPattern_English10_$ts." + if (docx) "docx" else "pdf")
+                    val out = File(papersDir(), "BoardPattern_English10_$ts." + if (docx) "docx" else "pdf")
                     if (docx) PaperDocxGenerator.generateBoardPattern(applicationContext, data, out)
                     else PaperPdfGenerator.generateBoardPattern(applicationContext, data, out)
                 }
@@ -1358,7 +1373,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
                 withContext(Dispatchers.IO) {
                     val ts = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
                     val docx = isDocx()
-                    val out = File(File(cacheDir, "papers"), "BoardPattern_English11_$ts." + if (docx) "docx" else "pdf")
+                    val out = File(papersDir(), "BoardPattern_English11_$ts." + if (docx) "docx" else "pdf")
                     if (docx) PaperDocxGenerator.generateBoardPatternEng11(applicationContext, data, out)
                     else PaperPdfGenerator.generateBoardPatternEng11(applicationContext, data, out)
                 }
@@ -1485,7 +1500,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
                 withContext(Dispatchers.IO) {
                     val ts = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
                     val docx = isDocx()
-                    val out = File(File(cacheDir, "papers"), "BoardPattern_Physics12_$ts." + if (docx) "docx" else "pdf")
+                    val out = File(papersDir(), "BoardPattern_Physics12_$ts." + if (docx) "docx" else "pdf")
                     if (docx) PaperDocxGenerator.generateBoardPatternPhy12(applicationContext, data, out)
                     else PaperPdfGenerator.generateBoardPatternPhy12(applicationContext, data, out)
                 }
@@ -1611,7 +1626,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
                 withContext(Dispatchers.IO) {
                     val ts = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
                     val docx = isDocx()
-                    val out = File(File(cacheDir, "papers"), "BoardPattern_Chemistry10_$ts." + if (docx) "docx" else "pdf")
+                    val out = File(papersDir(), "BoardPattern_Chemistry10_$ts." + if (docx) "docx" else "pdf")
                     if (docx) PaperDocxGenerator.generateBoardPatternChem10(applicationContext, data, out)
                     else PaperPdfGenerator.generateBoardPatternChem10(applicationContext, data, out)
                 }
@@ -1681,7 +1696,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
                 withContext(Dispatchers.IO) {
                     val ts = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
                     val docx = isDocx()
-                    val out = File(File(cacheDir, "papers"), "BoardPattern_CS9_$ts." + if (docx) "docx" else "pdf")
+                    val out = File(papersDir(), "BoardPattern_CS9_$ts." + if (docx) "docx" else "pdf")
                     if (docx) PaperDocxGenerator.generateBoardPatternCs(applicationContext, data, out)
                     else PaperPdfGenerator.generateBoardPatternCs(applicationContext, data, out)
                 }
@@ -1774,7 +1789,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
                 withContext(Dispatchers.IO) {
                     val ts = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
                     val docx = isDocx()
-                    val out = File(File(cacheDir, "papers"), "BoardPattern_TQ10_$ts." + if (docx) "docx" else "pdf")
+                    val out = File(papersDir(), "BoardPattern_TQ10_$ts." + if (docx) "docx" else "pdf")
                     if (docx) PaperDocxGenerator.generateBoardPatternTq(applicationContext, data, out)
                     else PaperPdfGenerator.generateBoardPatternTq(applicationContext, data, out)
                 }
@@ -1793,6 +1808,14 @@ class PaperGeneratorActivity : AppCompatActivity() {
         }
     }
 
+    /** Generated papers live in the app-specific external folder (not the
+     *  internal cache): external viewers such as MS Word open them reliably
+     *  through the FileProvider external-files path. */
+    private fun papersDir(): File {
+        val base = getExternalFilesDir(null) ?: cacheDir
+        return File(base, "papers").apply { mkdirs() }
+    }
+
     private fun pdfUri(file: File) =
         FileProvider.getUriForFile(this, "$packageName.fileprovider", file)
 
@@ -1808,9 +1831,11 @@ class PaperGeneratorActivity : AppCompatActivity() {
     private fun previewPdf() {
         val file = lastFile ?: return
         try {
+            val uri = pdfUri(file)
             val intent = Intent(Intent.ACTION_VIEW).apply {
-                setDataAndType(pdfUri(file), mimeFor(file))
+                setDataAndType(uri, mimeFor(file))
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                clipData = android.content.ClipData.newRawUri(null, uri)
             }
             startActivity(intent)
         } catch (e: Exception) {
