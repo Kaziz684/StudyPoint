@@ -87,10 +87,6 @@ object PaperPdfGenerator {
         return p
     }
 
-    private fun centeredLayout(text: String, p: TextPaint, width: Int): StaticLayout =
-        StaticLayout.Builder.obtain(text, 0, text.length, p, width)
-            .setAlignment(Layout.Alignment.ALIGN_CENTER).build()
-
     private fun fitSerif(text: String, startSize: Float, maxWidth: Int): TextPaint {
         var size = startSize
         var p = serifPaint(size, bold = true)
