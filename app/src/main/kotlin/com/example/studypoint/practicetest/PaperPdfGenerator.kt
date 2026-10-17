@@ -70,9 +70,9 @@ object PaperPdfGenerator {
 
     /** Editable school header printed at the top of every generated paper. */
     data class SchoolHeader(
-        val schoolName: String = "AL QURAN SYSTEM OF EDUCATION",
-        val address: String = "Hussaini Chowk, Satellite Town, Bahawalpur",
-        val phone: String = "0300 5675271",
+        val schoolName: String = "AL SAMAD ACADEMY BWP",
+        val address: String = "",
+        val phone: String = "0301 23456789",
         val paperCode: String = "",
         val passingMarks: String = "",
         val logoPath: String = ""
