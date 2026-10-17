@@ -490,6 +490,100 @@ object PaperDocxGenerator {
         return writeDocx(sb.toString(), data.testTitle, logo, outFile)
     }
 
+    // ---------------- Board Pattern (Class 10 Tarjuma-tul-Quran) ----------------
+
+    fun generateBoardPatternTq(context: Context, data: PaperPdfGenerator.TqBoardPaperData, outFile: File): File {
+        val logo = logoPng(context, data.header)
+        val sb = StringBuilder()
+        sb.append(
+            headerXml(
+                data.header, data.testTitle, data.subject, data.classLabel,
+                "2 Hours", "50", null, logo != null
+            )
+        )
+        sb.append(
+            instructionsXml(
+                if (data.includeAnswers) {
+                    "Solved paper: the answer key is given at the end. Note: Q.1 is compulsory. In each subjective question, attempt only the required number of parts."
+                } else {
+                    "Note: Q.1 is compulsory. In each subjective question, attempt only the required number of parts. Write your answers neatly in the answer copy."
+                }
+            )
+        )
+
+        sb.append(bannerXml("OBJECTIVE PART"))
+        sb.append(qHeadingXml("Q.1  Choose the correct option:   (10 x 1 = 10)"))
+        sb.append(mcqsXml(data.mcqs))
+
+        sb.append(bannerXml("SUBJECTIVE PART"))
+        sb.append(pText("Time Allowed: 1 Hour 45 Minutes   •   Total Marks: 40", bold = true, size = 22, color = NAVY, after = 140))
+
+        sb.append(qHeadingXml("Q.2  Write short answers to any FIVE (5) questions.   (2 x 5 = 10)"))
+        data.shorts.forEachIndexed { i, wq ->
+            sb.append(pText(roman(i) + "  " + wq.question, after = 100))
+        }
+
+        sb.append(qHeadingXml("Q.3  Write the meanings of any FIVE (5) of the following words.   (1 x 5 = 5)"))
+        val meanEntries = data.meanings.mapIndexed { idx, m -> roman(idx) + "  " + m.word }
+        meanEntries.chunked(2).forEach { row ->
+            var runs = ""
+            row.forEachIndexed { col, text ->
+                if (col > 0) runs += tabRun()
+                runs += run(text, size = 23)
+            }
+            sb.append(para(runs, after = 70, tabs = true))
+        }
+
+        sb.append(qHeadingXml("Q.4  Translate the following verses into idiomatic Urdu. Attempt any THREE (3).   (3 x 5 = 15)"))
+        data.ayat.forEachIndexed { i, wq ->
+            sb.append(pText(roman(i) + "  " + wq.question, after = 100))
+        }
+
+        sb.append(qHeadingXml("Q.5  Write a detailed answer to any ONE (1) of the following questions.   (1 x 10 = 10)"))
+        data.longs.forEachIndexed { i, wq ->
+            sb.append(pText(roman(i) + "  " + wq.question, after = 100))
+        }
+
+        if (data.includeAnswers) {
+            sb.append(keyTitleXml("ANSWER KEY"))
+            sb.append(qHeadingXml("Q.1  (MCQs)"))
+            sb.append(keyEntriesXml(data.mcqs))
+            sb.append(pText("", size = 10, after = 80))
+            sb.append(qHeadingXml("Q.2  (Short Answers)"))
+            data.shorts.forEachIndexed { i, wq ->
+                val r = roman(i)
+                if (wq.answer.isNotBlank()) {
+                    sb.append(pBoldPrefix(r + "  ", wq.answer, size = 22, color = ANS, after = 90))
+                } else {
+                    sb.append(pText(r + "  (Answer not available in the source data)", size = 21, color = MUTED, after = 90))
+                }
+            }
+            sb.append(qHeadingXml("Q.3  (Word Meanings)"))
+            data.meanings.forEachIndexed { i, m ->
+                sb.append(pBoldPrefix(roman(i) + "  ", m.word + " — " + m.meaning, size = 22, color = ANS, after = 90))
+            }
+            sb.append(qHeadingXml("Q.4  (Translations)"))
+            data.ayat.forEachIndexed { i, wq ->
+                val r = roman(i)
+                if (wq.answer.isNotBlank()) {
+                    sb.append(pBoldPrefix(r + "  ", wq.answer, size = 22, color = ANS, after = 90))
+                } else {
+                    sb.append(pText(r + "  (Answer not available in the source data)", size = 21, color = MUTED, after = 90))
+                }
+            }
+            sb.append(qHeadingXml("Q.5  (Detailed Answer)"))
+            data.longs.forEachIndexed { i, wq ->
+                val r = roman(i)
+                if (wq.answer.isNotBlank()) {
+                    sb.append(pBoldPrefix(r + "  ", wq.answer, size = 22, color = ANS, after = 90))
+                } else {
+                    sb.append(pText(r + "  (Answer not available in the source data)", size = 21, color = MUTED, after = 90))
+                }
+            }
+        }
+        return writeDocx(sb.toString(), data.testTitle, logo, outFile)
+    }
+
     // ---------------- Board Pattern (Class 10 English) ----------------
 
     fun generateBoardPattern(context: Context, data: PaperPdfGenerator.BoardPaperData, outFile: File): File {

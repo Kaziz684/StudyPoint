@@ -147,4 +147,26 @@ object BoardPatternPack {
     } catch (e: Exception) {
         null
     }
+
+    data class WordMeaning(val word: String, val meaning: String, val surah: String)
+
+    /** Class 10 Tarjuma-tul-Quran board-pattern word meanings (board_pattern_tarjuma.json):
+     *  56 words with meanings and their surah / chapter reference. */
+    fun loadTarjuma(context: Context): List<WordMeaning> = try {
+        val raw = context.assets.open("board_pattern_tarjuma.json")
+            .bufferedReader(Charsets.UTF_8).use { it.readText() }
+        val root = JSONObject(raw)
+        val out = mutableListOf<WordMeaning>()
+        root.optJSONArray("meanings")?.let { arr ->
+            for (i in 0 until arr.length()) {
+                val o = arr.getJSONObject(i)
+                out += WordMeaning(
+                    o.optString("word"), o.optString("meaning"), o.optString("surah")
+                )
+            }
+        }
+        out
+    } catch (e: Exception) {
+        emptyList()
+    }
 }
