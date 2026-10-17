@@ -1062,10 +1062,14 @@ class PaperGeneratorActivity : AppCompatActivity() {
             generateBoardPatternChem10()
             return
         }
+        if (sheet == "Class_10th" && subject.contains("Tarjuma", ignoreCase = true)) {
+            generateBoardPatternTq()
+            return
+        }
         if (sheet != "Class_10th" || !subject.equals("English", ignoreCase = true)) {
             Toast.makeText(
                 this,
-                "Board Pattern is available for Class 10 English, Class 10 Chemistry, Class 11 English, Class 12 Physics and Class 9 Computer Science only",
+                "Board Pattern is available for Class 10 English, Class 10 Chemistry, Class 10 Tarjuma-tul-Quran, Class 11 English, Class 12 Physics and Class 9 Computer Science only",
                 Toast.LENGTH_LONG
             ).show()
             return
@@ -1593,6 +1597,99 @@ class PaperGeneratorActivity : AppCompatActivity() {
                 lastFile = file
                 layoutActions.visibility = View.VISIBLE
                 tvStatus.text = "Paper ready: Board Pattern Paper (Q.1: 10 MCQs, Q.2-Q.4 Shorts, Q.5-Q.7 Longs) • ${file.name}"
+                Toast.makeText(this@PaperGeneratorActivity, "Board Pattern paper generated", Toast.LENGTH_SHORT).show()
+            } else {
+                tvStatus.text = "Paper generation failed. Please try again."
+            }
+        }
+    }
+
+    /** Board Pattern paper (Class 10 Tarjuma-tul-Quran): 50 marks —
+     *  Q.1 10 MCQs; Q.2 shorts (any 5 of 8); Q.3 word meanings (any 5 of 8);
+     *  Q.4 ayat translation (any 3 of 5); Q.5 detailed (any 1 of 2). */
+    private fun generateBoardPatternTq() {
+        val tqPrefix = "درج ذیل آیت کا بامحاورہ ترجمہ کریں:"
+        val ayatPool = longAll.filter { it.question.startsWith(tqPrefix) }
+            .map { it.copy(question = it.question.removePrefix(tqPrefix).trim()) }
+        val qaLongPool = longAll.filterNot { it.question.startsWith(tqPrefix) }
+        if (mcqAll.size < 10) {
+            Toast.makeText(
+                this,
+                "Not enough MCQs loaded yet (${mcqAll.size} found, 10 needed). Check your internet connection.",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        if (shortAll.size < 8) {
+            Toast.makeText(
+                this,
+                "Not enough Short Questions loaded yet (${shortAll.size} found, 8 needed for Q.2).",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        if (ayatPool.size < 5) {
+            Toast.makeText(
+                this,
+                "Not enough Ayat Translation questions loaded yet (${ayatPool.size} found, 5 needed for Q.4).",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        if (qaLongPool.size < 2) {
+            Toast.makeText(
+                this,
+                "Not enough Long Questions loaded yet (${qaLongPool.size} found, 2 needed for Q.5).",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        val meanings = BoardPatternPack.loadTarjuma(applicationContext)
+        if (meanings.size < 8) {
+            Toast.makeText(
+                this,
+                "Not enough Word Meanings loaded yet (${meanings.size} found, 8 needed for Q.3).",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        val rnd = kotlin.random.Random.Default
+        fun <T> pick(list: List<T>, n: Int): List<T> = list.shuffled(rnd).take(n)
+        val typedTitle = etTitle.text.toString().trim()
+        val title = if (typedTitle.isBlank() || typedTitle == "Question Paper") {
+            "Board Pattern Paper"
+        } else typedTitle
+        val data = PaperPdfGenerator.TqBoardPaperData(
+            testTitle = title,
+            classLabel = "Class 10th",
+            subject = spinnerSubject.selectedItem?.toString() ?: "",
+            header = currentHeader(),
+            mcqs = pick(mcqAll, 10),
+            shorts = pick(shortAll, 8),
+            meanings = pick(meanings, 8),
+            ayat = pick(ayatPool, 5),
+            longs = pick(qaLongPool, 2),
+            includeAnswers = radioSolved.isChecked
+        )
+        btnGenerate.isEnabled = false
+        tvStatus.text = "Generating paper..."
+        scope.launch {
+            val file = try {
+                withContext(Dispatchers.IO) {
+                    val ts = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
+                    val docx = isDocx()
+                    val out = File(File(cacheDir, "papers"), "BoardPattern_TQ10_$ts." + if (docx) "docx" else "pdf")
+                    if (docx) PaperDocxGenerator.generateBoardPatternTq(applicationContext, data, out)
+                    else PaperPdfGenerator.generateBoardPatternTq(applicationContext, data, out)
+                }
+            } catch (e: Exception) {
+                null
+            }
+            btnGenerate.isEnabled = true
+            if (file != null && file.exists()) {
+                lastFile = file
+                layoutActions.visibility = View.VISIBLE
+                tvStatus.text = "Paper ready: Board Pattern Paper (Tarjuma: 10 MCQs, Q.2 Shorts, Q.3 Meanings, Q.4 Ayat Translation, Q.5 Detailed) • ${file.name}"
                 Toast.makeText(this@PaperGeneratorActivity, "Board Pattern paper generated", Toast.LENGTH_SHORT).show()
             } else {
                 tvStatus.text = "Paper generation failed. Please try again."
