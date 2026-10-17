@@ -3,19 +3,19 @@
     <item android:state_checked="true">
         <shape android:shape="rectangle">
             <corners android:radius="12dp" />
-            <solid android:color="#DBEAFE" />
+            <solid android:color="#DCFCE7" />
             <stroke
-                android:width="1.5dp"
-                android:color="#2563EB" />
+                android:width="2dp"
+                android:color="#16A34A" />
         </shape>
     </item>
     <item>
         <shape android:shape="rectangle">
             <corners android:radius="12dp" />
-            <solid android:color="#FFFFFF" />
+            <solid android:color="#FEE2E2" />
             <stroke
-                android:width="1dp"
-                android:color="#CBD5E1" />
+                android:width="1.5dp"
+                android:color="#DC2626" />
         </shape>
     </item>
 </selector>

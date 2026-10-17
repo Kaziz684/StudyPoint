@@ -195,6 +195,8 @@
                 android:textSize="13sp" />
 
             <CheckBox
+                    android:textColor="@color/radio_text_selector"
+                    android:buttonTint="@color/radio_text_selector"
                 android:id="@+id/checkAllChaptersPaper"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -238,6 +240,7 @@
                 android:layout_marginTop="4dp">
 
                 <RadioButton
+                    android:textColor="#1F2937"
                     android:id="@+id/radioTypeMcqs"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -250,6 +253,7 @@
                     android:textSize="15sp" />
 
                 <RadioButton
+                    android:textColor="#1F2937"
                     android:id="@+id/radioTypeShort"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -261,6 +265,7 @@
                     android:textSize="15sp" />
 
                 <RadioButton
+                    android:textColor="#1F2937"
                     android:id="@+id/radioTypeLong"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -272,6 +277,7 @@
                     android:textSize="15sp" />
 
                 <RadioButton
+                    android:textColor="#1F2937"
                     android:id="@+id/radioTypeCombined"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -283,6 +289,7 @@
                     android:textSize="15sp" />
 
                 <RadioButton
+                    android:textColor="#1F2937"
                     android:id="@+id/radioTypeBoard"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -290,7 +297,7 @@
                     android:background="@drawable/type_card_selector"
                     android:button="@null"
                     android:padding="14dp"
-                    android:text="Board Pattern Paper (English 10 / Computer Science 9)"
+                    android:text="Board Pattern Paper (Eng 10/11, Chem 10, Tarjuma 10, Phy 12, CS 9)"
                     android:textSize="15sp" />
             </RadioGroup>
 
@@ -329,6 +336,8 @@
                 android:layout_marginTop="4dp">
 
                 <RadioButton
+                    android:textColor="@color/radio_text_selector"
+                    android:buttonTint="@color/radio_text_selector"
                     android:id="@+id/radioModeManualPaper"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -336,6 +345,8 @@
                     android:text="Manual — read and select questions yourself" />
 
                 <RadioButton
+                    android:textColor="@color/radio_text_selector"
+                    android:buttonTint="@color/radio_text_selector"
                     android:id="@+id/radioModeAutoPaper"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -366,6 +377,8 @@
                     android:layout_marginTop="4dp">
 
                     <RadioButton
+                    android:textColor="@color/radio_text_selector"
+                    android:buttonTint="@color/radio_text_selector"
                         android:id="@+id/radioAllPaper"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -373,6 +386,8 @@
                         android:text="Generate all available questions" />
 
                     <RadioButton
+                    android:textColor="@color/radio_text_selector"
+                    android:buttonTint="@color/radio_text_selector"
                         android:id="@+id/radioCustomPaper"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -388,6 +403,8 @@
                     android:textSize="13sp" />
 
                 <EditText
+                    android:textColor="#1F2937"
+                    android:textColorHint="#94A3B8"
                     android:id="@+id/etCustomCountPaper"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -408,6 +425,8 @@
                     android:textSize="13sp" />
 
                 <EditText
+                    android:textColor="#1F2937"
+                    android:textColorHint="#94A3B8"
                     android:id="@+id/etCountShortPaper"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -428,6 +447,8 @@
                     android:textSize="13sp" />
 
                 <EditText
+                    android:textColor="#1F2937"
+                    android:textColorHint="#94A3B8"
                     android:id="@+id/etCountLongPaper"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -455,6 +476,8 @@
                     android:layout_marginTop="4dp">
 
                     <RadioButton
+                    android:textColor="@color/radio_text_selector"
+                    android:buttonTint="@color/radio_text_selector"
                         android:id="@+id/radioSelectFirstPaper"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -462,6 +485,8 @@
                         android:text="First questions in original order" />
 
                     <RadioButton
+                    android:textColor="@color/radio_text_selector"
+                    android:buttonTint="@color/radio_text_selector"
                         android:id="@+id/radioSelectRandomPaper"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -501,6 +526,8 @@
                     android:orientation="horizontal">
 
                     <EditText
+                    android:textColor="#1F2937"
+                    android:textColorHint="#94A3B8"
                         android:id="@+id/etSearchPaper"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -558,6 +585,8 @@
                 android:layout_marginTop="4dp">
 
                 <RadioButton
+                    android:textColor="@color/radio_text_selector"
+                    android:buttonTint="@color/radio_text_selector"
                     android:id="@+id/radioUnsolvedPaper"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -565,6 +594,8 @@
                     android:text="Unsolved (no answers)" />
 
                 <RadioButton
+                    android:textColor="@color/radio_text_selector"
+                    android:buttonTint="@color/radio_text_selector"
                     android:id="@+id/radioSolvedPaper"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -594,6 +625,7 @@
                 android:layout_marginTop="4dp">
 
                 <RadioButton
+                    android:textColor="#1F2937"
                     android:id="@+id/radioOriginalPaper"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -601,6 +633,7 @@
                     android:text="Original order" />
 
                 <RadioButton
+                    android:textColor="#1F2937"
                     android:id="@+id/radioRandomPaper"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -620,6 +653,8 @@
                 android:text="Test Title" />
 
             <EditText
+                    android:textColor="#1F2937"
+                    android:textColorHint="#94A3B8"
                 android:id="@+id/etPaperTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -641,6 +676,8 @@
                 android:text="Time Allowed" />
 
             <EditText
+                    android:textColor="#1F2937"
+                    android:textColorHint="#94A3B8"
                 android:id="@+id/etTimePaper"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -677,6 +714,8 @@
                 android:textStyle="bold"
                 android:text="School Name" />
             <EditText
+                    android:textColor="#1F2937"
+                    android:textColorHint="#94A3B8"
                 android:id="@+id/etSchoolName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -694,6 +733,8 @@
                 android:textStyle="bold"
                 android:text="Address" />
             <EditText
+                    android:textColor="#1F2937"
+                    android:textColorHint="#94A3B8"
                 android:id="@+id/etSchoolAddress"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -711,6 +752,8 @@
                 android:textStyle="bold"
                 android:text="Phone" />
             <EditText
+                    android:textColor="#1F2937"
+                    android:textColorHint="#94A3B8"
                 android:id="@+id/etSchoolPhone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -741,6 +784,8 @@
                 android:textStyle="bold"
                 android:text="Paper Code" />
             <EditText
+                    android:textColor="#1F2937"
+                    android:textColorHint="#94A3B8"
                 android:id="@+id/etPaperCode"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -767,6 +812,8 @@
                 android:textStyle="bold"
                 android:text="Passing Marks" />
             <EditText
+                    android:textColor="#1F2937"
+                    android:textColorHint="#94A3B8"
                 android:id="@+id/etPassingMarks"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -864,6 +911,8 @@
                 android:layout_marginTop="4dp">
 
                 <RadioButton
+                    android:textColor="@color/radio_text_selector"
+                    android:buttonTint="@color/radio_text_selector"
                     android:id="@+id/radioFormatPdfPaper"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -871,6 +920,8 @@
                     android:text="PDF" />
 
                 <RadioButton
+                    android:textColor="@color/radio_text_selector"
+                    android:buttonTint="@color/radio_text_selector"
                     android:id="@+id/radioFormatDocxPaper"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
