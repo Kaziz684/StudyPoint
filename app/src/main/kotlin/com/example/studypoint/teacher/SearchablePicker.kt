@@ -2,12 +2,16 @@ package com.example.studypoint.teacher
 
 import android.app.AlertDialog
 import android.content.Context
+import android.graphics.Color
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.widget.ArrayAdapter
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.ListView
+import android.widget.ScrollView
+import android.widget.Toast
 import com.example.studypoint.R
 
 /**
@@ -98,7 +102,7 @@ object SearchablePicker {
         val checked = selected.toMutableSet()
         val root = LinearLayout(context)
         root.orientation = LinearLayout.VERTICAL
-        root.setPadding(dp(context, 18), dp(context, 16), dp(context, 18), dp(context, 4))
+        root.setPadding(TeacherUi.dp(context, 18), TeacherUi.dp(context, 16), TeacherUi.dp(context, 18), TeacherUi.dp(context, 4))
 
         val search = EditText(context)
         search.hint = "Search..."
@@ -113,9 +117,9 @@ object SearchablePicker {
         list.orientation = LinearLayout.VERTICAL
         val scroll = ScrollView(context)
         val scrollLp = LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT, dp(context, 340)
+            LinearLayout.LayoutParams.MATCH_PARENT, TeacherUi.dp(context, 340)
         )
-        scrollLp.topMargin = dp(context, 10)
+        scrollLp.topMargin = TeacherUi.dp(context, 10)
         scroll.layoutParams = scrollLp
         scroll.addView(list)
         root.addView(scroll)
@@ -146,7 +150,7 @@ object SearchablePicker {
                 cb.textSize = 15.5f
                 cb.setTextColor(Color.parseColor("#1F2937"))
                 cb.isChecked = checked.contains(value)
-                cb.setPadding(dp(context, 4), dp(context, 6), dp(context, 4), dp(context, 6))
+                cb.setPadding(TeacherUi.dp(context, 4), TeacherUi.dp(context, 6), TeacherUi.dp(context, 4), TeacherUi.dp(context, 6))
                 cb.setOnCheckedChangeListener { _, isChecked ->
                     if (isChecked) {
                         if (checked.size >= max) {
