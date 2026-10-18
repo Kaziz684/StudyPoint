@@ -31,6 +31,16 @@ object SubjectStructure {
                     StudySection("ug1", "مضامین", "Essays (Mazameen)", "chapter"),
                     StudySection("ug2", "تفہیم عبارات", "Comprehension (Tafheem-e-Ebaraat)", "chapter")
                 )
+                "9" -> listOf(
+                    StudySection("ug1", "اسم و کلمہ", "قواعد", "chapter"),
+                    StudySection("ug2", "فعل", "قواعد", "chapter"),
+                    StudySection("ug3", "حرف", "قواعد", "chapter"),
+                    StudySection("ug4", "مرکب ناقص", "قواعد", "chapter"),
+                    StudySection("ug5", "مرکب مفید و جملہ و کلام", "قواعد", "chapter"),
+                    StudySection("ug6", "جملے کی اقسام", "قواعد", "chapter"),
+                    StudySection("ug7", "علم بیان", "قواعد", "chapter"),
+                    StudySection("ug8", "علم بدیع", "قواعد", "chapter")
+                )
                 else -> emptyList()
             }
             "urdu_ghazal" -> when (grade) {
@@ -51,10 +61,10 @@ object SubjectStructure {
                 "9" -> listOf(
                     StudySection("n1", "حمد", "نظم — مظفر وارثی", "chapter"),
                     StudySection("n2", "نعت", "نظم — مولانا ظفر علی خان", "chapter"),
-                    StudySection("n3", "محنت کی برکات", "نظم — مولانا حالی", "chapter"),
+                    StudySection("n3", "محنت کی برکت", "نظم — مولانا الطاف حسین حالی", "chapter"),
                     StudySection("n4", "جاوید کے نام", "نظم — علامہ محمد اقبال", "chapter"),
-                    StudySection("n5", "پیامِ لطیف", "نظم — شیخ ایاز", "chapter"),
-                    StudySection("n6", "کرکٹ اور مشاعرہ", "نظم — دلاور فگار", "chapter")
+                    StudySection("n5", "پیامِ لطیف", "نظم — شاہ عبداللطیف بھٹائی (مترجم: شیخ ایاز)", "chapter"),
+                    StudySection("n6", "کرکٹ اور مشاعرہ", "نظم — ڈاکٹر ڈلاور نگار", "chapter")
                 )
                 "10" -> listOf(
                     StudySection("n1", "Chapter 1: حمد", "نظم — امیر مینائی", "chapter"),
@@ -188,6 +198,7 @@ object SubjectStructure {
             s.contains("computer") -> getComputerChapters(grade)
             s.contains("math") -> getMathChapters(grade)
             s.contains("pak") -> getPakStudiesChapters(grade)
+            s.contains("islamiyat") || s.contains("islamiat") -> getIslamiyatChapters(grade)
             s.contains("tarjuma") || s.contains("quran") -> getTarjumaChapters(grade)
             else -> emptyList()
         }
@@ -263,7 +274,8 @@ object SubjectStructure {
             StudySection("pb1", "Bibliography", "", "chapter"),
             StudySection("pb2", "Glossary", "", "chapter"),
             StudySection("pb3", "Index", "", "chapter"),
-            StudySection("pb4", "Solved Numericals", "", "chapter")
+            StudySection("pb4", "Solved Numericals", "", "chapter"),
+            StudySection("pb5", "Short Questions", "", "chapter")
         )
         "10" -> listOf(
             StudySection("p10", "Chapter 10: Thermal Physics", "حرارتی طبیعات", "chapter"),
@@ -411,7 +423,21 @@ object SubjectStructure {
         return s.contains("physics") || s.contains("chemistry") ||
                s.contains("biology") || s.contains("bio") || s.contains("computer") ||
                s.contains("math") || s.contains("pak") ||
+               s.contains("islamiyat") || s.contains("islamiat") ||
                s.contains("tarjuma") || s.contains("quran")
+    }
+
+    // Islamiyat — AYAAN notes book (Grade 9: 6 abwaab, printed titles)
+    private fun getIslamiyatChapters(grade: String): List<StudySection> = when (grade) {
+        "9" -> listOf(
+            StudySection("i1", "Bab 1: قرآن مجید و حدیث نبوی ﷺ", "", "chapter"),
+            StudySection("i2", "Bab 2: ایمانیات و عبادات", "", "chapter"),
+            StudySection("i3", "Bab 3: سیرت نبوی ﷺ", "", "chapter"),
+            StudySection("i4", "Bab 4: اخلاق و آداب", "", "chapter"),
+            StudySection("i5", "Bab 5: حسن معاملات و معاشرت", "", "chapter"),
+            StudySection("i6", "Bab 6: ہدایت کے سرچشمے اور مشاہیر اسلام", "", "chapter")
+        )
+        else -> emptyList()
     }
 
     // Tarjuma-tul-Quran — PCTB new syllabus (Grade 10: 15 surahs, list from his book/ustad360 photo 2026-10-16)
@@ -432,6 +458,26 @@ object SubjectStructure {
             StudySection("t13", "Ch 13: Surah Ghafir / Momin", "سورة غافر", "chapter"),
             StudySection("t14", "Ch 14: Surah Fussilat / Hamim Sajdah", "سورة فصلت", "chapter"),
             StudySection("t15", "Ch 15: Surah Shura", "سورة الشورى", "chapter")
+        )
+        "9" -> listOf(
+            StudySection("t1", "Ch 1: Surah Maryam", "سورة مريم", "chapter"),
+            StudySection("t2", "Ch 2: Surah Taha", "سورة طه", "chapter"),
+            StudySection("t3", "Ch 3: Surah Al-Anbiya", "سورة الأنبياء", "chapter"),
+            StudySection("t4", "Ch 4: Surah Al-Hajj", "سورة الحج", "chapter"),
+            StudySection("t5", "Ch 5: Surah Al-Furqan", "سورة الفرقان", "chapter"),
+            StudySection("t6", "Ch 6: Surah Ash-Shuara", "سورة الشعراء", "chapter"),
+            StudySection("t7", "Ch 7: Surah An-Naml", "سورة النمل", "chapter"),
+            StudySection("t8", "Ch 8: Surah Al-Qasas", "سورة القصص", "chapter"),
+            StudySection("t9", "Ch 9: Surah Al-Ankabut", "سورة العنكبوت", "chapter"),
+            StudySection("t10", "Ch 10: Surah Ar-Rum", "سورة الروم", "chapter"),
+            StudySection("t11", "Ch 11: Surah Luqman", "سورة لقمان", "chapter"),
+            StudySection("t12", "Ch 12: Surah As-Sajdah", "سورة السجدة", "chapter"),
+            StudySection("t13", "Ch 13: Surah Saba", "سورة سبأ", "chapter"),
+            StudySection("t14", "Ch 14: Surah Fatir", "سورة فاطر", "chapter"),
+            StudySection("t15", "Ch 15: Surah Ya-Sin", "سورة يس", "chapter"),
+            StudySection("t16", "Ch 16: Surah As-Saffat", "سورة الصافات", "chapter"),
+            StudySection("t17", "Ch 17: Surah Sad", "سورة ص", "chapter"),
+            StudySection("t18", "Ch 18: Surah Al-Ahqaf", "سورة الأحقاف", "chapter")
         )
         else -> (1..15).map { StudySection("t$it", "Chapter $it", "", "chapter") }
     }

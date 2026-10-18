@@ -132,6 +132,14 @@ class NotesActivity : AppCompatActivity() {
             return
         }
 
+        // Grammar topic PDF (Class 9 Urdu): all 8 Qawaid topics open the same notes PDF
+        val urduGrammar9Topics = setOf("اسم و کلمہ", "فعل", "حرف", "مرکب ناقص", "مرکب مفید و جملہ و کلام", "جملے کی اقسام", "علم بیان", "علم بدیع")
+        if (gradeKey == "9" && normalizedSubject == "Urdu" && chapterTitle in urduGrammar9Topics) {
+            open("https://drive.google.com/uc?export=download&id=1KfytQVv1cmYdnAgu96zHIvchXfpXvlvi", chapterTitle, rawGrade, normalizedSubject)
+            finish()
+            return
+        }
+
         // Chapter picked from the chapter list (SectionsActivity): open THAT chapter's
         // content directly below (once the pdf links are built) - never show the full
         // chapter list again inside a chapter.
@@ -225,7 +233,8 @@ class NotesActivity : AppCompatActivity() {
                         "Bibliography" to "https://drive.google.com/uc?export=download&id=1afh-_Q1aVnIODgyVPcPesSH1Ei0Gprk2",
                         "Glossary" to "https://drive.google.com/uc?export=download&id=1afh-_Q1aVnIODgyVPcPesSH1Ei0Gprk2",
                         "Index" to "https://drive.google.com/uc?export=download&id=1afh-_Q1aVnIODgyVPcPesSH1Ei0Gprk2",
-                        "Solved Numericals" to "https://drive.google.com/uc?export=download&id=16AniinbfCtgJXimAfI9l3Pa1mNCl8V63"
+                        "Solved Numericals" to "https://drive.google.com/uc?export=download&id=16AniinbfCtgJXimAfI9l3Pa1mNCl8V63",
+                        "Short Questions" to "https://drive.google.com/uc?export=download&id=1wM6JH4YcUITTZz4sP8JTuyypEKp2nAKO"
                     ),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=9_PHY_PP_2022",
@@ -243,7 +252,20 @@ class NotesActivity : AppCompatActivity() {
                 "Chemistry" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=1X5QxTWBgKlwCubCY0OBcjFVlQdsu4kEw",
                     "Book" to "https://drive.google.com/uc?export=download&id=1X5QxTWBgKlwCubCY0OBcjFVlQdsu4kEw",
-                    "Notes" to listOf("https://drive.google.com/uc?export=download&id=15zybNRbmjPO7cIn0Te9gefo5GFPG1UeZ"),
+                    "Notes" to mapOf(
+                        "Chapter 1: States of Matter and Phase Changes" to "https://drive.google.com/uc?export=download&id=1nMi64ikxSxvq-FihYZwQ4OfuMGJbjmf8",
+                        "Chapter 2: Atomic Structure" to "https://drive.google.com/uc?export=download&id=1nMi64ikxSxvq-FihYZwQ4OfuMGJbjmf8",
+                        "Chapter 3: Chemical Bonding" to "https://drive.google.com/uc?export=download&id=1nMi64ikxSxvq-FihYZwQ4OfuMGJbjmf8",
+                        "Chapter 4: Stoichiometry" to "https://drive.google.com/uc?export=download&id=1nMi64ikxSxvq-FihYZwQ4OfuMGJbjmf8",
+                        "Chapter 5: Energetics" to "https://drive.google.com/uc?export=download&id=1nMi64ikxSxvq-FihYZwQ4OfuMGJbjmf8",
+                        "Chapter 6: Equilibria" to "https://drive.google.com/uc?export=download&id=1nMi64ikxSxvq-FihYZwQ4OfuMGJbjmf8",
+                        "Chapter 7: Acid Base Chemistry" to "https://drive.google.com/uc?export=download&id=1nMi64ikxSxvq-FihYZwQ4OfuMGJbjmf8",
+                        "Chapter 8: Periodic Table and Periodicity" to "https://drive.google.com/uc?export=download&id=1nMi64ikxSxvq-FihYZwQ4OfuMGJbjmf8",
+                        "Chapter 9: Group Properties and Elements" to "https://drive.google.com/uc?export=download&id=1nMi64ikxSxvq-FihYZwQ4OfuMGJbjmf8",
+                        "Chapter 10: Environmental Chemistry" to "https://drive.google.com/uc?export=download&id=1nMi64ikxSxvq-FihYZwQ4OfuMGJbjmf8",
+                        "Chapter 12: Empirical Data Collection and Analysis" to "https://drive.google.com/uc?export=download&id=1nMi64ikxSxvq-FihYZwQ4OfuMGJbjmf8",
+                        "Chapter 13: Laboratory and Practical Skills" to "https://drive.google.com/uc?export=download&id=1nMi64ikxSxvq-FihYZwQ4OfuMGJbjmf8"
+                    ),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=9_CHEM_PP_2022",
                         "2023" to "https://drive.google.com/uc?export=download&id=9_CHEM_PP_2023",
@@ -287,7 +309,18 @@ class NotesActivity : AppCompatActivity() {
                 "Urdu" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=1ymJXZaSTWprln5k8Z4u0zZ6EwULbgDBk",
                     "Book" to "https://drive.google.com/uc?export=download&id=1ymJXZaSTWprln5k8Z4u0zZ6EwULbgDBk",
-                    "Notes" to listOf("COMING_SOON"),
+                    "Notes" to mapOf(
+                        "فقیرانہ آئے صدا کر چلے" to "https://drive.google.com/uc?export=download&id=1_18B3lfDvwyO4Nrd9KViIzGoUDgjWrfQ",
+                        "سن تو سہی جہاں میں ہے تیرافسانہ کیا" to "https://drive.google.com/uc?export=download&id=1RY2sgb5r2A1NapUIFCJjl0uz9YiptXKK",
+                        "غم ہے یا خوشی ہے تُو" to "https://drive.google.com/uc?export=download&id=1TV5AcwyI4pYt_d1f4hdaZC7FkWEjyE6R",
+                        "کاش طوفاں میں سفینے کو اتارا ہوتا" to "https://drive.google.com/uc?export=download&id=1FhRFrHFAmOOpamG7b80VeBwaXCz7Ldqi",
+                        "حمد" to "https://drive.google.com/uc?export=download&id=1Xa1d-W16jRWDit8TYiwXNd8axMYzZU2o",
+                        "نعت" to "https://drive.google.com/uc?export=download&id=14OJb6syIBHc3r_sqFpTK-pxds0rJ1N7u",
+                        "محنت کی برکت" to "https://drive.google.com/uc?export=download&id=1YO8c7pYpOoLqmHmv_AzhlYUyLEFsmiiS",
+                        "جاوید کے نام" to "https://drive.google.com/uc?export=download&id=1jal2JQbN5yfKwoWv6uuqcnewJAZc8_MN",
+                        "پیامِ لطیف" to "https://drive.google.com/uc?export=download&id=1bAA2hNKRxzkv6mswpMHrps0tdIyIeS2f",
+                        "کرکٹ اور مشاعرہ" to "https://drive.google.com/uc?export=download&id=1p6nhyWbVKli7BBJC9OwrHelUaxvh8FKz"
+                    ),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=9_URDU_PP_2022",
                         "2023" to "https://drive.google.com/uc?export=download&id=9_URDU_PP_2023",
@@ -304,7 +337,15 @@ class NotesActivity : AppCompatActivity() {
                 "Islamiyat" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=1pC6LTikKN0WEhHIMKoF5uM4iabk_snKF",
                     "Book" to "https://drive.google.com/uc?export=download&id=1pC6LTikKN0WEhHIMKoF5uM4iabk_snKF",
-                    "Notes" to listOf("https://drive.google.com/uc?export=download&id=13KfAtj5FM-6caBamFSBL0X0GZgK7RciR"),
+                    "Notes" to mapOf(
+                        "Complete Notes (All Babs)" to "https://drive.google.com/uc?export=download&id=1w9BBMkAFllJwaJFYEpz8-gZX2Myxe1Tt",
+                        "Bab 1: قرآن مجید و حدیث نبوی ﷺ" to "https://drive.google.com/uc?export=download&id=1vvCq6sLK97OVVpY4xkKc15OJdm0lp-Xe",
+                        "Bab 2: ایمانیات و عبادات" to "https://drive.google.com/uc?export=download&id=1Y9TOovy2aKIv9YMapk4Ni-bGheVOTOIr",
+                        "Bab 3: سیرت نبوی ﷺ" to "https://drive.google.com/uc?export=download&id=18EsCawH0JyHoDRLRl4sktB4uPJs5FAh3",
+                        "Bab 4: اخلاق و آداب" to "https://drive.google.com/uc?export=download&id=1LePsrDuGnGAmNrSqOrqqKFnzfKR4Jnw9",
+                        "Bab 5: حسن معاملات و معاشرت" to "https://drive.google.com/uc?export=download&id=1pd2u_UwovZWvFNg4AhTs0Xfi-nAwaP4E",
+                        "Bab 6: ہدایت کے سرچشمے اور مشاہیر اسلام" to "https://drive.google.com/uc?export=download&id=1sCXLt6DiJNPfdGn-OCaSw92II8qY8Wfp"
+                    ),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=9_ISL_PP_2022",
                         "2023" to "https://drive.google.com/uc?export=download&id=9_ISL_PP_2023",
@@ -321,7 +362,26 @@ class NotesActivity : AppCompatActivity() {
                 "Tarjuma-tul-Quran" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=1U4TI5vqLsGlh49iYWdatb28wUko2Djxv",
                     "Book" to "https://drive.google.com/uc?export=download&id=1U4TI5vqLsGlh49iYWdatb28wUko2Djxv",
-                    "Notes" to listOf("COMING_SOON"),
+                    "Notes" to mapOf(
+                        "Ch 1: Surah Maryam" to "https://drive.google.com/uc?export=download&id=15Zf9924pwq2ZhmndqOi21LY5xRXtW3MY",
+                        "Ch 2: Surah Taha" to "https://drive.google.com/uc?export=download&id=15Zf9924pwq2ZhmndqOi21LY5xRXtW3MY",
+                        "Ch 3: Surah Al-Anbiya" to "https://drive.google.com/uc?export=download&id=15Zf9924pwq2ZhmndqOi21LY5xRXtW3MY",
+                        "Ch 4: Surah Al-Hajj" to "https://drive.google.com/uc?export=download&id=15Zf9924pwq2ZhmndqOi21LY5xRXtW3MY",
+                        "Ch 5: Surah Al-Furqan" to "https://drive.google.com/uc?export=download&id=15Zf9924pwq2ZhmndqOi21LY5xRXtW3MY",
+                        "Ch 6: Surah Ash-Shuara" to "https://drive.google.com/uc?export=download&id=15Zf9924pwq2ZhmndqOi21LY5xRXtW3MY",
+                        "Ch 7: Surah An-Naml" to "https://drive.google.com/uc?export=download&id=15Zf9924pwq2ZhmndqOi21LY5xRXtW3MY",
+                        "Ch 8: Surah Al-Qasas" to "https://drive.google.com/uc?export=download&id=15Zf9924pwq2ZhmndqOi21LY5xRXtW3MY",
+                        "Ch 9: Surah Al-Ankabut" to "https://drive.google.com/uc?export=download&id=15Zf9924pwq2ZhmndqOi21LY5xRXtW3MY",
+                        "Ch 10: Surah Ar-Rum" to "https://drive.google.com/uc?export=download&id=15Zf9924pwq2ZhmndqOi21LY5xRXtW3MY",
+                        "Ch 11: Surah Luqman" to "https://drive.google.com/uc?export=download&id=15Zf9924pwq2ZhmndqOi21LY5xRXtW3MY",
+                        "Ch 12: Surah As-Sajdah" to "https://drive.google.com/uc?export=download&id=15Zf9924pwq2ZhmndqOi21LY5xRXtW3MY",
+                        "Ch 13: Surah Saba" to "https://drive.google.com/uc?export=download&id=15Zf9924pwq2ZhmndqOi21LY5xRXtW3MY",
+                        "Ch 14: Surah Fatir" to "https://drive.google.com/uc?export=download&id=15Zf9924pwq2ZhmndqOi21LY5xRXtW3MY",
+                        "Ch 15: Surah Ya-Sin" to "https://drive.google.com/uc?export=download&id=15Zf9924pwq2ZhmndqOi21LY5xRXtW3MY",
+                        "Ch 16: Surah As-Saffat" to "https://drive.google.com/uc?export=download&id=15Zf9924pwq2ZhmndqOi21LY5xRXtW3MY",
+                        "Ch 17: Surah Sad" to "https://drive.google.com/uc?export=download&id=15Zf9924pwq2ZhmndqOi21LY5xRXtW3MY",
+                        "Ch 18: Surah Al-Ahqaf" to "https://drive.google.com/uc?export=download&id=15Zf9924pwq2ZhmndqOi21LY5xRXtW3MY"
+                    ),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=9_TQ_PP_2022",
                         "2023" to "https://drive.google.com/uc?export=download&id=9_TQ_PP_2023",
