@@ -319,7 +319,16 @@ class NotesActivity : AppCompatActivity() {
                         "محنت کی برکت" to "https://drive.google.com/uc?export=download&id=1YO8c7pYpOoLqmHmv_AzhlYUyLEFsmiiS",
                         "جاوید کے نام" to "https://drive.google.com/uc?export=download&id=1jal2JQbN5yfKwoWv6uuqcnewJAZc8_MN",
                         "پیامِ لطیف" to "https://drive.google.com/uc?export=download&id=1bAA2hNKRxzkv6mswpMHrps0tdIyIeS2f",
-                        "کرکٹ اور مشاعرہ" to "https://drive.google.com/uc?export=download&id=1p6nhyWbVKli7BBJC9OwrHelUaxvh8FKz"
+                        "کرکٹ اور مشاعرہ" to "https://drive.google.com/uc?export=download&id=1p6nhyWbVKli7BBJC9OwrHelUaxvh8FKz",
+                        "اخلاقِ حسنہ" to "https://drive.google.com/uc?export=download&id=1kWTL-RAxvmV2IVXl6ZUqAkf1kMK7SvgD",
+                        "اپنی مدد آپ" to "https://drive.google.com/uc?export=download&id=14SE7JjZb4-V4L1eBABPldMAeVSHwuG5T",
+                        "کلیئم اور مرزا ظاہر دار بیگ" to "https://drive.google.com/uc?export=download&id=1Ofc9TjKAWAQXNPMF9FPyZzX-o4q5PhW9",
+                        "نام دیو مالی" to "https://drive.google.com/uc?export=download&id=1aGdH_1eer4wLXG24LFUWX2ZDGPp1zlFs",
+                        "آرام و سکون" to "https://drive.google.com/uc?export=download&id=1-Dcby2qqf4dWfQygTHeoQ9ulQ7QifgpM",
+                        "کتبہ" to "https://drive.google.com/uc?export=download&id=1pBVj6PPUYPiTg6TCNl1Qu7j2PY6Eia_4",
+                        "ابتدائی حساب" to "https://drive.google.com/uc?export=download&id=1tKjlxjdaG_pSlLGm53SWXySlL0UFfhkg",
+                        "لڑی میں پروئے ہوئے منتظر" to "https://drive.google.com/uc?export=download&id=1hDZje7iI4Chep7nuFYpRGN_aR5ijFZcy",
+                        "بھیڑیا" to "https://drive.google.com/uc?export=download&id=1nT1CBjvbfLajWRv2RLS1PWBcVSbEQcLd"
                     ),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=9_URDU_PP_2022",
