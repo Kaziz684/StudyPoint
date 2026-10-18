@@ -130,6 +130,10 @@
             android:exported="false" />
 
         <activity
+            android:name=".teacher.AwardResultActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".ChaptersActivity"
             android:exported="false" />
         <activity

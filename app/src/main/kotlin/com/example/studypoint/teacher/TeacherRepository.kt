@@ -2,7 +2,6 @@ package com.example.studypoint.teacher
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
 
 /** One student record owned by a teacher (collection: teacher_students). */
 data class TeacherStudent(
@@ -174,12 +173,17 @@ object TeacherRepository {
     // ---------------- Award lists ----------------
 
     fun loadAwardLists(onOk: (List<AwardListData>) -> Unit, onErr: (String) -> Unit) {
+        // NOTE: no server-side orderBy here — whereEqualTo + orderBy on a
+        // different field needs a composite Firestore index, and without it
+        // the whole query fails and no lists load at all. Sort client-side.
         db.collection("award_lists")
             .whereEqualTo("teacherUid", uid)
-            .orderBy("createdAt", Query.Direction.DESCENDING)
             .get()
             .addOnSuccessListener { snap ->
-                onOk(snap.documents.map { fromDoc(it.id, it.data ?: emptyMap()) })
+                val lists = snap.documents
+                    .map { fromDoc(it.id, it.data ?: emptyMap()) }
+                    .sortedByDescending { it.createdAt }
+                onOk(lists)
             }
             .addOnFailureListener { e -> onErr(e.message ?: "Could not load award lists") }
     }

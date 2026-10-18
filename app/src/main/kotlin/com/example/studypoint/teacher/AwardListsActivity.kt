@@ -158,8 +158,8 @@ class AwardListsActivity : AppCompatActivity() {
 
         card.setOnClickListener {
             startActivity(
-                Intent(this, MarksEntryActivity::class.java)
-                    .putExtra(MarksEntryActivity.EXTRA_AWARD_ID, a.id)
+                Intent(this, AwardResultActivity::class.java)
+                    .putExtra(AwardResultActivity.EXTRA_AWARD_ID, a.id)
             )
         }
         card.setOnLongClickListener {
