@@ -159,6 +159,12 @@ class PaperGeneratorActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Teacher-only module: students never reach the Paper Generator.
+        if (com.example.studypoint.RoleManager.cachedRole(this) == com.example.studypoint.RoleManager.ROLE_STUDENT) {
+            android.widget.Toast.makeText(this, "Paper Generator is available in the Teacher dashboard.", android.widget.Toast.LENGTH_LONG).show()
+            finish()
+            return
+        }
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_paper_generator)
         quizRepository = QuizRepository(applicationContext)
