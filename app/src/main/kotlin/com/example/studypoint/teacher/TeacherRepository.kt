@@ -123,6 +123,7 @@ object TeacherRepository {
             "teacherUid" to uid,
             "name" to s.name,
             "rollNumber" to s.rollNumber,
+            "fatherName" to s.fatherName,
             "campus" to s.campus,
             "school" to s.school,
             "className" to s.className,
@@ -130,22 +131,23 @@ object TeacherRepository {
             "gender" to s.gender,
             "guardianName" to s.guardianName,
             "guardianPhone" to s.guardianPhone,
+            "guardianRelation" to s.guardianRelation,
             "updatedAt" to System.currentTimeMillis()
         )
         val col = db.collection("teacher_students")
-        val write = if (s.id.isEmpty()) {
+        if (s.id.isEmpty()) {
             data["createdAt"] = System.currentTimeMillis()
             col.add(data)
+                .addOnSuccessListener { ref ->
+                    s.id = ref.id
+                    onOk()
+                }
+                .addOnFailureListener { e -> onErr(e.message ?: "Could not save student") }
         } else {
             col.document(s.id).set(data, com.google.firebase.firestore.SetOptions.merge())
+                .addOnSuccessListener { onOk() }
+                .addOnFailureListener { e -> onErr(e.message ?: "Could not save student") }
         }
-        write.addOnSuccessListener { result ->
-                if (s.id.isEmpty()) {
-                    (result as? com.google.firebase.firestore.DocumentReference)?.let { s.id = it.id }
-                }
-                onOk()
-            }
-            .addOnFailureListener { e -> onErr(e.message ?: "Could not save student") }
     }
 
     fun deleteStudent(id: String, onOk: () -> Unit, onErr: (String) -> Unit) {

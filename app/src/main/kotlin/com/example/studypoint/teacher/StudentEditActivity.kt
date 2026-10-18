@@ -89,7 +89,12 @@ class StudentEditActivity : AppCompatActivity() {
                     .setPositiveButton("Delete") { _, _ ->
                         TeacherRepository.deleteStudent(studentId,
                             onOk = {
-                                existing?.let { SheetSync.studentDelete(it) }
+                                SheetSync.studentDelete(
+                                    TeacherStudent(
+                                        id = studentId, campus = campus, school = school,
+                                        className = className, section = section, gender = gender
+                                    )
+                                )
                                 Toast.makeText(this, "Student deleted", Toast.LENGTH_SHORT).show()
                                 finish()
                             },

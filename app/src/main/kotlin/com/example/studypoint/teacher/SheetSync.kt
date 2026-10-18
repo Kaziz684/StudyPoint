@@ -103,8 +103,10 @@ object SheetSync {
             val row = JSONObject()
             row.put("roll", s.rollNumber)
             row.put("name", s.name)
-            if (m?.obtained != null) row.put("obtained", m.obtained) else row.put("obtained", JSONObject.NULL)
-            if (m?.total != null) row.put("total", m.total) else row.put("total", JSONObject.NULL)
+            val ob = m?.obtained
+            val tot = m?.total
+            if (ob != null) row.put("obtained", ob) else row.put("obtained", JSONObject.NULL)
+            if (tot != null) row.put("total", tot) else row.put("total", JSONObject.NULL)
             row.put("status", m?.status ?: "")
             row.put("remarks", m?.remarks ?: "")
             rows.put(row)
