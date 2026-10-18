@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://kaziz684.github.io/StudyPoint/sitemap.xml
