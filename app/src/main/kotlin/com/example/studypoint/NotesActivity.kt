@@ -260,7 +260,17 @@ class NotesActivity : AppCompatActivity() {
                 "Computer" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=15e8iWFCs2hZqTqQQbBE0gj5Om50B42Vx",
                     "Book" to "https://drive.google.com/uc?export=download&id=15e8iWFCs2hZqTqQQbBE0gj5Om50B42Vx",
-                    "Notes" to listOf("https://drive.google.com/uc?export=download&id=1suMI7yc4jD8OyXiLbOqqCQixpI_rt-o_"),
+                    "Notes" to mapOf(
+                        "Chapter 1: Computational Systems" to "https://drive.google.com/uc?export=download&id=1VmnC5N-rBBE4TnlYK8HHPNbx9gaMLczr",
+                        "Chapter 2: System Design and Troubleshooting" to "https://drive.google.com/uc?export=download&id=1WoKg5hRxgGeNnz621ixIVyb0_MX9I7eC",
+                        "Chapter 3: Computer Networks" to "https://drive.google.com/uc?export=download&id=1t0mp-iUg6b27lRxgZ-wpw8OG3BQazqp9",
+                        "Chapter 4: Computational Thinking" to "https://drive.google.com/uc?export=download&id=1bR6zIrociAR6ys4aU4Wf5m3KIZOWqWNT",
+                        "Chapter 5: Web Development" to "https://drive.google.com/uc?export=download&id=1O10Ag7Y8a9DdeMNbUfZ2WW7MySqUY4cD",
+                        "Chapter 6: Data Science and Data Gathering" to "https://drive.google.com/uc?export=download&id=13yJAWo8dI-WSCGkga2Tg66oWNa0udRW1",
+                        "Chapter 7: Emerging Technologies" to "https://drive.google.com/uc?export=download&id=1lXprez6nATa-hedZ2PrSIkLQaDgSR3sN",
+                        "Chapter 8: Ethical and Legal Concerns" to "https://drive.google.com/uc?export=download&id=1I11amI089DeOkEUZyqg0kNSEylbc4wAq",
+                        "Chapter 9: Entrepreneurship" to "https://drive.google.com/uc?export=download&id=18rV3_KwVmXbbjDKuQvAtCaMol-ugxlYC"
+                    ),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=9_CS_PP_2022",
                         "2023" to "https://drive.google.com/uc?export=download&id=9_CS_PP_2023",
