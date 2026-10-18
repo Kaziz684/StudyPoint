@@ -262,7 +262,8 @@ object SubjectStructure {
             StudySection("p9", "Chapter 9: Nature of Science", "", "chapter"),
             StudySection("pb1", "Bibliography", "", "chapter"),
             StudySection("pb2", "Glossary", "", "chapter"),
-            StudySection("pb3", "Index", "", "chapter")
+            StudySection("pb3", "Index", "", "chapter"),
+            StudySection("pb4", "Solved Numericals", "", "chapter")
         )
         "10" -> listOf(
             StudySection("p10", "Chapter 10: Thermal Physics", "حرارتی طبیعات", "chapter"),
