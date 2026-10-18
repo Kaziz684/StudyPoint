@@ -58,6 +58,7 @@ class CreateAwardListActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_award_list)
+        findViewById<TextView>(R.id.btnBack).setOnClickListener { finish() }
         title = "Award List Create"
 
         step1 = findViewById(R.id.step1)

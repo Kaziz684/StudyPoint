@@ -31,6 +31,7 @@ class StudentEditActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_student_edit)
+        findViewById<TextView>(R.id.btnBack).setOnClickListener { finish() }
 
         studentId = intent.getStringExtra(EXTRA_STUDENT_ID) ?: ""
         // Prefill values (used by the Award List wizard's "Add New Student").

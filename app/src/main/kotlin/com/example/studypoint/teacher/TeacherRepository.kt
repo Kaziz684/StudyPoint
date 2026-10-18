@@ -22,7 +22,8 @@ data class TeacherStudent(
 data class MarkEntry(
     var obtained: Double? = null,
     var total: Double? = null,
-    var remarks: String = ""
+    var remarks: String = "",
+    var status: String = "" // "" = present, "A" = absent, "L" = leave
 )
 
 /** One award list (collection: award_lists). */
@@ -39,6 +40,7 @@ data class AwardListData(
     var examType: String = "",
     var examDate: String = "",
     var returnDate: String = "",
+    var listCode: String = "", // short numeric ID shown to teachers, e.g. 4871
     var status: String = STATUS_ACTIVE, // DRAFT or ACTIVE
     var studentIds: List<String> = emptyList(),
     var marks: MutableMap<String, MarkEntry> = mutableMapOf(),
@@ -178,6 +180,30 @@ object TeacherRepository {
     }
 
     fun createAwardList(a: AwardListData, onOk: (String) -> Unit, onErr: (String) -> Unit) {
+        if (a.listCode.isNotEmpty()) {
+            insertAwardList(a, onOk, onErr)
+            return
+        }
+        // Short human-readable ID (like 4871): a per-teacher counter kept on
+        // the user document, incremented atomically in a transaction.
+        val userRef = db.collection("users").document(uid)
+        db.runTransaction { tx ->
+            val snap = tx.get(userRef)
+            val current = snap.getLong("award_counter") ?: 0L
+            val next = current + 1
+            tx.set(userRef, mapOf("award_counter" to next), com.google.firebase.firestore.SetOptions.merge())
+            next
+        }.addOnSuccessListener { next ->
+            a.listCode = (1000 + next).toString()
+            insertAwardList(a, onOk, onErr)
+        }.addOnFailureListener {
+            // Counter unavailable (e.g. offline): fall back to a random code.
+            a.listCode = (1000..9999).random().toString()
+            insertAwardList(a, onOk, onErr)
+        }
+    }
+
+    private fun insertAwardList(a: AwardListData, onOk: (String) -> Unit, onErr: (String) -> Unit) {
         val data = toDoc(a)
         data["teacherUid"] = uid
         data["createdAt"] = System.currentTimeMillis()
@@ -208,9 +234,11 @@ object TeacherRepository {
             m.obtained?.let { mm["obtained"] = it }
             m.total?.let { mm["total"] = it }
             mm["remarks"] = m.remarks
+            mm["status"] = m.status
             marksMap[sid] = mm
         }
         return mutableMapOf(
+            "listCode" to a.listCode,
             "title" to a.title,
             "campus" to a.campus,
             "school" to a.school,
@@ -241,12 +269,14 @@ object TeacherRepository {
                 marks[sid] = MarkEntry(
                     obtained = (mm["obtained"] as? Number)?.toDouble(),
                     total = (mm["total"] as? Number)?.toDouble(),
-                    remarks = mm["remarks"]?.toString() ?: ""
+                    remarks = mm["remarks"]?.toString() ?: "",
+                    status = mm["status"]?.toString() ?: ""
                 )
             }
         }
         return AwardListData(
             id = id,
+            listCode = s("listCode"),
             title = s("title"),
             campus = s("campus"),
             school = s("school"),

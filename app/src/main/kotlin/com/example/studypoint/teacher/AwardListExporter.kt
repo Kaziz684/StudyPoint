@@ -30,8 +30,11 @@ object AwardListExporter {
         val name: String,
         val obtained: Double?,
         val total: Double?,
-        val remarks: String
+        val remarks: String,
+        val status: String = "" // "A" absent / "L" leave
     ) {
+        fun obtainedText(): String =
+            if (status.isNotEmpty()) status else obtained?.let { TeacherUi.fmtMarks(it) } ?: "—" 
         fun percent(): String {
             val o = obtained ?: return "—"
             val t = total ?: return "—"
@@ -46,7 +49,7 @@ object AwardListExporter {
             .sortedWith(compareBy({ it.second.rollNumber }, { it.second.name }))
             .map { (sid, s) ->
                 val m = award.marks[sid]
-                Row(s.rollNumber, s.name, m?.obtained, m?.total, m?.remarks ?: "")
+                Row(s.rollNumber, s.name, m?.obtained, m?.total, m?.remarks ?: "", m?.status ?: "")
             }
     }
 
@@ -212,7 +215,7 @@ object AwardListExporter {
                 canvas.drawText(r.roll, margin + cols[1] + (cols[2] - cols[1]) / 2f, baseLine, paint)
                 paint.textAlign = Paint.Align.LEFT
                 canvas.drawText(ellipsize(r.name, cols[3] - cols[2] - 10f, paint), margin + cols[2] + 5f, baseLine, paint)
-                canvas.drawText(r.obtained?.let { TeacherUi.fmtMarks(it) } ?: "—", margin + cols[3] + 5f, baseLine, paint)
+                canvas.drawText(r.obtainedText(), margin + cols[3] + 5f, baseLine, paint)
                 canvas.drawText(r.total?.let { TeacherUi.fmtMarks(it) } ?: "—", margin + cols[4] + 5f, baseLine, paint)
                 canvas.drawText(r.percent(), margin + cols[5] + 5f, baseLine, paint)
                 canvas.drawText(ellipsize(r.remarks, cols[7] - cols[6] - 10f, paint), margin + cols[6] + 5f, baseLine, paint)
@@ -349,7 +352,7 @@ object AwardListExporter {
             tbl.append("<w:tr>")
             val vals = listOf(
                 "${idx + 1}", r.roll, r.name,
-                r.obtained?.let { TeacherUi.fmtMarks(it) } ?: "—",
+                r.obtainedText(),
                 r.total?.let { TeacherUi.fmtMarks(it) } ?: "—",
                 r.percent(), r.remarks
             )

@@ -30,6 +30,7 @@ class StudentDataActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_student_data)
+        findViewById<TextView>(R.id.btnBack).setOnClickListener { finish() }
         title = "Student Data"
 
         listContainer = findViewById(R.id.listContainer)
