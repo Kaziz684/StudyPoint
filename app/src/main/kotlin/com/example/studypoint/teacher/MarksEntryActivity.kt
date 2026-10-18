@@ -1,6 +1,11 @@
 package com.example.studypoint.teacher
 
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
+import android.view.Gravity
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -12,26 +17,23 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.studypoint.R
 
 /**
- * Enter / edit marks for every student of one award list.
- * Validation: marks cannot be negative and cannot exceed total marks.
- * Previously saved marks are loaded back when the list is reopened.
+ * Marks entry as a table: Sr. / Roll No. / Name / A-L chips / Obtained.
+ * A = Absent, L = Leave (no marks needed). One shared Total for the list
+ * (in the table header). The blue bar's Update button saves the marks.
+ * Saved marks reload when the list is reopened.
  */
 class MarksEntryActivity : AppCompatActivity() {
 
     private var award: AwardListData? = null
     private var studentsById: Map<String, TeacherStudent> = emptyMap()
-    private val rowFields = mutableListOf<RowFields>()
 
-    private data class RowFields(
-        val studentId: String,
-        val obtained: EditText,
-        val total: EditText,
-        val remarks: EditText
-    )
+    /** Working copy of the marks being edited: studentId -> (text, status). */
+    private val draft = mutableMapOf<String, Pair<String, String>>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_marks_entry)
+        findViewById<TextView>(R.id.btnBack).setOnClickListener { finish() }
         title = "Enter Marks"
 
         val awardId = intent.getStringExtra(EXTRA_AWARD_ID) ?: ""
@@ -54,7 +56,9 @@ class MarksEntryActivity : AppCompatActivity() {
                             finish()
                         } else {
                             award = a
-                            render()
+                            initDraft()
+                            bindHeader()
+                            renderRows()
                         }
                     },
                     onErr = {
@@ -68,138 +72,202 @@ class MarksEntryActivity : AppCompatActivity() {
             }
         )
 
+        findViewById<TextView>(R.id.btnUpdate).setOnClickListener { save() }
+        findViewById<Button>(R.id.btnSaveMarks).setOnClickListener { save() }
         findViewById<Button>(R.id.btnExportPdf).setOnClickListener { export(asPdf = true) }
         findViewById<Button>(R.id.btnExportDocx).setOnClickListener { export(asPdf = false) }
-        findViewById<Button>(R.id.btnApplyTotal).setOnClickListener {
-            val v = findViewById<EditText>(R.id.editDefaultTotal).text.toString().trim()
-            if (v.isEmpty()) return@setOnClickListener
-            for (r in rowFields) r.total.setText(v)
+        findViewById<TextView>(R.id.btnFilter).setOnClickListener {
+            val f = findViewById<EditText>(R.id.editFilter)
+            f.visibility = if (f.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+            if (f.visibility == View.VISIBLE) f.requestFocus()
         }
-        findViewById<Button>(R.id.btnSaveMarks).setOnClickListener { save() }
+        findViewById<EditText>(R.id.editFilter).addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) {}
+            override fun onTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) = renderRows()
+            override fun afterTextChanged(s: Editable?) {}
+        })
     }
 
-    private fun render() {
+    private fun initDraft() {
         val a = award ?: return
-        findViewById<TextView>(R.id.txtHeader).text = a.title
-        findViewById<TextView>(R.id.txtSub).text =
-            "${ExamTypes.label(a.examType)} · ${a.subject} · ${a.className} (${a.section}) · ${a.examDate}"
-
-        val container = findViewById<LinearLayout>(R.id.rowsContainer)
-        container.removeAllViews()
-        rowFields.clear()
-
-        val ordered = a.studentIds
-            .mapNotNull { sid -> studentsById[sid]?.let { sid to it } }
-            .sortedWith(compareBy({ it.second.rollNumber }, { it.second.name }))
-
-        if (ordered.isEmpty()) {
-            container.addView(
-                TeacherUi.text(this, "No students in this award list.", 14f, "#64748B")
-            )
-            return
+        draft.clear()
+        for (sid in a.studentIds) {
+            val m = a.marks[sid]
+            draft[sid] = (m?.obtained?.let { TeacherUi.fmtMarks(it) } ?: "") to (m?.status ?: "")
         }
-        // Prefill the shared total box when all saved totals agree.
         val totals = a.marks.values.mapNotNull { it.total }.distinct()
         if (totals.size == 1) {
-            findViewById<EditText>(R.id.editDefaultTotal).setText(TeacherUi.fmtMarks(totals[0]))
+            findViewById<EditText>(R.id.editTotal).setText(TeacherUi.fmtMarks(totals[0]))
         }
+    }
 
-        for ((sid, s) in ordered) {
-            val existing = a.marks[sid]
-            val block = LinearLayout(this)
-            block.orientation = LinearLayout.VERTICAL
-            block.setPadding(0, TeacherUi.dp(this, 10), 0, TeacherUi.dp(this, 4))
+    private fun bindHeader() {
+        val a = award ?: return
+        val code = a.listCode.ifEmpty { a.id.take(6).uppercase() }
+        findViewById<TextView>(R.id.txtBarTitle).text = "Exam Name: ${ExamTypes.label(a.examType)}"
+        findViewById<TextView>(R.id.txtBarSub).text = "Exam Date: ${a.examDate}"
+        findViewById<TextView>(R.id.txtInfoClass).text = "Class: ${a.className} (${a.section})"
+        findViewById<TextView>(R.id.txtInfoId).text = "Award List id: $code"
+        findViewById<TextView>(R.id.txtInfoSubject).text = "Subject(s): ${a.subject}"
+    }
 
-            val nameRow = LinearLayout(this)
-            nameRow.orientation = LinearLayout.HORIZONTAL
-            nameRow.addView(TeacherUi.avatar(this, s.name))
-            val nameCol = LinearLayout(this)
-            nameCol.orientation = LinearLayout.VERTICAL
-            val lp = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-            lp.marginStart = TeacherUi.dp(this, 10)
-            nameCol.layoutParams = lp
-            nameCol.addView(TeacherUi.text(this, s.name, 15.5f, "#1F2937", bold = true))
-            nameCol.addView(TeacherUi.text(this, "Roll No: ${s.rollNumber}", 12.5f, "#64748B"))
-            nameRow.addView(nameCol)
-            block.addView(nameRow)
+    private fun orderedStudents(): List<Pair<String, TeacherStudent>> {
+        val a = award ?: return emptyList()
+        return a.studentIds
+            .mapNotNull { sid -> studentsById[sid]?.let { sid to it } }
+            .sortedWith(compareBy({ it.second.rollNumber }, { it.second.name }))
+    }
 
-            val marksRow = LinearLayout(this)
-            marksRow.orientation = LinearLayout.HORIZONTAL
-            marksRow.setPadding(0, TeacherUi.dp(this, 8), 0, 0)
-            val obtained = markField("Obtained", TeacherUi.fmtMarks(existing?.obtained))
-            val total = markField("Total", TeacherUi.fmtMarks(existing?.total))
-            marksRow.addView(obtained)
-            marksRow.addView(total)
-            block.addView(marksRow)
+    private fun chip(text: String, selected: Boolean, colorHex: String): TextView {
+        val t = TextView(this)
+        t.text = text
+        t.textSize = 13f
+        t.gravity = Gravity.CENTER
+        t.setTypeface(null, android.graphics.Typeface.BOLD)
+        val size = TeacherUi.dp(this, 28)
+        t.layoutParams = LinearLayout.LayoutParams(size, size)
+        val bg = GradientDrawable()
+        bg.cornerRadius = TeacherUi.dp(this, 5).toFloat()
+        if (selected) {
+            bg.setColor(Color.parseColor(colorHex))
+            t.setTextColor(Color.WHITE)
+        } else {
+            bg.setColor(Color.WHITE)
+            bg.setStroke(TeacherUi.dp(this, 1), Color.parseColor("#9CA3AF"))
+            t.setTextColor(Color.parseColor("#374151"))
+        }
+        t.background = bg
+        return t
+    }
 
-            val remarks = EditText(this)
-            remarks.hint = "Remarks (optional)"
-            remarks.setText(existing?.remarks ?: "")
-            remarks.setTextColor(android.graphics.Color.parseColor("#1F2937"))
-            remarks.setHintTextColor(android.graphics.Color.parseColor("#94A3B8"))
-            remarks.textSize = 13.5f
-            remarks.setBackgroundResource(R.drawable.bg_input)
-            val rlp = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            rlp.topMargin = TeacherUi.dp(this, 6)
-            remarks.layoutParams = rlp
-            block.addView(remarks)
+    private fun renderRows() {
+        val container = findViewById<LinearLayout>(R.id.rowsContainer)
+        container.removeAllViews()
+        val q = findViewById<EditText>(R.id.editFilter).text.toString().trim()
+        val ordered = orderedStudents().filter {
+            q.isEmpty() || it.second.name.contains(q, ignoreCase = true) ||
+                it.second.rollNumber.contains(q, ignoreCase = true)
+        }
+        if (ordered.isEmpty()) {
+            val t = TeacherUi.text(this, "No students in this award list.", 14f, "#64748B")
+            t.setPadding(TeacherUi.dp(this, 14), TeacherUi.dp(this, 16), TeacherUi.dp(this, 14), 0)
+            container.addView(t)
+            return
+        }
+        ordered.forEachIndexed { idx, (sid, s) ->
+            val (marksText, status) = draft[sid] ?: ("" to "")
+            val row = LinearLayout(this)
+            row.orientation = LinearLayout.HORIZONTAL
+            row.gravity = Gravity.CENTER_VERTICAL
+            row.setBackgroundColor(Color.parseColor(if (idx % 2 == 0) "#FFFFFF" else "#F3F6FA"))
+            row.setPadding(TeacherUi.dp(this, 10), TeacherUi.dp(this, 7), TeacherUi.dp(this, 10), TeacherUi.dp(this, 7))
 
-            container.addView(block)
+            val sr = TeacherUi.text(this, "${idx + 1}", 13.5f, "#1F2937", bold = true)
+            sr.layoutParams = LinearLayout.LayoutParams(TeacherUi.dp(this, 30), LinearLayout.LayoutParams.WRAP_CONTENT)
+            row.addView(sr)
+
+            val roll = TeacherUi.text(this, s.rollNumber, 13.5f, "#1F2937", bold = true)
+            roll.layoutParams = LinearLayout.LayoutParams(TeacherUi.dp(this, 56), LinearLayout.LayoutParams.WRAP_CONTENT)
+            row.addView(roll)
+
+            val name = TeacherUi.text(this, s.name, 14f, "#111827", bold = true)
+            name.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            row.addView(name)
+
+            // A / L chips
+            val chips = LinearLayout(this)
+            chips.orientation = LinearLayout.HORIZONTAL
+            chips.layoutParams = LinearLayout.LayoutParams(TeacherUi.dp(this, 62), LinearLayout.LayoutParams.WRAP_CONTENT)
+            val chipA = chip("A", status == "A", "#DC2626")
+            val chipL = chip("L", status == "L", "#D97706")
+            val lLp = LinearLayout.LayoutParams(TeacherUi.dp(this, 28), TeacherUi.dp(this, 28))
+            lLp.marginStart = TeacherUi.dp(this, 6)
+            chipL.layoutParams = lLp
+            chips.addView(chipA)
+            chips.addView(chipL)
+            row.addView(chips)
+
+            // Marks field
+            val marks = EditText(this)
+            marks.inputType = android.text.InputType.TYPE_CLASS_NUMBER or
+                android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
+            marks.gravity = Gravity.CENTER
+            marks.textSize = 14f
+            marks.setTextColor(Color.parseColor("#1F2937"))
+            marks.setHintTextColor(Color.parseColor("#9CA3AF"))
+            marks.hint = "—"
+            marks.setBackgroundResource(R.drawable.bg_input)
+            val mLp = LinearLayout.LayoutParams(TeacherUi.dp(this, 86), LinearLayout.LayoutParams.WRAP_CONTENT)
+            marks.layoutParams = mLp
+            if (status.isNotEmpty()) {
+                marks.setText(status)
+                marks.isEnabled = false
+            } else {
+                marks.setText(marksText)
+                marks.isEnabled = true
+            }
+            row.addView(marks)
+
+            chipA.setOnClickListener {
+                val cur = draft[sid]?.second ?: ""
+                val newStatus = if (cur == "A") "" else "A"
+                draft[sid] = (draft[sid]?.first ?: "") to newStatus
+                renderRows()
+            }
+            chipL.setOnClickListener {
+                val cur = draft[sid]?.second ?: ""
+                val newStatus = if (cur == "L") "" else "L"
+                draft[sid] = (draft[sid]?.first ?: "") to newStatus
+                renderRows()
+            }
+            marks.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(s2: CharSequence?, a2: Int, b: Int, c: Int) {}
+                override fun onTextChanged(s2: CharSequence?, a2: Int, b: Int, c: Int) {
+                    val cur = draft[sid]
+                    if (cur != null && cur.second.isEmpty()) {
+                        draft[sid] = (s2?.toString() ?: "") to ""
+                    }
+                }
+                override fun afterTextChanged(s2: Editable?) {}
+            })
+
+            container.addView(row)
             container.addView(TeacherUi.divider(this))
-            rowFields.add(RowFields(sid, obtained, total, remarks))
         }
     }
 
-    private fun markField(hint: String, value: String): EditText {
-        val e = EditText(this)
-        e.hint = hint
-        e.setText(value)
-        e.inputType = android.text.InputType.TYPE_CLASS_NUMBER or
-            android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
-        e.setTextColor(android.graphics.Color.parseColor("#1F2937"))
-        e.setHintTextColor(android.graphics.Color.parseColor("#94A3B8"))
-        e.textSize = 14f
-        e.setBackgroundResource(R.drawable.bg_input)
-        val lp = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-        lp.marginEnd = TeacherUi.dp(this, 8)
-        e.layoutParams = lp
-        return e
-    }
-
-    /** Validates the on-screen marks and applies them to the award list. */
+    /** Validates the draft and applies it to the award list. */
     private fun collectMarks(): Boolean {
         val a = award ?: return false
-        val newMarks = a.marks.toMutableMap()
-        for (r in rowFields) {
-            val name = studentsById[r.studentId]?.name ?: r.studentId
-            val obtainedTxt = r.obtained.text.toString().trim()
-            val totalTxt = r.total.text.toString().trim()
-            if (obtainedTxt.isEmpty()) {
-                // Cleared field = remove the saved entry for this student.
-                newMarks.remove(r.studentId)
+        val totalTxt = findViewById<EditText>(R.id.editTotal).text.toString().trim()
+        val sharedTotal = totalTxt.toDoubleOrNull()
+        val newMarks = mutableMapOf<String, MarkEntry>()
+        for ((sid, pair) in draft) {
+            val (text, status) = pair
+            val name = studentsById[sid]?.name ?: sid
+            val oldRemarks = a.marks[sid]?.remarks ?: ""
+            if (status.isNotEmpty()) {
+                newMarks[sid] = MarkEntry(
+                    obtained = null, total = sharedTotal, remarks = oldRemarks, status = status
+                )
                 continue
             }
-            val obtained = obtainedTxt.toDoubleOrNull()
+            if (text.isBlank()) continue
+            val obtained = text.toDoubleOrNull()
             if (obtained == null) {
                 toast("Invalid marks for $name"); return false
             }
             if (obtained < 0) {
                 toast("Marks cannot be negative ($name)"); return false
             }
-            val total = totalTxt.toDoubleOrNull()
-            if (total == null || total <= 0) {
-                toast("Please enter total marks for $name"); return false
+            if (sharedTotal == null || sharedTotal <= 0) {
+                toast("Please enter the Total marks in the table header"); return false
             }
-            if (obtained > total) {
+            if (obtained > sharedTotal) {
                 toast("Obtained marks cannot exceed total marks ($name)"); return false
             }
-            newMarks[r.studentId] = MarkEntry(
-                obtained = obtained,
-                total = total,
-                remarks = r.remarks.text.toString().trim()
+            newMarks[sid] = MarkEntry(
+                obtained = obtained, total = sharedTotal, remarks = oldRemarks, status = ""
             )
         }
         a.marks = newMarks

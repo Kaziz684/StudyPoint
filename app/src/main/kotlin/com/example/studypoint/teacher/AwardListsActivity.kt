@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
+import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.ProgressBar
@@ -14,11 +15,14 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.studypoint.R
 
-/** Award List screen: all saved award lists with search and campus filter. */
+/**
+ * Award List screen: saved award lists as green label/value cards
+ * (Award List ID, Class, Campus, Subject, Exam type, dates),
+ * with search and a round "create" button.
+ */
 class AwardListsActivity : AppCompatActivity() {
 
     private var allLists: List<AwardListData> = emptyList()
-    private var filterCampus = "All"
 
     private lateinit var listContainer: LinearLayout
     private lateinit var txtEmpty: TextView
@@ -28,6 +32,7 @@ class AwardListsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_award_lists)
+        findViewById<TextView>(R.id.btnBack).setOnClickListener { finish() }
         title = "Award List"
 
         listContainer = findViewById(R.id.listContainer)
@@ -41,14 +46,8 @@ class AwardListsActivity : AppCompatActivity() {
             override fun afterTextChanged(s: Editable?) {}
         })
 
-        val fCampus = findViewById<TextView>(R.id.filterCampus)
-        fCampus.setOnClickListener {
-            val opts = listOf("All") + allLists.map { it.campus }.filter { it.isNotBlank() }.distinct().sorted()
-            SearchablePicker.showSimple(this, "Campus", opts, false) {
-                filterCampus = it
-                fCampus.text = "Campus: $it ▾"
-                render()
-            }
+        findViewById<Button>(R.id.fabCreate).setOnClickListener {
+            startActivity(Intent(this, CreateAwardListActivity::class.java))
         }
     }
 
@@ -69,25 +68,28 @@ class AwardListsActivity : AppCompatActivity() {
         )
     }
 
+    private fun displayCode(a: AwardListData): String =
+        a.listCode.ifEmpty { a.id.take(6).uppercase() }
+
     private fun render() {
         val q = editSearch.text.toString().trim()
         val shown = allLists.filter { a ->
-            (filterCampus == "All" || a.campus == filterCampus) &&
-                (q.isEmpty() ||
-                    a.title.contains(q, ignoreCase = true) ||
-                    a.id.contains(q, ignoreCase = true) ||
-                    a.className.contains(q, ignoreCase = true) ||
-                    a.subject.contains(q, ignoreCase = true) ||
-                    a.examType.contains(q, ignoreCase = true) ||
-                    ExamTypes.label(a.examType).contains(q, ignoreCase = true))
+            q.isEmpty() ||
+                a.title.contains(q, ignoreCase = true) ||
+                displayCode(a).contains(q, ignoreCase = true) ||
+                a.id.contains(q, ignoreCase = true) ||
+                a.className.contains(q, ignoreCase = true) ||
+                a.subject.contains(q, ignoreCase = true) ||
+                a.examType.contains(q, ignoreCase = true) ||
+                ExamTypes.label(a.examType).contains(q, ignoreCase = true)
         }
         listContainer.removeAllViews()
         if (shown.isEmpty()) {
             txtEmpty.visibility = View.VISIBLE
             txtEmpty.text = if (allLists.isEmpty()) {
-                "No award lists yet.\nCreate one from the Teacher Dashboard → Award List Create."
+                "No award lists yet.\nTap the round create button to make your first award list."
             } else {
-                "No award lists match your search or filter."
+                "No award lists match your search."
             }
             return
         }
@@ -97,51 +99,60 @@ class AwardListsActivity : AppCompatActivity() {
         }
     }
 
+    private fun labelRow(label: String, value: String): View {
+        val row = LinearLayout(this)
+        row.orientation = LinearLayout.HORIZONTAL
+        val lp = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+        lp.topMargin = TeacherUi.dp(this, 3)
+        row.layoutParams = lp
+        val lab = TeacherUi.text(this, label, 14.5f, "#111827", bold = true)
+        val labLp = LinearLayout.LayoutParams(TeacherUi.dp(this, 104), LinearLayout.LayoutParams.WRAP_CONTENT)
+        lab.layoutParams = labLp
+        row.addView(lab)
+        row.addView(TeacherUi.text(this, value, 14.5f, "#4B5563"))
+        return row
+    }
+
     private fun awardCard(a: AwardListData): View {
         val card = LinearLayout(this)
         card.orientation = LinearLayout.VERTICAL
-        card.setBackgroundResource(R.drawable.bg_role_card)
+        card.setBackgroundResource(R.drawable.bg_award_card)
+        card.elevation = TeacherUi.dp(this, 3).toFloat()
         card.setPadding(
-            TeacherUi.dp(this, 14), TeacherUi.dp(this, 12),
-            TeacherUi.dp(this, 14), TeacherUi.dp(this, 12)
+            TeacherUi.dp(this, 16), TeacherUi.dp(this, 14),
+            TeacherUi.dp(this, 16), TeacherUi.dp(this, 14)
         )
         val lp = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
             LinearLayout.LayoutParams.WRAP_CONTENT
         )
-        lp.bottomMargin = TeacherUi.dp(this, 12)
+        lp.bottomMargin = TeacherUi.dp(this, 14)
         card.layoutParams = lp
 
-        card.addView(TeacherUi.text(this, a.title, 16f, "#1F2937", bold = true))
-        card.addView(TeacherUi.text(this, "ID: ${a.id}", 11f, "#94A3B8"))
-        card.addView(TeacherUi.text(this, "${a.campus} · ${a.school}", 13f, "#64748B"))
-        card.addView(
-            TeacherUi.text(
-                this,
-                "${a.className} (${a.section}) · ${a.subject} · ${a.session}",
-                13f, "#64748B"
-            )
-        )
-        card.addView(
-            TeacherUi.text(
-                this,
-                "${ExamTypes.label(a.examType)} · Exam: ${a.examDate}" +
-                    if (a.returnDate.isNotEmpty()) " · Return: ${a.returnDate}" else "",
-                13f, "#64748B"
-            )
-        )
+        card.addView(labelRow("Award List ID:", displayCode(a)))
+        card.addView(labelRow("Class:", "${a.className} (${a.section})"))
+        card.addView(labelRow("Campus:", a.campus))
+        if (a.school.isNotBlank()) card.addView(labelRow("School:", a.school))
+        card.addView(labelRow("Subject(s):", a.subject))
+        card.addView(labelRow("Exam type:", ExamTypes.label(a.examType)))
+        card.addView(labelRow("Exam date:", a.examDate))
+        if (a.returnDate.isNotBlank()) card.addView(labelRow("Return Date:", a.returnDate))
+
         val entered = a.studentIds.count { a.marks.containsKey(it) }
         val statusText = if (a.status == AwardListData.STATUS_DRAFT) {
-            "Status: DRAFT · Students: ${a.studentIds.size}"
+            "DRAFT · Students: ${a.studentIds.size}"
         } else {
             "Students: ${a.studentIds.size} · Marks entered: $entered/${a.studentIds.size}"
         }
-        val statusView = TeacherUi.text(this, statusText, 13f, "#2563EB", bold = true)
+        val statusView = TeacherUi.text(this, statusText, 12.5f, "#2563EB", bold = true)
         val slp = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.WRAP_CONTENT,
             LinearLayout.LayoutParams.WRAP_CONTENT
         )
-        slp.topMargin = TeacherUi.dp(this, 6)
+        slp.topMargin = TeacherUi.dp(this, 8)
         statusView.layoutParams = slp
         card.addView(statusView)
 
@@ -154,7 +165,7 @@ class AwardListsActivity : AppCompatActivity() {
         card.setOnLongClickListener {
             AlertDialog.Builder(this)
                 .setTitle("Delete Award List")
-                .setMessage("Delete \"${a.title}\" and its marks permanently?")
+                .setMessage("Delete award list ${displayCode(a)} and its marks permanently?")
                 .setPositiveButton("Delete") { _, _ ->
                     TeacherRepository.deleteAwardList(a.id,
                         onOk = {

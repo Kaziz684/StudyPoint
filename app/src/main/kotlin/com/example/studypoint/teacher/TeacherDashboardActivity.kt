@@ -56,6 +56,7 @@ class TeacherDashboardActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_teacher_dashboard)
+        findViewById<TextView>(R.id.btnBack).setOnClickListener { finish() }
         title = "Teacher Dashboard"
 
         val user = FirebaseAuth.getInstance().currentUser
