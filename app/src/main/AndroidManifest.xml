@@ -98,6 +98,38 @@
             android:exported="false" />
 
         <activity
+            android:name=".RoleGateActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".RoleSelectionActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".teacher.TeacherDashboardActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".teacher.StudentDataActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".teacher.StudentEditActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".teacher.CreateAwardListActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".teacher.MarksEntryActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".teacher.AwardListsActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".ChaptersActivity"
             android:exported="false" />
         <activity
