@@ -107,6 +107,7 @@ class NotesActivity : AppCompatActivity() {
                 "Pair of Words" -> "https://drive.google.com/uc?export=download&id=17ssLAMsGLsA0SwVRC4hVbH2us5As48Fq"
                 "Correct Use of Verb" -> "https://drive.google.com/uc?export=download&id=1dSiq_tL9Q45b4OuLi8uREWF-MV_xyLv_"
                 "Direct & Indirect Speech" -> "https://drive.google.com/uc?export=download&id=18QNDosWey5xOFL1JPnvuKRSk0hgRtN3R"
+                "Essays" -> "https://drive.google.com/uc?export=download&id=1PCyGJOIiW50u_cJzPZFforcSOgTX0saG"
                 "Translation (Urdu to English)" -> "https://drive.google.com/uc?export=download&id=16A3hQteRW5xZm_fW9XUGkfOYkiTdSYAI"
                 else -> null
             }
@@ -478,7 +479,11 @@ class NotesActivity : AppCompatActivity() {
                         "Chapter 9: Tangent and Angles of a Circle" to "COMING_SOON",
                         "Chapter 10: Practical Geometry of Circles" to "COMING_SOON",
                         "Chapter 11: Information Handling" to "COMING_SOON",
-                        "Chapter 12: Probability" to "COMING_SOON"
+                        "Chapter 12: Probability" to "COMING_SOON",
+                        "Answers" to "https://drive.google.com/uc?export=download&id=1FRbrsJ3oYSvHRlaEIcIMw2XPPUnTKw6C",
+                        "Glossary" to "https://drive.google.com/uc?export=download&id=1GJp_VgcRuA1CroNmvWUxIqzIycSfAlNp",
+                        "Symbols" to "https://drive.google.com/uc?export=download&id=1zEg8kXuqfzYFu6Iz2I6_ufE2yAJh0vU1",
+                        "Symbols and Notations" to "https://drive.google.com/uc?export=download&id=1zEg8kXuqfzYFu6Iz2I6_ufE2yAJh0vU1"
                     ),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=10_MATH_PP_2022",
@@ -917,9 +922,13 @@ class NotesActivity : AppCompatActivity() {
         // list, so open that chapter's own notes PDF right away (or honestly say
         // Coming Soon). Never fall through to the subject-level chapter list.
         if (wantsChapterDirect) {
-            val chapterNum = Regex("""\d+""").find(chapterExtra)?.value?.toIntOrNull()
-                ?: Regex("""(?:Chapter|Ch\.?|Unit)\s*(\d+)""", RegexOption.IGNORE_CASE)
-                    .find(chapterTitle)?.groupValues?.get(1)?.toIntOrNull()
+            // Only a real "Chapter/Unit N" reference counts. A bare digit inside
+            // an internal section id (e.g. "mb3" for Symbols) must NOT be read as
+            // a chapter number — that bug opened Chapter 3 notes for Symbols,
+            // Chapter 1 for Answers and Chapter 2 for Glossary.
+            val chapterRef = Regex("""(?:Chapter|Ch\.?|Unit)\s*(\d+)""", RegexOption.IGNORE_CASE)
+            val chapterNum = chapterRef.find(chapterExtra)?.groupValues?.get(1)?.toIntOrNull()
+                ?: chapterRef.find(chapterTitle)?.groupValues?.get(1)?.toIntOrNull()
             val notesAny = resolvedSubjectData["Notes"]
             val directUrl: String? = when (notesAny) {
                 is Map<*, *> -> {
