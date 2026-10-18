@@ -212,7 +212,21 @@ class NotesActivity : AppCompatActivity() {
                 "Physics" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=1Z_WG6Y8wFuvqJu7qdy-xEQQm1KXX_e9r",
                     "Book" to "https://drive.google.com/uc?export=download&id=1Z_WG6Y8wFuvqJu7qdy-xEQQm1KXX_e9r",
-                    "Notes" to listOf("https://drive.google.com/uc?export=download&id=1afh-_Q1aVnIODgyVPcPesSH1Ei0Gprk2"),
+                    "Notes" to mapOf(
+                        "Chapter 1: Physical Quantities and Measurements" to "https://drive.google.com/uc?export=download&id=1afh-_Q1aVnIODgyVPcPesSH1Ei0Gprk2",
+                        "Chapter 2: Kinematics" to "https://drive.google.com/uc?export=download&id=1afh-_Q1aVnIODgyVPcPesSH1Ei0Gprk2",
+                        "Chapter 3: Dynamics" to "https://drive.google.com/uc?export=download&id=1afh-_Q1aVnIODgyVPcPesSH1Ei0Gprk2",
+                        "Chapter 4: Turning Effects of Force" to "https://drive.google.com/uc?export=download&id=1afh-_Q1aVnIODgyVPcPesSH1Ei0Gprk2",
+                        "Chapter 5: Work, Energy and Power" to "https://drive.google.com/uc?export=download&id=1afh-_Q1aVnIODgyVPcPesSH1Ei0Gprk2",
+                        "Chapter 6: Mechanical Properties of Matter" to "https://drive.google.com/uc?export=download&id=1afh-_Q1aVnIODgyVPcPesSH1Ei0Gprk2",
+                        "Chapter 7: Thermal Properties of Matter" to "https://drive.google.com/uc?export=download&id=1afh-_Q1aVnIODgyVPcPesSH1Ei0Gprk2",
+                        "Chapter 8: Magnetism" to "https://drive.google.com/uc?export=download&id=1afh-_Q1aVnIODgyVPcPesSH1Ei0Gprk2",
+                        "Chapter 9: Nature of Science" to "https://drive.google.com/uc?export=download&id=1afh-_Q1aVnIODgyVPcPesSH1Ei0Gprk2",
+                        "Bibliography" to "https://drive.google.com/uc?export=download&id=1afh-_Q1aVnIODgyVPcPesSH1Ei0Gprk2",
+                        "Glossary" to "https://drive.google.com/uc?export=download&id=1afh-_Q1aVnIODgyVPcPesSH1Ei0Gprk2",
+                        "Index" to "https://drive.google.com/uc?export=download&id=1afh-_Q1aVnIODgyVPcPesSH1Ei0Gprk2",
+                        "Solved Numericals" to "https://drive.google.com/uc?export=download&id=16AniinbfCtgJXimAfI9l3Pa1mNCl8V63"
+                    ),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=9_PHY_PP_2022",
                         "2023" to "https://drive.google.com/uc?export=download&id=9_PHY_PP_2023",
