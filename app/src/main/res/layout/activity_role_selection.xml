@@ -23,14 +23,6 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Aap kaun hain?"
-            android:textColor="#64748B"
-            android:textSize="16sp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             android:text="Choose your role to open your dashboard."
             android:textColor="#94A3B8"
