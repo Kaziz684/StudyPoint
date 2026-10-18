@@ -1007,6 +1007,101 @@ object PaperDocxGenerator {
         return writeDocx(sb.toString(), data.testTitle, logo, outFile)
     }
 
+    // ---------------- Board Pattern (Class 10 Mathematics) ----------------
+
+    fun generateBoardPatternMath10(context: Context, data: PaperPdfGenerator.Math10BoardPaperData, outFile: File): File {
+        val logo = logoPng(context, data.header)
+        val sb = StringBuilder()
+        sb.append(
+            headerXml(
+                data.header, data.testTitle, data.subject, data.classLabel,
+                "2 Hours 30 Minutes", "75", null, logo != null
+            )
+        )
+        sb.append(
+            instructionsXml(
+                if (data.includeAnswers) {
+                    "Solved paper: the answer key is given at the end. Note: Q.1 is compulsory. Attempt only the required number of questions in each part."
+                } else {
+                    "Note: Q.1 is compulsory. Attempt only the required number of questions in each part. Write your answers neatly in the answer copy."
+                }
+            )
+        )
+
+        sb.append(bannerXml("OBJECTIVE TYPE"))
+        sb.append(pText("Time Allowed: 20 Minutes   -   Max. Marks: 15", bold = true, size = 22, color = NAVY, after = 120))
+        sb.append(qHeadingXml("Q.1  Choose the correct option:   (15 x 1 = 15)"))
+        sb.append(mcqsXml(data.mcqs))
+
+        sb.append(bannerXml("SUBJECTIVE TYPE"))
+        sb.append(pText("Time Allowed: 2 Hours 10 Minutes   -   Max. Marks: 60", bold = true, size = 22, color = NAVY, after = 120))
+        sb.append(pText("(Part-I)", bold = true, size = 23, color = NAVY, after = 120))
+        sb.append(qHeadingXml("Q.2  Write short answers to any SIX (06) questions.   (2 x 6 = 12)      [Chapters 1, 2, 3, 4]"))
+        data.q2Shorts.forEachIndexed { i, wq ->
+            sb.append(pText(roman(i) + "  " + wq.question, after = 100))
+        }
+        sb.append(qHeadingXml("Q.3  Write short answers to any SIX (06) questions.   (2 x 6 = 12)      [Chapters 5, 6, 7, 8]"))
+        data.q3Shorts.forEachIndexed { i, wq ->
+            sb.append(pText(roman(i) + "  " + wq.question, after = 100))
+        }
+        sb.append(qHeadingXml("Q.4  Write short answers to any SIX (06) questions.   (2 x 6 = 12)      [Chapters 9, 10, 11, 12]"))
+        data.q4Shorts.forEachIndexed { i, wq ->
+            sb.append(pText(roman(i) + "  " + wq.question, after = 100))
+        }
+
+        sb.append(pText("(Part-II)", bold = true, size = 23, color = NAVY, after = 120))
+        sb.append(pText("Note: Attempt any TWO (02) questions. Each question has two parts (a) and (b), carrying 4 marks each.   (2 x 8 = 16)", after = 140))
+        data.partII.forEachIndexed { i, pair ->
+            sb.append(qHeadingXml("Q." + (i + 5)))
+            sb.append(pBoldPrefix("(a)  ", pair.first.question, after = 90))
+            sb.append(pBoldPrefix("(b)  ", pair.second.question, after = 110))
+        }
+
+        sb.append(pText("(Part-III)", bold = true, size = 23, color = NAVY, after = 120))
+        sb.append(pText("Note: Attempt any ONE (01) question. Each question has two parts (a) and (b), carrying 4 marks each.   (1 x 8 = 8)", after = 140))
+        data.partIII.forEachIndexed { i, pair ->
+            sb.append(qHeadingXml("Q." + (i + 8)))
+            sb.append(pBoldPrefix("(a)  ", pair.first.question, after = 90))
+            sb.append(pBoldPrefix("(b)  ", pair.second.question, after = 110))
+        }
+
+        if (data.includeAnswers) {
+            sb.append(keyTitleXml("ANSWER KEY"))
+            sb.append(qHeadingXml("Q.1  (MCQs)"))
+            sb.append(keyEntriesXml(data.mcqs))
+            sb.append(pText("", size = 10, after = 80))
+
+            fun keyShorts(heading: String, list: List<WrittenQuestion>) {
+                sb.append(qHeadingXml(heading))
+                list.forEachIndexed { i, wq ->
+                    val r = roman(i)
+                    if (wq.answer.isNotBlank()) {
+                        sb.append(pBoldPrefix(r + "  ", wq.answer, size = 22, color = ANS, after = 90))
+                    } else {
+                        sb.append(pText(r + "  (Answer not available in the source data)", size = 21, color = MUTED, after = 90))
+                    }
+                }
+            }
+            keyShorts("Q.2  (Short Answers)", data.q2Shorts)
+            keyShorts("Q.3  (Short Answers)", data.q3Shorts)
+            keyShorts("Q.4  (Short Answers)", data.q4Shorts)
+
+            fun keyPair(heading: String, pair: Pair<WrittenQuestion, WrittenQuestion>) {
+                sb.append(qHeadingXml(heading))
+                listOf("(a)  " to pair.first, "(b)  " to pair.second).forEach { (label, wq) ->
+                    if (wq.answer.isNotBlank()) {
+                        sb.append(pBoldPrefix(label, wq.answer, size = 22, color = ANS, after = 90))
+                    } else {
+                        sb.append(pText(label + "(Answer not available in the source data)", size = 21, color = MUTED, after = 90))
+                    }
+                }
+            }
+            data.partII.forEachIndexed { i, pair -> keyPair("Q." + (i + 5) + "  (Long Question)", pair) }
+            data.partIII.forEachIndexed { i, pair -> keyPair("Q." + (i + 8) + "  (Long Question)", pair) }
+        }
+        return writeDocx(sb.toString(), data.testTitle, logo, outFile)
+    }
+
     // ---------------- Package assembly ----------------
 
     private fun writeDocx(bodyXml: String, paperTitle: String, logo: ByteArray?, outFile: File): File {

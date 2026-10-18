@@ -142,6 +142,7 @@ object SubjectStructure {
                     StudySection("gr3", "Direct & Indirect Speech", "", "chapter"),
                     StudySection("gr4", "Pair of Words", "", "chapter"),
                     StudySection("gr10", "Correct Use of Verb", "", "chapter"),
+                    StudySection("gr11", "Essays", "", "chapter"),
                     StudySection("gr7", "Paragraphs", "", "chapter"),
                     StudySection("gr9", "Translation (Urdu to English)", "", "chapter")
                 )
