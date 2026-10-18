@@ -79,6 +79,18 @@ class TeacherDashboardActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnProfile).setOnClickListener {
             startActivity(Intent(this, ProfileActivity::class.java))
         }
+        findViewById<LinearLayout>(R.id.cardBoards).setOnClickListener {
+            startActivity(Intent(this, com.example.studypoint.BoardsActivity::class.java))
+        }
+        findViewById<Button>(R.id.btnWhatsApp).setOnClickListener {
+            com.example.studypoint.SocialMediaManager.openWhatsApp(this)
+        }
+        findViewById<Button>(R.id.btnYouTube).setOnClickListener {
+            com.example.studypoint.SocialMediaManager.openYouTubeChannel(this)
+        }
+        findViewById<Button>(R.id.btnFacebook).setOnClickListener {
+            com.example.studypoint.SocialMediaManager.openFacebook(this)
+        }
         findViewById<LinearLayout>(R.id.cardQuote).setOnClickListener {
             handler.removeCallbacks(quoteTick)
             quoteIndex = (quoteIndex + 1) % quotes.size
