@@ -689,14 +689,21 @@ class PaperGeneratorActivity : AppCompatActivity() {
                 "Board Pattern - Class 12 Physics (85 Marks, 3 Hours)\n" +
                     "Q.1: 17 MCQs  -  Q.2: Shorts Ch 13-15 (any 8 of 12)  -  Q.3: Shorts Ch 16-18 (any 8 of 12)\n" +
                     "Q.4: Shorts Ch 19-21 (any 6 of 9)  -  Q.5-Q.9: Detailed questions (any 3 of 5)"
+            sheet == "Class_10th" && (subject.equals("Mathematics", ignoreCase = true) || subject.equals("Math", ignoreCase = true)) ->
+                "Board Pattern - Class 10 Mathematics (75 Marks, 2 Hours 30 Minutes)\n" +
+                    "Objective (20 Min, 15 Marks): Q.1: 15 MCQs (1 each from Chapters 1-8 and 10, 2 each from Chapters 9, 11, 12)\n" +
+                    "Subjective (2:10 Hours, 60 Marks): Q.2: Shorts Ch 1-4 (any 6 of 9)  -  Q.3: Shorts Ch 5-8 (any 6 of 9)\n" +
+                    "Q.4: Shorts Ch 9-12 (any 6 of 9)  -  Part-II: Q.5 (Ch 1+2), Q.6 (Ch 3+4), Q.7 (Ch 5+7) - any 2\n" +
+                    "Part-III: Q.8 (Ch 6 + 8/11), Q.9 (Ch 10 + 9/12) - any 1"
             sheet == "Class_9th" && subject.equals("Computer Science", ignoreCase = true) ->
                 "Board Pattern - Class 9 Computer Science (50 Marks, 2 Hours)\n" +
                     "Q.1: 10 MCQs  -  Q.2-Q.4: Short answers (any 4 of 6 each)\n" +
                     "Q.5-Q.7: Long questions (any 2 of 3)"
             else ->
                 "Board Pattern is available for Class 10 English, Class 10 Chemistry, " +
-                    "Class 10 Tarjuma-tul-Quran, Class 11 English, Class 12 Physics and " +
-                    "Class 9 Computer Science. Select one of these to generate a board pattern paper."
+                    "Class 10 Tarjuma-tul-Quran, Class 10 Mathematics, Class 11 English, " +
+                    "Class 12 Physics and Class 9 Computer Science. Select one of these " +
+                    "to generate a board pattern paper."
         }
     }
 
@@ -1183,10 +1190,14 @@ class PaperGeneratorActivity : AppCompatActivity() {
             generateBoardPatternTq()
             return
         }
+        if (sheet == "Class_10th" && (subject.equals("Mathematics", ignoreCase = true) || subject.equals("Math", ignoreCase = true))) {
+            generateBoardPatternMath10()
+            return
+        }
         if (sheet != "Class_10th" || !subject.equals("English", ignoreCase = true)) {
             Toast.makeText(
                 this,
-                "Board Pattern is available for Class 10 English, Class 10 Chemistry, Class 10 Tarjuma-tul-Quran, Class 11 English, Class 12 Physics and Class 9 Computer Science only",
+                "Board Pattern is available for Class 10 English, Class 10 Chemistry, Class 10 Tarjuma-tul-Quran, Class 10 Mathematics, Class 11 English, Class 12 Physics and Class 9 Computer Science only",
                 Toast.LENGTH_LONG
             ).show()
             return
@@ -1644,6 +1655,141 @@ class PaperGeneratorActivity : AppCompatActivity() {
                 lastFile = file
                 layoutActions.visibility = View.VISIBLE
                 tvStatus.text = "Paper ready: Board Pattern Paper (Q.1: 12 MCQs, Q.2-Q.7 complete) • ${file.name}"
+                Toast.makeText(this@PaperGeneratorActivity, "Board Pattern paper generated", Toast.LENGTH_SHORT).show()
+            } else {
+                tvStatus.text = "Paper generation failed. Please try again."
+            }
+        }
+    }
+
+    /** Board Pattern paper (Class 10 Mathematics, official PCTB pairing scheme):
+     *  75 marks, 2:30 hours - Objective (20 min): Q.1 15 MCQs (1 each from
+     *  Chapters 1-8 and 10; 2 each from Chapters 9, 11, 12). Subjective (2:10):
+     *  Part-I Q.2 shorts Chapters 1-4, Q.3 Chapters 5-8, Q.4 Chapters 9-12
+     *  (any 6 of 9 each); Part-II any 2 of Q.5 (Ch 1+2), Q.6 (Ch 3+4),
+     *  Q.7 (Ch 5+7) with (a)/(b) parts of 4 marks; Part-III any 1 of
+     *  Q.8 (Ch 6 + Ch 8 or 11), Q.9 (Ch 10 + Ch 9 or 12). */
+    private fun generateBoardPatternMath10() {
+        fun mcqChapter(q: Question): Int =
+            Regex("^Chapter\\s+(\\d+)").find(q.chapter.trim())?.groupValues?.get(1)?.toIntOrNull() ?: -1
+        fun wqChapter(q: WrittenQuestion): Int =
+            q.chapterNumber.filter { it.isDigit() }.toIntOrNull() ?: -1
+        val rnd = kotlin.random.Random.Default
+        fun <T> pick(list: List<T>, n: Int): List<T> = list.shuffled(rnd).take(n)
+
+        // Q.1 - chapter-exact MCQ spread from the pairing scheme
+        if (mcqAll.size < 15) {
+            Toast.makeText(
+                this,
+                "Not enough MCQs loaded yet (${mcqAll.size} found, 15 needed). Check your internet connection.",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        val spread = linkedMapOf(1 to 1, 2 to 1, 3 to 1, 4 to 1, 5 to 1, 6 to 1, 7 to 1, 8 to 1, 9 to 2, 10 to 1, 11 to 2, 12 to 2)
+        val mcqByCh = mcqAll.groupBy { mcqChapter(it) }
+        val pickedMcqs = mutableListOf<Question>()
+        for ((ch, n) in spread) pickedMcqs += pick(mcqByCh[ch] ?: emptyList(), n)
+        if (pickedMcqs.size < 15) {
+            pickedMcqs += pick(mcqAll - pickedMcqs.toSet(), 15 - pickedMcqs.size)
+        }
+        val mcqs = pickedMcqs.take(15).shuffled(rnd)
+
+        // Q.2-Q.4 - nine shorts per chapter group (any 6 attempted by students)
+        fun groupShorts(chapters: List<Int>, preferred: Map<Int, Int>, label: String): List<WrittenQuestion>? {
+            val out = mutableListOf<WrittenQuestion>()
+            for ((ch, n) in preferred) {
+                out += pick(shortAll.filter { wqChapter(it) == ch }, n)
+            }
+            if (out.size < 9) {
+                val rest = shortAll.filter { wqChapter(it) in chapters } - out.toSet()
+                out += pick(rest, 9 - out.size)
+            }
+            if (out.size < 9) {
+                Toast.makeText(
+                    this,
+                    "Not enough Short Questions from Chapters ${chapters.first()}-${chapters.last()} loaded yet (${out.size} found, 9 needed for $label).",
+                    Toast.LENGTH_LONG
+                ).show()
+                return null
+            }
+            return out.take(9)
+        }
+        val q2 = groupShorts(listOf(1, 2, 3, 4), mapOf(1 to 3, 2 to 2, 3 to 2, 4 to 2), "Q.2") ?: return
+        val q3 = groupShorts(listOf(5, 6, 7, 8), mapOf(5 to 3, 6 to 2, 7 to 2, 8 to 2), "Q.3") ?: return
+        val q4 = groupShorts(listOf(9, 10, 11, 12), mapOf(9 to 3, 10 to 2, 11 to 2, 12 to 2), "Q.4") ?: return
+
+        // Part-II / Part-III long questions with (a) + (b) parts
+        fun longFrom(ch: Int): WrittenQuestion? = pick(longAll.filter { wqChapter(it) == ch }, 1).firstOrNull()
+        fun longPair(aCh: Int, bCh: Int, label: String): Pair<WrittenQuestion, WrittenQuestion>? {
+            val a = longFrom(aCh)
+            val b = longFrom(bCh)
+            if (a == null || b == null) {
+                val missing = if (a == null) aCh else bCh
+                Toast.makeText(
+                    this,
+                    "Long Questions for Chapter $missing are not available yet (needed for $label).",
+                    Toast.LENGTH_LONG
+                ).show()
+                return null
+            }
+            return a to b
+        }
+        fun longPairAlt(aCh: Int, bFirst: Int, bAlt: Int, label: String): Pair<WrittenQuestion, WrittenQuestion>? {
+            val a = longFrom(aCh)
+            val b = longFrom(bFirst) ?: longFrom(bAlt)
+            if (a == null || b == null) {
+                Toast.makeText(
+                    this,
+                    "Long Questions for Chapter ${if (a == null) aCh else bFirst} are not available yet (needed for $label).",
+                    Toast.LENGTH_LONG
+                ).show()
+                return null
+            }
+            return a to b
+        }
+        val p5 = longPair(1, 2, "Q.5") ?: return
+        val p6 = longPair(3, 4, "Q.6") ?: return
+        val p7 = longPair(5, 7, "Q.7") ?: return
+        val p8 = longPairAlt(6, 8, 11, "Q.8") ?: return
+        val p9 = longPairAlt(10, 9, 12, "Q.9") ?: return
+
+        val typedTitle = etTitle.text.toString().trim()
+        val title = if (typedTitle.isBlank() || typedTitle == "Question Paper") {
+            "Board Pattern Paper"
+        } else typedTitle
+        val data = PaperPdfGenerator.Math10BoardPaperData(
+            testTitle = title,
+            classLabel = "Class 10th",
+            subject = "Mathematics",
+            header = currentHeader(),
+            mcqs = mcqs,
+            q2Shorts = q2,
+            q3Shorts = q3,
+            q4Shorts = q4,
+            partII = listOf(p5, p6, p7),
+            partIII = listOf(p8, p9),
+            includeAnswers = radioSolved.isChecked
+        )
+        btnGenerate.isEnabled = false
+        tvStatus.text = "Generating paper..."
+        scope.launch {
+            val file = try {
+                withContext(Dispatchers.IO) {
+                    val ts = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
+                    val docx = isDocx()
+                    val out = File(papersDir(), "BoardPattern_Math10_$ts." + if (docx) "docx" else "pdf")
+                    if (docx) PaperDocxGenerator.generateBoardPatternMath10(applicationContext, data, out)
+                    else PaperPdfGenerator.generateBoardPatternMath10(applicationContext, data, out)
+                }
+            } catch (e: Exception) {
+                null
+            }
+            btnGenerate.isEnabled = true
+            if (file != null && file.exists()) {
+                lastFile = file
+                layoutActions.visibility = View.VISIBLE
+                tvStatus.text = "Paper ready: Board Pattern Paper (Q.1: 15 MCQs, Q.2-Q.9 complete) \u2022 ${file.name}"
                 Toast.makeText(this@PaperGeneratorActivity, "Board Pattern paper generated", Toast.LENGTH_SHORT).show()
             } else {
                 tvStatus.text = "Paper generation failed. Please try again."
