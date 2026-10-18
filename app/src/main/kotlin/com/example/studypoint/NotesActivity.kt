@@ -332,7 +332,16 @@ class NotesActivity : AppCompatActivity() {
                 "Computer" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=15e8iWFCs2hZqTqQQbBE0gj5Om50B42Vx",
                     "Book" to "https://drive.google.com/uc?export=download&id=15e8iWFCs2hZqTqQQbBE0gj5Om50B42Vx",
-                    "Notes" to listOf("https://drive.google.com/uc?export=download&id=1suMI7yc4jD8OyXiLbOqqCQixpI_rt-o_"),
+                    "Notes" to mapOf(
+                        "Chapter 1: Operating Systems: Structure & Services" to "https://drive.google.com/uc?export=download&id=1I2K3E23CpTRYmEjmOKTQrDEzOpfaivPQ",
+                        "Chapter 2: System Recovery & Advanced Maintenance" to "https://drive.google.com/uc?export=download&id=12faGLHryoe4Z_mcvb-jJ7MVNe0DLCrtQ",
+                        "Chapter 3: Introduction to Python Programming" to "https://drive.google.com/uc?export=download&id=1eH_9gthG0gJq-weVu-Tlea792MNwqtKm",
+                        "Chapter 4: Control Structures in Python" to "https://drive.google.com/uc?export=download&id=1Dt38b2f8Nv6PVKDHYDaQn4JvXd7R_y_E",
+                        "Chapter 5: Introduction to Data Science" to "https://drive.google.com/uc?export=download&id=14bMnFujS3Pif_h63hG8Cf7FqPIDptqxI",
+                        "Chapter 6: Introduction to Artificial Intelligence (AI) & Machine Learning (ML)" to "https://drive.google.com/uc?export=download&id=1HcGg59koH5JtqIkn3npEgUKFaRGmQtOv",
+                        "Chapter 7: Application of AI" to "https://drive.google.com/uc?export=download&id=1zNqNoJlUlEcZeJXAtdHKuQDNCYqCzy2V",
+                        "Chapter 8: Digital Entrepreneurship" to "https://drive.google.com/uc?export=download&id=18vnLKldICo7PYwxXFtmP4Oey3Zk5Jx0o"
+                    ),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=10_CS_PP_2022",
                         "2023" to "https://drive.google.com/uc?export=download&id=10_CS_PP_2023",
@@ -457,7 +466,20 @@ class NotesActivity : AppCompatActivity() {
                 "Math" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=1TiZFVUnjdmGnZPc5Zsn7Ia-k6-P0gUFN",
                     "Book" to "https://drive.google.com/uc?export=download&id=1TiZFVUnjdmGnZPc5Zsn7Ia-k6-P0gUFN",
-                    "Notes" to listOf("https://drive.google.com/uc?export=download&id=1pNFnJtsV9_0E60qryeUuMq4FTF_WuYds"),
+                    "Notes" to mapOf(
+                        "Chapter 1: Complex Numbers" to "https://drive.google.com/uc?export=download&id=1XFsH54ifPZLpMr0EOs9UQO-ChMV1VMh-",
+                        "Chapter 2: Quadratic Equations and Inequalities" to "https://drive.google.com/uc?export=download&id=14k5vGkvIVYviiUm34ioP0q3U4scYH4Nn",
+                        "Chapter 3: Matrices and Determinants" to "https://drive.google.com/uc?export=download&id=1FkYccJwmWFIRly3_RkkaheB6NP9My7td",
+                        "Chapter 4: Functions and Graphs" to "https://drive.google.com/uc?export=download&id=1G-o1HBtGcPwiqViRezPk24pSXNhn6x_o",
+                        "Chapter 5: Algebraic Fractions" to "COMING_SOON",
+                        "Chapter 6: Vectors in Plane" to "COMING_SOON",
+                        "Chapter 7: Trigonometry" to "COMING_SOON",
+                        "Chapter 8: Chords and Arcs of a Circle" to "COMING_SOON",
+                        "Chapter 9: Tangent and Angles of a Circle" to "COMING_SOON",
+                        "Chapter 10: Practical Geometry of Circles" to "COMING_SOON",
+                        "Chapter 11: Information Handling" to "COMING_SOON",
+                        "Chapter 12: Probability" to "COMING_SOON"
+                    ),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=10_MATH_PP_2022",
                         "2023" to "https://drive.google.com/uc?export=download&id=10_MATH_PP_2023",

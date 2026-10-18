@@ -384,7 +384,16 @@ object SubjectStructure {
             StudySection("cs8", "Ch 8: Ethical and Legal Concerns", "", "chapter"),
             StudySection("cs9", "Ch 9: Entrepreneurship", "", "chapter")
         )
-        "10" -> (1..6).map { StudySection("cs$it", "Chapter $it", "", "chapter") }
+        "10" -> listOf(
+            StudySection("cs1", "Ch 1: Operating Systems: Structure & Services", "", "chapter"),
+            StudySection("cs2", "Ch 2: System Recovery & Advanced Maintenance", "", "chapter"),
+            StudySection("cs3", "Ch 3: Introduction to Python Programming", "", "chapter"),
+            StudySection("cs4", "Ch 4: Control Structures in Python", "", "chapter"),
+            StudySection("cs5", "Ch 5: Introduction to Data Science", "", "chapter"),
+            StudySection("cs6", "Ch 6: Introduction to Artificial Intelligence (AI) & Machine Learning (ML)", "", "chapter"),
+            StudySection("cs7", "Ch 7: Application of AI", "", "chapter"),
+            StudySection("cs8", "Ch 8: Digital Entrepreneurship", "", "chapter")
+        )
         "11" -> (1..8).map { StudySection("cs$it", "Chapter $it", "", "chapter") }
         else -> (1..8).map { StudySection("cs$it", "Chapter $it", "", "chapter") }
     }
