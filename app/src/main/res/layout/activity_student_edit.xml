@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F8FAFC">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="18dp">
+
+        <TextView style="@style/TeacherLabel" android:text="Student Name *" />
+        <EditText
+            android:id="@+id/editName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_input"
+            android:hint="e.g. Ali Raza"
+            android:inputType="textPersonName"
+            android:textColor="#1F2937"
+            android:textColorHint="#94A3B8"
+            android:textSize="15sp" />
+
+        <TextView style="@style/TeacherLabel" android:text="Roll Number / Student ID *" />
+        <EditText
+            android:id="@+id/editRoll"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_input"
+            android:hint="e.g. 01"
+            android:inputType="text"
+            android:textColor="#1F2937"
+            android:textColorHint="#94A3B8"
+            android:textSize="15sp" />
+
+        <TextView style="@style/TeacherLabel" android:text="Campus" />
+        <TextView
+            android:id="@+id/pickCampus"
+            style="@style/TeacherPicker"
+            android:text="Select Campus ▾" />
+
+        <TextView style="@style/TeacherLabel" android:text="School / College" />
+        <TextView
+            android:id="@+id/pickSchool"
+            style="@style/TeacherPicker"
+            android:text="Select School / College ▾" />
+
+        <TextView style="@style/TeacherLabel" android:text="Class *" />
+        <TextView
+            android:id="@+id/pickClass"
+            style="@style/TeacherPicker"
+            android:text="Select Class ▾" />
+
+        <TextView style="@style/TeacherLabel" android:text="Section" />
+        <TextView
+            android:id="@+id/pickSection"
+            style="@style/TeacherPicker"
+            android:text="Select Section ▾" />
+
+        <TextView style="@style/TeacherLabel" android:text="Gender" />
+        <TextView
+            android:id="@+id/pickGender"
+            style="@style/TeacherPicker"
+            android:text="Select Gender ▾" />
+
+        <TextView style="@style/TeacherLabel" android:text="Guardian Name (optional)" />
+        <EditText
+            android:id="@+id/editGuardianName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_input"
+            android:hint="Guardian name"
+            android:inputType="textPersonName"
+            android:textColor="#1F2937"
+            android:textColorHint="#94A3B8"
+            android:textSize="15sp" />
+
+        <TextView style="@style/TeacherLabel" android:text="Guardian Phone (optional)" />
+        <EditText
+            android:id="@+id/editGuardianPhone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_input"
+            android:hint="03xx-xxxxxxx"
+            android:inputType="phone"
+            android:textColor="#1F2937"
+            android:textColorHint="#94A3B8"
+            android:textSize="15sp" />
+
+        <Button
+            android:id="@+id/btnSave"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:backgroundTint="#2563EB"
+            android:text="Save Student"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btnDelete"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:backgroundTint="#DC2626"
+            android:text="Delete Student"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:visibility="gone" />
+    </LinearLayout>
+</ScrollView>

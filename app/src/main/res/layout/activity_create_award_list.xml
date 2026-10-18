@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F8FAFC"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Create Award List"
+        android:textColor="#1E3A8A"
+        android:textSize="22sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/txtStepSub"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:text="Step 1 of 3 — School and Class Information"
+        android:textColor="#64748B"
+        android:textSize="13sp" />
+
+    <!-- STEP 1 -->
+    <ScrollView
+        android:id="@+id/step1"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView style="@style/TeacherLabel" android:text="Campus *" />
+            <TextView
+                android:id="@+id/pickCampus"
+                style="@style/TeacherPicker"
+                android:text="Select Campus ▾" />
+
+            <TextView style="@style/TeacherLabel" android:text="School / College *" />
+            <TextView
+                android:id="@+id/pickSchool"
+                style="@style/TeacherPicker"
+                android:text="Select School / College ▾" />
+
+            <TextView style="@style/TeacherLabel" android:text="Class *" />
+            <TextView
+                android:id="@+id/pickClass"
+                style="@style/TeacherPicker"
+                android:text="Select Class ▾" />
+
+            <TextView style="@style/TeacherLabel" android:text="Section *" />
+            <TextView
+                android:id="@+id/pickSection"
+                style="@style/TeacherPicker"
+                android:text="Select Section ▾" />
+
+            <TextView style="@style/TeacherLabel" android:text="Gender" />
+            <TextView
+                android:id="@+id/pickGender"
+                style="@style/TeacherPicker"
+                android:text="All ▾" />
+
+            <Button
+                android:id="@+id/btnStep1Next"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="26dp"
+                android:backgroundTint="#2563EB"
+                android:text="Next: Add Students"
+                android:textColor="#FFFFFF"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- STEP 2 -->
+    <LinearLayout
+        android:id="@+id/step2"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <EditText
+            android:id="@+id/editSearchStudent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_input"
+            android:hint="Search student by name or roll no..."
+            android:inputType="text"
+            android:maxLines="1"
+            android:textColor="#1F2937"
+            android:textColorHint="#94A3B8"
+            android:textSize="14sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnSelectAll"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:backgroundTint="#0F766E"
+                android:text="Select All"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp" />
+
+            <Button
+                android:id="@+id/btnClearAll"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:backgroundTint="#64748B"
+                android:text="Deselect All"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp" />
+
+            <Button
+                android:id="@+id/btnAddNewStudent"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:backgroundTint="#2563EB"
+                android:text="+ Add Student"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/txtSelectedCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="0 selected"
+            android:textColor="#2563EB"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/txtNoStudents"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:textColor="#64748B"
+            android:textSize="14sp"
+            android:visibility="gone" />
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="6dp"
+            android:layout_weight="1">
+
+            <LinearLayout
+                android:id="@+id/checkContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+        </ScrollView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnStep2Back"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:backgroundTint="#64748B"
+                android:text="Back"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+
+            <Button
+                android:id="@+id/btnStep2Next"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_weight="1"
+                android:backgroundTint="#2563EB"
+                android:text="Next"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- STEP 3 -->
+    <ScrollView
+        android:id="@+id/step3"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        android:layout_weight="1"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView style="@style/TeacherLabel" android:text="Award List Title" />
+            <EditText
+                android:id="@+id/editTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_input"
+                android:hint="Award list title"
+                android:inputType="text"
+                android:textColor="#1F2937"
+                android:textColorHint="#94A3B8"
+                android:textSize="15sp" />
+
+            <TextView style="@style/TeacherLabel" android:text="Academic Session" />
+            <TextView
+                android:id="@+id/pickSession"
+                style="@style/TeacherPicker"
+                android:text="2026-27 ▾" />
+
+            <TextView style="@style/TeacherLabel" android:text="Subject *" />
+            <TextView
+                android:id="@+id/pickSubject"
+                style="@style/TeacherPicker"
+                android:text="Select Subject ▾" />
+
+            <TextView style="@style/TeacherLabel" android:text="Exam Type *" />
+            <TextView
+                android:id="@+id/pickExamType"
+                style="@style/TeacherPicker"
+                android:text="Select Exam Type ▾" />
+
+            <TextView style="@style/TeacherLabel" android:text="Exam Date *" />
+            <TextView
+                android:id="@+id/pickExamDate"
+                style="@style/TeacherPicker"
+                android:text="Select Exam Date ▾" />
+
+            <TextView style="@style/TeacherLabel" android:text="Return Date" />
+            <TextView
+                android:id="@+id/pickReturnDate"
+                style="@style/TeacherPicker"
+                android:text="Select Return Date (optional) ▾" />
+
+            <TextView
+                android:id="@+id/txtStudentsSummary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:textColor="#334155"
+                android:textSize="14sp" />
+
+            <Button
+                android:id="@+id/btnCreate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:backgroundTint="#059669"
+                android:text="Create Award List"
+                android:textColor="#FFFFFF"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btnSaveDraft"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:backgroundTint="#D97706"
+                android:text="Save Draft"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+
+            <Button
+                android:id="@+id/btnStep3Back"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:backgroundTint="#64748B"
+                android:text="Back"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
