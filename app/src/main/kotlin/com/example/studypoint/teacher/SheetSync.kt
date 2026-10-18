@@ -68,7 +68,7 @@ object SheetSync {
         put("id", s.id)
         put("rollNumber", s.rollNumber)
         put("name", s.name)
-        put("fatherName", s.fatherName)
+        put("fatherName", "")
         put("className", s.className)
         put("section", s.section)
         put("gender", s.gender)
@@ -76,7 +76,7 @@ object SheetSync {
         put("school", s.school)
         put("guardianName", s.guardianName)
         put("guardianPhone", s.guardianPhone)
-        put("guardianRelation", s.guardianRelation)
+        put("guardianRelation", "")
     }
 
     fun student(s: TeacherStudent) {

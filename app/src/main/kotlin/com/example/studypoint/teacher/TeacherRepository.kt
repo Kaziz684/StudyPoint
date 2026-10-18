@@ -123,7 +123,6 @@ object TeacherRepository {
             "teacherUid" to uid,
             "name" to s.name,
             "rollNumber" to s.rollNumber,
-            "fatherName" to s.fatherName,
             "campus" to s.campus,
             "school" to s.school,
             "className" to s.className,
@@ -131,7 +130,6 @@ object TeacherRepository {
             "gender" to s.gender,
             "guardianName" to s.guardianName,
             "guardianPhone" to s.guardianPhone,
-            "guardianRelation" to s.guardianRelation,
             "updatedAt" to System.currentTimeMillis()
         )
         val col = db.collection("teacher_students")
