@@ -1950,4 +1950,203 @@ object PaperPdfGenerator {
         doc.close()
         return outFile
     }
+
+    data class Math10BoardPaperData(
+        val testTitle: String,
+        val classLabel: String,
+        val subject: String,
+        val mcqs: List<Question>,
+        val q2Shorts: List<WrittenQuestion>,
+        val q3Shorts: List<WrittenQuestion>,
+        val q4Shorts: List<WrittenQuestion>,
+        val partII: List<Pair<WrittenQuestion, WrittenQuestion>>,
+        val partIII: List<Pair<WrittenQuestion, WrittenQuestion>>,
+        val includeAnswers: Boolean,
+        val header: SchoolHeader = SchoolHeader()
+    )
+
+    /** Board Pattern paper (Class 10 Mathematics, official PCTB pairing scheme):
+     *  75 marks, 2:30 hours - Objective (20 min, 15 marks): Q.1 15 MCQs
+     *  (1 each from Chapters 1-8 and 10, 2 each from Chapters 9, 11, 12).
+     *  Subjective (2:10 hrs, 60 marks): Part-I Q.2 shorts from Chapters 1-4,
+     *  Q.3 from Chapters 5-8, Q.4 from Chapters 9-12 (any 6 of 9 each, 2x6=12);
+     *  Part-II (any 2 of 3, parts of 4 marks): Q.5 = Ch 1+2, Q.6 = Ch 3+4,
+     *  Q.7 = Ch 5+7; Part-III (any 1 of 2): Q.8 = Ch 6 + (8 or 11),
+     *  Q.9 = Ch 10 + (9 or 12). */
+    fun generateBoardPatternMath10(context: Context, data: Math10BoardPaperData, outFile: File): File {
+        val blocks = mutableListOf<Block>()
+        blocks += schoolHeaderBlocks(
+            context, data.header, data.testTitle, data.subject, data.classLabel,
+            "2 Hours 30 Minutes", "75"
+        )
+        val instrText = if (data.includeAnswers) {
+            "Solved paper: the answer key is given at the end. Note: Q.1 is compulsory. Attempt only the required number of questions in each part."
+        } else {
+            "Note: Q.1 is compulsory. Attempt only the required number of questions in each part. Write your answers neatly in the answer copy."
+        }
+        val instrLayout = layoutOf(instrText, paint(10.5f, color = MUTED))
+        blocks += Block(instrLayout.height + 12) { c, x, y ->
+            c.save(); c.translate(x.toFloat(), y.toFloat()); instrLayout.draw(c); c.restore()
+            val linePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.rgb(203, 213, 225); strokeWidth = 1f }
+            val ly = y + instrLayout.height + 6
+            c.drawLine(x.toFloat(), ly.toFloat(), (x + CONTENT_W).toFloat(), ly.toFloat(), linePaint)
+        }
+        fun partBanner(text: String) {
+            val h = layoutOf(text, paint(14f, bold = true, color = NAVY))
+            blocks += Block(h.height + 16) { c, x, y ->
+                val tx = x + (CONTENT_W - h.width) / 2
+                c.save(); c.translate(tx.toFloat(), (y + 6).toFloat()); h.draw(c); c.restore()
+                val rp = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = GREEN; strokeWidth = 1.6f }
+                c.drawLine(x.toFloat(), (y + 6 + h.height + 4).toFloat(), (x + CONTENT_W).toFloat(), (y + 6 + h.height + 4).toFloat(), rp)
+            }
+        }
+        fun qHeading(text: String) {
+            val h = layoutOf(text, paint(12.5f, bold = true, color = NAVY))
+            blocks += Block(h.height + 8, draw = stackDraw(listOf(h)))
+        }
+        fun body(text: String, p: TextPaint = paint(11.5f)) {
+            blocks += blocksFor(listOf(layoutOf(text, p)), gapAfter = 8)
+        }
+        fun partQuestion(num: Int, pair: Pair<WrittenQuestion, WrittenQuestion>) {
+            qHeading("Q.$num")
+            blocks += blocksFor(listOf(layoutOf(boldPrefix("(a)  ", pair.first.question), paint(11.5f))), gapAfter = 6)
+            blocks += blocksFor(listOf(layoutOf(boldPrefix("(b)  ", pair.second.question), paint(11.5f))), gapAfter = 8)
+        }
+
+        partBanner("OBJECTIVE TYPE")
+        body("Time Allowed: 20 Minutes   ·   Max. Marks: 15", paint(11f, bold = true, color = NAVY))
+        qHeading("Q.1  Choose the correct option:   (15 x 1 = 15)")
+        addMcqTable(blocks, data.mcqs)
+
+        partBanner("SUBJECTIVE TYPE")
+        body("Time Allowed: 2 Hours 10 Minutes   ·   Max. Marks: 60", paint(11f, bold = true, color = NAVY))
+        body("(Part-I)", paint(11.5f, bold = true, color = NAVY))
+        qHeading("Q.2  Write short answers to any SIX (06) questions.   (2 x 6 = 12)      [Chapters 1, 2, 3, 4]")
+        data.q2Shorts.forEachIndexed { i, wq -> body("${roman(i)}  ${wq.question}") }
+        qHeading("Q.3  Write short answers to any SIX (06) questions.   (2 x 6 = 12)      [Chapters 5, 6, 7, 8]")
+        data.q3Shorts.forEachIndexed { i, wq -> body("${roman(i)}  ${wq.question}") }
+        qHeading("Q.4  Write short answers to any SIX (06) questions.   (2 x 6 = 12)      [Chapters 9, 10, 11, 12]")
+        data.q4Shorts.forEachIndexed { i, wq -> body("${roman(i)}  ${wq.question}") }
+
+        body("(Part-II)", paint(11.5f, bold = true, color = NAVY))
+        body("Note: Attempt any TWO (02) questions. Each question has two parts (a) and (b), carrying 4 marks each.   (2 x 8 = 16)")
+        data.partII.forEachIndexed { i, pair -> partQuestion(i + 5, pair) }
+
+        body("(Part-III)", paint(11.5f, bold = true, color = NAVY))
+        body("Note: Attempt any ONE (01) question. Each question has two parts (a) and (b), carrying 4 marks each.   (1 x 8 = 8)")
+        data.partIII.forEachIndexed { i, pair -> partQuestion(i + 8, pair) }
+
+        if (data.includeAnswers) {
+            val keyTitle = layoutOf("ANSWER KEY", paint(15f, bold = true, color = NAVY))
+            blocks += Block(40, forceNewPage = true) { c, x, y ->
+                val tx = x + (CONTENT_W - keyTitle.width) / 2
+                c.save(); c.translate(tx.toFloat(), y.toFloat()); keyTitle.draw(c); c.restore()
+                val rulePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = GREEN; strokeWidth = 2f }
+                c.drawLine(x.toFloat(), (y + 30).toFloat(), (x + CONTENT_W).toFloat(), (y + 30).toFloat(), rulePaint)
+            }
+            val ansPaint = paint(11f, color = ANS_COLOR)
+            val missPaint = paint(10.5f, color = MUTED)
+            val keyPaint = paint(11.5f)
+            qHeading("Q.1  (MCQs)")
+            val colW = CONTENT_W / 4
+            val entries = data.mcqs.mapIndexed { idx, q ->
+                val letter = if (q.correctAnswerIndex in q.options.indices) {
+                    ('A' + q.correctAnswerIndex).toString()
+                } else "?"
+                "${idx + 1}.  $letter"
+            }
+            entries.chunked(4).forEach { row ->
+                blocks += Block(19) { c, x, y ->
+                    row.forEachIndexed { col, text ->
+                        c.drawText(text, (x + col * colW).toFloat(), (y + 13).toFloat(), keyPaint)
+                    }
+                }
+            }
+            blocks += Block(10) { _, _, _ -> }
+            fun keyShorts(heading: String, list: List<WrittenQuestion>) {
+                qHeading(heading)
+                list.forEachIndexed { i, wq ->
+                    val r = roman(i)
+                    if (wq.answer.isNotBlank()) {
+                        blocks += blocksFor(listOf(layoutOf(boldPrefix("$r  ", wq.answer), ansPaint)), gapAfter = 6)
+                    } else {
+                        blocks += blocksFor(listOf(layoutOf("$r  (Answer not available in the source data)", missPaint)), gapAfter = 6)
+                    }
+                }
+            }
+            keyShorts("Q.2  (Short Answers)", data.q2Shorts)
+            keyShorts("Q.3  (Short Answers)", data.q3Shorts)
+            keyShorts("Q.4  (Short Answers)", data.q4Shorts)
+            fun keyPair(heading: String, pair: Pair<WrittenQuestion, WrittenQuestion>) {
+                qHeading(heading)
+                listOf("(a)  " to pair.first, "(b)  " to pair.second).forEach { (label, wq) ->
+                    if (wq.answer.isNotBlank()) {
+                        blocks += blocksFor(listOf(layoutOf(boldPrefix(label, wq.answer), ansPaint)), gapAfter = 6)
+                    } else {
+                        blocks += blocksFor(listOf(layoutOf("$label(Answer not available in the source data)", missPaint)), gapAfter = 6)
+                    }
+                }
+            }
+            data.partII.forEachIndexed { i, pair -> keyPair("Q.${i + 5}  (Long Question)", pair) }
+            data.partIII.forEachIndexed { i, pair -> keyPair("Q.${i + 8}  (Long Question)", pair) }
+        }
+
+        val placements = mutableListOf<Placement>()
+        var page = 0
+        var y = topFor(0)
+        var pageHasContent = false
+        for (block in blocks) {
+            if (block.forceNewPage) {
+                if (pageHasContent) {
+                    page++
+                    y = topFor(page)
+                    pageHasContent = false
+                }
+                placements += Placement(block, page, y)
+                y += block.height
+                pageHasContent = true
+                continue
+            }
+            if (y + block.height > PAGE_H - MARGIN && pageHasContent) {
+                page++
+                y = topFor(page)
+                pageHasContent = false
+            }
+            placements += Placement(block, page, y)
+            y += block.height
+            pageHasContent = true
+        }
+        val totalPages = page + 1
+
+        val doc = PdfDocument()
+        val miniPaint = paint(9f, color = MUTED)
+        val footerPaint = paint(8.5f, color = MUTED)
+        val linePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.rgb(203, 213, 225); strokeWidth = 1f }
+        for (pg in 0 until totalPages) {
+            val pageInfo = PdfDocument.PageInfo.Builder(PAGE_W, PAGE_H, pg + 1).create()
+            val pageObj = doc.startPage(pageInfo)
+            val c = pageObj.canvas
+            if (pg > 0) {
+                c.drawText("StudyPoint \u2014 ${data.testTitle}", MARGIN.toFloat(), (MARGIN + 9).toFloat(), miniPaint)
+                c.drawLine(
+                    MARGIN.toFloat(), (MARGIN + 14).toFloat(),
+                    (MARGIN + CONTENT_W).toFloat(), (MARGIN + 14).toFloat(), linePaint
+                )
+            }
+            placements.filter { it.page == pg }.forEach { it.block.draw(c, MARGIN, it.y) }
+            c.drawLine(
+                MARGIN.toFloat(), (FOOTER_Y - 10).toFloat(),
+                (MARGIN + CONTENT_W).toFloat(), (FOOTER_Y - 10).toFloat(), linePaint
+            )
+            c.drawText("StudyPoint \u2014 ${data.testTitle}", MARGIN.toFloat(), FOOTER_Y.toFloat(), footerPaint)
+            val pageText = "Page ${pg + 1} of $totalPages"
+            val w = footerPaint.measureText(pageText)
+            c.drawText(pageText, (PAGE_W - MARGIN - w), FOOTER_Y.toFloat(), footerPaint)
+            doc.finishPage(pageObj)
+        }
+        outFile.parentFile?.mkdirs()
+        FileOutputStream(outFile).use { doc.writeTo(it) }
+        doc.close()
+        return outFile
+    }
 }
