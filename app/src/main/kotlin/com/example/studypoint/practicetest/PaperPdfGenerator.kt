@@ -857,6 +857,17 @@ object PaperPdfGenerator {
      *  Pak Studies Class 10, Chemistry Class 9): Q.1 12 MCQs spread round-robin
      *  across chapters; Q.2-Q.4 shorts (any 5 of 8 each) from three chapter
      *  groups; Q.5-Q.7 longs (any 2 of 3). */
+    data class SixtyBoardPaperData(
+        val testTitle: String,
+        val classLabel: String,
+        val subject: String,
+        val mcqs: List<Question>,
+        val shortSections: List<List<WrittenQuestion>>,
+        val longs: List<WrittenQuestion>,
+        val includeAnswers: Boolean,
+        val header: SchoolHeader = SchoolHeader()
+    )
+
     fun generateBoardPattern60(context: Context, data: SixtyBoardPaperData, outFile: File): File {
         val blocks = mutableListOf<Block>()
 
@@ -1735,13 +1746,13 @@ object PaperPdfGenerator {
         val grammar: List<Question>,
         val voice: List<Question>,
         val q2Shorts: List<WrittenQuestion>,
-        val q3Translations: List<BoardPatternPack.Eng9Pack.Eng9Trans>,
-        val q4Summary: BoardPatternPack.Eng9Pack.Eng9Summary,
-        val q5Words: List<BoardPatternPack.Eng9Pack.Eng9Word>,
-        val q6Prompts: List<BoardPatternPack.Eng9Pack.Eng9Prompt>,
-        val q7Passage: BoardPatternPack.Eng9Pack.Eng9Trans,
+        val q3Translations: List<BoardPatternPack.Eng9Trans>,
+        val q4Summary: BoardPatternPack.Eng9Summary,
+        val q5Words: List<BoardPatternPack.Eng9Word>,
+        val q6Prompts: List<BoardPatternPack.Eng9Prompt>,
+        val q7Passage: BoardPatternPack.Eng9Trans,
         val q7Questions: List<WrittenQuestion>,
-        val q8Options: List<BoardPatternPack.Eng9Pack.Eng9Trans>,
+        val q8Options: List<BoardPatternPack.Eng9Trans>,
         val includeAnswers: Boolean,
         val header: SchoolHeader = SchoolHeader()
     )
