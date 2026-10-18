@@ -118,6 +118,21 @@ class NotesActivity : AppCompatActivity() {
             return
         }
 
+        // Grammar topic PDFs (Class 9 English): open the topic's own PDF directly
+        val grammar9Pdf = if (gradeKey == "9" && normalizedSubject == "English") {
+            when (chapterTitle) {
+                "Letters & Applications" -> "https://drive.google.com/uc?export=download&id=1XWxUOyeiHQrulh_5087OiKOiZtAvRMf5"
+                "Stories" -> "https://drive.google.com/uc?export=download&id=1Fg1v_nyXwSep3OW1z6AO_paIG6tH0S-l"
+                "Idioms & Phrases" -> "https://drive.google.com/uc?export=download&id=1Bg7s7K-5lWUkUSzLxzgQ2wBT1oB4zr4k"
+                else -> null
+            }
+        } else null
+        if (grammar9Pdf != null) {
+            open(grammar9Pdf, chapterTitle, rawGrade, normalizedSubject)
+            finish()
+            return
+        }
+
         // Grammar topic PDFs (Class 10 Urdu): open the topic's own PDF directly
         val urduGrammarTopicPdf = if (gradeKey == "10" && normalizedSubject == "Urdu") {
             when (chapterTitle) {
@@ -157,7 +172,18 @@ class NotesActivity : AppCompatActivity() {
                 "English" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=9_ENGLISH_BOOK",
                     "Book" to "https://drive.google.com/uc?export=download&id=9_ENGLISH_BOOK",
-                    "Notes" to listOf("https://drive.google.com/uc?export=download&id=119eyVRNCHDIEEzKFVur18_bPed3nn0wY"),
+                    "Notes" to mapOf(
+                        "Chapter 1: The Saviour of Mankind" to "https://drive.google.com/uc?export=download&id=14rhPtsCewz_ajUSn6Rm6lT1TiB3upVGX",
+                        "Chapter 2: Patriotism" to "https://drive.google.com/uc?export=download&id=1Vob7jkJyFEpmxAhOPnn9vGxa2QzYqNmx",
+                        "Chapter 3: Daffodils" to "https://drive.google.com/uc?export=download&id=1eif3X0RP3L3FWsXlDthGcOQ8xbpoeBAX",
+                        "Chapter 4: Hazrat Asma" to "https://drive.google.com/uc?export=download&id=1_b7DEP3XCT0WK7h7Gv3PF49vfboJoEGa",
+                        "Chapter 5: Women Empowerment through Entrepreneurship" to "https://drive.google.com/uc?export=download&id=1x0TT1bGmQ3Y62ardnDPioOrKbznJnEBg",
+                        "Chapter 6: The Value of Time" to "https://drive.google.com/uc?export=download&id=1UXgt_vk6Sw-sUXnUf3yo6eXGHyZsC26J",
+                        "Chapter 7: If" to "https://drive.google.com/uc?export=download&id=13oCX70BdM8nKUBCfvcgEziW-SicVEUUr",
+                        "Chapter 8: The Impact of Globalisation on Culture and Economy" to "https://drive.google.com/uc?export=download&id=1-UHzxOBNCT5gabAYt0Qz7vTMqyfHM_YD",
+                        "Chapter 9: Quality Education: A Key to Success" to "https://drive.google.com/uc?export=download&id=1d6U5eApF-s8j_utSp8hWBDOeSJz1A0Xr",
+                        "Chapter 10: The Silent Predator and the Majestic Prey – Snow Leopard and Markhor" to "https://drive.google.com/uc?export=download&id=14kJmMDhMlJy4SLnajmUCivyZBlKXfAM9"
+                    ),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=9_ENG_PP_2022",
                         "2023" to "https://drive.google.com/uc?export=download&id=9_ENG_PP_2023",

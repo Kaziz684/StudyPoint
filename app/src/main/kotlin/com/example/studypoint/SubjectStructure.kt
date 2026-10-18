@@ -133,16 +133,15 @@ object SubjectStructure {
                 "9" -> listOf(
                     StudySection("c1", "Chapter 1: The Saviour of Mankind", "", "chapter"),
                     StudySection("c2", "Chapter 2: Patriotism", "", "chapter"),
-                    StudySection("c3", "Chapter 3: Media and Its Impact", "", "chapter"),
-                    StudySection("c4", "Chapter 4: Hazrat Asma (R.A)", "", "chapter"),
-                    StudySection("c5", "Chapter 5: Daffodils", "", "chapter"),
-                    StudySection("c6", "Chapter 6: The Quaid's Vision", "", "chapter"),
-                    StudySection("c7", "Chapter 7: Sultan Ahmad Mosque", "", "chapter"),
-                    StudySection("c8", "Chapter 8: Stopping by Woods", "", "chapter"),
-                    StudySection("c9", "Chapter 9: All is Not Lost", "", "chapter"),
-                    StudySection("c10", "Chapter 10: Drug Addiction", "", "chapter"),
-                    StudySection("c11", "Chapter 11: Noise in the Environment", "", "chapter"),
-                    StudySection("c12", "Chapter 12: Three Days to See", "", "chapter")
+                    StudySection("c3", "Chapter 3: Daffodils", "", "chapter"),
+                    StudySection("c4", "Chapter 4: Hazrat Asma", "", "chapter"),
+                    StudySection("c5", "Chapter 5: Women Empowerment through Entrepreneurship", "", "chapter"),
+                    StudySection("c6", "Chapter 6: The Value of Time", "", "chapter"),
+                    StudySection("c7", "Chapter 7: If", "", "chapter"),
+                    StudySection("c8", "Chapter 8: The Impact of Globalisation on Culture and Economy", "", "chapter"),
+                    StudySection("c9", "Chapter 9: Quality Education: A Key to Success", "", "chapter"),
+                    StudySection("c10", "Chapter 10: The Silent Predator and the Majestic Prey – Snow Leopard and Markhor", "", "chapter"),
+                    StudySection("c11", "Chapter 11: The Dear Departed", "", "chapter")
                 )
                 "10" -> (1..13).map { StudySection("c$it", "Chapter $it", "", "chapter") }
                 else -> (1..14).map { StudySection("c$it", "Chapter $it", "", "chapter") }

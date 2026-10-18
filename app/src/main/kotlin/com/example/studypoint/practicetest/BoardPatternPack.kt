@@ -148,6 +148,121 @@ object BoardPatternPack {
         null
     }
 
+
+    data class Eng9Mcq(
+        val id: Int,
+        val question: String,
+        val options: List<String>,
+        val correct: Int,
+        val answer: String
+    )
+    data class Eng9Trans(val chapter: Int, val english: String, val urdu: String)
+    data class Eng9Summary(val poem: String, val summary: String)
+    data class Eng9Prompt(val kind: String, val prompt: String, val text: String)
+    data class Eng9Word(val word: String, val sentence: String)
+
+    data class Eng9Pack(
+        val verbs: List<Eng9Mcq>,
+        val spelling: List<Eng9Mcq>,
+        val meanings: List<Eng9Mcq>,
+        val grammar: List<Eng9Mcq>,
+        val voice: List<Eng9Mcq>,
+        val translations: List<Eng9Trans>,
+        val summaries: List<Eng9Summary>,
+        val words: List<Eng9Word>,
+        val prompts: List<Eng9Prompt>,
+        val passages: List<Eng9Trans>,
+        val urduToEnglish: List<Eng9Trans>
+    )
+
+    /** Class 9 English board-pattern pack (board_pattern_english9.json):
+     *  Q.1 MCQ pools (verbs / spelling / meanings / grammar / voice) harvested
+     *  from the live Class_9th sheet, Q.3 + Q.7 translation passages and
+     *  Q.8 Urdu-to-English passages from the freeilm chapter notes'
+     *  translation pairs, Q.4 poem summaries, Q.5 words with model sentences,
+     *  Q.6 letter / story / dialogue prompts. All content is transcribed
+     *  from the student's own notes — never invented. */
+    fun loadEnglish9(context: Context): Eng9Pack? = try {
+        val raw = context.assets.open("board_pattern_english9.json")
+            .bufferedReader(Charsets.UTF_8).use { it.readText() }
+        val root = JSONObject(raw)
+        fun mcqs(name: String): List<Eng9Mcq> {
+            val out = mutableListOf<Eng9Mcq>()
+            root.optJSONArray(name)?.let { arr ->
+                for (i in 0 until arr.length()) {
+                    val o = arr.getJSONObject(i)
+                    val opts = mutableListOf<String>()
+                    o.optJSONArray("options")?.let { oa ->
+                        for (j in 0 until oa.length()) opts += oa.optString(j)
+                    }
+                    if (opts.size == 4) {
+                        out += Eng9Mcq(
+                            o.optInt("id"), o.optString("question"), opts,
+                            o.optInt("correct"), o.optString("answer")
+                        )
+                    }
+                }
+            }
+            return out
+        }
+        fun trans(name: String): List<Eng9Trans> {
+            val out = mutableListOf<Eng9Trans>()
+            root.optJSONArray(name)?.let { arr ->
+                for (i in 0 until arr.length()) {
+                    val o = arr.getJSONObject(i)
+                    out += Eng9Trans(
+                        o.optInt("chapter"), o.optString("english"), o.optString("urdu")
+                    )
+                }
+            }
+            return out
+        }
+        val summaries = mutableListOf<Eng9Summary>()
+        root.optJSONArray("q4Summaries")?.let { arr ->
+            for (i in 0 until arr.length()) {
+                val o = arr.getJSONObject(i)
+                summaries += Eng9Summary(o.optString("poem"), o.optString("summary"))
+            }
+        }
+        val words = mutableListOf<Eng9Word>()
+        root.optJSONArray("q5Sentences")?.let { arr ->
+            for (i in 0 until arr.length()) {
+                val o = arr.getJSONObject(i)
+                if (o.optString("word").isNotBlank()) {
+                    words += Eng9Word(o.optString("word"), o.optString("sentence"))
+                }
+            }
+        }
+        val prompts = mutableListOf<Eng9Prompt>()
+        root.optJSONArray("q6Prompts")?.let { arr ->
+            for (i in 0 until arr.length()) {
+                val o = arr.getJSONObject(i)
+                if (o.optString("prompt").isNotBlank()) {
+                    prompts += Eng9Prompt(
+                        o.optString("kind"), o.optString("prompt"), o.optString("text")
+                    )
+                }
+            }
+        }
+        val translations = trans("q3Translations")
+        val passages = trans("q7Passages").ifEmpty { translations }
+        Eng9Pack(
+            verbs = mcqs("q1Verbs"),
+            spelling = mcqs("q1Spelling"),
+            meanings = mcqs("q1Meanings"),
+            grammar = mcqs("q1Grammar"),
+            voice = mcqs("q9Voice"),
+            translations = translations,
+            summaries = summaries,
+            words = words,
+            prompts = prompts,
+            passages = passages,
+            urduToEnglish = trans("q8UrduToEnglish")
+        )
+    } catch (e: Exception) {
+        null
+    }
+
     data class WordMeaning(val word: String, val meaning: String, val surah: String)
 
     /** Class 10 Tarjuma-tul-Quran board-pattern word meanings (board_pattern_tarjuma.json):

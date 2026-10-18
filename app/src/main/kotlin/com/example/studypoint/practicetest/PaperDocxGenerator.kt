@@ -513,6 +513,75 @@ object PaperDocxGenerator {
         return writeDocx(sb.toString(), data.testTitle, logo, outFile)
     }
 
+    // ---------------- Board Pattern (60 marks — Phy/Bio 9&10, Pak St 10, Chem 9) ----------------
+
+    fun generateBoardPattern60(context: Context, data: PaperPdfGenerator.SixtyBoardPaperData, outFile: File): File {
+        val logo = logoPng(context, data.header)
+        val sb = StringBuilder()
+        sb.append(
+            headerXml(
+                data.header, data.testTitle, data.subject, data.classLabel,
+                "2 Hours", "60", null, logo != null
+            )
+        )
+        sb.append(
+            instructionsXml(
+                if (data.includeAnswers) {
+                    "Solved paper: the answer key is given at the end. Note: Q.1 is compulsory. In each subjective question, attempt only the required number of parts."
+                } else {
+                    "Note: Q.1 is compulsory. In each subjective question, attempt only the required number of parts. Write your answers neatly in the answer copy."
+                }
+            )
+        )
+
+        sb.append(bannerXml("OBJECTIVE PART"))
+        sb.append(qHeadingXml("Q.1  Choose the correct option:   (12 x 1 = 12)"))
+        sb.append(mcqsXml(data.mcqs))
+
+        sb.append(bannerXml("SUBJECTIVE PART"))
+        sb.append(pText("Time Allowed: 1 Hour 45 Minutes   •   Total Marks: 48", bold = true, size = 22, color = NAVY, after = 140))
+
+        data.shortSections.forEachIndexed { sIdx, section ->
+            sb.append(qHeadingXml("Q." + (sIdx + 2) + "  Write short answers to any FIVE (5) questions.   (2 x 5 = 10)"))
+            section.forEachIndexed { i, wq ->
+                sb.append(pText(roman(i) + "  " + wq.question, after = 100))
+            }
+        }
+
+        sb.append(qHeadingXml("Write detailed answers to any TWO (2) questions.   (2 x 9 = 18)"))
+        data.longs.forEachIndexed { i, wq ->
+            sb.append(qHeadingXml("Q." + (i + 5) + "  " + wq.question))
+        }
+
+        if (data.includeAnswers) {
+            sb.append(keyTitleXml("ANSWER KEY"))
+            sb.append(qHeadingXml("Q.1  (MCQs)"))
+            sb.append(keyEntriesXml(data.mcqs))
+            sb.append(pText("", size = 10, after = 80))
+            data.shortSections.forEachIndexed { sIdx, section ->
+                sb.append(qHeadingXml("Q." + (sIdx + 2) + "  (Short Answers)"))
+                section.forEachIndexed { i, wq ->
+                    val r = roman(i)
+                    if (wq.answer.isNotBlank()) {
+                        sb.append(pBoldPrefix(r + "  ", wq.answer, size = 22, color = ANS, after = 90))
+                    } else {
+                        sb.append(pText(r + "  (Answer not available in the source data)", size = 21, color = MUTED, after = 90))
+                    }
+                }
+            }
+            sb.append(qHeadingXml("Long Questions  (Answers)"))
+            data.longs.forEachIndexed { i, wq ->
+                val label = "Q." + (i + 5) + "  "
+                if (wq.answer.isNotBlank()) {
+                    sb.append(pBoldPrefix(label, wq.answer, size = 22, color = ANS, after = 90))
+                } else {
+                    sb.append(pText(label + "(Answer not available in the source data)", size = 21, color = MUTED, after = 90))
+                }
+            }
+        }
+        return writeDocx(sb.toString(), data.testTitle, logo, outFile)
+    }
+
     // ---------------- Board Pattern (Class 10 Tarjuma-tul-Quran) ----------------
 
     fun generateBoardPatternTq(context: Context, data: PaperPdfGenerator.TqBoardPaperData, outFile: File): File {
@@ -844,6 +913,135 @@ object PaperDocxGenerator {
         return writeDocx(sb.toString(), data.testTitle, logo, outFile)
     }
 
+
+    // ---------------- Board Pattern (Class 9 English) ----------------
+
+    fun generateBoardPatternEng9(context: Context, data: PaperPdfGenerator.Eng9BoardPaperData, outFile: File): File {
+        val logo = logoPng(context, data.header)
+        val sb = StringBuilder()
+        sb.append(
+            headerXml(
+                data.header, data.testTitle, data.subject, data.classLabel,
+                "2 Hours 30 Minutes", "75", null, logo != null
+            )
+        )
+        sb.append(
+            instructionsXml(
+                if (data.includeAnswers) {
+                    "Solved paper: the answer key is given at the end. Note: Q.1 is compulsory. In each subjective question, attempt only the required number of parts."
+                } else {
+                    "Note: Q.1 is compulsory. In each subjective question, attempt only the required number of parts. Write your answers neatly in the answer copy."
+                }
+            )
+        )
+
+        sb.append(bannerXml("OBJECTIVE PART"))
+        sb.append(qHeadingXml("Q.1  Choose the correct option:   (19 x 1 = 19)"))
+        sb.append(pText("(a)  Form of Verbs   (5)", bold = true, after = 90))
+        sb.append(mcqsXml(data.verbs))
+        sb.append(pText("(b)  Correct Spelling   (4)", bold = true, after = 90))
+        sb.append(mcqsXml(data.spelling))
+        sb.append(pText("(c)  Correct Meanings   (5)", bold = true, after = 90))
+        sb.append(mcqsXml(data.meanings))
+        sb.append(pText("(d)  Grammar   (5)", bold = true, after = 90))
+        sb.append(mcqsXml(data.grammar))
+
+        sb.append(bannerXml("SUBJECTIVE PART"))
+        sb.append(pText("Time Allowed: 2 Hours 10 Minutes   •   Total Marks: 56", bold = true, size = 22, color = NAVY, after = 140))
+
+        sb.append(qHeadingXml("Q.2  Write short answers to any FOUR questions — any THREE from (i) to (v) and any ONE from (vi) to (vii).   (3 x 2 + 1 x 4 = 10)"))
+        data.q2Shorts.forEachIndexed { i, wq ->
+            sb.append(pText(roman(i) + "  " + wq.question, after = 100))
+        }
+
+        sb.append(qHeadingXml("Q.3  Translate any TWO of the following paragraphs into Urdu.   (2 x 4 = 8)"))
+        data.q3Translations.forEachIndexed { i, t ->
+            sb.append(pText(roman(i) + "  " + t.english, after = 110))
+        }
+
+        sb.append(qHeadingXml("Q.4  Write the summary of the following poem.   (5)"))
+        sb.append(pText("Poem: \"" + data.q4Summary.poem + "\"", after = 120))
+
+        sb.append(qHeadingXml("Q.5  Use any FIVE of the following words in your own sentences.   (5 x 1 = 5)"))
+        data.q5Words.forEachIndexed { i, w ->
+            sb.append(pText(roman(i) + "  " + w.word, after = 100))
+        }
+
+        sb.append(qHeadingXml("Q.6  Attempt any ONE of the following.   (8)"))
+        data.q6Prompts.forEachIndexed { i, p ->
+            sb.append(pText(roman(i) + "  " + p.prompt, after = 110))
+        }
+
+        sb.append(qHeadingXml("Q.7  Read the following passage carefully and answer the questions given at the end.   (10)"))
+        sb.append(pText(data.q7Passage.english, after = 120))
+        data.q7Questions.forEachIndexed { i, wq ->
+            sb.append(pText(roman(i) + "  " + wq.question, after = 100))
+        }
+
+        sb.append(qHeadingXml("Q.8  Translate any FIVE of the following paragraphs into English.   (5 x 1 = 5)"))
+        data.q8Options.forEachIndexed { i, t ->
+            sb.append(pText(roman(i) + "  " + t.urdu, after = 110))
+        }
+
+        sb.append(qHeadingXml("Q.9  Choose the correct option (Active / Passive Voice).   (5 x 1 = 5)"))
+        sb.append(mcqsXml(data.voice))
+
+        if (data.includeAnswers) {
+            sb.append(keyTitleXml("ANSWER KEY"))
+            sb.append(qHeadingXml("Q.1  (MCQs — Verbs / Spelling / Meanings / Grammar)"))
+            sb.append(keyEntriesXml(data.verbs + data.spelling + data.meanings + data.grammar))
+            sb.append(pText("", size = 10, after = 80))
+            sb.append(qHeadingXml("Q.9  (Active / Passive Voice)"))
+            sb.append(keyEntriesXml(data.voice))
+            sb.append(pText("", size = 10, after = 80))
+
+            fun keyShorts(heading: String, list: List<WrittenQuestion>) {
+                sb.append(qHeadingXml(heading))
+                list.forEachIndexed { i, wq ->
+                    val r = roman(i)
+                    if (wq.answer.isNotBlank()) {
+                        sb.append(pBoldPrefix(r + "  ", wq.answer, size = 22, color = ANS, after = 90))
+                    } else {
+                        sb.append(pText(r + "  (Answer not available in the source data)", size = 21, color = MUTED, after = 90))
+                    }
+                }
+            }
+            keyShorts("Q.2  (Short Answers)", data.q2Shorts)
+            keyShorts("Q.7  (Comprehension Questions)", data.q7Questions)
+
+            sb.append(qHeadingXml("Q.3  (Urdu Translations — model)"))
+            data.q3Translations.forEach { t ->
+                if (t.urdu.isNotBlank()) {
+                    sb.append(pText(t.urdu, size = 22, color = ANS, after = 110))
+                } else {
+                    sb.append(pText("(Model translation not available)", size = 21, color = MUTED, after = 110))
+                }
+            }
+
+            sb.append(qHeadingXml("Q.4  (Poem Summary — model)"))
+            sb.append(pText(data.q4Summary.summary, size = 22, color = ANS, after = 110))
+
+            sb.append(qHeadingXml("Q.5  (Model Sentences)"))
+            data.q5Words.forEach { w ->
+                if (w.sentence.isNotBlank()) {
+                    sb.append(pBoldPrefix(w.word + ":  ", w.sentence, size = 22, color = ANS, after = 90))
+                } else {
+                    sb.append(pText(w.word + ":  (Model sentence not available)", size = 21, color = MUTED, after = 90))
+                }
+            }
+
+            sb.append(qHeadingXml("Q.8  (English Translations — model)"))
+            data.q8Options.forEach { t ->
+                if (t.english.isNotBlank()) {
+                    sb.append(pText(t.english, size = 22, color = ANS, after = 110))
+                } else {
+                    sb.append(pText("(Model translation not available)", size = 21, color = MUTED, after = 110))
+                }
+            }
+            sb.append(pText("Note: Q.6 answers will vary from student to student.", size = 21, color = MUTED, after = 110))
+        }
+        return writeDocx(sb.toString(), data.testTitle, logo, outFile)
+    }
 
     // ---------------- Board Pattern (Class 12 Physics) ----------------
 

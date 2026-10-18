@@ -119,109 +119,12 @@
                     android:background="#E2E8F0" />
             </LinearLayout>
 
-            <!-- ================= STEP 1: Class, Subject, Chapters ================= -->
+            <!-- ================= STEP 1: Paper Type, Class, Subject, Chapters ================= -->
             <LinearLayout
                 android:id="@+id/step1Paper"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
-
-            <!-- Class -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="18dp"
-                android:textColor="@color/edu_navy"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                android:text="Class" />
-
-            <Spinner
-                android:id="@+id/spinnerClassPaper"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:background="@drawable/input_field_bg"
-                android:padding="10dp" />
-
-            <!-- Subject -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="18dp"
-                android:textColor="@color/edu_navy"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                android:text="Subject" />
-
-            <Spinner
-                android:id="@+id/spinnerSubjectPaper"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:background="@drawable/input_field_bg"
-                android:padding="10dp" />
-
-            <!-- Chapters -->
-            <LinearLayout
-                android:id="@+id/layoutChapterSectionPaper"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="18dp"
-                android:textColor="@color/edu_navy"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                android:text="Chapter Selection" />
-
-            <ProgressBar
-                android:id="@+id/progressPaper"
-                style="?android:attr/progressBarStyleSmall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:visibility="gone" />
-
-            <TextView
-                android:id="@+id/tvChapterStatusPaper"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:textColor="#64748B"
-                android:textSize="13sp" />
-
-            <CheckBox
-                    android:textColor="@color/radio_text_selector"
-                    android:buttonTint="@color/radio_text_selector"
-                android:id="@+id/checkAllChaptersPaper"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:text="All Chapters / Full Book"
-                android:textSize="15sp"
-                android:textStyle="bold" />
-
-            <LinearLayout
-                android:id="@+id/layoutChaptersPaper"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical" />
-
-            </LinearLayout>
-
-            </LinearLayout>
-
-            <!-- ================= STEP 2: Paper Type & Questions ================= -->
-            <LinearLayout
-                android:id="@+id/step2Paper"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone">
 
             <!-- Paper Type -->
             <TextView
@@ -312,6 +215,103 @@
                 android:textColor="#334155"
                 android:textSize="13sp"
                 android:visibility="gone" />
+
+            <!-- Class -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:textColor="@color/edu_navy"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:text="Class" />
+
+            <Spinner
+                android:id="@+id/spinnerClassPaper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/input_field_bg"
+                android:padding="10dp" />
+
+            <!-- Subject -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:textColor="@color/edu_navy"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:text="Subject" />
+
+            <Spinner
+                android:id="@+id/spinnerSubjectPaper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/input_field_bg"
+                android:padding="10dp" />
+
+            <!-- Chapters -->
+            <LinearLayout
+                android:id="@+id/layoutChapterSectionPaper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:textColor="@color/edu_navy"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:text="Chapter Selection" />
+
+            <ProgressBar
+                android:id="@+id/progressPaper"
+                style="?android:attr/progressBarStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tvChapterStatusPaper"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:textColor="#64748B"
+                android:textSize="13sp" />
+
+            <CheckBox
+                    android:textColor="@color/radio_text_selector"
+                    android:buttonTint="@color/radio_text_selector"
+                android:id="@+id/checkAllChaptersPaper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="All Chapters / Full Book"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/layoutChaptersPaper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+            </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- ================= STEP 2: Questions & Counts ================= -->
+            <LinearLayout
+                android:id="@+id/step2Paper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
 
             <!-- Selection Mode -->
             <LinearLayout

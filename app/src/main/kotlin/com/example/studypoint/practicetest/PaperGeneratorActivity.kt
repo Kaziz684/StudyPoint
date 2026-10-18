@@ -408,14 +408,14 @@ class PaperGeneratorActivity : AppCompatActivity() {
             v.setBackgroundColor(Color.parseColor(if (i < currentStep) "#2563EB" else "#E2E8F0"))
         }
         val titles = listOf(
-            "Step 1 of 4 — Select Class, Subject & Chapters",
-            "Step 2 of 4 — Paper Type & Questions",
+            "Step 1 of 4 — Paper Type, Class, Subject & Chapters",
+            "Step 2 of 4 — Select Questions & Counts",
             "Step 3 of 4 — Paper Options",
             "Step 4 of 4 — Preview & Generate"
         )
         val subs = listOf(
-            "Choose the class and subject for your test paper.",
-            "Pick the paper type, then select questions yourself or set the numbers.",
+            "First pick the paper type, then choose the class, subject and chapters.",
+            "Select questions yourself or set the numbers for automatic selection.",
             "Choose solved or unsolved, question order, title and time.",
             "Review your selected options before creating the test paper."
         )
@@ -445,7 +445,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
         sb.append("School:  ${etSchoolName.text.toString().trim().ifBlank { "AL SAMAD ACADEMY BWP" }}\n")
         if (currentType() == PaperType.BOARD) {
             val sheetNow = classSheets[spinnerClass.selectedItemPosition.coerceIn(0, classSheets.lastIndex)]
-            if (sheetNow == "Class_9th" && subject.equals("Computer Science", ignoreCase = true)) {
+            if ((sheetNow == "Class_9th" || sheetNow == "Class_10th") && subject.equals("Computer Science", ignoreCase = true)) {
                 sb.append("Total Marks:  50  •  Time:  2 Hours\n")
                 sb.append("Structure:  Q.1: 10 MCQs • Q.2–Q.4: Short answers (any 4 of 6 each) • Q.5–Q.7: Long questions (any 2 of 3)\n")
             } else if (sheetNow == "Class_11th" && subject.equals("English", ignoreCase = true)) {
@@ -457,6 +457,16 @@ class PaperGeneratorActivity : AppCompatActivity() {
             } else if (sheetNow == "Class_10th" && subject.equals("Chemistry", ignoreCase = true)) {
                 sb.append("Total Marks:  60  •  Time:  2 Hours\n")
                 sb.append("Structure:  Q.1: 12 MCQs (one per chapter, Ch 14-24 and 26) • Q.2: Shorts Ch 14-18 (any 5 of 8) • Q.3: Shorts Ch 19-22 (any 5 of 8) • Q.4: Shorts Ch 23-26 (any 5 of 8) • Q.5-Q.7: Detailed questions (any 2 of 3)\n")
+            } else if (sheetNow == "Class_9th" && subject.equals("English", ignoreCase = true)) {
+                sb.append("Total Marks:  75  •  Time:  2 Hours 30 Minutes\n")
+                sb.append("Structure:  Q.1: 19 MCQs (Verbs 5, Spelling 4, Meanings 5, Grammar 5) • Q.2: Shorts (any 4 of 7) • Q.3: Translate into Urdu (any 2 of 3) • Q.4: Poem summary • Q.5: Sentences (any 5 of 8) • Q.6: Letter/Story/Dialogue (any 1 of 3) • Q.7: Comprehension • Q.8: Translate into English (any 5 of 8) • Q.9: Active/Passive (5)\n")
+            } else if (((sheetNow == "Class_9th" || sheetNow == "Class_10th") &&
+                    (subject.equals("Physics", ignoreCase = true) || subject.equals("Biology", ignoreCase = true))) ||
+                (sheetNow == "Class_10th" && subject.equals("Pak Studies", ignoreCase = true)) ||
+                (sheetNow == "Class_9th" && subject.equals("Chemistry", ignoreCase = true))
+            ) {
+                sb.append("Total Marks:  60  •  Time:  2 Hours\n")
+                sb.append("Structure:  Q.1: 12 MCQs (spread across chapters) • Q.2–Q.4: Short answers (any 5 of 8 each) • Q.5–Q.7: Detailed questions (any 2 of 3)\n")
             } else {
                 sb.append("Total Marks:  75  •  Time:  2 Hours 30 Minutes\n")
                 sb.append("Structure:  Q.1: 19 MCQs • Q.2: Short answers (any 5 of 8) • Q.3–Q.8: Board pattern sections\n")
@@ -564,6 +574,16 @@ class PaperGeneratorActivity : AppCompatActivity() {
                     add(2000, "10th", "Writing: Paragraphs",
                         pack.paragraphTopics.map { "Write a paragraph of 100-150 words on the topic: \"" + it + "\"" } +
                             pack.tenSentenceTopics.map { "Write ten sentences on the topic: \"" + it + "\"" })
+                    add(7000, "10th", "Writing: Translation (English to Urdu)",
+                        pack.q3Paragraphs.map { "Translate the following paragraph into Urdu:\n" + it.text })
+                    add(8000, "10th", "Writing: Translation (Urdu to English)",
+                        pack.q8Paragraphs.map { "Translate the following paragraph into English:\n" + it.urdu })
+                    add(9000, "10th", "Writing: Poem Summary",
+                        pack.summaryPoems.map { "Write the summary of the poem: \"" + it + "\"." })
+                    add(10000, "10th", "Writing: Paraphrase",
+                        pack.paraphraseSets.map { "Paraphrase the following lines into simple English:\n" + it.lines })
+                    add(11000, "10th", "Writing: Pair of Words",
+                        pack.pairs.map { "Use the following pair of words in your own meaningful sentences: \"" + it.first + "\" and \"" + it.second + "\"." })
                 }
             } else if (sheet == "Class_11th") {
                 val pack = BoardPatternPack.loadEnglish11(applicationContext)
@@ -699,10 +719,28 @@ class PaperGeneratorActivity : AppCompatActivity() {
                 "Board Pattern - Class 9 Computer Science (50 Marks, 2 Hours)\n" +
                     "Q.1: 10 MCQs  -  Q.2-Q.4: Short answers (any 4 of 6 each)\n" +
                     "Q.5-Q.7: Long questions (any 2 of 3)"
+            (sheet == "Class_9th" || sheet == "Class_10th") &&
+                (subject.equals("Physics", ignoreCase = true) || subject.equals("Biology", ignoreCase = true)) ||
+                (sheet == "Class_10th" && subject.equals("Pak Studies", ignoreCase = true)) ||
+                (sheet == "Class_9th" && subject.equals("Chemistry", ignoreCase = true)) ->
+                "Board Pattern - " + classLabels[spinnerClass.selectedItemPosition.coerceIn(0, classLabels.lastIndex)] + " " + subject + " (60 Marks, 2 Hours)\n" +
+                    "Q.1: 12 MCQs (spread across chapters)\n" +
+                    "Q.2-Q.4: Short answers (any 5 of 8 each)  -  Q.5-Q.7: Detailed questions (any 2 of 3)"
+            sheet == "Class_10th" && subject.equals("Computer Science", ignoreCase = true) ->
+                "Board Pattern - Class 10 Computer Science (50 Marks, 2 Hours)\n" +
+                    "Q.1: 10 MCQs  -  Q.2-Q.4: Short answers (any 4 of 6 each)\n" +
+                    "Q.5-Q.7: Long questions (any 2 of 3)"
+            sheet == "Class_9th" && subject.equals("English", ignoreCase = true) ->
+                "Board Pattern - Class 9 English (75 Marks, 2 Hours 30 Minutes)\n" +
+                    "Q.1: 19 MCQs (Verbs 5, Spelling 4, Meanings 5, Grammar 5)  -  Q.2: Short answers (any 4 of 7)\n" +
+                    "Q.3: Translate into Urdu (any 2 of 3)  -  Q.4: Poem summary  -  Q.5: Sentences (any 5 of 8)\n" +
+                    "Q.6: Letter/Story/Dialogue (any 1 of 3)  -  Q.7: Comprehension\n" +
+                    "Q.8: Translate into English (any 5 of 8)  -  Q.9: Active/Passive Voice (5)"
             else ->
-                "Board Pattern is available for Class 10 English, Class 10 Chemistry, " +
+                "Board Pattern is available for Class 9 English, Class 10 English, Class 10 Chemistry, " +
                     "Class 10 Tarjuma-tul-Quran, Class 10 Mathematics, Class 11 English, " +
-                    "Class 12 Physics and Class 9 Computer Science. Select one of these " +
+                    "Class 12 Physics, Class 9/10 Computer Science, Class 9/10 Physics, Class 9/10 Biology, " +
+                    "Class 10 Pak Studies and Class 9 Chemistry. Select one of these " +
                     "to generate a board pattern paper."
         }
     }
@@ -1170,7 +1208,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
     private fun generateBoardPattern() {
         val sheet = classSheets[spinnerClass.selectedItemPosition.coerceIn(0, classSheets.lastIndex)]
         val subject = spinnerSubject.selectedItem?.toString() ?: ""
-        if (sheet == "Class_9th" && subject.equals("Computer Science", ignoreCase = true)) {
+        if ((sheet == "Class_9th" || sheet == "Class_10th") && subject.equals("Computer Science", ignoreCase = true)) {
             generateBoardPatternCs()
             return
         }
@@ -1194,10 +1232,22 @@ class PaperGeneratorActivity : AppCompatActivity() {
             generateBoardPatternMath10()
             return
         }
+        val isSixty = ((sheet == "Class_9th" || sheet == "Class_10th") &&
+            (subject.equals("Physics", ignoreCase = true) || subject.equals("Biology", ignoreCase = true))) ||
+            (sheet == "Class_10th" && subject.equals("Pak Studies", ignoreCase = true)) ||
+            (sheet == "Class_9th" && subject.equals("Chemistry", ignoreCase = true))
+        if (isSixty) {
+            generateBoardPattern60()
+            return
+        }
+        if (sheet == "Class_9th" && subject.equals("English", ignoreCase = true)) {
+            generateBoardPatternEng9()
+            return
+        }
         if (sheet != "Class_10th" || !subject.equals("English", ignoreCase = true)) {
             Toast.makeText(
                 this,
-                "Board Pattern is available for Class 10 English, Class 10 Chemistry, Class 10 Tarjuma-tul-Quran, Class 10 Mathematics, Class 11 English, Class 12 Physics and Class 9 Computer Science only",
+                "Board Pattern is available for Class 9 English, Class 10 English, Class 10 Chemistry, Class 10 Tarjuma-tul-Quran, Class 10 Mathematics, Class 11 English, Class 12 Physics, Class 9/10 Computer Science, Class 9/10 Physics, Class 9/10 Biology, Class 10 Pak Studies and Class 9 Chemistry only",
                 Toast.LENGTH_LONG
             ).show()
             return
@@ -1831,9 +1881,10 @@ class PaperGeneratorActivity : AppCompatActivity() {
         val title = if (typedTitle.isBlank() || typedTitle == "Question Paper") {
             "Board Pattern Paper"
         } else typedTitle
+        val csClass = classSheets[spinnerClass.selectedItemPosition.coerceIn(0, classSheets.lastIndex)]
         val data = PaperPdfGenerator.CsBoardPaperData(
             testTitle = title,
-            classLabel = "Class 9th",
+            classLabel = if (csClass == "Class_10th") "Class 10th" else "Class 9th",
             subject = "Computer Science",
             header = currentHeader(),
             mcqs = pick(mcqAll, 10),
@@ -1848,7 +1899,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
                 withContext(Dispatchers.IO) {
                     val ts = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
                     val docx = isDocx()
-                    val out = File(papersDir(), "BoardPattern_CS9_$ts." + if (docx) "docx" else "pdf")
+                    val out = File(papersDir(), "BoardPattern_CS" + (if (csClass == "Class_10th") "10" else "9") + "_$ts." + if (docx) "docx" else "pdf")
                     if (docx) PaperDocxGenerator.generateBoardPatternCs(applicationContext, data, out)
                     else PaperPdfGenerator.generateBoardPatternCs(applicationContext, data, out)
                 }
@@ -1860,6 +1911,268 @@ class PaperGeneratorActivity : AppCompatActivity() {
                 lastFile = file
                 layoutActions.visibility = View.VISIBLE
                 tvStatus.text = "Paper ready: Board Pattern Paper (Q.1: 10 MCQs, Q.2-Q.4 Shorts, Q.5-Q.7 Longs) • ${file.name}"
+                Toast.makeText(this@PaperGeneratorActivity, "Board Pattern paper generated", Toast.LENGTH_SHORT).show()
+            } else {
+                tvStatus.text = "Paper generation failed. Please try again."
+            }
+        }
+    }
+
+    /** Board Pattern paper (60 marks — Physics/Biology Class 9 & 10, Pak Studies
+     *  Class 10, Chemistry Class 9): Q.1 12 MCQs spread round-robin across the
+     *  subject's chapters; Q.2-Q.4 shorts (any 5 of 8 each) drawn from three
+     *  contiguous chapter groups (shortfalls filled from the whole pool);
+     *  Q.5-Q.7 one long each from the three groups (any 2 of 3). */
+    private fun generateBoardPattern60() {
+        val subject = spinnerSubject.selectedItem?.toString() ?: ""
+        val rnd = kotlin.random.Random.Default
+        fun <T> pick(list: List<T>, n: Int): List<T> = list.shuffled(rnd).take(n)
+
+        fun mcqChapter(q: Question): Int =
+            Regex("""Chapter\s*(\d+)""").find(q.chapter)?.groupValues?.get(1)?.toIntOrNull() ?: -1
+        fun wqChapter(q: WrittenQuestion): Int =
+            q.chapterNumber.filter { it.isDigit() }.toIntOrNull() ?: Int.MAX_VALUE
+
+        if (mcqAll.size < 12) {
+            Toast.makeText(
+                this,
+                "Not enough MCQs loaded yet (${mcqAll.size} found, 12 needed). Note: Class 9 Chemistry has no MCQs in the source book, so its board pattern paper cannot be generated yet.",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        if (shortAll.size < 24) {
+            Toast.makeText(
+                this,
+                "Not enough Short Questions loaded yet (${shortAll.size} found, 24 needed for Q.2-Q.4).",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        if (longAll.size < 3) {
+            Toast.makeText(
+                this,
+                "Not enough Long Questions loaded yet (${longAll.size} found, 3 needed for Q.5-Q.7).",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+
+        // Q.1 — 12 MCQs, round-robin across chapters so every chapter is covered.
+        val perChapter = mcqAll.filter { mcqChapter(it) > 0 }
+            .groupBy { mcqChapter(it) }.toSortedMap()
+            .mapValues { (_, v) -> v.shuffled(rnd).toMutableList() }
+        val mcqs = mutableListOf<Question>()
+        while (mcqs.size < 12 && perChapter.values.any { it.isNotEmpty() }) {
+            for (list in perChapter.values) {
+                if (mcqs.size < 12 && list.isNotEmpty()) mcqs += list.removeAt(0)
+            }
+        }
+        if (mcqs.size < 12) {
+            Toast.makeText(
+                this,
+                "Could not spread 12 MCQs across chapters (only ${mcqs.size} chapter-tagged MCQs found).",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+
+        // Q.2-Q.4 — chapters (sorted) split into three contiguous groups.
+        val chapters = shortAll.map { wqChapter(it) }.filter { it != Int.MAX_VALUE }.distinct().sorted()
+        val groupSize = ((chapters.size + 2) / 3).coerceAtLeast(1)
+        val groups = chapters.chunked(groupSize).toMutableList()
+        while (groups.size < 3) groups += emptyList<Int>()
+        fun pickShorts(chaps: List<Int>, n: Int): List<WrittenQuestion> {
+            val inGroup = shortAll.filter { wqChapter(it) in chaps }.shuffled(rnd)
+            if (inGroup.size >= n) return inGroup.take(n)
+            val rest = shortAll.filter { it !in inGroup }.shuffled(rnd)
+            return (inGroup + rest).take(n)
+        }
+        val shortSections = groups.take(3).map { pickShorts(it, 8) }
+        fun pickLong(chaps: List<Int>): WrittenQuestion {
+            val inGroup = longAll.filter { wqChapter(it) in chaps }.shuffled(rnd)
+            return (if (inGroup.isNotEmpty()) inGroup else longAll.shuffled(rnd)).first()
+        }
+        val longs = groups.take(3).map { pickLong(it) }
+
+        val classLabel = classLabels[spinnerClass.selectedItemPosition.coerceIn(0, classLabels.lastIndex)]
+        val typedTitle = etTitle.text.toString().trim()
+        val title = if (typedTitle.isBlank() || typedTitle == "Question Paper") {
+            "Board Pattern Paper"
+        } else typedTitle
+        val data = PaperPdfGenerator.SixtyBoardPaperData(
+            testTitle = title,
+            classLabel = classLabel,
+            subject = subject,
+            header = currentHeader(),
+            mcqs = mcqs,
+            shortSections = shortSections,
+            longs = longs,
+            includeAnswers = radioSolved.isChecked
+        )
+        btnGenerate.isEnabled = false
+        tvStatus.text = "Generating paper..."
+        scope.launch {
+            val file = try {
+                withContext(Dispatchers.IO) {
+                    val ts = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
+                    val docx = isDocx()
+                    val out = File(papersDir(), "BoardPattern_60_$ts." + if (docx) "docx" else "pdf")
+                    if (docx) PaperDocxGenerator.generateBoardPattern60(applicationContext, data, out)
+                    else PaperPdfGenerator.generateBoardPattern60(applicationContext, data, out)
+                }
+            } catch (e: Exception) {
+                null
+            }
+            btnGenerate.isEnabled = true
+            if (file != null && file.exists()) {
+                lastFile = file
+                layoutActions.visibility = View.VISIBLE
+                tvStatus.text = "Paper ready: Board Pattern Paper (Q.1: 12 MCQs, Q.2-Q.4 Shorts, Q.5-Q.7 Longs) • ${file.name}"
+                Toast.makeText(this@PaperGeneratorActivity, "Board Pattern paper generated", Toast.LENGTH_SHORT).show()
+            } else {
+                tvStatus.text = "Paper generation failed. Please try again."
+            }
+        }
+    }
+
+    /** Board Pattern paper (Class 9 English, Pairing Scheme 2027): 75 marks —
+     *  Q.1 19 MCQs (verbs 5, spelling 4, meanings 5, grammar 5); Q.2 shorts
+     *  (attempt 3 of 5 + 1 of 2); Q.3 translate into Urdu (any 2 of 3);
+     *  Q.4 poem summary; Q.5 sentences (any 5 of 8); Q.6 letter/story/dialogue
+     *  (any 1 of 3); Q.7 comprehension (passage + 5 questions from its
+     *  chapter); Q.8 translate into English (any 5 of 8); Q.9 voice (5). */
+    private fun generateBoardPatternEng9() {
+        val rnd = kotlin.random.Random.Default
+        fun <T> pick(list: List<T>, n: Int): List<T> = list.shuffled(rnd).take(n)
+
+        val pack = BoardPatternPack.loadEnglish9(applicationContext)
+        if (pack == null || pack.translations.size < 3 || pack.summaries.isEmpty() ||
+            pack.words.size < 8 || pack.prompts.size < 3 || pack.urduToEnglish.size < 8 ||
+            pack.passages.isEmpty()
+        ) {
+            Toast.makeText(this, "Board pattern content is missing in this build", Toast.LENGTH_LONG).show()
+            return
+        }
+
+        // Q.1 pools — classify the live Class_9th English MCQs by question text,
+        // topping up from the content pack if a live pool runs short.
+        fun poolOf(t: String): String {
+            val l = t.lowercase()
+            return when {
+                l.contains("correct spelling") -> "spelling"
+                l.contains("means") || l.contains("synonym") || l.contains("antonym") || l.contains("meaning of") -> "meanings"
+                l.contains("passive") || l.contains(" voice") -> "voice"
+                l.contains("verb") || l.contains("form of") || l.contains("correct form") -> "verbs"
+                else -> "grammar"
+            }
+        }
+        val live = mcqAll.groupBy { poolOf(it.questionText) }
+        fun pool(key: String, packPool: List<BoardPatternPack.Eng9Mcq>, quota: Int): List<Question> {
+            val out = (live[key] ?: emptyList()).shuffled(rnd).toMutableList()
+            if (out.size < quota) {
+                val used = out.map { it.id }.toSet()
+                val extra = packPool.filter { it.id !in used }.map {
+                    Question(it.id, "9", "English", "Grammar", it.question, it.options, it.correct, it.answer)
+                }
+                out += extra.shuffled(rnd).take(quota - out.size)
+            }
+            return out.shuffled(rnd).take(quota)
+        }
+        // NOTE: verbs and voice use live-sheet items ONLY — no verb-form or
+        // voice MCQs exist in the English-9 sources yet, and topping these two
+        // pools up from grammar would print mislabeled questions. The guards
+        // below will honestly report the missing pools until such MCQs arrive.
+        val verbs = (live["verbs"] ?: emptyList()).shuffled(rnd).take(5)
+        val spelling = pool("spelling", pack.spelling, 4)
+        val meanings = pool("meanings", pack.meanings, 5)
+        val grammar = pool("grammar", pack.grammar, 5)
+        val voice = (live["voice"] ?: emptyList()).shuffled(rnd).take(5)
+        val poolChecks = listOf(
+            Triple("Form of Verbs", verbs, 5), Triple("Correct Spelling", spelling, 4),
+            Triple("Correct Meanings", meanings, 5), Triple("Grammar", grammar, 5),
+            Triple("Active/Passive Voice", voice, 5)
+        )
+        for ((name, list, need) in poolChecks) {
+            if (list.size < need) {
+                val hint = if (list.isEmpty())
+                    "Questions for this section are not available in the question bank yet."
+                else "Check your internet connection."
+                Toast.makeText(
+                    this,
+                    "Not enough '$name' MCQs loaded yet (${list.size} found, $need needed). $hint",
+                    Toast.LENGTH_LONG
+                ).show()
+                return
+            }
+        }
+
+        if (shortAll.size < 7) {
+            Toast.makeText(
+                this,
+                "Not enough Short Questions loaded yet (${shortAll.size} found, 7 needed for Q.2).",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+
+        // Q.7 — a passage whose chapter has at least 5 short questions.
+        fun chapNum(wq: WrittenQuestion): Int? = wq.chapterNumber.filter { it.isDigit() }.toIntOrNull()
+        val viable = pack.passages.filter { p -> shortAll.count { chapNum(it) == p.chapter } >= 5 }
+        if (viable.isEmpty()) {
+            Toast.makeText(
+                this,
+                "Not enough short questions in any passage chapter for the Q.7 comprehension section.",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        val passage = viable.random(rnd)
+        val q7Questions = pick(shortAll.filter { chapNum(it) == passage.chapter }, 5)
+
+        val typedTitle = etTitle.text.toString().trim()
+        val title = if (typedTitle.isBlank() || typedTitle == "Question Paper") {
+            "Board Pattern Paper"
+        } else typedTitle
+        val data = PaperPdfGenerator.Eng9BoardPaperData(
+            testTitle = title,
+            classLabel = "Class 9th",
+            subject = "English",
+            header = currentHeader(),
+            verbs = verbs,
+            spelling = spelling,
+            meanings = meanings,
+            grammar = grammar,
+            voice = voice,
+            q2Shorts = pick(shortAll, 7),
+            q3Translations = pick(pack.translations, 3),
+            q4Summary = pack.summaries.random(rnd),
+            q5Words = pick(pack.words, 8),
+            q6Prompts = pick(pack.prompts, 3),
+            q7Passage = passage,
+            q7Questions = q7Questions,
+            q8Options = pick(pack.urduToEnglish, 8),
+            includeAnswers = radioSolved.isChecked
+        )
+        btnGenerate.isEnabled = false
+        tvStatus.text = "Generating paper..."
+        scope.launch {
+            val file = try {
+                withContext(Dispatchers.IO) {
+                    val ts = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
+                    val docx = isDocx()
+                    val out = File(papersDir(), "BoardPattern_English9_$ts." + if (docx) "docx" else "pdf")
+                    if (docx) PaperDocxGenerator.generateBoardPatternEng9(applicationContext, data, out)
+                    else PaperPdfGenerator.generateBoardPatternEng9(applicationContext, data, out)
+                }
+            } catch (e: Exception) {
+                null
+            }
+            btnGenerate.isEnabled = true
+            if (file != null && file.exists()) {
+                lastFile = file
+                layoutActions.visibility = View.VISIBLE
+                tvStatus.text = "Paper ready: Board Pattern Paper (Q.1: 19 MCQs, Q.2-Q.9 complete) • ${file.name}"
                 Toast.makeText(this@PaperGeneratorActivity, "Board Pattern paper generated", Toast.LENGTH_SHORT).show()
             } else {
                 tvStatus.text = "Paper generation failed. Please try again."
