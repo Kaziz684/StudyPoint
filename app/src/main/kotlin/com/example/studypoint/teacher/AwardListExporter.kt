@@ -152,7 +152,7 @@ object AwardListExporter {
                 paint.color = Color.parseColor("#64748B")
                 paint.textAlign = Paint.Align.CENTER
                 canvas.drawText(
-                    "Award List — ${award.school} · ${award.className} (${award.section}) · ${ExamTypes.label(award.examType)} (continued)",
+                    "Award List — ${award.school} · ${award.className} (${award.section}) · ${ExamTypes.labelList(award.examType)} (continued)",
                     pageW / 2f, y + 12f, paint
                 )
                 y += 20f

@@ -83,6 +83,94 @@ object SearchablePicker {
         dialog.show()
     }
 
+    /**
+     * Multi-select variant: checkboxes with instant search. At most [max]
+     * options can be ticked; Done returns the selected raw values.
+     */
+    fun showMulti(
+        context: Context,
+        title: String,
+        options: List<Pair<String, String>>,
+        selected: List<String>,
+        max: Int,
+        onDone: (List<String>) -> Unit
+    ) {
+        val checked = selected.toMutableSet()
+        val root = LinearLayout(context)
+        root.orientation = LinearLayout.VERTICAL
+        root.setPadding(dp(context, 18), dp(context, 16), dp(context, 18), dp(context, 4))
+
+        val search = EditText(context)
+        search.hint = "Search..."
+        search.setSingleLine(true)
+        search.textSize = 15f
+        search.setTextColor(Color.parseColor("#1F2937"))
+        search.setHintTextColor(Color.parseColor("#94A3B8"))
+        search.setBackgroundResource(R.drawable.bg_input)
+        root.addView(search)
+
+        val list = LinearLayout(context)
+        list.orientation = LinearLayout.VERTICAL
+        val scroll = ScrollView(context)
+        val scrollLp = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT, dp(context, 340)
+        )
+        scrollLp.topMargin = dp(context, 10)
+        scroll.layoutParams = scrollLp
+        scroll.addView(list)
+        root.addView(scroll)
+
+        val dialog = AlertDialog.Builder(context)
+            .setTitle(title)
+            .setView(root)
+            .setNegativeButton("Cancel", null)
+            .setPositiveButton("Done") { _, _ ->
+                onDone(options.map { it.first }.filter { checked.contains(it) })
+            }
+            .create()
+
+        fun refreshList() {
+            val q = search.text.toString().trim()
+            list.removeAllViews()
+            val shown = options.filter {
+                q.isEmpty() || it.first.contains(q, ignoreCase = true) ||
+                    it.second.contains(q, ignoreCase = true)
+            }
+            if (shown.isEmpty()) {
+                list.addView(TeacherUi.text(context, "No matches found", 14f, "#94A3B8"))
+                return
+            }
+            for ((value, label) in shown) {
+                val cb = android.widget.CheckBox(context)
+                cb.text = label
+                cb.textSize = 15.5f
+                cb.setTextColor(Color.parseColor("#1F2937"))
+                cb.isChecked = checked.contains(value)
+                cb.setPadding(dp(context, 4), dp(context, 6), dp(context, 4), dp(context, 6))
+                cb.setOnCheckedChangeListener { _, isChecked ->
+                    if (isChecked) {
+                        if (checked.size >= max) {
+                            cb.isChecked = false
+                            Toast.makeText(context, "Maximum $max can be selected", Toast.LENGTH_SHORT).show()
+                        } else {
+                            checked.add(value)
+                        }
+                    } else {
+                        checked.remove(value)
+                    }
+                }
+                list.addView(cb)
+            }
+        }
+        search.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s2: CharSequence?, a: Int, b: Int, c: Int) {}
+            override fun onTextChanged(s2: CharSequence?, a: Int, b: Int, c: Int) = refreshList()
+            override fun afterTextChanged(s2: Editable?) {}
+        })
+        refreshList()
+        dialog.show()
+    }
+
     /** Convenience for plain string options (value = label). */
     fun showSimple(
         context: Context,

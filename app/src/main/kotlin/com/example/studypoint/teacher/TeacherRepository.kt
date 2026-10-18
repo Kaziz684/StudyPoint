@@ -60,6 +60,14 @@ object ExamTypes {
         "Schedule One", "Schedule Two", "Monthly Test"
     )
 
+    /** Split a stored exam-type field (may hold up to 3 codes, comma-joined). */
+    fun values(csv: String): List<String> =
+        csv.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+
+    /** Human-readable label for one or more stored exam types. */
+    fun labelList(csv: String): String =
+        values(csv).joinToString(" + ") { label(it) }
+
     fun label(value: String): String = when (value) {
         "RNT" -> "RNT"
         "T1" -> "T1 (Test 1)"
@@ -131,7 +139,12 @@ object TeacherRepository {
         } else {
             col.document(s.id).set(data, com.google.firebase.firestore.SetOptions.merge())
         }
-        write.addOnSuccessListener { onOk() }
+        write.addOnSuccessListener { result ->
+                if (s.id.isEmpty()) {
+                    (result as? com.google.firebase.firestore.DocumentReference)?.let { s.id = it.id }
+                }
+                onOk()
+            }
             .addOnFailureListener { e -> onErr(e.message ?: "Could not save student") }
     }
 
