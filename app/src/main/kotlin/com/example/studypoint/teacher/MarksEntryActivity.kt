@@ -68,6 +68,8 @@ class MarksEntryActivity : AppCompatActivity() {
             }
         )
 
+        findViewById<Button>(R.id.btnExportPdf).setOnClickListener { export(asPdf = true) }
+        findViewById<Button>(R.id.btnExportDocx).setOnClickListener { export(asPdf = false) }
         findViewById<Button>(R.id.btnApplyTotal).setOnClickListener {
             val v = findViewById<EditText>(R.id.editDefaultTotal).text.toString().trim()
             if (v.isEmpty()) return@setOnClickListener
@@ -167,8 +169,9 @@ class MarksEntryActivity : AppCompatActivity() {
         return e
     }
 
-    private fun save() {
-        val a = award ?: return
+    /** Validates the on-screen marks and applies them to the award list. */
+    private fun collectMarks(): Boolean {
+        val a = award ?: return false
         val newMarks = a.marks.toMutableMap()
         for (r in rowFields) {
             val name = studentsById[r.studentId]?.name ?: r.studentId
@@ -181,17 +184,17 @@ class MarksEntryActivity : AppCompatActivity() {
             }
             val obtained = obtainedTxt.toDoubleOrNull()
             if (obtained == null) {
-                toast("Invalid marks for $name"); return
+                toast("Invalid marks for $name"); return false
             }
             if (obtained < 0) {
-                toast("Marks cannot be negative ($name)"); return
+                toast("Marks cannot be negative ($name)"); return false
             }
             val total = totalTxt.toDoubleOrNull()
             if (total == null || total <= 0) {
-                toast("Please enter total marks for $name"); return
+                toast("Please enter total marks for $name"); return false
             }
             if (obtained > total) {
-                toast("Obtained marks cannot exceed total marks ($name)"); return
+                toast("Obtained marks cannot exceed total marks ($name)"); return false
             }
             newMarks[r.studentId] = MarkEntry(
                 obtained = obtained,
@@ -201,17 +204,51 @@ class MarksEntryActivity : AppCompatActivity() {
         }
         a.marks = newMarks
         if (a.status == AwardListData.STATUS_DRAFT) a.status = AwardListData.STATUS_ACTIVE
+        return true
+    }
+
+    private fun persist(onDone: () -> Unit) {
+        val a = award ?: return
         val btn = findViewById<Button>(R.id.btnSaveMarks)
         btn.isEnabled = false
         TeacherRepository.updateAwardList(a,
             onOk = {
-                Toast.makeText(this, "Marks saved", Toast.LENGTH_SHORT).show()
-                finish()
+                btn.isEnabled = true
+                onDone()
             },
             onErr = {
                 btn.isEnabled = true
                 toast(it)
             })
+    }
+
+    private fun save() {
+        if (!collectMarks()) return
+        persist {
+            Toast.makeText(this, "Marks saved", Toast.LENGTH_SHORT).show()
+            finish()
+        }
+    }
+
+    /** Saves the current marks first, then generates and opens the file. */
+    private fun export(asPdf: Boolean) {
+        val a = award ?: return
+        if (!collectMarks()) return
+        toast(if (asPdf) "Preparing PDF..." else "Preparing Word file...")
+        persist {
+            Thread {
+                try {
+                    val file = if (asPdf) {
+                        AwardListExporter.exportPdf(this, a, studentsById)
+                    } else {
+                        AwardListExporter.exportDocx(this, a, studentsById)
+                    }
+                    runOnUiThread { AwardListExporter.openFile(this, file) }
+                } catch (e: Exception) {
+                    runOnUiThread { toast("Export failed: ${e.message ?: "unknown error"}") }
+                }
+            }.start()
+        }
     }
 
     private fun toast(msg: String) = Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
