@@ -42,7 +42,8 @@ class CreateAwardListActivity : AppCompatActivity() {
     // Step 3 values
     private var session = "2026-27"
     private var subject = ""
-    private var examType = ""
+    private var subject2 = ""
+    private var examType = "" // comma-joined codes, up to 3
     private var examDate = ""
     private var returnDate = ""
     private var titleTouched = false
@@ -253,6 +254,7 @@ class CreateAwardListActivity : AppCompatActivity() {
         })
         val pickSession = findViewById<TextView>(R.id.pickSession)
         val pickSubject = findViewById<TextView>(R.id.pickSubject)
+        val pickSubject2 = findViewById<TextView>(R.id.pickSubject2)
         val pickExamType = findViewById<TextView>(R.id.pickExamType)
         val pickExamDate = findViewById<TextView>(R.id.pickExamDate)
         val pickReturnDate = findViewById<TextView>(R.id.pickReturnDate)
@@ -268,13 +270,21 @@ class CreateAwardListActivity : AppCompatActivity() {
                 subject = it; pickSubject.text = "$it ▾"
             }
         }
+        pickSubject2.setOnClickListener {
+            SearchablePicker.showSimple(this, "Subject 2 (optional)", SUBJECT_OPTIONS, allowCustom = true) {
+                subject2 = it; pickSubject2.text = "$it ▾"
+            }
+        }
         pickExamType.setOnClickListener {
-            SearchablePicker.show(
-                this, "Exam Type",
-                ExamTypes.ALL.map { it to ExamTypes.label(it) }, allowCustom = false
-            ) {
-                examType = it
-                pickExamType.text = "${ExamTypes.label(it)} ▾"
+            SearchablePicker.showMulti(
+                this, "Exam Type (maximum 3)",
+                ExamTypes.ALL.map { it to ExamTypes.label(it) },
+                ExamTypes.values(examType), max = 3
+            ) { picked ->
+                examType = picked.joinToString(",")
+                pickExamType.text =
+                    if (picked.isEmpty()) "Select Exam Type ▾"
+                    else "${ExamTypes.labelList(examType)} ▾"
             }
         }
         pickExamDate.setOnClickListener {
@@ -310,7 +320,7 @@ class CreateAwardListActivity : AppCompatActivity() {
         when {
             title.isEmpty() -> { toast("Please enter the award list title"); return }
             subject.isEmpty() -> { toast("Please select the Subject"); return }
-            examType.isEmpty() -> { toast("Please select the Exam Type"); return }
+            examType.isEmpty() -> { toast("Please select at least 1 Exam Type (maximum 3)"); return }
             examDate.isEmpty() -> { toast("Please select the Exam Date"); return }
         }
         val a = AwardListData(
@@ -321,7 +331,7 @@ class CreateAwardListActivity : AppCompatActivity() {
             section = section,
             gender = gender,
             session = session,
-            subject = subject,
+            subject = listOf(subject, subject2).filter { it.isNotBlank() }.joinToString(" + "),
             examType = examType,
             examDate = examDate,
             returnDate = returnDate,
@@ -332,6 +342,8 @@ class CreateAwardListActivity : AppCompatActivity() {
         btnCreate.isEnabled = false
         TeacherRepository.createAwardList(a,
             onOk = { newId ->
+                a.id = newId
+                SheetSync.awardList(a, allStudents.associateBy { it.id })
                 if (status == AwardListData.STATUS_DRAFT) {
                     Toast.makeText(this, "Draft saved", Toast.LENGTH_SHORT).show()
                     finish()

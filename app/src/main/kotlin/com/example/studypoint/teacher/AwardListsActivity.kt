@@ -81,7 +81,7 @@ class AwardListsActivity : AppCompatActivity() {
                 a.className.contains(q, ignoreCase = true) ||
                 a.subject.contains(q, ignoreCase = true) ||
                 a.examType.contains(q, ignoreCase = true) ||
-                ExamTypes.label(a.examType).contains(q, ignoreCase = true)
+                ExamTypes.labelList(a.examType).contains(q, ignoreCase = true)
         }
         listContainer.removeAllViews()
         if (shown.isEmpty()) {
@@ -137,7 +137,7 @@ class AwardListsActivity : AppCompatActivity() {
         card.addView(labelRow("Campus:", a.campus))
         if (a.school.isNotBlank()) card.addView(labelRow("School:", a.school))
         card.addView(labelRow("Subject(s):", a.subject))
-        card.addView(labelRow("Exam type:", ExamTypes.label(a.examType)))
+        card.addView(labelRow("Exam type:", ExamTypes.labelList(a.examType)))
         card.addView(labelRow("Exam date:", a.examDate))
         if (a.returnDate.isNotBlank()) card.addView(labelRow("Return Date:", a.returnDate))
 
@@ -169,6 +169,7 @@ class AwardListsActivity : AppCompatActivity() {
                 .setPositiveButton("Delete") { _, _ ->
                     TeacherRepository.deleteAwardList(a.id,
                         onOk = {
+                            SheetSync.awardDelete(a)
                             Toast.makeText(this, "Award list deleted", Toast.LENGTH_SHORT).show()
                             allLists = allLists.filter { it.id != a.id }
                             render()

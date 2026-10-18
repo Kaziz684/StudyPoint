@@ -104,7 +104,7 @@ class MarksEntryActivity : AppCompatActivity() {
     private fun bindHeader() {
         val a = award ?: return
         val code = a.listCode.ifEmpty { a.id.take(6).uppercase() }
-        findViewById<TextView>(R.id.txtBarTitle).text = "Exam Name: ${ExamTypes.label(a.examType)}"
+        findViewById<TextView>(R.id.txtBarTitle).text = "Exam Name: ${ExamTypes.labelList(a.examType)}"
         findViewById<TextView>(R.id.txtBarSub).text = "Exam Date: ${a.examDate}"
         findViewById<TextView>(R.id.txtInfoClass).text = "Class: ${a.className} (${a.section})"
         findViewById<TextView>(R.id.txtInfoId).text = "Award List id: $code"
@@ -282,6 +282,7 @@ class MarksEntryActivity : AppCompatActivity() {
         TeacherRepository.updateAwardList(a,
             onOk = {
                 btn.isEnabled = true
+                SheetSync.awardList(a, studentsById)
                 onDone()
             },
             onErr = {

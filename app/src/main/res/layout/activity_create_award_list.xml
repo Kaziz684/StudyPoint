@@ -14,7 +14,6 @@
         android:paddingStart="6dp"
         android:paddingTop="4dp"
         android:paddingEnd="6dp"
-        android:paddingBottom="8dp"
         android:paddingBottom="6dp">
 
         <TextView
@@ -267,7 +266,13 @@
                 style="@style/TeacherPicker"
                 android:text="Select Subject ▾" />
 
-            <TextView style="@style/TeacherLabel" android:text="Exam Type *" />
+            <TextView style="@style/TeacherLabel" android:text="Subject 2 (optional)" />
+            <TextView
+                android:id="@+id/pickSubject2"
+                style="@style/TeacherPicker"
+                android:text="Select Subject 2 ▾" />
+
+            <TextView style="@style/TeacherLabel" android:text="Exam Type * (maximum 3 tests)" />
             <TextView
                 android:id="@+id/pickExamType"
                 style="@style/TeacherPicker"
