@@ -492,7 +492,7 @@ class LoginActivity : AppCompatActivity() {
     /** Navigates to Home safely; a navigation failure never crashes sign-in. */
     private fun goHome() {
         try {
-            startActivity(Intent(this, HomeActivity::class.java))
+            startActivity(Intent(this, RoleGateActivity::class.java))
             finish()
         } catch (e: Exception) {
             try { showLoading(false) } catch (ignored: Exception) { }

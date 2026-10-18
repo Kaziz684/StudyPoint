@@ -485,6 +485,44 @@ fun ProfileScreen(
                 }
             }
 
+            // Account Role (Student / Teacher)
+            val currentRole = RoleManager.cachedRole(context)
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                color = Color(0xFFF8FAFC),
+                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE2E8F0))
+            ) {
+                Row(
+                    modifier = Modifier.padding(14.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(Icons.Default.School, null, tint = Color(0xFF2563EB))
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("Account Role", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF475569))
+                        Text(
+                            text = when (currentRole) {
+                                RoleManager.ROLE_TEACHER -> "Teacher / Educator"
+                                RoleManager.ROLE_STUDENT -> "Student"
+                                else -> "Not selected yet"
+                            },
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF1F2937)
+                        )
+                    }
+                    TextButton(onClick = {
+                        context.startActivity(
+                            android.content.Intent(context, RoleSelectionActivity::class.java)
+                                .putExtra(RoleSelectionActivity.EXTRA_CHANGE_MODE, true)
+                        )
+                    }) {
+                        Text("Change", fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+
             Spacer(modifier = Modifier.height(20.dp))
 
             // Action Button

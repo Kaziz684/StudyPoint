@@ -31,7 +31,7 @@ class SplashActivity : AppCompatActivity() {
             val currentUser = FirebaseAuth.getInstance().currentUser
             if (currentUser != null) {
                 // Signed in (email, Google or phone) — no verification gate.
-                startActivity(Intent(this, HomeActivity::class.java))
+                startActivity(Intent(this, RoleGateActivity::class.java))
             } else {
                 // User is not signed in, go to Login screen
                 startActivity(Intent(this, LoginActivity::class.java))
