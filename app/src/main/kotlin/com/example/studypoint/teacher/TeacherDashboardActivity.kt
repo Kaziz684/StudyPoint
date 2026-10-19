@@ -5,8 +5,12 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import com.example.studypoint.AppUpdateInfo
 import com.example.studypoint.ProfileActivity
+import com.example.studypoint.checkForAppUpdate
+import com.example.studypoint.downloadAndInstallApk
 import com.example.studypoint.R
 import com.example.studypoint.RoleSelectionActivity
 import com.example.studypoint.practicetest.PaperGeneratorActivity
@@ -58,6 +62,7 @@ class TeacherDashboardActivity : AppCompatActivity() {
         setContentView(R.layout.activity_teacher_dashboard)
         findViewById<TextView>(R.id.btnBack).setOnClickListener { finish() }
         title = "Teacher Dashboard"
+        checkForAppUpdatePrompt()
 
         val user = FirebaseAuth.getInstance().currentUser
         val name = user?.displayName?.takeIf { it.isNotBlank() }
@@ -146,5 +151,46 @@ class TeacherDashboardActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.txtTime).text = "🕐 $time"
         findViewById<TextView>(R.id.txtDateHijri).text =
             if (hijri.isNotEmpty()) "$date  ·  $hijri" else date
+    }
+
+    // Same Firestore-driven in-app update prompt as the student dashboard,
+    // so the teacher side also offers updates when a new version is out.
+    private fun checkForAppUpdatePrompt() {
+        checkForAppUpdate(this) { info ->
+            if (info != null && !isFinishing && !isDestroyed) {
+                showAppUpdateDialog(info)
+            }
+        }
+    }
+
+    private fun showAppUpdateDialog(info: AppUpdateInfo) {
+        val message = StringBuilder(
+            "A new version of StudyPoint is available. Update now for the latest features & fixes."
+        )
+        if (info.changelog.isNotBlank()) {
+            message.append("\n\n").append(info.changelog)
+        }
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("Update Available 🎉")
+            .setMessage(message.toString())
+            .setCancelable(!info.forceUpdate)
+            .setPositiveButton("Update Now", null)
+            .apply {
+                if (!info.forceUpdate) setNegativeButton("Later", null)
+            }
+            .create()
+        dialog.show()
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            if (info.apkUrl.isNotBlank()) {
+                downloadAndInstallApk(this, info.apkUrl)
+                if (info.forceUpdate) {
+                    dialog.setMessage("Downloading update... please wait.")
+                } else {
+                    dialog.dismiss()
+                }
+            } else {
+                dialog.dismiss()
+            }
+        }
     }
 }
