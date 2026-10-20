@@ -270,9 +270,6 @@ object SubjectStructure {
             StudySection("p7", "Chapter 7: Thermal Properties of Matter", "", "chapter"),
             StudySection("p8", "Chapter 8: Magnetism", "", "chapter"),
             StudySection("p9", "Chapter 9: Nature of Science", "", "chapter"),
-            StudySection("pb1", "Bibliography", "", "chapter"),
-            StudySection("pb2", "Glossary", "", "chapter"),
-            StudySection("pb3", "Index", "", "chapter"),
             StudySection("pb4", "Solved Numericals", "", "chapter"),
             StudySection("pb5", "Short Questions", "", "chapter")
         )

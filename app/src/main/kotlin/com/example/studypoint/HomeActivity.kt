@@ -1323,10 +1323,28 @@ fun NotificationsDialog(onDismiss: () -> Unit) {
             }
         },
         text = {
+            val announcements = remember { mutableStateOf<List<BoardAnnouncement>>(emptyList()) }
+            DisposableEffect(Unit) {
+                val db = FirebaseFirestore.getInstance()
+                val listener = db.collection("Announcements")
+                    .whereEqualTo("is_active", true)
+                    .addSnapshotListener { snapshot, _ ->
+                        if (snapshot != null && !snapshot.isEmpty) {
+                            announcements.value = snapshot.documents.mapNotNull { doc ->
+                                doc.toObject(BoardAnnouncement::class.java)
+                            }
+                        }
+                    }
+                onDispose { listener.remove() }
+            }
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                NotificationItem("📢 PCTB Curriculum 2026", "Tarjuma-tul-Quran is active across 9th-12th. Pakistan Studies added for 10th & 12th.", "1 hour ago")
-                NotificationItem("🎯 New MCQs Quiz Engine", "Practice 10,000+ chapter-wise questions with 30s timers and instant results.", "Today")
-                NotificationItem("🔥 Study Streak Active", "Keep studying daily to maintain your 5-day streak and earn achievement badges!", "Active")
+                if (announcements.value.isNotEmpty()) {
+                    announcements.value.forEach { item ->
+                        NotificationItem(item.title, item.description, item.date)
+                    }
+                } else {
+                    NotificationItem("📢 PCTB Curriculum 2026", "Tarjuma-tul-Quran is active across 9th-12th. Pakistan Studies added for 10th & 12th.", "Info")
+                }
             }
         },
         confirmButton = {
