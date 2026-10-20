@@ -255,7 +255,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
 
         val incomingGrade = (intent.getStringExtra("grade") ?: intent.getStringExtra("class") ?: "9")
             .filter { it.isDigit() }.ifBlank { "9" }
-        spinnerClass.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, classLabels)
+        spinnerClass.adapter = ArrayAdapter(this, R.layout.spinner_item_selected, classLabels).apply { setDropDownViewResource(R.layout.spinner_item_dropdown) }
         spinnerClass.setSelection(classSheets.indexOf("Class_${incomingGrade}th").coerceAtLeast(0))
         rebuildSubjects(intent.getStringExtra("subject") ?: "")
 
@@ -545,7 +545,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
     private fun rebuildSubjects(incomingSubject: String) {
         val sheet = classSheets[spinnerClass.selectedItemPosition.coerceIn(0, classSheets.lastIndex)]
         val subjects = subjectsFor(sheet)
-        spinnerSubject.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, subjects)
+        spinnerSubject.adapter = ArrayAdapter(this, R.layout.spinner_item_selected, subjects).apply { setDropDownViewResource(R.layout.spinner_item_dropdown) }
         val idx = subjects.indexOfFirst { it.equals(incomingSubject, ignoreCase = true) }
         if (idx >= 0) spinnerSubject.setSelection(idx)
     }
@@ -600,6 +600,13 @@ class PaperGeneratorActivity : AppCompatActivity() {
         return out
     }
 
+    /** Removes textbook source labels (e.g. "Exercise 5.1 Q1(iii):", "Review Exercise 5 Q2(iv):") from question texts. */
+    private fun cleanPaperText(text: String): String =
+        text.replace(
+            Regex("""^\s*(Review\s+Exercise|Exercise)\s+[\d.]*\s*Q\s*\d+\s*(\([ivxlcdm]+\))?\s*[:.\-]?\s*""", RegexOption.IGNORE_CASE),
+            ""
+        ).trim()
+
     private fun writtenMatches(q: WrittenQuestion, sheet: String, subject: String): Boolean {
         val classOk = q.classNum.filter { it.isDigit() } == sheet.filter { it.isDigit() }
         return classOk && subjectsMatch(q.subject, subject)
@@ -646,6 +653,10 @@ class PaperGeneratorActivity : AppCompatActivity() {
             if (type != PaperType.BOARD && subject.equals("English", ignoreCase = true)) {
                 longAll = longAll + englishWritingQuestions(sheet)
             }
+            // Strip textbook source labels from all pools so every paper (manual + board) shows clean questions.
+            mcqAll = mcqAll.map { it.copy(questionText = cleanPaperText(it.questionText)) }
+            shortAll = shortAll.map { it.copy(question = cleanPaperText(it.question)) }
+            longAll = longAll.map { it.copy(question = cleanPaperText(it.question)) }
 
             val labels = sortedSetOf(
                 compareBy<String>({ chapterNumber(it) ?: Int.MAX_VALUE }, { it.lowercase() })

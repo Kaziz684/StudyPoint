@@ -29,7 +29,7 @@ object PaperDocxGenerator {
     private const val GREY_LINE = "CBD5E1"
     private const val HEAD_SHADE = "D9E2F3"
 
-    private val ROMAN = listOf("(i)", "(ii)", "(iii)", "(iv)", "(v)", "(vi)", "(vii)", "(viii)")
+    private val ROMAN = listOf("(i)", "(ii)", "(iii)", "(iv)", "(v)", "(vi)", "(vii)", "(viii)", "(ix)", "(x)", "(xi)", "(xii)", "(xiii)", "(xiv)", "(xv)", "(xvi)", "(xvii)", "(xviii)", "(xix)", "(xx)", "(xxi)", "(xxii)", "(xxiii)", "(xxiv)", "(xxv)", "(xxvi)", "(xxvii)", "(xxviii)", "(xxix)", "(xxx)", "(xxxi)", "(xxxii)", "(xxxiii)", "(xxxiv)", "(xxxv)", "(xxxvi)", "(xxxvii)", "(xxxviii)", "(xxxix)", "(xl)")
     private fun roman(i: Int): String = if (i in ROMAN.indices) ROMAN[i] else "(${i + 1})"
 
     // ---------------- XML helpers ----------------
@@ -383,7 +383,6 @@ object PaperDocxGenerator {
         val logo = logoPng(context, data.header)
         val totalMarks = data.mcqs.size +
             data.shorts.sumOf { it.marksValue } + data.longs.sumOf { it.marksValue }
-        val sectionCount = listOf(data.mcqs, data.shorts, data.longs).count { it.isNotEmpty() }
         val sb = StringBuilder()
         sb.append(
             headerXml(
@@ -394,52 +393,64 @@ object PaperDocxGenerator {
         sb.append(
             instructionsXml(
                 if (data.includeAnswers) {
-                    "Solved paper: correct answers are provided with the questions (MCQ answer key is at the end)."
+                    "Solved paper: the answer key and solutions are given at the end."
                 } else {
                     "Instructions: Attempt all questions. Write your answers neatly in the answer copy."
                 }
             )
         )
 
-        var sectionIndex = 0
-        fun sectionHeading(name: String) {
-            sectionIndex++
-            if (sectionCount <= 1) return
-            val letter = 'A' + (sectionIndex - 1)
-            sb.append(pText("SECTION $letter — $name", bold = true, size = 26, color = NAVY, after = 120))
+        var qCounter = 0
+        var mcqQ = 0
+        var shortQ = 0
+        var longQ = 0
+        fun qHeading(text: String) {
+            sb.append(pText(text, bold = true, size = 25, color = NAVY, after = 120))
         }
 
         if (data.mcqs.isNotEmpty()) {
-            sectionHeading("MCQs")
+            qCounter++; mcqQ = qCounter
+            qHeading("Q." + mcqQ + "  Choose the correct option:   (" + data.mcqs.size + " x 1 = " + data.mcqs.size + ")")
             sb.append(mcqsXml(data.mcqs))
         }
 
-        fun writtenSection(questions: List<WrittenQuestion>, name: String) {
+        fun writtenSection(questions: List<WrittenQuestion>, heading: String, isShort: Boolean) {
             if (questions.isEmpty()) return
-            sectionHeading(name)
+            qCounter++
+            if (isShort) shortQ = qCounter else longQ = qCounter
+            qHeading("Q." + qCounter + "  " + heading)
             questions.forEachIndexed { idx, wq ->
                 val marksSuffix = if (wq.marks.isNotBlank()) "   (Marks: " + wq.marks + ")" else ""
                 sb.append(
                     pBoldPrefix(
-                        "Q" + (idx + 1) + ".  ", wq.question + marksSuffix,
-                        after = if (data.includeAnswers) 40 else 130
+                        roman(idx) + "  ", wq.question + marksSuffix,
+                        after = 130
                     )
                 )
-                if (data.includeAnswers) {
+            }
+        }
+        writtenSection(data.shorts, "Write short answers to the following questions:", true)
+        writtenSection(data.longs, "Write detailed answers to the following questions:", false)
+
+        if (data.includeAnswers && (data.mcqs.isNotEmpty() || data.shorts.isNotEmpty() || data.longs.isNotEmpty())) {
+            sb.append(keyTitleXml("ANSWER KEY & SOLUTIONS"))
+            if (data.mcqs.isNotEmpty()) {
+                sb.append(pText("Q." + mcqQ + "  MCQs \u2014 Answer Key", bold = true, size = 26, color = NAVY, after = 120))
+                sb.append(keyEntriesXml(data.mcqs))
+            }
+            fun solutionSection(questions: List<WrittenQuestion>, title: String) {
+                if (questions.isEmpty()) return
+                sb.append(pText(title, bold = true, size = 26, color = NAVY, after = 120))
+                questions.forEachIndexed { idx, wq ->
                     if (wq.answer.isNotBlank()) {
-                        sb.append(pBoldPrefix("Answer:  ", wq.answer, size = 22, color = ANS, after = 130))
+                        sb.append(pBoldPrefix(roman(idx) + "  ", wq.answer, size = 22, color = ANS, after = 130))
                     } else {
-                        sb.append(pText("(Answer not available in the source data)", size = 21, color = MUTED, after = 130))
+                        sb.append(pText(roman(idx) + "  (Answer not available in the source data)", size = 21, color = MUTED, after = 130))
                     }
                 }
             }
-        }
-        writtenSection(data.shorts, "Short Questions")
-        writtenSection(data.longs, "Long Questions")
-
-        if (data.includeAnswers && data.mcqs.isNotEmpty()) {
-            sb.append(keyTitleXml("ANSWER KEY (MCQs)"))
-            sb.append(keyEntriesXml(data.mcqs))
+            solutionSection(data.shorts, "Q." + shortQ + "  Short Questions \u2014 Answers")
+            solutionSection(data.longs, "Q." + longQ + "  Long Questions \u2014 Solutions")
         }
         return writeDocx(sb.toString(), data.testTitle, logo, outFile)
     }

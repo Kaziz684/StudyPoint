@@ -46,29 +46,29 @@ class QuizSelectionActivity : AppCompatActivity() {
         spinnerChapter = findViewById(R.id.spinnerChapter)
         btnStartQuiz = findViewById(R.id.btnStartQuiz)
 
-        val classAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, classes)
-        classAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        val classAdapter = ArrayAdapter(this, R.layout.spinner_item_selected, classes)
+        classAdapter.setDropDownViewResource(R.layout.spinner_item_dropdown)
         spinnerClass.adapter = classAdapter
 
         val initialSubjects = getSubjectsForClass(classes[0])
-        val subjectAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, initialSubjects)
-        subjectAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        val subjectAdapter = ArrayAdapter(this, R.layout.spinner_item_selected, initialSubjects)
+        subjectAdapter.setDropDownViewResource(R.layout.spinner_item_dropdown)
         spinnerSubject.adapter = subjectAdapter
 
         spinnerClass.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val selectedCls = classes[position]
                 val subjectsForSelectedClass = getSubjectsForClass(selectedCls)
-                val newSubjectAdapter = ArrayAdapter(this@QuizSelectionActivity, android.R.layout.simple_spinner_item, subjectsForSelectedClass)
-                newSubjectAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                val newSubjectAdapter = ArrayAdapter(this@QuizSelectionActivity, R.layout.spinner_item_selected, subjectsForSelectedClass)
+                newSubjectAdapter.setDropDownViewResource(R.layout.spinner_item_dropdown)
                 spinnerSubject.adapter = newSubjectAdapter
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
-        val chapterAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, chapters)
-        chapterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        val chapterAdapter = ArrayAdapter(this, R.layout.spinner_item_selected, chapters)
+        chapterAdapter.setDropDownViewResource(R.layout.spinner_item_dropdown)
         spinnerChapter.adapter = chapterAdapter
 
         btnStartQuiz.setOnClickListener {

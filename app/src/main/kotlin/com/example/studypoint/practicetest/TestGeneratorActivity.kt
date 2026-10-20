@@ -121,7 +121,7 @@ class TestGeneratorActivity : AppCompatActivity() {
         // Class spinner
         val incomingGrade = (intent.getStringExtra("grade") ?: intent.getStringExtra("class") ?: "9")
             .filter { it.isDigit() }.ifBlank { "9" }
-        val classAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, classLabels)
+        val classAdapter = ArrayAdapter(this, R.layout.spinner_item_selected, classLabels).apply { setDropDownViewResource(R.layout.spinner_item_dropdown) }
         spinnerClass.adapter = classAdapter
         val classIdx = classSheets.indexOf("Class_${incomingGrade}th").coerceAtLeast(0)
         spinnerClass.setSelection(classIdx)
@@ -184,7 +184,7 @@ class TestGeneratorActivity : AppCompatActivity() {
     private fun rebuildSubjects(incomingSubject: String) {
         val sheet = classSheets[spinnerClass.selectedItemPosition.coerceIn(0, classSheets.lastIndex)]
         val subjects = subjectsFor(sheet)
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, subjects)
+        val adapter = ArrayAdapter(this, R.layout.spinner_item_selected, subjects).apply { setDropDownViewResource(R.layout.spinner_item_dropdown) }
         spinnerSubject.adapter = adapter
         val idx = subjects.indexOfFirst { it.equals(incomingSubject, ignoreCase = true) }
         if (idx >= 0) spinnerSubject.setSelection(idx)

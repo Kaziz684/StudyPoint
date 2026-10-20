@@ -479,7 +479,6 @@ object PaperPdfGenerator {
         val totalQuestions = data.mcqs.size + data.shorts.size + data.longs.size
         val totalMarks = data.mcqs.size +
             data.shorts.sumOf { it.marksValue } + data.longs.sumOf { it.marksValue }
-        val sectionCount = listOf(data.mcqs, data.shorts, data.longs).count { it.isNotEmpty() }
 
         // ---------- Header (school banner + info grid) ----------
         blocks += schoolHeaderBlocks(
@@ -488,7 +487,7 @@ object PaperPdfGenerator {
         )
 
         val instrText = if (data.includeAnswers) {
-            "Solved paper: correct answers are provided with the questions (MCQ answer key is at the end)."
+            "Solved paper: the answer key and solutions are given at the end."
         } else {
             "Instructions: Attempt all questions. Write your answers neatly in the answer copy."
         }
@@ -500,55 +499,57 @@ object PaperPdfGenerator {
             c.drawLine(x.toFloat(), ly.toFloat(), (x + CONTENT_W).toFloat(), ly.toFloat(), linePaint)
         }
 
-        // ---------- Sections ----------
-        var sectionIndex = 0
-        fun sectionHeading(name: String) {
-            sectionIndex++
-            if (sectionCount <= 1) return
-            val letter = 'A' + (sectionIndex - 1)
-            val h = layoutOf("SECTION $letter — $name", paint(13f, bold = true, color = NAVY))
-            blocks += Block(h.height + 10, draw = stackDraw(listOf(h)))
+        // ---------- Sections (board style: Q.1, Q.2, ... ; MCQs numbered, written parts in roman) ----------
+        var qCounter = 0
+        var mcqQ = 0
+        var shortQ = 0
+        var longQ = 0
+        fun qHeading(text: String) {
+            val h = layoutOf(text, paint(12.5f, bold = true, color = NAVY))
+            blocks += Block(h.height + 12, draw = stackDraw(listOf(h)))
         }
 
-        // MCQs section — table layout (one row per MCQ, options in A/B/C/D columns)
+        // MCQs \u2014 Q.1 with a numbered table (1, 2, 3, ...)
         if (data.mcqs.isNotEmpty()) {
-            sectionHeading("MCQs")
+            qCounter++; mcqQ = qCounter
+            qHeading("Q.$mcqQ  Choose the correct option:   (${data.mcqs.size} x 1 = ${data.mcqs.size})")
             addMcqTable(blocks, data.mcqs)
         }
 
-        // Written sections (Short, then Long)
+        // Written sections (Short, then Long) \u2014 one question number each, parts (i), (ii), (iii), ...
         val qPaintW = paint(11.5f)
         val ansPaint = paint(11f, color = ANS_COLOR)
         val missPaint = paint(10.5f, color = MUTED)
-        fun writtenSection(questions: List<WrittenQuestion>, name: String) {
+        fun writtenSection(questions: List<WrittenQuestion>, heading: String, isShort: Boolean) {
             if (questions.isEmpty()) return
-            sectionHeading(name)
+            qCounter++
+            if (isShort) shortQ = qCounter else longQ = qCounter
+            qHeading("Q.$qCounter  $heading")
             questions.forEachIndexed { idx, wq ->
                 val marksSuffix = if (wq.marks.isNotBlank()) "   (Marks: ${wq.marks})" else ""
-                val qLayout = layoutOf(boldPrefix("Q${idx + 1}.  ", wq.question + marksSuffix), qPaintW)
-                val layouts = mutableListOf(qLayout)
-                if (data.includeAnswers) {
-                    if (wq.answer.isNotBlank()) {
-                        layouts += layoutOf(boldPrefix("Answer:  ", wq.answer), ansPaint)
-                    } else {
-                        layouts += layoutOf("(Answer not available in the source data)", missPaint)
-                    }
-                }
-                blocks += blocksFor(layouts)
+                val qLayout = layoutOf(boldPrefix("${roman(idx)}  ", wq.question + marksSuffix), qPaintW)
+                blocks += blocksFor(listOf(qLayout))
             }
         }
-        writtenSection(data.shorts, "Short Questions")
-        writtenSection(data.longs, "Long Questions")
+        writtenSection(data.shorts, "Write short answers to the following questions:", true)
+        writtenSection(data.longs, "Write detailed answers to the following questions:", false)
 
-        // ---------- MCQ answer key ----------
-        if (data.includeAnswers && data.mcqs.isNotEmpty()) {
-            val keyTitle = layoutOf("ANSWER KEY (MCQs)", paint(15f, bold = true, color = NAVY))
+        // ---------- Answer key & solutions (at the end) ----------
+        if (data.includeAnswers && totalQuestions > 0) {
+            val keyTitle = layoutOf("ANSWER KEY & SOLUTIONS", paint(15f, bold = true, color = NAVY))
             blocks += Block(40, forceNewPage = true) { c, x, y ->
                 val tx = x + (CONTENT_W - keyTitle.width) / 2
                 c.save(); c.translate(tx.toFloat(), y.toFloat()); keyTitle.draw(c); c.restore()
                 val rulePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = GREEN; strokeWidth = 2f }
                 c.drawLine(x.toFloat(), (y + 30).toFloat(), (x + CONTENT_W).toFloat(), (y + 30).toFloat(), rulePaint)
             }
+            fun solHeading(title: String) {
+                val h = layoutOf(title, paint(13f, bold = true, color = NAVY))
+                blocks += Block(h.height + 12) { c, x, y ->
+                    c.save(); c.translate(x.toFloat(), y.toFloat()); h.draw(c); c.restore()
+                }
+            }
+            if (data.mcqs.isNotEmpty()) solHeading("Q.$mcqQ  MCQs \u2014 Answer Key")
             val keyPaint = paint(11.5f)
             val colW = CONTENT_W / 4
             val entries = data.mcqs.mapIndexed { idx, q ->
@@ -564,6 +565,19 @@ object PaperPdfGenerator {
                     }
                 }
             }
+            fun solutionSection(questions: List<WrittenQuestion>, title: String) {
+                if (questions.isEmpty()) return
+                solHeading(title)
+                questions.forEachIndexed { idx, wq ->
+                    if (wq.answer.isNotBlank()) {
+                        blocks += blocksFor(listOf(layoutOf(boldPrefix("${roman(idx)}  ", wq.answer), ansPaint)))
+                    } else {
+                        blocks += blocksFor(listOf(layoutOf("${roman(idx)}  (Answer not available in the source data)", missPaint)))
+                    }
+                }
+            }
+            solutionSection(data.shorts, "Q.$shortQ  Short Questions \u2014 Answers")
+            solutionSection(data.longs, "Q.$longQ  Long Questions \u2014 Solutions")
         }
 
         // ---------- Pagination ----------
@@ -650,7 +664,7 @@ object PaperPdfGenerator {
         val header: SchoolHeader = SchoolHeader()
     )
 
-    private val ROMAN = listOf("(i)", "(ii)", "(iii)", "(iv)", "(v)", "(vi)", "(vii)", "(viii)")
+    private val ROMAN = listOf("(i)", "(ii)", "(iii)", "(iv)", "(v)", "(vi)", "(vii)", "(viii)", "(ix)", "(x)", "(xi)", "(xii)", "(xiii)", "(xiv)", "(xv)", "(xvi)", "(xvii)", "(xviii)", "(xix)", "(xx)", "(xxi)", "(xxii)", "(xxiii)", "(xxiv)", "(xxv)", "(xxvi)", "(xxvii)", "(xxviii)", "(xxix)", "(xxx)", "(xxxi)", "(xxxii)", "(xxxiii)", "(xxxiv)", "(xxxv)", "(xxxvi)", "(xxxvii)", "(xxxviii)", "(xxxix)", "(xl)")
 
     private fun roman(i: Int): String = if (i in ROMAN.indices) ROMAN[i] else "(${i + 1})"
 
