@@ -17,22 +17,31 @@ class RoleGateActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_role_gate)
 
-        if (FirebaseAuth.getInstance().currentUser == null) {
-            goTo(LoginActivity::class.java)
-            return
-        }
-        val cached = RoleManager.cachedRole(this)
-        if (cached != null) {
-            route(cached)
-            // Keep the cache fresh in the background.
-            RoleManager.fetchRole(this) { }
-            return
-        }
-        RoleManager.fetchRole(this) { role ->
-            if (role != null) {
-                route(role)
-            } else {
-                goTo(RoleSelectionActivity::class.java)
+        // The router must never be the crash: any failure here falls
+        // back to Login instead of a "keeps stopping" dialog.
+        try {
+            if (FirebaseAuth.getInstance().currentUser == null) {
+                goTo(LoginActivity::class.java)
+                return
+            }
+            val cached = RoleManager.cachedRole(this)
+            if (cached != null) {
+                route(cached)
+                // Keep the cache fresh in the background.
+                RoleManager.fetchRole(this) { }
+                return
+            }
+            RoleManager.fetchRole(this) { role ->
+                if (role != null) {
+                    route(role)
+                } else {
+                    goTo(RoleSelectionActivity::class.java)
+                }
+            }
+        } catch (_: Throwable) {
+            try {
+                goTo(LoginActivity::class.java)
+            } catch (ignored: Throwable) {
             }
         }
     }

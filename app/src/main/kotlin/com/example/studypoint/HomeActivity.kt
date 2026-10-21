@@ -81,9 +81,17 @@ class HomeActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        LanguageManager.applySavedLanguage(this)
+        try {
+            LanguageManager.applySavedLanguage(this)
+        } catch (_: Throwable) {
+            // Language must never block the dashboard.
+        }
         auth = FirebaseAuth.getInstance()
-        setupNotifications()
+        try {
+            setupNotifications()
+        } catch (_: Throwable) {
+            // Notifications must never block the dashboard.
+        }
 
         if (auth.currentUser == null) {
             startActivity(Intent(this, LoginActivity::class.java))
@@ -91,22 +99,52 @@ class HomeActivity : ComponentActivity() {
             return
         }
 
-        setContent {
-            StudyPointTheme {
-                HomeScreen(
-                    userName = auth.currentUser?.displayName?.ifBlank { "Student" } ?: "Student",
-                    userEmail = auth.currentUser?.email ?: "",
-                    onLogout = { logout() },
-                    onFeedback = { sendFeedback() },
-                    onWhatsApp = { openWhatsApp() },
-                    onShare = { shareApp() },
-                    onClassClick = { grade ->
-                        val intent = Intent(this, SubjectsActivity::class.java)
-                        intent.putExtra("grade", grade)
-                        startActivity(intent)
-                    }
-                )
+        // Safe mode: if the dashboard itself throws while loading (the
+        // "keeps stopping" crash), do NOT let the app die. Show a minimal
+        // screen instead, WITH the real error printed on it, so a
+        // screenshot of that screen finally reveals the root cause.
+        try {
+            setContent {
+                StudyPointTheme {
+                    HomeScreen(
+                        userName = auth.currentUser?.displayName?.ifBlank { "Student" } ?: "Student",
+                        userEmail = auth.currentUser?.email ?: "",
+                        onLogout = { logout() },
+                        onFeedback = { sendFeedback() },
+                        onWhatsApp = { openWhatsApp() },
+                        onShare = { shareApp() },
+                        onClassClick = { grade ->
+                            val intent = Intent(this, SubjectsActivity::class.java)
+                            intent.putExtra("grade", grade)
+                            startActivity(intent)
+                        }
+                    )
+                }
             }
+        } catch (t: Throwable) {
+            showSafeMode(t)
+        }
+    }
+
+    private fun showSafeMode(error: Throwable) {
+        try {
+            setContent {
+                StudyPointTheme {
+                    SafeDashboardScreen(
+                        errorText = error.javaClass.simpleName +
+                            ": " + (error.message ?: "unknown error"),
+                        onRetry = { recreate() },
+                        onOpenSubjects = { grade ->
+                            startActivity(
+                                Intent(this, SubjectsActivity::class.java)
+                                    .putExtra("grade", grade)
+                            )
+                        },
+                        onLogout = { logout() }
+                    )
+                }
+            }
+        } catch (ignored: Throwable) {
         }
     }
 
@@ -2323,6 +2361,55 @@ fun checkForAppUpdate(context: Context, onResult: (AppUpdateInfo?) -> Unit) {
             .addOnFailureListener { onResult(null) }
     } catch (e: Exception) {
         onResult(null)
+    }
+}
+
+/**
+ * Minimal fallback dashboard shown only when HomeScreen itself throws
+ * during load. Deliberately plain (no carousel, no feed, no avatar) so
+ * it cannot trip over the same failure, and it prints the real error
+ * so a screenshot of this screen diagnoses the crash.
+ */
+@Composable
+fun SafeDashboardScreen(
+    errorText: String,
+    onRetry: () -> Unit,
+    onOpenSubjects: (String) -> Unit,
+    onLogout: () -> Unit
+) {
+    Column(
+        modifier = Modifier.fillMaxSize().padding(24.dp),
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text("StudyPoint Safe Mode", fontWeight = FontWeight.Bold, fontSize = 22.sp)
+        Spacer(modifier = Modifier.height(12.dp))
+        Text("Dashboard load nahi ho saka, lekin aapka account mehfooz hai.")
+        Spacer(modifier = Modifier.height(8.dp))
+        Text("Is screen ka screenshot bhej dein taake asal error fix ho sake.")
+        Spacer(modifier = Modifier.height(12.dp))
+        Text("Error: $errorText", fontSize = 13.sp, color = Color(0xFFDC2626))
+        Spacer(modifier = Modifier.height(20.dp))
+        Button(onClick = onRetry, modifier = Modifier.fillMaxWidth()) {
+            Text("Retry Dashboard")
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Button(
+            onClick = { onOpenSubjects("9") },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Class 9 Subjects")
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Button(
+            onClick = { onOpenSubjects("10") },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Class 10 Subjects")
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Button(onClick = onLogout, modifier = Modifier.fillMaxWidth()) {
+            Text("Logout")
+        }
     }
 }
 
