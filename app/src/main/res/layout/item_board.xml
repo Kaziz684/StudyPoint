@@ -33,7 +33,9 @@
 
             <TextView
                 android:id="@+id/boardName"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
+                android:maxLines="2"
+                android:ellipsize="end"
                 android:layout_height="wrap_content"
                 android:text="BISE Lahore"
                 android:textColor="#0F172A"

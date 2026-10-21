@@ -4,6 +4,8 @@
     android:id="@+id/textViewChapter"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:maxLines="2"
+    android:ellipsize="end"
     android:padding="16dp"
     android:textColor="@color/black"
     android:textSize="18sp"

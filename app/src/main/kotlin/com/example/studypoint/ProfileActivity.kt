@@ -102,7 +102,9 @@ fun ProfileScreen(
             val savedPath = ProfileManager.saveProfileImageFromUri(context, uri)
             if (savedPath.isNotBlank()) {
                 imagePath = savedPath
-                Toast.makeText(context, "Profile picture updated! 📸", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Photo selected — tap Save Changes to apply 📸", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(context, "Could not save photo, please try again", Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -115,7 +117,9 @@ fun ProfileScreen(
             val savedPath = ProfileManager.saveProfileImageBitmap(context, bitmap)
             if (savedPath.isNotBlank()) {
                 imagePath = savedPath
-                Toast.makeText(context, "Profile photo captured! 📸", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Photo captured — tap Save Changes to apply 📸", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(context, "Could not save photo, please try again", Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -294,7 +298,11 @@ fun ProfileScreen(
                 text = fullName,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF1E293B)
+                color = Color(0xFF1E293B),
+                maxLines = 1,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
 
             Text(
@@ -305,7 +313,11 @@ fun ProfileScreen(
                     }
                 },
                 fontSize = 13.sp,
-                color = Color(0xFF64748B)
+                color = Color(0xFF64748B),
+                maxLines = 1,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
 
             Spacer(modifier = Modifier.height(24.dp))

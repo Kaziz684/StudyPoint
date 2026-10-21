@@ -65,10 +65,6 @@
         <activity
             android:name=".BoardWebViewActivity"
             android:exported="false" />
-
-        <activity
-            android:name=".PdfActivity"
-            android:exported="false" />
         <!-- Launcher / Welcome Activity -->
         <activity
             android:name=".WelcomeActivity"

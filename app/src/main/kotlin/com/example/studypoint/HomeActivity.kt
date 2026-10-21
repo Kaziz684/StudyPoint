@@ -677,7 +677,20 @@ fun ProfileAvatar(
     val bitmap = remember(imagePath, avatarFile?.lastModified()) {
         try {
             if (avatarFile != null && avatarFile.exists()) {
-                android.graphics.BitmapFactory.decodeFile(avatarFile.absolutePath)
+                // Downsample: a gallery photo can be tens of MB at full size,
+                // but the avatar is displayed small — decode at most ~256px
+                // on the long edge to avoid jank / OOM on low-end phones.
+                val bounds = android.graphics.BitmapFactory.Options().apply {
+                    inJustDecodeBounds = true
+                }
+                android.graphics.BitmapFactory.decodeFile(avatarFile.absolutePath, bounds)
+                var sample = 1
+                val largest = maxOf(bounds.outWidth, bounds.outHeight)
+                while (largest / (sample * 2) >= 256) sample *= 2
+                val opts = android.graphics.BitmapFactory.Options().apply {
+                    inSampleSize = sample
+                }
+                android.graphics.BitmapFactory.decodeFile(avatarFile.absolutePath, opts)
             } else null
         } catch (e: Exception) { null }
     }
@@ -1337,7 +1350,10 @@ fun NotificationsDialog(onDismiss: () -> Unit) {
                     }
                 onDispose { listener.remove() }
             }
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState())
+            ) {
                 if (announcements.value.isNotEmpty()) {
                     announcements.value.forEach { item ->
                         NotificationItem(item.title, item.description, item.date)
@@ -1379,10 +1395,10 @@ fun NotificationItem(title: String, desc: String, time: String) {
                     modifier = Modifier.weight(1f)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(time, fontSize = 10.sp, color = Color(0xFF94A3B8), maxLines = 1, softWrap = false)
+                Text(time, fontSize = 11.sp, color = Color(0xFF64748B), maxLines = 1, softWrap = false)
             }
             Spacer(modifier = Modifier.height(4.dp))
-            Text(desc, fontSize = 11.sp, color = Color(0xFF64748B), lineHeight = 15.sp)
+            Text(desc, fontSize = 11.sp, color = Color(0xFF64748B), lineHeight = 15.sp, maxLines = 4, overflow = TextOverflow.Ellipsis)
         }
     }
 }
@@ -2309,7 +2325,7 @@ fun AppUpdateDialog(info: AppUpdateInfo, onDismiss: () -> Unit) {
         onDismissRequest = { if (!info.forceUpdate && !isDownloading) onDismiss() },
         title = { Text("Update Available \uD83C\uDF89", fontWeight = FontWeight.Bold) },
         text = {
-            Column {
+            Column(modifier = Modifier.heightIn(max = 380.dp).verticalScroll(rememberScrollState())) {
                 Text("A new version of StudyPoint is available. Update now for the latest features & fixes.")
                 if (info.changelog.isNotBlank()) {
                     Spacer(modifier = Modifier.height(8.dp))

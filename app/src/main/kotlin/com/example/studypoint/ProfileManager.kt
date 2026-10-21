@@ -40,9 +40,11 @@ object ProfileManager {
         val grade = prefs.getString(KEY_GRADE, "Class 10th") ?: "Class 10th"
         val subjectGroup = prefs.getString(KEY_SUBJECT_GROUP, "") ?: ""
         val imagePath = (prefs.getString(KEY_IMAGE_PATH, "") ?: "").ifBlank {
-            // A picked photo is always copied to this fixed file; use it even if
-            // the profile was not explicitly saved after picking.
-            val avatarFile = File(context.filesDir, "profile_avatar.jpg")
+            // Legacy fallback: profiles saved by older versions only ever
+            // wrote the photo file. Picks now wait in the pending file and
+            // reach this file solely through saveProfile(), so this can only
+            // surface the last SAVED (or legacy) photo — never an unsaved pick.
+            val avatarFile = avatarFile(context)
             if (avatarFile.exists()) avatarFile.absolutePath else ""
         }
 
@@ -56,7 +58,29 @@ object ProfileManager {
         )
     }
 
+    private fun avatarFile(context: Context) = File(context.filesDir, "profile_avatar.jpg")
+
+    private fun pendingAvatarFile(context: Context) =
+        File(context.filesDir, "profile_avatar_pending.jpg")
+
+    /** Path of the not-yet-saved picked photo, if one is waiting. */
+    fun pendingAvatarPath(context: Context): String = pendingAvatarFile(context).absolutePath
+
     fun saveProfile(context: Context, profile: UserProfile) {
+        // A freshly picked photo waits in the pending file; it becomes the
+        // real avatar only now, when the user actually presses Save. Leaving
+        // the screen without saving therefore never changes the avatar.
+        var effectivePath = profile.imagePath
+        val pending = pendingAvatarFile(context)
+        if (effectivePath == pending.absolutePath && pending.exists()) {
+            try {
+                pending.copyTo(avatarFile(context), overwrite = true)
+                pending.delete()
+                effectivePath = avatarFile(context).absolutePath
+            } catch (e: Exception) {
+                Log.e(TAG, "Error promoting pending avatar: ${e.message}", e)
+            }
+        }
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         prefs.edit().apply {
             putString(KEY_FULL_NAME, profile.fullName.trim())
@@ -64,19 +88,20 @@ object ProfileManager {
             putString(KEY_SCHOOL, profile.schoolCollege.trim())
             putString(KEY_GRADE, profile.grade.trim())
             putString(KEY_SUBJECT_GROUP, profile.subjectGroup.trim())
-            putString(KEY_IMAGE_PATH, profile.imagePath)
+            putString(KEY_IMAGE_PATH, effectivePath)
             apply()
         }
         Log.d(TAG, "User profile saved successfully: ${profile.fullName}, ${profile.grade}, ${profile.subjectGroup}")
     }
 
     /**
-     * Copies an image from a content Uri into local app files directory
-     * so that the profile image permanently persists without permission expiration.
+     * Copies a picked image into the PENDING avatar file. It is promoted to
+     * the real avatar only by saveProfile(); returns "" on failure so the UI
+     * can tell the user instead of failing silently.
      */
     fun saveProfileImageFromUri(context: Context, uri: Uri): String {
         return try {
-            val destination = File(context.filesDir, "profile_avatar.jpg")
+            val destination = pendingAvatarFile(context)
             val inputStream: InputStream? = context.contentResolver.openInputStream(uri)
             val outputStream = FileOutputStream(destination)
             inputStream?.use { input ->
@@ -92,11 +117,12 @@ object ProfileManager {
     }
 
     /**
-     * Saves a camera thumbnail bitmap directly into local app files directory
+     * Saves a camera thumbnail bitmap into the PENDING avatar file
+     * (promoted to the real avatar only by saveProfile()).
      */
     fun saveProfileImageBitmap(context: Context, bitmap: Bitmap): String {
         return try {
-            val destination = File(context.filesDir, "profile_avatar.jpg")
+            val destination = pendingAvatarFile(context)
             val outputStream = FileOutputStream(destination)
             outputStream.use { out ->
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)

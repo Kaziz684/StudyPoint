@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- StudyPoint icon #4 foreground: bold white SP monogram + gold underline bar,
+     letter outlines taken from Liberation Sans Bold (Apache-licensed font). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M52.7,46.9Q52.7,50.4 50.1,52.2Q47.5,54.1 42.5,54.1Q37.9,54.1 35.3,52.4Q32.7,50.8 32.0,47.5L36.8,46.8Q37.3,48.6 38.7,49.5Q40.1,50.3 42.6,50.3Q47.8,50.3 47.8,47.2Q47.8,46.2 47.2,45.5Q46.6,44.9 45.5,44.4Q44.5,44.0 41.4,43.4Q38.7,42.7 37.7,42.4Q36.6,42.0 35.8,41.5Q34.9,40.9 34.4,40.2Q33.8,39.5 33.4,38.5Q33.1,37.5 33.1,36.3Q33.1,33.1 35.5,31.4Q37.9,29.6 42.6,29.6Q47.0,29.6 49.2,31.0Q51.4,32.4 52.0,35.6L47.2,36.2Q46.8,34.7 45.7,33.9Q44.6,33.2 42.4,33.2Q37.9,33.2 37.9,36.0Q37.9,36.9 38.4,37.5Q38.9,38.1 39.8,38.5Q40.8,38.9 43.7,39.5Q47.1,40.3 48.6,40.9Q50.0,41.5 50.9,42.3Q51.7,43.1 52.2,44.3Q52.7,45.4 52.7,46.9ZM75.8,37.5Q75.8,39.8 74.8,41.6Q73.7,43.4 71.8,44.4Q69.8,45.4 67.2,45.4L61.3,45.4L61.3,53.7L56.3,53.7L56.3,30.0L67.0,30.0Q71.2,30.0 73.5,32.0Q75.8,33.9 75.8,37.5ZM70.8,37.6Q70.8,33.9 66.4,33.9L61.3,33.9L61.3,41.6L66.5,41.6Q68.6,41.6 69.7,40.5Q70.8,39.5 70.8,37.6Z"/>
+    <path
+        android:fillColor="#F5B041"
+        android:pathData="M32,61 h44 v4 h-44 Z"/>
+</vector>

@@ -217,8 +217,9 @@ object YouTubeRepository {
                 maxResults = 12
             )
 
-            if (response.isSuccessful && response.body()?.items != null) {
-                val videos = response.body()!!.items!!.mapNotNull { item ->
+            val responseItems = if (response.isSuccessful) response.body()?.items else null
+            if (responseItems != null) {
+                val videos = responseItems.mapNotNull { item ->
                     val videoId = item.id?.videoId
                     val snippet = item.snippet
                     if (!videoId.isNullOrBlank() && snippet != null) {

@@ -227,6 +227,7 @@
                 android:text="Class" />
 
             <Spinner
+            android:popupBackground="#FFFFFF"
                 android:id="@+id/spinnerClassPaper"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -245,6 +246,7 @@
                 android:text="Subject" />
 
             <Spinner
+            android:popupBackground="#FFFFFF"
                 android:id="@+id/spinnerSubjectPaper"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

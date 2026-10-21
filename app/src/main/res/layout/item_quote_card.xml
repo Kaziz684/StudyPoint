@@ -14,7 +14,6 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/gradient_bg"
         android:gravity="center"
         android:orientation="vertical"
         android:padding="22dp">
@@ -23,7 +22,9 @@
             android:id="@+id/tvQuoteText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:ellipsize="end"
             android:gravity="center"
+            android:maxLines="4"
             android:text="اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ"
             android:textColor="@color/edu_text_primary"
             android:textSize="20sp"
@@ -34,7 +35,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
+            android:ellipsize="end"
             android:gravity="center"
+            android:maxLines="2"
             android:text="Allahumma Salli 'Ala Muhammadin Wa 'Ala Aali Muhammad"
             android:textColor="@color/edu_text_secondary"
             android:textSize="13sp" />
