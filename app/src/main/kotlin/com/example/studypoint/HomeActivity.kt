@@ -201,8 +201,13 @@ fun HomeScreen(
     var isYouTubeLoading by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        val fetched = YouTubeRepository.fetchLatestVideos()
-        youTubeVideos = fetched
+        // Dashboard must never die on a feed failure: keep the sample
+        // lectures and let the user refresh manually instead of crashing.
+        try {
+            youTubeVideos = YouTubeRepository.fetchLatestVideos()
+        } catch (_: Exception) {
+            // keep the existing sample list
+        }
     }
 
     ModalNavigationDrawer(
@@ -473,7 +478,11 @@ fun HomeScreen(
                     onRefreshClick = {
                         scope.launch {
                             isYouTubeLoading = true
-                            youTubeVideos = YouTubeRepository.fetchLatestVideos()
+                            try {
+                                youTubeVideos = YouTubeRepository.fetchLatestVideos()
+                            } catch (_: Exception) {
+                                // keep the existing list on a feed failure
+                            }
                             isYouTubeLoading = false
                         }
                         Toast.makeText(context, "Dashboard & live lectures refreshed! 🔥", Toast.LENGTH_SHORT).show()
@@ -848,7 +857,7 @@ fun DateTimeHeader() {
             val d = hd.get(java.time.temporal.ChronoField.DAY_OF_MONTH)
             val y = hd.get(java.time.temporal.ChronoField.YEAR)
             "$d ${months[m]} $y AH"
-        } catch (_: Exception) { "" }
+        } catch (_: Throwable) { "" }
     }
 
     Card(

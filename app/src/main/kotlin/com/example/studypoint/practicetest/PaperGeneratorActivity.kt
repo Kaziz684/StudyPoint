@@ -102,6 +102,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
     private var chapterNames: List<String> = emptyList()
     private val chapterChecks = mutableListOf<CheckBox>()
     private val sectionChecks = mutableListOf<CheckBox>()
+    private val groupChecks = mutableListOf<CheckBox>()
     private var lastFile: File? = null
     private var loading = false
 
@@ -284,6 +285,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
         checkAllChapters.setOnCheckedChangeListener { _, checked ->
             chapterChecks.forEach { it.isEnabled = !checked }
             sectionChecks.forEach { it.isEnabled = !checked }
+            groupChecks.forEach { it.isEnabled = !checked }
             renderQuestions()
         }
         findViewById<RadioButton>(R.id.radioAllPaper).setOnCheckedChangeListener { _, _ ->
@@ -634,6 +636,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
         layoutChapters.removeAllViews()
         chapterChecks.clear()
         sectionChecks.clear()
+        groupChecks.clear()
         loadJob = scope.launch {
             if (type == PaperType.MCQS || type == PaperType.COMBINED || type == PaperType.BOARD) {
                 val fetched = try {
@@ -725,28 +728,146 @@ class PaperGeneratorActivity : AppCompatActivity() {
             val orderedTags = if (sections.isEmpty()) rowTags
                 else sections.flatMap { sec -> rowTags.filter { sectionOf(it) == sec } } +
                     rowTags.filter { sectionOf(it) !in sections }
+            // Collapsible selection: every section gets an arrow toggle row
+            // (arrow collapses/expands only, it never changes selection) plus a
+            // parent checkbox that selects/deselects all its children, with a
+            // real question-count badge on the header. English Grammar &
+            // Composition additionally splits into Objective / Subjective
+            // sub-groups, each collapsible with its own parent checkbox.
+            // Generation still reads chapterChecks only, so collapsing a
+            // section never drops its (hidden) selections.
             var currentSection: String? = null
+            var currentGroupKey: String? = null
             val sectionChildren = mutableMapOf<String, MutableList<CheckBox>>()
+            val sectionHeaders = mutableMapOf<String, CheckBox>()
+            val sectionGroups = mutableMapOf<String, MutableList<CheckBox>>()
+            val groupChildren = mutableMapOf<String, MutableList<CheckBox>>()
+            val sectionContainers = mutableMapOf<String, LinearLayout>()
+            val groupContainers = mutableMapOf<String, LinearLayout>()
+            val groupHeaders = mutableMapOf<String, CheckBox>()
+            fun collapsibleRow(
+                container: LinearLayout,
+                box: CheckBox
+            ): TextView {
+                val arrow = TextView(this@PaperGeneratorActivity).apply {
+                    text = "\u25BC"
+                    textSize = 16f
+                    setTextColor(Color.parseColor("#1F2937"))
+                    setPadding(8, 8, 8, 8)
+                    setOnClickListener {
+                        val expanded = container.visibility == View.VISIBLE
+                        container.visibility = if (expanded) View.GONE else View.VISIBLE
+                        text = if (expanded) "\u25B6" else "\u25BC"
+                    }
+                }
+                LinearLayout(this@PaperGeneratorActivity).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    gravity = android.view.Gravity.CENTER_VERTICAL
+                    addView(arrow)
+                    addView(box)
+                }.also { layoutChapters.addView(it) }
+                return arrow
+            }
             for (tag in orderedTags) {
                 val sec = sectionOf(tag)
-                if (sections.isNotEmpty() && sec != null && sec != currentSection) {
-                    currentSection = sec
-                    val header = CheckBox(this@PaperGeneratorActivity).apply {
-                        text = sec
-                        textSize = 15.5f
-                        setTypeface(null, Typeface.BOLD)
-                        setTextColor(Color.parseColor("#1F2937"))
-                        buttonTintList = selectColors()
-                        isEnabled = !checkAllChapters.isChecked
-                        setOnCheckedChangeListener { btn, checked ->
-                            if (btn.isPressed) {
-                                sectionChildren[sec]?.forEach { it.isChecked = checked }
-                                renderQuestions()
+                var target: LinearLayout? = null
+                var childPadding = 0
+                if (sections.isNotEmpty() && sec != null) {
+                    if (sec != currentSection) {
+                        currentSection = sec
+                        currentGroupKey = null
+                        val secTotal = orderedTags.filter { sectionOf(it) == sec }
+                            .sumOf { countForChapter(it, type) }
+                        val container = LinearLayout(this@PaperGeneratorActivity).apply {
+                            orientation = LinearLayout.VERTICAL
+                        }
+                        val header = CheckBox(this@PaperGeneratorActivity).apply {
+                            text = "$sec  ($secTotal questions)"
+                            textSize = 15.5f
+                            setTypeface(null, Typeface.BOLD)
+                            setTextColor(Color.parseColor("#1F2937"))
+                            buttonTintList = selectColors()
+                            isEnabled = !checkAllChapters.isChecked
+                            setOnCheckedChangeListener { btn, checked ->
+                                if (btn.isPressed) {
+                                    sectionChildren[sec]?.forEach { it.isChecked = checked }
+                                    sectionGroups[sec]?.forEach { it.isChecked = checked }
+                                    renderQuestions()
+                                }
                             }
                         }
+                        sectionChecks += header
+                        sectionHeaders[sec] = header
+                        collapsibleRow(container, header)
+                        layoutChapters.addView(container)
+                        sectionContainers[sec] = container
                     }
-                    sectionChecks += header
-                    layoutChapters.addView(header)
+                    target = sectionContainers[sec]
+                    childPadding = 56
+                    // English Grammar & Composition sub-groups.
+                    if (subject.equals("English", ignoreCase = true) &&
+                        sec == PaperSections.WRITING
+                    ) {
+                        val grp = PaperSections.englishGrammarGroup(
+                            PaperSections.nameOf(tag.substringBefore("|"))
+                        )
+                        val groupKey = "$sec|$grp"
+                        if (groupKey != currentGroupKey) {
+                            currentGroupKey = groupKey
+                            val grpTotal = orderedTags.filter {
+                                sectionOf(it) == sec &&
+                                    PaperSections.englishGrammarGroup(
+                                        PaperSections.nameOf(it.substringBefore("|"))
+                                    ) == grp
+                            }.sumOf { countForChapter(it, type) }
+                            val gContainer = LinearLayout(this@PaperGeneratorActivity).apply {
+                                orientation = LinearLayout.VERTICAL
+                            }
+                            val gHeader = CheckBox(this@PaperGeneratorActivity).apply {
+                                text = "$grp  ($grpTotal questions)"
+                                textSize = 15f
+                                setTypeface(null, Typeface.BOLD)
+                                setTextColor(Color.parseColor("#1F2937"))
+                                buttonTintList = selectColors()
+                                isEnabled = !checkAllChapters.isChecked
+                                setOnCheckedChangeListener { btn, checked ->
+                                    if (btn.isPressed) {
+                                        groupChildren[groupKey]?.forEach { it.isChecked = checked }
+                                        renderQuestions()
+                                    }
+                                }
+                            }
+                            groupChecks += gHeader
+                            groupHeaders[groupKey] = gHeader
+                            sectionGroups.getOrPut(sec) { mutableListOf() } += gHeader
+                            // Group header row is indented inside its section.
+                            LinearLayout(this@PaperGeneratorActivity).apply {
+                                orientation = LinearLayout.HORIZONTAL
+                                gravity = android.view.Gravity.CENTER_VERTICAL
+                                setPadding(56, 0, 0, 0)
+                                val gArrow = TextView(this@PaperGeneratorActivity).apply {
+                                    text = "\u25BC"
+                                    textSize = 15f
+                                    setTextColor(Color.parseColor("#1F2937"))
+                                    setPadding(8, 8, 8, 8)
+                                    setOnClickListener {
+                                        val expanded = gContainer.visibility == View.VISIBLE
+                                        gContainer.visibility =
+                                            if (expanded) View.GONE else View.VISIBLE
+                                        text = if (expanded) "\u25B6" else "\u25BC"
+                                    }
+                                }
+                                addView(gArrow)
+                                addView(gHeader)
+                            }.also { sectionContainers[sec]?.addView(it) }
+                            sectionContainers[sec]?.addView(gContainer)
+                            groupContainers[groupKey] = gContainer
+                        }
+                        target = groupContainers[groupKey]
+                        childPadding = 112
+                    } else {
+                        currentGroupKey = null
+                    }
                 }
                 val cb = CheckBox(this@PaperGeneratorActivity).apply {
                     text = displayFor(tag)
@@ -756,12 +877,25 @@ class PaperGeneratorActivity : AppCompatActivity() {
                     buttonTintList = selectColors()
                     isChecked = prevChecked.contains(tag)
                     isEnabled = !checkAllChapters.isChecked
-                    if (sections.isNotEmpty()) setPadding(56, 0, 0, 0)
+                    if (childPadding > 0) setPadding(childPadding, 0, 0, 0)
                     setOnCheckedChangeListener { _, _ -> renderQuestions() }
                 }
                 chapterChecks += cb
                 if (sec != null) sectionChildren.getOrPut(sec) { mutableListOf() } += cb
-                layoutChapters.addView(cb)
+                if (currentGroupKey != null) {
+                    groupChildren.getOrPut(currentGroupKey!!) { mutableListOf() } += cb
+                }
+                (target ?: layoutChapters).addView(cb)
+            }
+            // Parent boxes reflect a fully-restored selection (programmatic
+            // sets do not re-fire the isPressed-guarded listeners above).
+            for ((sec, header) in sectionHeaders) {
+                val kids = sectionChildren[sec]
+                if (!kids.isNullOrEmpty() && kids.all { it.isChecked }) header.isChecked = true
+            }
+            for ((key, header) in groupHeaders) {
+                val kids = groupChildren[key]
+                if (!kids.isNullOrEmpty() && kids.all { it.isChecked }) header.isChecked = true
             }
             tvChapterStatus.text = statusText(type)
             tvBoardInfo.text = boardInfoText()

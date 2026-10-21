@@ -16,8 +16,10 @@ object PaperSections {
     const val NAZM = "حصہ نظم"
     const val ASBAQ = "اسباق"
     const val GRAMMAR = "Grammar (قواعد)"
-    const val CHAPTERS = "Chapters"
-    const val WRITING = "Grammar & Writing"
+    const val CHAPTERS = "Textbook Chapters"
+    const val WRITING = "Grammar & Composition"
+    const val OBJECTIVE = "Objective"
+    const val SUBJECTIVE = "Subjective"
     const val SURAH = "Surahs"
     const val ABWAB = "ابواب"
     const val NUMERICALS = "Numericals"
@@ -72,12 +74,30 @@ object PaperSections {
         else -> emptyList()
     }
 
+    /**
+     * Grammar sub-group for an English Grammar & Composition row, following the
+     * 9th/10th-class curriculum split: Objective = verb forms, spellings,
+     * synonyms/antonyms and parts of speech; everything else written (letters,
+     * stories, essays, dialogue, comprehension, translation, voice, pair of
+     * words) is Subjective. No row is ever invented for a topic with no
+     * pool — such a topic simply has no checkbox until its material arrives.
+     */
+    fun englishGrammarGroup(name: String): String {
+        val n = name.lowercase()
+        val objective = listOf(
+            "verb", "spell", "synonym", "antonym", "grammar", "parts of speech"
+        )
+        return if (objective.any { n.contains(it) }) OBJECTIVE else SUBJECTIVE
+    }
+
     /** Section a chapter bucket belongs to (English only here; Urdu handled by [urduPortion]). */
     fun englishSection(name: String): String {
         val n = name.lowercase()
         val writing = listOf(
             "letter", "stor", "idiom", "grammar", "voice", "verb", "essay",
-            "paragraph", "dialogue", "application", "tafheem", "translation"
+            "paragraph", "dialogue", "application", "tafheem", "translation",
+            // Class-10 grammar MCQ buckets filed as "Grammar: ..." rows.
+            "direct", "indirect", "speech", "pair", "synonym", "antonym", "spell"
         )
         return if (writing.any { n.contains(it) } ||
             name.contains("تفہیم") || name.contains("مضامین")
