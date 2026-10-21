@@ -124,6 +124,7 @@ class NotesActivity : AppCompatActivity() {
                 "Letters & Applications" -> "https://drive.google.com/uc?export=download&id=1XWxUOyeiHQrulh_5087OiKOiZtAvRMf5"
                 "Stories" -> "https://drive.google.com/uc?export=download&id=1Fg1v_nyXwSep3OW1z6AO_paIG6tH0S-l"
                 "Idioms & Phrases" -> "https://drive.google.com/uc?export=download&id=1Bg7s7K-5lWUkUSzLxzgQ2wBT1oB4zr4k"
+                "Applications" -> "https://drive.google.com/uc?export=download&id=1M1AQT-KwCCbapm5H9b4y1PNBKm5D1HC9"
                 else -> null
             }
         } else null

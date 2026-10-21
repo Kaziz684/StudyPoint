@@ -165,6 +165,7 @@ object SubjectStructure {
                     StudySection("gr7", "Paragraphs", "", "chapter"),
                     StudySection("gr8", "Sentence Correction", "", "chapter"),
                     StudySection("gr9", "Translation (Urdu to English)", "", "chapter")
+                    StudySection("gr10", "Applications", "", "chapter")
                 )
                 else -> listOf(
                     StudySection("gr1", "Tenses", "", "chapter"),
