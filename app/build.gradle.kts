@@ -25,7 +25,7 @@ android {
         applicationId = "com.example.studypoint"
         minSdk = 23 // Firebase + PDF Viewer ke liye best
         targetSdk = 35
-        versionCode = 94
+        versionCode = 95
         versionName = "2.0"
 
         buildConfigField("String", "YOUTUBE_API_KEY", "\"$youtubeApiKey\"")
