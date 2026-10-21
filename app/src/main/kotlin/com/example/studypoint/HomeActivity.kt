@@ -1547,8 +1547,12 @@ fun DrawerHeader(userName: String = "Student", userEmail: String = "") {
             // crashes the whole student dashboard on open (the drawer
             // content composes even while the drawer is closed). The
             // launcher icon itself stays an adaptive icon (correct
-            // there); this header draws the same SP mark in pure
-            // Compose instead, so it can never throw.
+            // there). This header shows the previous icon's own
+            // artwork instead: ic_sp_foreground is a pure <vector>
+            // (white SP + gold bar), which painterResource() accepts,
+            // over a navy gradient drawn with Brush (the matching
+            // <shape> background is deliberately NOT loaded here —
+            // shapes are not accepted either).
             Box(
                 modifier = Modifier
                     .size(56.dp)
@@ -1560,20 +1564,13 @@ fun DrawerHeader(userName: String = "Student", userEmail: String = "") {
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        "SP",
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp
-                    )
-                    Box(
-                        modifier = Modifier
-                            .width(20.dp)
-                            .height(3.dp)
-                            .background(Color(0xFFF59E0B))
-                    )
-                }
+                Image(
+                    painter = painterResource(id = R.drawable.ic_sp_foreground),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(56.dp)
+                        .clip(CircleShape)
+                )
             }
             Spacer(modifier = Modifier.width(12.dp))
             Column {
