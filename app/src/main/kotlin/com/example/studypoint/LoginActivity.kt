@@ -80,6 +80,7 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        try {
         setContentView(R.layout.activity_login)
 
         auth = FirebaseAuth.getInstance()
@@ -103,6 +104,19 @@ class LoginActivity : AppCompatActivity() {
         if (!rememberedEmail.isNullOrEmpty()) {
             etLoginEmail.setText(rememberedEmail)
             cbRemember.isChecked = true
+        }
+        } catch (t: Throwable) {
+            // Never die silently on the login screen: show the real
+            // error so a screenshot of it diagnoses the crash.
+            try {
+                AlertDialog.Builder(this)
+                    .setTitle("Login error")
+                    .setMessage(t.javaClass.simpleName + ": " + (t.message ?: "unknown error"))
+                    .setCancelable(false)
+                    .setPositiveButton("Close") { _, _ -> finish() }
+                    .show()
+            } catch (ignored: Throwable) {
+            }
         }
     }
 
