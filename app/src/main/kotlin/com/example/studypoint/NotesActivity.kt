@@ -704,7 +704,22 @@ class NotesActivity : AppCompatActivity() {
                 "English" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=11_ENGLISH_BOOK",
                     "Book" to "https://drive.google.com/uc?export=download&id=11_ENGLISH_BOOK",
-                    "Notes" to listOf("https://drive.google.com/uc?export=download&id=11_ENGLISH_NOTES"),
+                    "Notes" to mapOf(
+                        "Chapter 1: Khatam-un-Nabiyeen Hazrat Muhammad" to "https://drive.google.com/uc?export=download&id=1B8rTLoSTydG5ATjtksoZvy2EANhnJ3JL",
+                        "Chapter 2: Responsibilities of Youth in Nation-Building" to "https://drive.google.com/uc?export=download&id=1b8eYscuFOy6SqhjdI7wPwEx31hkJyxV2",
+                        "Chapter 3: A Bird Came Down the Walk" to "https://drive.google.com/uc?export=download&id=1UGJzl3-icQYQmxgS1wCav1ULGcdN5XmS",
+                        "Chapter 4: Team Moon" to "https://drive.google.com/uc?export=download&id=1lyyJhTIiZ3jhhHOwQDYzIg1nsNYbtk2F",
+                        "Chapter 5: Impact of Global Warming on Pakistan" to "https://drive.google.com/uc?export=download&id=1wOREdRPtShwGWyReTnQqh2mtryvUhW_B",
+                        "Chapter 6: The Echoing Green" to "https://drive.google.com/uc?export=download&id=1hkF8MpobZ3u2S6X7eGKYkQdIx7V7kW9M",
+                        "Chapter 7: What You Do Is What You Are" to "https://drive.google.com/uc?export=download&id=1xw-mOLSWdJpp3ulqo0dQ6NwUAHYZdssi",
+                        "Chapter 8: Clean Water" to "https://drive.google.com/uc?export=download&id=11XBHd3bsho62isOvjkdn1-aAAHtBtZoi",
+                        "Chapter 9: Freedom" to "https://drive.google.com/uc?export=download&id=1qEsfXWg6uSx-gCVuxsXMmoWY4wj6i096",
+                        "Chapter 10: The Punishment of Shahpesh the Persian on Khipil the Builder" to "https://drive.google.com/uc?export=download&id=1zSYYQyzlwb0otXGmeslALwOuk1-K6hfi",
+                        "Chapter 11: Those Winter Sundays" to "https://drive.google.com/uc?export=download&id=1wj1MXxQz-O_NdxFy00Tq-srFbx42jiQu",
+                        "Chapter 12: The Impact of AI on Society, Human Relationships, and Ethics" to "https://drive.google.com/uc?export=download&id=1m6Yplr3cjpyWF0U3tBbhO1C9EG74BJDD",
+                        "Chapter 13: Rubaiyat" to "https://drive.google.com/uc?export=download&id=1ZjgFaks66AccELJf2C-YAqwn82duXvMl",
+                        "Chapter 14: The End of the Beginning" to "https://drive.google.com/uc?export=download&id=1rN8_fUR0chHGFrzKPqk9Q9XrypzbaAut"
+                    ),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=11_ENG_PP_2022",
                         "2023" to "https://drive.google.com/uc?export=download&id=11_ENG_PP_2023",
@@ -738,7 +753,20 @@ class NotesActivity : AppCompatActivity() {
                 "Physics" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=11_PHY_BOOK",
                     "Book" to "https://drive.google.com/uc?export=download&id=11_PHY_BOOK",
-                    "Notes" to listOf("COMING_SOON"),
+                    "Notes" to mapOf(
+                        "Chapter 1: Measurements" to "https://drive.google.com/uc?export=download&id=1q_wbehgin6YnR3yGHZnvl2ijuiaiUTyb",
+                        "Chapter 2: Force and Motion" to "https://drive.google.com/uc?export=download&id=1oT9vczT4OfbmLq8-_I_2b-jdqD-65bd3",
+                        "Chapter 3: Circular and Rotational Motion" to "https://drive.google.com/uc?export=download&id=13FT6ukdQc9adq-nDB2-l7PgtDuyZvxIJ",
+                        "Chapter 4: Work, Energy and Power" to "https://drive.google.com/uc?export=download&id=1fNqyJj79USoYgOcGf5G2tVT-mqlxUPXk",
+                        "Chapter 5: Solids and Fluid Dynamics" to "https://drive.google.com/uc?export=download&id=1Ug4soLc46e0tPnWeNA73uTuKkpuv_C7w",
+                        "Chapter 6: Heat and Thermodynamics" to "https://drive.google.com/uc?export=download&id=13Vt0XSa1RTMeMMWUALWImBQ-c5bh0W_0",
+                        "Chapter 7: Waves and Vibrations" to "https://drive.google.com/uc?export=download&id=1m3bRLKMV7vL8tbIavfZGS0CyKhkIojP4",
+                        "Chapter 8: Physical Optics and Gravitational Waves" to "https://drive.google.com/uc?export=download&id=1sfrFW8_-qRil_U8JN9Thz-TAJDkiX86e",
+                        "Chapter 9: Electrostatics and Current Electricity" to "https://drive.google.com/uc?export=download&id=1WXO_sbyX5H85HZmhNoGrN-LOqPvipNCL",
+                        "Chapter 10: Electromagnetism" to "https://drive.google.com/uc?export=download&id=1EeQ1MOx3_C8JxccQxWqxK6gIU8PNivWo",
+                        "Chapter 11: Special Theory of Relativity" to "https://drive.google.com/uc?export=download&id=1NpLCOZITQXxZ3J1EckbteZtIeYt3pGYp",
+                        "Chapter 12: Nuclear and Particle Physics" to "https://drive.google.com/uc?export=download&id=1WnkcnOf5YBPsQGCw9zPw6Mc8YXSBfM5s"
+                    ),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=11_PHY_PP_2022",
                         "2023" to "https://drive.google.com/uc?export=download&id=11_PHY_PP_2023",
@@ -772,7 +800,19 @@ class NotesActivity : AppCompatActivity() {
                 "Biology" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=11_BIO_BOOK",
                     "Book" to "https://drive.google.com/uc?export=download&id=11_BIO_BOOK",
-                    "Notes" to listOf("COMING_SOON"),
+                    "Notes" to mapOf(
+                        "Chapter 1: Biodiversity and Classification" to "https://drive.google.com/uc?export=download&id=1m7Kig55O7g6yPLgFYDqsKKDqRytoO1PX",
+                        "Chapter 2: Bacteria and Viruses" to "https://drive.google.com/uc?export=download&id=1WxygpeR0n2KUWjUhabBj4bUrE_a_q0dJ",
+                        "Chapter 3: Cell and Subcellular Organelles" to "https://drive.google.com/uc?export=download&id=1kC4pOVgy89IfjYTfZWiozNeAdqCDzW-b",
+                        "Chapter 4: Biomolecules" to "https://drive.google.com/uc?export=download&id=1l-WjfBltf8vK4qHQ_jgCEfC2ynElnBW9",
+                        "Chapter 5: Enzymes" to "https://drive.google.com/uc?export=download&id=14i67rQJMgTanI3x8PPeAYNoF3xguujMQ",
+                        "Chapter 6: Bioenergetics" to "https://drive.google.com/uc?export=download&id=1Itga9mWCcpVW3Noh50S2qdc51TH9OcXg",
+                        "Chapter 7: Structural and Computational Biology" to "https://drive.google.com/uc?export=download&id=1rJtVzawIyL-7y6ucuRbUX_GiW3VfHjQV",
+                        "Chapter 8: Plant Physiology" to "https://drive.google.com/uc?export=download&id=1L3gVjZBRxiFSvhJQS_hJdJRKSMV5G_Uh",
+                        "Chapter 10: Human Respiratory System" to "https://drive.google.com/uc?export=download&id=1u0SPq6_v_0DI9K9HC37N7LVWREwdcygX",
+                        "Chapter 11: Human Circulatory System" to "https://drive.google.com/uc?export=download&id=1inMeFc5L1Gc7uYlAK133mh1s5U56yMUT",
+                        "Chapter 12: Human Skeletal and Muscular System" to "https://drive.google.com/uc?export=download&id=1PINP18C_7SQXqVOITVg5ndfgrL-zo-R-"
+                    ),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=11_BIO_PP_2022",
                         "2023" to "https://drive.google.com/uc?export=download&id=11_BIO_PP_2023",
@@ -806,7 +846,10 @@ class NotesActivity : AppCompatActivity() {
                 "Computer" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=11_CS_BOOK",
                     "Book" to "https://drive.google.com/uc?export=download&id=11_CS_BOOK",
-                    "Notes" to listOf("COMING_SOON"),
+                    "Notes" to mapOf(
+                        "Unit 1: Introduction to Software Development" to "https://drive.google.com/uc?export=download&id=1XXZgqOoaGiGwBt3X9C0RrWsDWtnxwEVR",
+                        "Unit 2: Python Programming" to "https://drive.google.com/uc?export=download&id=1P45tJl1PUk48_fN7cpjV5KP6ii1acniG"
+                    ),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=11_CS_PP_2022",
                         "2023" to "https://drive.google.com/uc?export=download&id=11_CS_PP_2023",

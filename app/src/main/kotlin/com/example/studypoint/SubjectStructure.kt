@@ -144,6 +144,22 @@ object SubjectStructure {
                     StudySection("c11", "Chapter 11: The Dear Departed", "", "chapter")
                 )
                 "10" -> (1..13).map { StudySection("c$it", "Chapter $it", "", "chapter") }
+                "11" -> listOf(
+                    StudySection("c1", "Chapter 1: Khatam-un-Nabiyeen Hazrat Muhammad", "", "chapter"),
+                    StudySection("c2", "Chapter 2: Responsibilities of Youth in Nation-Building", "", "chapter"),
+                    StudySection("c3", "Chapter 3: A Bird Came Down the Walk", "", "chapter"),
+                    StudySection("c4", "Chapter 4: Team Moon", "", "chapter"),
+                    StudySection("c5", "Chapter 5: Impact of Global Warming on Pakistan", "", "chapter"),
+                    StudySection("c6", "Chapter 6: The Echoing Green", "", "chapter"),
+                    StudySection("c7", "Chapter 7: What You Do Is What You Are", "", "chapter"),
+                    StudySection("c8", "Chapter 8: Clean Water", "", "chapter"),
+                    StudySection("c9", "Chapter 9: Freedom", "", "chapter"),
+                    StudySection("c10", "Chapter 10: The Punishment of Shahpesh the Persian on Khipil the Builder", "", "chapter"),
+                    StudySection("c11", "Chapter 11: Those Winter Sundays", "", "chapter"),
+                    StudySection("c12", "Chapter 12: The Impact of AI on Society, Human Relationships, and Ethics", "", "chapter"),
+                    StudySection("c13", "Chapter 13: Rubaiyat", "", "chapter"),
+                    StudySection("c14", "Chapter 14: The End of the Beginning", "", "chapter")
+                )
                 else -> (1..14).map { StudySection("c$it", "Chapter $it", "", "chapter") }
             }
             "eng_grammar" -> when (grade) {
@@ -301,7 +317,20 @@ object SubjectStructure {
             StudySection("p20", "Chapter 20: Atomic and Nuclear Physics", "ایٹمی اور نیوکلیائی طبیعات", "chapter"),
             StudySection("p21", "Chapter 21: Space and Environment", "خلا اور ماحول", "chapter")
         )
-        "11" -> (1..11).map { StudySection("p$it", "Chapter $it", "", "chapter") }
+        "11" -> listOf(
+            StudySection("p1", "Chapter 1: Measurements", "", "chapter"),
+            StudySection("p2", "Chapter 2: Force and Motion", "", "chapter"),
+            StudySection("p3", "Chapter 3: Circular and Rotational Motion", "", "chapter"),
+            StudySection("p4", "Chapter 4: Work, Energy and Power", "", "chapter"),
+            StudySection("p5", "Chapter 5: Solids and Fluid Dynamics", "", "chapter"),
+            StudySection("p6", "Chapter 6: Heat and Thermodynamics", "", "chapter"),
+            StudySection("p7", "Chapter 7: Waves and Vibrations", "", "chapter"),
+            StudySection("p8", "Chapter 8: Physical Optics and Gravitational Waves", "", "chapter"),
+            StudySection("p9", "Chapter 9: Electrostatics and Current Electricity", "", "chapter"),
+            StudySection("p10", "Chapter 10: Electromagnetism", "", "chapter"),
+            StudySection("p11", "Chapter 11: Special Theory of Relativity", "", "chapter"),
+            StudySection("p12", "Chapter 12: Nuclear and Particle Physics", "", "chapter")
+        )
         "12" -> listOf(
             StudySection("p13", "Chapter 13: Thermal Physics", "", "chapter"),
             StudySection("p14", "Chapter 14: Simple Harmonic Motion", "", "chapter"),
@@ -378,20 +407,17 @@ object SubjectStructure {
             StudySection("b10", "Ch 10: Evolution", "", "chapter")
         )
         "11" -> listOf(
-            StudySection("b1", "Ch 1: Introduction to Biology", "", "chapter"),
-            StudySection("b2", "Ch 2: The Cell", "", "chapter"),
-            StudySection("b3", "Ch 3: Biological Molecules", "", "chapter"),
-            StudySection("b4", "Ch 4: Enzymes", "", "chapter"),
-            StudySection("b5", "Ch 5: Bioenergetics", "", "chapter"),
-            StudySection("b6", "Ch 6: Nutrition", "", "chapter"),
-            StudySection("b7", "Ch 7: Transport", "", "chapter"),
-            StudySection("b8", "Ch 8: Respiration", "", "chapter"),
-            StudySection("b9", "Ch 9: Excretion", "", "chapter"),
-            StudySection("b10", "Ch 10: Coordination & Control", "", "chapter"),
-            StudySection("b11", "Ch 11: Reproduction", "", "chapter"),
-            StudySection("b12", "Ch 12: Genetics", "", "chapter"),
-            StudySection("b13", "Ch 13: Evolution", "", "chapter"),
-            StudySection("b14", "Ch 14: Ecology", "", "chapter")
+            StudySection("b1", "Chapter 1: Biodiversity and Classification", "", "chapter"),
+            StudySection("b2", "Chapter 2: Bacteria and Viruses", "", "chapter"),
+            StudySection("b3", "Chapter 3: Cell and Subcellular Organelles", "", "chapter"),
+            StudySection("b4", "Chapter 4: Biomolecules", "", "chapter"),
+            StudySection("b5", "Chapter 5: Enzymes", "", "chapter"),
+            StudySection("b6", "Chapter 6: Bioenergetics", "", "chapter"),
+            StudySection("b7", "Chapter 7: Structural and Computational Biology", "", "chapter"),
+            StudySection("b8", "Chapter 8: Plant Physiology", "", "chapter"),
+            StudySection("b10", "Chapter 10: Human Respiratory System", "", "chapter"),
+            StudySection("b11", "Chapter 11: Human Circulatory System", "", "chapter"),
+            StudySection("b12", "Chapter 12: Human Skeletal and Muscular System", "", "chapter")
         )
         else -> (1..12).map { StudySection("b$it", "Chapter $it", "", "chapter") }
     }
@@ -422,7 +448,10 @@ object SubjectStructure {
             StudySection("cs7", "Ch 7: Application of AI", "", "chapter"),
             StudySection("cs8", "Ch 8: Digital Entrepreneurship", "", "chapter")
         )
-        "11" -> (1..8).map { StudySection("cs$it", "Chapter $it", "", "chapter") }
+        "11" -> listOf(
+            StudySection("cs1", "Unit 1: Introduction to Software Development", "", "chapter"),
+            StudySection("cs2", "Unit 2: Python Programming", "", "chapter")
+        )
         else -> (1..8).map { StudySection("cs$it", "Chapter $it", "", "chapter") }
     }
 
