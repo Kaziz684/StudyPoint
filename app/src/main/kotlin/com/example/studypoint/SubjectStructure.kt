@@ -384,15 +384,19 @@ object SubjectStructure {
 
     private fun getComputerChapters(grade: String): List<StudySection> = when (grade) {
         "9" -> listOf(
-            StudySection("cs1", "Ch 1: Computational Systems", "", "chapter"),
-            StudySection("cs2", "Ch 2: System Design and Troubleshooting", "", "chapter"),
-            StudySection("cs3", "Ch 3: Computer Networks", "", "chapter"),
-            StudySection("cs4", "Ch 4: Computational Thinking", "", "chapter"),
-            StudySection("cs5", "Ch 5: Web Development", "", "chapter"),
-            StudySection("cs6", "Ch 6: Data Science and Data Gathering", "", "chapter"),
-            StudySection("cs7", "Ch 7: Emerging Technologies", "", "chapter"),
-            StudySection("cs8", "Ch 8: Ethical and Legal Concerns", "", "chapter"),
-            StudySection("cs9", "Ch 9: Entrepreneurship", "", "chapter")
+            StudySection("cs1", "Ch 1: Introduction to Systems", "", "chapter"),
+            StudySection("cs2", "Ch 2: Number Systems", "", "chapter"),
+            StudySection("cs3", "Ch 3: Digital Systems and Logic Design", "", "chapter"),
+            StudySection("cs4", "Ch 4: System Troubleshooting", "", "chapter"),
+            StudySection("cs5", "Ch 5: Software System", "", "chapter"),
+            StudySection("cs6", "Ch 6: Introduction to Computer Networks", "", "chapter"),
+            StudySection("cs7", "Ch 7: Computational Thinking", "", "chapter"),
+            StudySection("cs8", "Ch 8: Web Development with HTML, CSS and Java-Script", "", "chapter"),
+            StudySection("cs9", "Ch 9: Data Science and Data Gathering", "", "chapter"),
+            StudySection("cs10", "Ch 10: Emerging Technologies in Computer Science", "", "chapter"),
+            StudySection("cs11", "Ch 11: Ethical, Social and Legal Concerns in Computer Usage", "", "chapter"),
+            StudySection("cs12", "Ch 12: Entrepreneurship in Digital Age", "", "chapter"),
+            StudySection("cs13", "Ch 13: Important Shortcut Keys", "", "chapter")
         )
         "10" -> listOf(
             StudySection("cs1", "Ch 1: Operating Systems: Structure & Services", "", "chapter"),
