@@ -32,6 +32,16 @@ object PaperDocxGenerator {
     private val ROMAN = listOf("(i)", "(ii)", "(iii)", "(iv)", "(v)", "(vi)", "(vii)", "(viii)", "(ix)", "(x)", "(xi)", "(xii)", "(xiii)", "(xiv)", "(xv)", "(xvi)", "(xvii)", "(xviii)", "(xix)", "(xx)", "(xxi)", "(xxii)", "(xxiii)", "(xxiv)", "(xxv)", "(xxvi)", "(xxvii)", "(xxviii)", "(xxix)", "(xxx)", "(xxxi)", "(xxxii)", "(xxxiii)", "(xxxiv)", "(xxxv)", "(xxxvi)", "(xxxvii)", "(xxxviii)", "(xxxix)", "(xl)")
     private fun roman(i: Int): String = if (i in ROMAN.indices) ROMAN[i] else "(${i + 1})"
 
+    // Urdu-script papers (Urdu / Islamiyat / Tarjuma): paragraphs whose text is
+    // Urdu/Arabic script become true RTL paragraphs (bidi + right aligned +
+    // Nastaliq complex-script font) in Word, like real board papers. Latin
+    // paragraphs in the same document stay LTR. Set per generate() call and
+    // reset by writeDocx.
+    private var docxRtlSubject = false
+
+    private fun scriptRtl(text: String): Boolean =
+        docxRtlSubject && text.any { it in '\u0600'..'\u06FF' }
+
     // ---------------- XML helpers ----------------
 
     private fun esc(s: String): String {
@@ -60,24 +70,31 @@ object PaperDocxGenerator {
     /** One text run. [size] is in half-points (23 = 11.5pt). */
     private fun run(
         text: String, bold: Boolean = false, size: Int = 23,
-        color: String = TEXT, font: String? = null
+        color: String = TEXT, font: String? = null, rtl: Boolean = false
     ): String {
         val rpr = StringBuilder("<w:rPr>")
-        if (font != null) {
-            rpr.append("<w:rFonts w:ascii=\"").append(font)
-                .append("\" w:hAnsi=\"").append(font).append("\"/>")
+        if (font != null || rtl) {
+            rpr.append("<w:rFonts")
+            if (font != null) {
+                rpr.append(" w:ascii=\"").append(font)
+                    .append("\" w:hAnsi=\"").append(font).append("\"")
+            }
+            if (rtl) rpr.append(" w:cs=\"Noto Nastaliq Urdu\"")
+            rpr.append("/>")
         }
         if (bold) rpr.append("<w:b/>")
         rpr.append("<w:color w:val=\"").append(color).append("\"/>")
         rpr.append("<w:sz w:val=\"").append(size).append("\"/>")
         rpr.append("<w:szCs w:val=\"").append(size).append("\"/>")
+        if (rtl) rpr.append("<w:rtl/>")
         rpr.append("</w:rPr>")
         return "<w:r>" + rpr + "<w:t xml:space=\"preserve\">" + esc(text) + "</w:t></w:r>"
     }
 
     private fun para(
         runs: String, align: String? = null, after: Int = 120, indent: Int = 0,
-        tabs: Boolean = false, borderBottom: String? = null, borderSz: Int = 12
+        tabs: Boolean = false, borderBottom: String? = null, borderSz: Int = 12,
+        rtl: Boolean = false
     ): String {
         val ppr = StringBuilder("<w:pPr>")
         if (borderBottom != null) {
@@ -93,9 +110,11 @@ object PaperDocxGenerator {
                     "<w:tab w:val=\"left\" w:pos=\"7425\"/></w:tabs>"
             )
         }
+        if (rtl) ppr.append("<w:bidi/>")
         ppr.append("<w:spacing w:after=\"").append(after).append("\"/>")
         if (indent > 0) ppr.append("<w:ind w:left=\"").append(indent).append("\"/>")
         if (align != null) ppr.append("<w:jc w:val=\"").append(align).append("\"/>")
+        else if (rtl) ppr.append("<w:jc w:val=\"right\"/>")
         ppr.append("</w:pPr>")
         return "<w:p>" + ppr + runs + "</w:p>"
     }
@@ -103,20 +122,27 @@ object PaperDocxGenerator {
     private fun pText(
         text: String, bold: Boolean = false, size: Int = 23, color: String = TEXT,
         align: String? = null, after: Int = 120, indent: Int = 0, font: String? = null,
-        borderBottom: String? = null, borderSz: Int = 12
-    ): String = para(
-        run(text, bold, size, color, font), align, after, indent,
-        borderBottom = borderBottom, borderSz = borderSz
-    )
+        borderBottom: String? = null, borderSz: Int = 12, rtl: Boolean = false
+    ): String {
+        val effRtl = rtl || scriptRtl(text)
+        return para(
+            run(text, bold, size, color, font, effRtl), align, after, indent,
+            borderBottom = borderBottom, borderSz = borderSz, rtl = effRtl
+        )
+    }
 
     /** Paragraph whose leading [prefix] is bold and the rest regular. */
     private fun pBoldPrefix(
-        prefix: String, rest: String, size: Int = 23, color: String = TEXT, after: Int = 120
-    ): String = para(
-        run(prefix, bold = true, size = size, color = color) +
-            run(rest, size = size, color = color),
-        after = after
-    )
+        prefix: String, rest: String, size: Int = 23, color: String = TEXT, after: Int = 120,
+        rtl: Boolean = false
+    ): String {
+        val effRtl = rtl || scriptRtl(rest)
+        return para(
+            run(prefix, bold = true, size = size, color = color, rtl = effRtl) +
+                run(rest, size = size, color = color, rtl = effRtl),
+            after = after, rtl = effRtl
+        )
+    }
 
     private fun pageBreakPara(): String = "<w:p><w:r><w:br w:type=\"page\"/></w:r></w:p>"
 
@@ -146,13 +172,21 @@ object PaperDocxGenerator {
 
     private fun textCell(
         text: String, bold: Boolean = false, size: Int = 22, color: String = TEXT,
-        span: Int = 1, shade: String? = null, width: Int = 0
-    ): Cell = Cell(listOf(para(run(text, bold, size, color), after = 40)), span, shade, width)
+        span: Int = 1, shade: String? = null, width: Int = 0, rtl: Boolean = false
+    ): Cell {
+        val effRtl = rtl || scriptRtl(text)
+        return Cell(
+            listOf(para(run(text, bold, size, color, rtl = effRtl), after = 40, rtl = effRtl)),
+            span, shade, width
+        )
+    }
 
-    private fun table(widths: List<Int>, rows: List<List<Cell>>, borderColor: String = "475569", borderSz: Int = 6): String {
+    private fun table(widths: List<Int>, rows: List<List<Cell>>, borderColor: String = "475569", borderSz: Int = 6, rtl: Boolean = false): String {
         val sb = StringBuilder()
         val total = widths.sum()
-        sb.append("<w:tbl><w:tblPr><w:tblW w:w=\"").append(total).append("\" w:type=\"dxa\"/>")
+        sb.append("<w:tbl><w:tblPr>")
+        if (rtl) sb.append("<w:bidiVisual/>")
+        sb.append("<w:tblW w:w=\"").append(total).append("\" w:type=\"dxa\"/>")
         sb.append("<w:tblBorders>")
         for (edge in listOf("top", "left", "bottom", "right", "insideH", "insideV")) {
             sb.append("<w:").append(edge).append(" w:val=\"single\" w:sz=\"").append(borderSz)
@@ -217,7 +251,8 @@ object PaperDocxGenerator {
         header: PaperPdfGenerator.SchoolHeader, title: String, subject: String,
         classLabel: String, timeText: String, totalMarksText: String,
         chaptersLabel: String?, hasLogo: Boolean
-    ): String {
+): String {
+        docxRtlSubject = PaperSections.isRtlSubject(subject)
         val sb = StringBuilder()
         val nameParas = mutableListOf<String>()
         nameParas += para(
@@ -322,7 +357,7 @@ object PaperDocxGenerator {
                 textCell(q.options.getOrElse(3) { "" }, size = 21, width = widths[5])
             )
         }
-        return table(widths, rows) + pText("", size = 10, after = 80)
+        return table(widths, rows, rtl = docxRtlSubject) + pText("", size = 10, after = 80)
     }
 
     /** MCQs exactly like the PDF: table rows where a question has 4 options,
@@ -380,6 +415,7 @@ object PaperDocxGenerator {
     // ---------------- Custom paper ----------------
 
     fun generate(context: Context, data: PaperPdfGenerator.PaperData, outFile: File): File {
+        docxRtlSubject = PaperSections.isRtlSubject(data.subject)
         val logo = logoPng(context, data.header)
         val totalMarks = data.mcqs.size +
             data.shorts.sumOf { it.marksValue } + data.longs.sumOf { it.marksValue }
@@ -596,6 +632,7 @@ object PaperDocxGenerator {
     // ---------------- Board Pattern (Class 10 Tarjuma-tul-Quran) ----------------
 
     fun generateBoardPatternTq(context: Context, data: PaperPdfGenerator.TqBoardPaperData, outFile: File): File {
+        docxRtlSubject = PaperSections.isRtlSubject(data.subject)
         val logo = logoPng(context, data.header)
         val sb = StringBuilder()
         sb.append(
@@ -683,6 +720,109 @@ object PaperDocxGenerator {
                     sb.append(pText(r + "  (Answer not available in the source data)", size = 21, color = MUTED, after = 90))
                 }
             }
+        }
+        return writeDocx(sb.toString(), data.testTitle, logo, outFile)
+    }
+
+    // ---------------- Board Pattern (Class 9/10 Urdu) ----------------
+
+    /** Urdu Board Pattern — same BISE structure as the PDF twin; every
+     *  Urdu paragraph is a true RTL Nastaliq paragraph via the rtl helpers. */
+    fun generateBoardPatternUrdu(context: Context, data: PaperPdfGenerator.UrduBoardPaperData, outFile: File): File {
+        docxRtlSubject = true
+        val logo = logoPng(context, data.header)
+        val sb = StringBuilder()
+        sb.append(
+            headerXml(
+                data.header, data.testTitle, data.subject, data.classLabel,
+                "2 Hours 10 Minutes", "75", null, logo != null
+            )
+        )
+        sb.append(instructionsXml("نوٹ: تمام سوالات کے جوابات اپنی جوابی کاپی پر صاف اور خوشخط تحریر کیجیے۔ ہر سوال کے سامنے اس کے نمبر درج ہیں۔"))
+
+        sb.append(bannerXml("حصہ معروضی (Objective)"))
+        sb.append(qHeadingXml("سوال نمبر 1: درست جواب کا انتخاب کیجیے۔ (15x1=15)"))
+        sb.append(mcqsXml(data.mcqs))
+
+        sb.append(bannerXml("حصہ انشائیہ (Subjective)"))
+
+        fun items(list: List<WrittenQuestion>) {
+            list.forEachIndexed { i, wq ->
+                sb.append(pText(roman(i) + "  " + wq.question, after = 100))
+            }
+        }
+        fun ansItems(list: List<WrittenQuestion>) {
+            list.forEachIndexed { i, wq ->
+                val r = roman(i)
+                if (wq.answer.isNotBlank()) {
+                    sb.append(pBoldPrefix(r + "  ", wq.answer, size = 22, color = ANS, after = 90))
+                } else {
+                    sb.append(pText(r + "  (Answer not available in the source data)", size = 21, color = MUTED, after = 90))
+                }
+            }
+        }
+
+        sb.append(qHeadingXml("سوال نمبر 2: درج ذیل اشعار کی تشریح کیجیے۔ (10=2x5)"))
+        sb.append(pText("(الف)  " + data.q2aLabel, bold = true, size = 23, color = NAVY, after = 90))
+        items(data.q2a)
+        sb.append(pText("(ب)  " + data.q2bLabel, bold = true, size = 23, color = NAVY, after = 90))
+        items(data.q2b)
+
+        sb.append(qHeadingXml("سوال نمبر 3: درج ذیل عبارات کی تشریح کیجیے اور مصنف و کتاب کا حوالہ بھی تحریر کیجیے۔ (10=5+5)"))
+        data.q3.forEachIndexed { i, wq ->
+            sb.append(pText((if (i == 0) "(الف)" else "(ب)") + "  " + wq.question, after = 100))
+        }
+
+        sb.append(qHeadingXml("سوال نمبر 4: درج ذیل سوالات میں سے کوئی سے پانچ کے مختصر جوابات تحریر کیجیے۔ (10=2x5)"))
+        items(data.q4)
+
+        sb.append(qHeadingXml("سوال نمبر 5: درج ذیل میں سے کسی ایک سبق کا خلاصہ تحریر کیجیے۔ (5)"))
+        items(data.q5)
+
+        if (data.q6Fallback) {
+            val poem = data.q6.firstOrNull()?.chapterName ?: ""
+            sb.append(qHeadingXml("سوال نمبر 6: نظم «$poem» کا مرکزی خیال تحریر کیجیے اور شاعر کا نام بھی لکھیں۔ (5=1+4)"))
+        } else {
+            sb.append(qHeadingXml("سوال نمبر 6: درج ذیل میں سے کسی ایک نظم کا مرکزی خیال تحریر کیجیے اور شاعر کا نام بھی لکھیں۔ (5=1+4)"))
+            items(data.q6)
+        }
+
+        if (data.q7Kind == "MAZMOON") {
+            sb.append(qHeadingXml("سوال نمبر 7: درج ذیل عنوانات میں سے کسی ایک پر جامع مضمون لکھیں (200 تا 250 الفاظ)۔ (10)"))
+        } else {
+            sb.append(qHeadingXml("سوال نمبر 7: درج ذیل میں سے کوئی ایک خط یا درخواست تحریر کیجیے۔ (10)"))
+        }
+        items(data.q7)
+
+        sb.append(qHeadingXml("سوال نمبر 8: درج ذیل میں سے کوئی ایک سوال حل کیجیے۔ (5)"))
+        items(data.q8)
+
+        sb.append(qHeadingXml("سوال نمبر 9: درج ذیل محاوروں کو جملوں میں استعمال کیجیے (کوئی سے " + data.q9Attempt + ")۔ (5)"))
+        items(data.q9)
+
+        if (data.includeAnswers) {
+            sb.append(keyTitleXml("ANSWER KEY & SOLUTIONS"))
+            sb.append(qHeadingXml("سوال نمبر 1 (MCQs)"))
+            sb.append(keyEntriesXml(data.mcqs))
+            sb.append(pText("", size = 10, after = 80))
+            sb.append(qHeadingXml("سوال نمبر 2 (الف) — تشریح اشعار"))
+            ansItems(data.q2a)
+            sb.append(qHeadingXml("سوال نمبر 2 (ب) — تشریح اشعار"))
+            ansItems(data.q2b)
+            sb.append(qHeadingXml("سوال نمبر 3 — تشریح عبارات"))
+            ansItems(data.q3)
+            sb.append(qHeadingXml("سوال نمبر 4 — مختصر جوابات"))
+            ansItems(data.q4)
+            sb.append(qHeadingXml("سوال نمبر 5 — خلاصہ"))
+            ansItems(data.q5)
+            sb.append(qHeadingXml("سوال نمبر 6 — مرکزی خیال"))
+            ansItems(data.q6)
+            sb.append(qHeadingXml("سوال نمبر 7"))
+            ansItems(data.q7)
+            sb.append(qHeadingXml("سوال نمبر 8"))
+            ansItems(data.q8)
+            sb.append(qHeadingXml("سوال نمبر 9 — محاورے"))
+            ansItems(data.q9)
         }
         return writeDocx(sb.toString(), data.testTitle, logo, outFile)
     }
@@ -1314,6 +1454,7 @@ object PaperDocxGenerator {
     // ---------------- Package assembly ----------------
 
     private fun writeDocx(bodyXml: String, paperTitle: String, logo: ByteArray?, outFile: File): File {
+        docxRtlSubject = false
         val hasLogo = logo != null
         val documentXml = StringBuilder()
         documentXml.append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>")

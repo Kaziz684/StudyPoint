@@ -78,8 +78,14 @@ class OtpVerificationActivity : AppCompatActivity() {
     }
 
     private fun startPhoneVerification() {
+        val phone = target
+        if (phone.isNullOrBlank()) {
+            Toast.makeText(this, "Phone number is missing. Please go back and try again.", Toast.LENGTH_LONG).show()
+            finish()
+            return
+        }
         val options = PhoneAuthOptions.newBuilder(auth)
-            .setPhoneNumber(target!!)
+            .setPhoneNumber(phone)
             .setTimeout(60L, TimeUnit.SECONDS)
             .setActivity(this)
             .setCallbacks(object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
@@ -106,7 +112,14 @@ class OtpVerificationActivity : AppCompatActivity() {
     }
 
     private fun verifyPhoneCode(code: String) {
-        val credential = PhoneAuthProvider.getCredential(verificationId!!, code)
+        val vid = verificationId
+        if (vid.isNullOrBlank()) {
+            // Instant verification can deliver the code before onCodeSent runs;
+            // without a verification id there is nothing to verify against yet.
+            Toast.makeText(this, "Please wait for the code to arrive, then try again.", Toast.LENGTH_LONG).show()
+            return
+        }
+        val credential = PhoneAuthProvider.getCredential(vid, code)
         auth.signInWithCredential(credential).addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 startActivity(Intent(this, HomeActivity::class.java))

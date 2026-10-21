@@ -101,6 +101,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
     private var longAll: List<WrittenQuestion> = emptyList()
     private var chapterNames: List<String> = emptyList()
     private val chapterChecks = mutableListOf<CheckBox>()
+    private val sectionChecks = mutableListOf<CheckBox>()
     private var lastFile: File? = null
     private var loading = false
 
@@ -282,6 +283,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
 
         checkAllChapters.setOnCheckedChangeListener { _, checked ->
             chapterChecks.forEach { it.isEnabled = !checked }
+            sectionChecks.forEach { it.isEnabled = !checked }
             renderQuestions()
         }
         findViewById<RadioButton>(R.id.radioAllPaper).setOnCheckedChangeListener { _, _ ->
@@ -605,6 +607,14 @@ class PaperGeneratorActivity : AppCompatActivity() {
         text.replace(
             Regex("""^\s*(Review\s+Exercise|Exercise)\s+[\d.]*\s*Q\s*\d+\s*(\([ivxlcdm]+\))?\s*[:.\-]?\s*""", RegexOption.IGNORE_CASE),
             ""
+        ).replace(
+            // Urdu grammar books prefix every question with "سوال نمبر N:" — a paper
+            // must show only its own numbering, never the book's.
+            Regex("""^\s*سوال\s*(نمبر)?\s*[0-9۰-۹]+\s*[:۔.\-]?\s*"""),
+            ""
+        ).replace(
+            Regex("""^\s*Question\s+\d+\s*[:.\-]?\s*""", RegexOption.IGNORE_CASE),
+            ""
         ).trim()
 
     private fun writtenMatches(q: WrittenQuestion, sheet: String, subject: String): Boolean {
@@ -623,6 +633,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
         val prevChecked = chapterChecks.filter { it.isChecked }.map { it.tag as String }.toSet()
         layoutChapters.removeAllViews()
         chapterChecks.clear()
+        sectionChecks.clear()
         loadJob = scope.launch {
             if (type == PaperType.MCQS || type == PaperType.COMBINED || type == PaperType.BOARD) {
                 val fetched = try {
@@ -666,19 +677,90 @@ class PaperGeneratorActivity : AppCompatActivity() {
             if (type == PaperType.LONG || type == PaperType.COMBINED) labels += longAll.map { it.chapterLabel }
             chapterNames = labels.toList()
 
+            // Selection rows mirror the printed book: Urdu buckets group under
+            // portion headers (حصہ غزل / حصہ نظم / اسباق / Grammar), Islamiyat under
+            // ابواب, English splits Chapters vs Grammar & Writing, and Physics /
+            // Chemistry chapters split into Theory / Numericals rows — so the
+            // per-portion numbering restarts never look like duplicate chapters.
+            val splitNums = PaperSections.splitsNumericals(subject) &&
+                type != PaperType.MCQS && type != PaperType.BOARD
+            val rowTags = mutableListOf<String>()
             for (ch in chapterNames) {
-                val count = countForChapter(ch, type)
+                if (splitNums) {
+                    val tCount = countForChapter("$ch|THEORY", type)
+                    val nCount = countForChapter("$ch|NUM", type)
+                    if (tCount > 0) rowTags += "$ch|THEORY"
+                    if (nCount > 0) rowTags += "$ch|NUM"
+                    if (tCount == 0 && nCount == 0) rowTags += ch
+                } else rowTags += ch
+            }
+            val sections = PaperSections.sectionsFor(subject)
+            fun sectionOf(tag: String): String? {
+                if (sections.isEmpty()) return null
+                val name = PaperSections.nameOf(tag.substringBefore("|"))
+                return when {
+                    subject.equals("Urdu", ignoreCase = true) -> PaperSections.urduPortion(name)
+                    subject.equals("English", ignoreCase = true) -> PaperSections.englishSection(name)
+                    else -> sections.first()
+                }
+            }
+            fun displayFor(tag: String): String {
+                val base = tag.substringBefore("|")
+                val name = PaperSections.nameOf(base)
+                val count = countForChapter(tag, type)
+                val kind = when {
+                    tag.endsWith("|NUM") -> "Numericals"
+                    tag.endsWith("|THEORY") -> "Theory"
+                    else -> null
+                }
+                val main = when {
+                    subject.equals("Urdu", ignoreCase = true) ->
+                        PaperSections.urduRowPrefix(PaperSections.urduPortion(name)) + ": " + name
+                    subject.equals("Islamiyat", ignoreCase = true) ->
+                        "باب " + (chapterNumber(base) ?: "") + ": " + name
+                    else -> base
+                }
+                return main + (kind?.let { " \u2014 $it" } ?: "") + "  ($count questions)"
+            }
+            val orderedTags = if (sections.isEmpty()) rowTags
+                else sections.flatMap { sec -> rowTags.filter { sectionOf(it) == sec } } +
+                    rowTags.filter { sectionOf(it) !in sections }
+            var currentSection: String? = null
+            val sectionChildren = mutableMapOf<String, MutableList<CheckBox>>()
+            for (tag in orderedTags) {
+                val sec = sectionOf(tag)
+                if (sections.isNotEmpty() && sec != null && sec != currentSection) {
+                    currentSection = sec
+                    val header = CheckBox(this@PaperGeneratorActivity).apply {
+                        text = sec
+                        textSize = 15.5f
+                        setTypeface(null, Typeface.BOLD)
+                        setTextColor(Color.parseColor("#1F2937"))
+                        buttonTintList = selectColors()
+                        isEnabled = !checkAllChapters.isChecked
+                        setOnCheckedChangeListener { btn, checked ->
+                            if (btn.isPressed) {
+                                sectionChildren[sec]?.forEach { it.isChecked = checked }
+                                renderQuestions()
+                            }
+                        }
+                    }
+                    sectionChecks += header
+                    layoutChapters.addView(header)
+                }
                 val cb = CheckBox(this@PaperGeneratorActivity).apply {
-                    text = "$ch  ($count questions)"
-                    tag = ch
+                    text = displayFor(tag)
+                    this.tag = tag
                     textSize = 14.5f
                     setTextColor(selectColors())
                     buttonTintList = selectColors()
-                    isChecked = prevChecked.contains(ch)
+                    isChecked = prevChecked.contains(tag)
                     isEnabled = !checkAllChapters.isChecked
+                    if (sections.isNotEmpty()) setPadding(56, 0, 0, 0)
                     setOnCheckedChangeListener { _, _ -> renderQuestions() }
                 }
                 chapterChecks += cb
+                if (sec != null) sectionChildren.getOrPut(sec) { mutableListOf() } += cb
                 layoutChapters.addView(cb)
             }
             tvChapterStatus.text = statusText(type)
@@ -726,6 +808,12 @@ class PaperGeneratorActivity : AppCompatActivity() {
                     "Subjective (2:10 Hours, 60 Marks): Q.2: Shorts Ch 1-4 (any 6 of 9)  -  Q.3: Shorts Ch 5-8 (any 6 of 9)\n" +
                     "Q.4: Shorts Ch 9-12 (any 6 of 9)  -  Part-II: Q.5 (Ch 1+2), Q.6 (Ch 3+4), Q.7 (Ch 5+7) - any 2\n" +
                     "Part-III: Q.8 (Ch 6 + 8/11), Q.9 (Ch 10 + 9/12) - any 1"
+            (sheet == "Class_9th" || sheet == "Class_10th") && subject.equals("Urdu", ignoreCase = true) ->
+                "Board Pattern - Urdu (75 Marks, 2 Hours 10 Minutes) \u2014 bilkul board paper ki tarteeb\n" +
+                    "Q.1: 15 MCQs  -  Q.2: Ashaar tashreeh, Nazm 3 + Ghazal 2 (10)\n" +
+                    "Q.3: Ibarat tashreeh (10)  -  Q.4: Short answers (any 5 of 8)\n" +
+                    "Q.5: Khulasa (any 1 of 2)  -  Q.6: Markazi Khayal (5)\n" +
+                    "Q.7: Khat / Darkhwast (10)  -  Q.8: Kahani / Mukalma (5)  -  Q.9: Muhawaray (5)"
             sheet == "Class_9th" && subject.equals("Computer Science", ignoreCase = true) ->
                 "Board Pattern - Class 9 Computer Science (50 Marks, 2 Hours)\n" +
                     "Q.1: 10 MCQs  -  Q.2-Q.4: Short answers (any 4 of 6 each)\n" +
@@ -748,7 +836,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
                     "Q.6: Letter/Story/Dialogue (any 1 of 3)  -  Q.7: Comprehension\n" +
                     "Q.8: Translate into English (any 5 of 8)  -  Q.9: Active/Passive Voice (5)"
             else ->
-                "Board Pattern is available for Class 9 English, Class 10 English, Class 10 Chemistry, " +
+                "Board Pattern is available for Class 9/10 Urdu, Class 9 English, Class 10 English, Class 10 Chemistry, " +
                     "Class 10 Tarjuma-tul-Quran, Class 10 Mathematics, Class 11 English, " +
                     "Class 12 Physics, Class 9/10 Computer Science, Class 9/10 Physics, Class 9/10 Biology, " +
                     "Class 10 Pak Studies and Class 9 Chemistry. Select one of these " +
@@ -774,14 +862,25 @@ class PaperGeneratorActivity : AppCompatActivity() {
     }
 
     private fun writtenInChapter(q: WrittenQuestion, label: String): Boolean {
-        if (q.chapterLabel == label) return true
-        val n = chapterNumber(label) ?: return false
-        return chapterNumber(q.chapterLabel) == n
+        var base = label
+        var wantNum: Boolean? = null
+        if (label.endsWith("|NUM")) { base = label.dropLast(4); wantNum = true }
+        else if (label.endsWith("|THEORY")) { base = label.dropLast(7); wantNum = false }
+        if (wantNum != null && PaperSections.isNumerical(q) != wantNum) return false
+        if (q.chapterLabel == base) return true
+        val n = chapterNumber(base) ?: return false
+        if (chapterNumber(q.chapterLabel) != n) return false
+        // Urdu portions restart numbering per portion (حمد and اسم و کلمہ are both
+        // "Chapter 1"), so a shared number alone must never merge two buckets:
+        // the chapter NAME has to agree as well.
+        val a = PaperSections.nameOf(base).lowercase().filter { it.isLetterOrDigit() }
+        val b = PaperSections.nameOf(q.chapterLabel).lowercase().filter { it.isLetterOrDigit() }
+        return a == b
     }
 
     private fun countForChapter(label: String, type: PaperType): Int {
         var n = 0
-        if (type == PaperType.MCQS || type == PaperType.COMBINED) {
+        if ((type == PaperType.MCQS || type == PaperType.COMBINED) && !label.contains("|")) {
             n += mcqAll.count { it.chapter == label }
         }
         if (type == PaperType.SHORT || type == PaperType.COMBINED) {
@@ -826,7 +925,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
         else chapterChecks.filter { it.isChecked }.map { it.tag as String }
 
     private fun eligibleMcqs(): List<Question> {
-        val sel = selectedChapterLabels()
+        val sel = selectedChapterLabels().map { it.substringBefore("|") }.toSet()
         return mcqAll.filter { it.chapter in sel }.sortedBy { it.id }
     }
 
@@ -1171,7 +1270,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
             contributing.size == chapterNames.size && contributing.isNotEmpty() -> "Full Book (All Chapters)"
             contributing.size == 1 -> contributing[0]
             contributing.isNotEmpty() -> contributing.joinToString(", ")
-            else -> selected.joinToString(", ")
+            else -> selected.joinToString(", ") { it.substringBefore("|") }
         }
         val data = PaperPdfGenerator.PaperData(
             testTitle = title,
@@ -1223,6 +1322,10 @@ class PaperGeneratorActivity : AppCompatActivity() {
             generateBoardPatternCs()
             return
         }
+        if ((sheet == "Class_9th" || sheet == "Class_10th") && subject.equals("Urdu", ignoreCase = true)) {
+            generateBoardPatternUrdu()
+            return
+        }
         if (sheet == "Class_11th" && subject.equals("English", ignoreCase = true)) {
             generateBoardPatternEng11()
             return
@@ -1258,7 +1361,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
         if (sheet != "Class_10th" || !subject.equals("English", ignoreCase = true)) {
             Toast.makeText(
                 this,
-                "Board Pattern is available for Class 9 English, Class 10 English, Class 10 Chemistry, Class 10 Tarjuma-tul-Quran, Class 10 Mathematics, Class 11 English, Class 12 Physics, Class 9/10 Computer Science, Class 9/10 Physics, Class 9/10 Biology, Class 10 Pak Studies and Class 9 Chemistry only",
+                "Board Pattern is available for Class 9/10 Urdu, Class 9 English, Class 10 English, Class 10 Chemistry, Class 10 Tarjuma-tul-Quran, Class 10 Mathematics, Class 11 English, Class 12 Physics, Class 9/10 Computer Science, Class 9/10 Physics, Class 9/10 Biology, Class 10 Pak Studies and Class 9 Chemistry only",
                 Toast.LENGTH_LONG
             ).show()
             return
@@ -2000,11 +2103,11 @@ class PaperGeneratorActivity : AppCompatActivity() {
             return (inGroup + rest).take(n)
         }
         val shortSections = groups.take(3).map { pickShorts(it, 8) }
-        fun pickLong(chaps: List<Int>): WrittenQuestion {
+        fun pickLong(chaps: List<Int>): WrittenQuestion? {
             val inGroup = longAll.filter { wqChapter(it) in chaps }.shuffled(rnd)
-            return (if (inGroup.isNotEmpty()) inGroup else longAll.shuffled(rnd)).first()
+            return (if (inGroup.isNotEmpty()) inGroup else longAll.shuffled(rnd)).firstOrNull()
         }
-        val longs = groups.take(3).map { pickLong(it) }
+        val longs = groups.take(3).mapNotNull { pickLong(it) }
 
         val classLabel = classLabels[spinnerClass.selectedItemPosition.coerceIn(0, classLabels.lastIndex)]
         val typedTitle = etTitle.text.toString().trim()
@@ -2277,6 +2380,114 @@ class PaperGeneratorActivity : AppCompatActivity() {
                 lastFile = file
                 layoutActions.visibility = View.VISIBLE
                 tvStatus.text = "Paper ready: Board Pattern Paper (Tarjuma: 10 MCQs, Q.2 Shorts, Q.3 Meanings, Q.4 Ayat Translation, Q.5 Detailed) • ${file.name}"
+                Toast.makeText(this@PaperGeneratorActivity, "Board Pattern paper generated", Toast.LENGTH_SHORT).show()
+            } else {
+                tvStatus.text = "Paper generation failed. Please try again."
+            }
+        }
+    }
+
+    /** Board Pattern paper (Class 9/10 Urdu) — the real BISE structure from the
+     *  board paper the user photographed: Q.1 15 MCQs; Q.2 ashaar tashreeh
+     *  (Nazm 3 + Ghazal 2, 10=2x5); Q.3 ibarat tashreeh (10=5+5); Q.4 short
+     *  answers (any 5 of 8, 10=2x5); Q.5 khulasa (any 1 of 2, 5); Q.6 markazi
+     *  khayal (5=1+4); Q.7 khat / darkhwast (10) — or mazmoon where the book
+     *  files essays instead; Q.8 kahani / mukalma (5); Q.9 muhawaray (5).
+     *  Every pool comes from the sheet; nothing is invented. */
+    private fun generateBoardPatternUrdu() {
+        val sheet = classSheets[spinnerClass.selectedItemPosition.coerceIn(0, classSheets.lastIndex)]
+        val rnd = kotlin.random.Random.Default
+        fun <T> pick(list: List<T>, n: Int): List<T> = list.shuffled(rnd).take(n)
+        fun fail(msg: String): Boolean {
+            Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
+            return true
+        }
+        fun portion(wq: WrittenQuestion) = PaperSections.urduPortion(wq.chapterName)
+
+        if (mcqAll.size < 15) { fail("Not enough MCQs loaded yet (${mcqAll.size} found, 15 needed). Check your internet connection."); return }
+        val nazmAny = longAll.filter { portion(it) == PaperSections.NAZM }
+        val nazmT = nazmAny.filter { it.question.contains("تشریح") }
+        val ghazalAny = longAll.filter { portion(it) == PaperSections.GHAZAL }
+        val ghazalT = ghazalAny.filter { it.question.contains("تشریح") }
+        val q2a = pick(if (nazmT.size >= 3) nazmT else nazmAny, 3)
+        val q2bPool = if (ghazalT.isNotEmpty()) ghazalT else ghazalAny
+        val q2b = pick(if (q2bPool.isNotEmpty()) q2bPool else nazmAny.filter { it !in q2a }, 2)
+        if (q2a.size < 3 || q2b.size < 2) { fail("Not enough Tashreeh questions loaded yet for Q.2."); return }
+        val tafheem = longAll.filter { it.chapterNumber == "21" }
+        val asbaqAny = longAll.filter { portion(it) == PaperSections.ASBAQ }
+        val asbaqT = asbaqAny.filter { it.question.contains("تشریح") }
+        val q3 = pick(if (tafheem.size >= 2) tafheem else if (asbaqT.size >= 2) asbaqT else asbaqAny, 2)
+        if (q3.size < 2) { fail("Not enough Ibarat Tashreeh questions loaded yet for Q.3."); return }
+        val asbaqShorts = shortAll.filter { portion(it) == PaperSections.ASBAQ }
+        val q4 = pick(if (asbaqShorts.size >= 8) asbaqShorts else shortAll, 8)
+        if (q4.size < 8) { fail("Not enough Short Questions loaded yet (${q4.size} found, 8 needed for Q.4)."); return }
+        val khulasa = asbaqAny.filter { it.question.contains("خلاصہ") }
+        val q5 = pick(if (khulasa.isNotEmpty()) khulasa else asbaqAny, 2)
+        if (q5.isEmpty()) { fail("No Khulasa question loaded yet for Q.5."); return }
+        val markazi = (longAll + shortAll).filter { it.question.contains("مرکزی خیال") }.distinctBy { it.question }
+        var q6 = pick(markazi, 2)
+        var q6Fallback = false
+        if (q6.isEmpty()) {
+            q6 = pick(nazmAny, 1)
+            q6Fallback = true
+        }
+        if (q6.isEmpty()) { fail("No Markazi Khayal question loaded yet for Q.6."); return }
+        val khatPool = (longAll + shortAll).filter {
+            it.question.contains("خط") || it.question.contains("درخواست")
+        }.distinctBy { it.question }
+        val mazPool = longAll.filter { it.chapterNumber == "23" }
+        val q7Kind: String
+        val q7: List<WrittenQuestion>
+        if (khatPool.size >= 2) { q7 = pick(khatPool, 2); q7Kind = "KHAT" }
+        else if (mazPool.size >= 3) { q7 = pick(mazPool, 3); q7Kind = "MAZMOON" }
+        else { fail("Not enough Khat / Darkhwast questions loaded yet for Q.7."); return }
+        val kahaniPool = (longAll + shortAll).filter {
+            it.question.contains("کہانی") || it.question.contains("مکالم")
+        }.distinctBy { it.question }
+        val q8 = pick(kahaniPool, 2)
+        if (q8.isEmpty()) { fail("No Kahani / Mukalma question loaded yet for Q.8."); return }
+        val idiomPool = shortAll.filter { it.question.contains("محاور") || it.question.contains("ضرب المثل") }
+        val q9 = pick(idiomPool, 7)
+        if (q9.size < 5) { fail("Not enough Muhawaray questions loaded yet (${q9.size} found, 5 needed for Q.9)."); return }
+
+        val classLabel = classLabels[spinnerClass.selectedItemPosition.coerceIn(0, classLabels.lastIndex)]
+        val typedTitle = etTitle.text.toString().trim()
+        val title = if (typedTitle.isBlank() || typedTitle == "Question Paper") {
+            "Board Pattern Paper"
+        } else typedTitle
+        val data = PaperPdfGenerator.UrduBoardPaperData(
+            testTitle = title,
+            classLabel = classLabel,
+            subject = spinnerSubject.selectedItem?.toString() ?: "",
+            header = currentHeader(),
+            mcqs = pick(mcqAll, 15),
+            q2a = q2a, q2aLabel = portion(q2a.first()),
+            q2b = q2b, q2bLabel = portion(q2b.first()),
+            q3 = q3, q4 = q4, q5 = q5,
+            q6 = q6, q6Fallback = q6Fallback,
+            q7 = q7, q7Kind = q7Kind,
+            q8 = q8, q9 = q9, q9Attempt = if (q9.size >= 7) 5 else q9.size,
+            includeAnswers = radioSolved.isChecked
+        )
+        btnGenerate.isEnabled = false
+        tvStatus.text = "Generating paper..."
+        scope.launch {
+            val file = try {
+                withContext(Dispatchers.IO) {
+                    val ts = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
+                    val docx = isDocx()
+                    val out = File(papersDir(), "BoardPattern_Urdu_$ts." + if (docx) "docx" else "pdf")
+                    if (docx) PaperDocxGenerator.generateBoardPatternUrdu(applicationContext, data, out)
+                    else PaperPdfGenerator.generateBoardPatternUrdu(applicationContext, data, out)
+                }
+            } catch (e: Exception) {
+                null
+            }
+            btnGenerate.isEnabled = true
+            if (file != null && file.exists()) {
+                lastFile = file
+                layoutActions.visibility = View.VISIBLE
+                tvStatus.text = "Paper ready: Board Pattern Paper (Urdu: 15 MCQs, Q.2 Tashreeh, Q.3 Ibarat, Q.4 Shorts, Q.5 Khulasa, Q.6 Markazi Khayal, Q.7 Khat/Darkhwast, Q.8 Kahani/Mukalma, Q.9 Muhawaray) \u2022 ${file.name}"
                 Toast.makeText(this@PaperGeneratorActivity, "Board Pattern paper generated", Toast.LENGTH_SHORT).show()
             } else {
                 tvStatus.text = "Paper generation failed. Please try again."

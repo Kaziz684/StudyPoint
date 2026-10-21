@@ -11,6 +11,7 @@ import android.graphics.pdf.PdfDocument
 import android.text.Layout
 import android.text.SpannableStringBuilder
 import android.text.StaticLayout
+import android.text.TextDirectionHeuristics
 import android.text.TextPaint
 import android.text.style.StyleSpan
 import android.graphics.BitmapFactory
@@ -56,17 +57,45 @@ object PaperPdfGenerator {
     private val MUTED = Color.rgb(100, 116, 139)
     private val ANS_COLOR = Color.rgb(6, 95, 70)
 
+    // Urdu-script papers (Urdu / Islamiyat / Tarjuma-tul-Quran) print fully
+    // right-to-left in a Nastaliq typeface when the device provides one —
+    // exactly like real board papers. Set per generate() call.
+    @Volatile private var rtlMode = false
+    private var urduTypeface: Typeface? = null
+
+    private fun beginPaper(subject: String) {
+        rtlMode = PaperSections.isRtlSubject(subject)
+        if (rtlMode && urduTypeface == null) {
+            urduTypeface = try {
+                Typeface.create("Noto Nastaliq Urdu", Typeface.NORMAL)
+            } catch (e: Exception) {
+                null
+            }
+        }
+    }
+
     private fun paint(size: Float, bold: Boolean = false, color: Int = TEXT): TextPaint {
         val p = TextPaint(Paint.ANTI_ALIAS_FLAG)
         p.textSize = size
         p.color = color
-        p.typeface = if (bold) Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD)
-        else Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL)
+        val urdu = if (rtlMode) urduTypeface else null
+        p.typeface = when {
+            urdu != null -> Typeface.create(urdu, if (bold) Typeface.BOLD else Typeface.NORMAL)
+            bold -> Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD)
+            else -> Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL)
+        }
         return p
     }
 
-    private fun layoutOf(text: CharSequence, p: TextPaint, width: Int = CONTENT_W): StaticLayout =
-        StaticLayout.Builder.obtain(text, 0, text.length, p, width).build()
+    private fun layoutOf(text: CharSequence, p: TextPaint, width: Int = CONTENT_W): StaticLayout {
+        val b = StaticLayout.Builder.obtain(text, 0, text.length, p, width)
+        if (rtlMode) {
+            b.setTextDirection(TextDirectionHeuristics.RTL)
+            // Nastaliq glyphs are tall; extra leading stops line clipping.
+            b.setLineSpacing(0f, 1.3f)
+        }
+        return b.build()
+    }
 
     /** Editable school header printed at the top of every generated paper. */
     data class SchoolHeader(
@@ -364,6 +393,21 @@ object PaperPdfGenerator {
         return McqRow(numLayout, qLayout, optLayouts, h)
     }
 
+    /** X offset of each logical MCQ-table column (0 = Q. No, 1 = Question,
+     *  2..5 = options A..D). In RTL papers the table mirrors like a real Urdu
+     *  board paper: Q. No sits on the right and the options run D..A leftward. */
+    private fun tblColX(x: Int): List<Int> {
+        val widths = listOf(TBL_NUM_W, TBL_Q_W, TBL_OPT_W, TBL_OPT_W, TBL_OPT_W, TBL_OPT_W)
+        val order = if (rtlMode) listOf(5, 4, 3, 2, 1, 0) else listOf(0, 1, 2, 3, 4, 5)
+        val pos = IntArray(6)
+        var cx = x
+        for (logical in order) {
+            pos[logical] = cx
+            cx += widths[logical]
+        }
+        return pos.toList()
+    }
+
     private fun drawTableHeader(c: Canvas, x: Int, y: Int) {
         val bg = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = TBL_HEAD_BG; style = Paint.Style.FILL }
         c.drawRect(x.toFloat(), y.toFloat(), (x + CONTENT_W).toFloat(), (y + TBL_HEAD_H).toFloat(), bg)
@@ -371,57 +415,62 @@ object PaperPdfGenerator {
             color = TBL_LINE; style = Paint.Style.STROKE; strokeWidth = 1f
         }
         c.drawRect(x.toFloat(), y.toFloat(), (x + CONTENT_W).toFloat(), (y + TBL_HEAD_H).toFloat(), border)
-        var vx = x + TBL_NUM_W
-        for (w in listOf(TBL_Q_W, TBL_OPT_W, TBL_OPT_W, TBL_OPT_W)) {
-            c.drawLine(vx.toFloat(), y.toFloat(), vx.toFloat(), (y + TBL_HEAD_H).toFloat(), border)
-            vx += w
+        val widths = listOf(TBL_NUM_W, TBL_Q_W, TBL_OPT_W, TBL_OPT_W, TBL_OPT_W, TBL_OPT_W)
+        val pos = tblColX(x)
+        for (logical in widths.indices) {
+            val vx = pos[logical]
+            if (vx != x) c.drawLine(vx.toFloat(), y.toFloat(), vx.toFloat(), (y + TBL_HEAD_H).toFloat(), border)
         }
         val hp = paint(11f, bold = true, color = NAVY)
         val labels = listOf("Q. No", "Question", "A", "B", "C", "D")
-        val widths = listOf(TBL_NUM_W, TBL_Q_W, TBL_OPT_W, TBL_OPT_W, TBL_OPT_W, TBL_OPT_W)
-        var lx = x
         for (i in labels.indices) {
             val l = centeredLayout(labels[i], hp, widths[i] - 4)
             c.save()
-            c.translate((lx + 2).toFloat(), (y + (TBL_HEAD_H - l.height) / 2).toFloat())
+            c.translate((pos[i] + 2).toFloat(), (y + (TBL_HEAD_H - l.height) / 2).toFloat())
             l.draw(c)
             c.restore()
-            lx += widths[i]
         }
     }
 
     private fun drawTableRow(c: Canvas, x: Int, y: Int, row: McqRow) {
         val h = row.height
+        val pos = tblColX(x)
         val numBg = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = TBL_NUM_BG; style = Paint.Style.FILL }
-        c.drawRect(x.toFloat(), y.toFloat(), (x + TBL_NUM_W).toFloat(), (y + h).toFloat(), numBg)
+        c.drawRect(pos[0].toFloat(), y.toFloat(), (pos[0] + TBL_NUM_W).toFloat(), (y + h).toFloat(), numBg)
         val border = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = TBL_LINE; style = Paint.Style.STROKE; strokeWidth = 1f
         }
         c.drawRect(x.toFloat(), y.toFloat(), (x + CONTENT_W).toFloat(), (y + h).toFloat(), border)
-        var vx = x + TBL_NUM_W
-        for (w in listOf(TBL_Q_W, TBL_OPT_W, TBL_OPT_W, TBL_OPT_W)) {
-            c.drawLine(vx.toFloat(), y.toFloat(), vx.toFloat(), (y + h).toFloat(), border)
-            vx += w
+        for (logical in 0..5) {
+            val vx = pos[logical]
+            if (vx != x) c.drawLine(vx.toFloat(), y.toFloat(), vx.toFloat(), (y + h).toFloat(), border)
         }
         c.save()
-        c.translate((x + 4).toFloat(), (y + (h - row.numLayout.height) / 2).toFloat())
+        c.translate((pos[0] + 4).toFloat(), (y + (h - row.numLayout.height) / 2).toFloat())
         row.numLayout.draw(c)
         c.restore()
         c.save()
-        c.translate((x + TBL_NUM_W + 6).toFloat(), (y + (h - row.qLayout.height) / 2).toFloat())
+        c.translate((pos[1] + 6).toFloat(), (y + (h - row.qLayout.height) / 2).toFloat())
         row.qLayout.draw(c)
         c.restore()
         val circle = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.rgb(71, 85, 105); style = Paint.Style.STROKE; strokeWidth = 1.1f
         }
-        var ox = x + TBL_NUM_W + TBL_Q_W
-        for (ol in row.optLayouts) {
-            c.drawCircle((ox + 11).toFloat(), (y + h / 2).toFloat(), 4.2f, circle)
-            c.save()
-            c.translate((ox + 20).toFloat(), (y + (h - ol.height) / 2).toFloat())
-            ol.draw(c)
-            c.restore()
-            ox += TBL_OPT_W
+        for ((oi, ol) in row.optLayouts.withIndex()) {
+            val colX = pos[2 + oi]
+            if (rtlMode) {
+                c.drawCircle((colX + TBL_OPT_W - 11).toFloat(), (y + h / 2).toFloat(), 4.2f, circle)
+                c.save()
+                c.translate((colX + 4).toFloat(), (y + (h - ol.height) / 2).toFloat())
+                ol.draw(c)
+                c.restore()
+            } else {
+                c.drawCircle((colX + 11).toFloat(), (y + h / 2).toFloat(), 4.2f, circle)
+                c.save()
+                c.translate((colX + 20).toFloat(), (y + (h - ol.height) / 2).toFloat())
+                ol.draw(c)
+                c.restore()
+            }
         }
     }
 
@@ -475,6 +524,7 @@ object PaperPdfGenerator {
     }
 
     fun generate(context: Context, data: PaperData, outFile: File): File {
+        beginPaper(data.subject)
         val blocks = mutableListOf<Block>()
         val totalQuestions = data.mcqs.size + data.shorts.size + data.longs.size
         val totalMarks = data.mcqs.size +
@@ -695,6 +745,7 @@ object PaperPdfGenerator {
     /** Board Pattern paper (Class 9 Computer Science): 50 marks —
      *  Q.1 10 MCQs; Q.2-Q.4 shorts (any 4 of 6 each); Q.5-Q.7 longs (any 2 of 3). */
     fun generateBoardPatternCs(context: Context, data: CsBoardPaperData, outFile: File): File {
+        beginPaper(data.subject)
         val blocks = mutableListOf<Block>()
 
         // ---------- Header (school banner + info grid) ----------
@@ -883,6 +934,7 @@ object PaperPdfGenerator {
     )
 
     fun generateBoardPattern60(context: Context, data: SixtyBoardPaperData, outFile: File): File {
+        beginPaper(data.subject)
         val blocks = mutableListOf<Block>()
 
         // ---------- Header (school banner + info grid) ----------
@@ -1059,6 +1111,7 @@ object PaperPdfGenerator {
      *  Q.1 10 MCQs; Q.2 shorts (any 5 of 8); Q.3 word meanings (any 5 of 8);
      *  Q.4 ayat translation (any 3 of 5); Q.5 detailed (any 1 of 2). */
     fun generateBoardPatternTq(context: Context, data: TqBoardPaperData, outFile: File): File {
+        beginPaper(data.subject)
         val blocks = mutableListOf<Block>()
 
         // ---------- Header (school banner + info grid) ----------
@@ -1261,7 +1314,228 @@ object PaperPdfGenerator {
         return outFile
     }
 
+    data class UrduBoardPaperData(
+        val testTitle: String,
+        val classLabel: String,
+        val subject: String,
+        val header: SchoolHeader = SchoolHeader(),
+        val mcqs: List<Question>,
+        val q2a: List<WrittenQuestion>,
+        val q2aLabel: String,
+        val q2b: List<WrittenQuestion>,
+        val q2bLabel: String,
+        val q3: List<WrittenQuestion>,
+        val q4: List<WrittenQuestion>,
+        val q5: List<WrittenQuestion>,
+        val q6: List<WrittenQuestion>,
+        val q6Fallback: Boolean,
+        val q7: List<WrittenQuestion>,
+        val q7Kind: String,
+        val q8: List<WrittenQuestion>,
+        val q9: List<WrittenQuestion>,
+        val q9Attempt: Int,
+        val includeAnswers: Boolean
+    )
+
+    /** Urdu Board Pattern (BISE): fully RTL Nastaliq paper in the board's own
+     *  numbering — سوال نمبر 2 سے 9, board marks style (10=2x5), (الف)/(ب) parts. */
+    fun generateBoardPatternUrdu(context: Context, data: UrduBoardPaperData, outFile: File): File {
+        beginPaper("Urdu")
+        val blocks = mutableListOf<Block>()
+
+        blocks += schoolHeaderBlocks(
+            context, data.header, data.testTitle, data.subject, data.classLabel,
+            "2 Hours 10 Minutes", "75"
+        )
+
+        val instrText = "نوٹ: تمام سوالات کے جوابات اپنی جوابی کاپی پر صاف اور خوشخط تحریر کیجیے۔ ہر سوال کے سامنے اس کے نمبر درج ہیں۔"
+        val instrLayout = layoutOf(instrText, paint(10.5f, color = MUTED))
+        blocks += Block(instrLayout.height + 12) { c, x, y ->
+            c.save(); c.translate(x.toFloat(), y.toFloat()); instrLayout.draw(c); c.restore()
+            val linePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.rgb(203, 213, 225); strokeWidth = 1f }
+            val ly = y + instrLayout.height + 6
+            c.drawLine(x.toFloat(), ly.toFloat(), (x + CONTENT_W).toFloat(), ly.toFloat(), linePaint)
+        }
+
+        fun partBanner(text: String) {
+            val h = layoutOf(text, paint(14f, bold = true, color = NAVY))
+            blocks += Block(h.height + 16) { c, x, y ->
+                val tx = x + (CONTENT_W - h.width) / 2
+                c.save(); c.translate(tx.toFloat(), (y + 6).toFloat()); h.draw(c); c.restore()
+                val rp = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = GREEN; strokeWidth = 1.6f }
+                c.drawLine(x.toFloat(), (y + 6 + h.height + 4).toFloat(), (x + CONTENT_W).toFloat(), (y + 6 + h.height + 4).toFloat(), rp)
+            }
+        }
+        fun qHeading(text: String) {
+            val h = layoutOf(text, paint(12.5f, bold = true, color = NAVY))
+            blocks += Block(h.height + 8, draw = stackDraw(listOf(h)))
+        }
+        fun body(text: String, p: TextPaint = paint(11.5f)) {
+            blocks += blocksFor(listOf(layoutOf(text, p)), gapAfter = 8)
+        }
+        fun items(list: List<WrittenQuestion>) {
+            list.forEachIndexed { i, wq -> body("${roman(i)}  ${wq.question}") }
+        }
+
+        // ---------- OBJECTIVE ----------
+        partBanner("حصہ معروضی (Objective)")
+        qHeading("سوال نمبر 1: درست جواب کا انتخاب کیجیے۔ (15x1=15)")
+        addMcqTable(blocks, data.mcqs)
+
+        // ---------- SUBJECTIVE ----------
+        partBanner("حصہ انشائیہ (Subjective)")
+
+        qHeading("سوال نمبر 2: درج ذیل اشعار کی تشریح کیجیے۔ (10=2x5)")
+        body("(الف)  ${data.q2aLabel}", paint(11.5f, bold = true, color = NAVY))
+        items(data.q2a)
+        body("(ب)  ${data.q2bLabel}", paint(11.5f, bold = true, color = NAVY))
+        items(data.q2b)
+
+        qHeading("سوال نمبر 3: درج ذیل عبارات کی تشریح کیجیے اور مصنف و کتاب کا حوالہ بھی تحریر کیجیے۔ (10=5+5)")
+        data.q3.forEachIndexed { i, wq ->
+            body("${if (i == 0) "(الف)" else "(ب)"}  ${wq.question}")
+        }
+
+        qHeading("سوال نمبر 4: درج ذیل سوالات میں سے کوئی سے پانچ کے مختصر جوابات تحریر کیجیے۔ (10=2x5)")
+        items(data.q4)
+
+        qHeading("سوال نمبر 5: درج ذیل میں سے کسی ایک سبق کا خلاصہ تحریر کیجیے۔ (5)")
+        items(data.q5)
+
+        if (data.q6Fallback) {
+            val poem = data.q6.firstOrNull()?.chapterName ?: ""
+            qHeading("سوال نمبر 6: نظم «$poem» کا مرکزی خیال تحریر کیجیے اور شاعر کا نام بھی لکھیں۔ (5=1+4)")
+        } else {
+            qHeading("سوال نمبر 6: درج ذیل میں سے کسی ایک نظم کا مرکزی خیال تحریر کیجیے اور شاعر کا نام بھی لکھیں۔ (5=1+4)")
+            items(data.q6)
+        }
+
+        if (data.q7Kind == "MAZMOON") {
+            qHeading("سوال نمبر 7: درج ذیل عنوانات میں سے کسی ایک پر جامع مضمون لکھیں (200 تا 250 الفاظ)۔ (10)")
+        } else {
+            qHeading("سوال نمبر 7: درج ذیل میں سے کوئی ایک خط یا درخواست تحریر کیجیے۔ (10)")
+        }
+        items(data.q7)
+
+        qHeading("سوال نمبر 8: درج ذیل میں سے کوئی ایک سوال حل کیجیے۔ (5)")
+        items(data.q8)
+
+        qHeading("سوال نمبر 9: درج ذیل محاوروں کو جملوں میں استعمال کیجیے (کوئی سے ${data.q9Attempt})۔ (5)")
+        items(data.q9)
+
+        // ---------- Answer key ----------
+        if (data.includeAnswers) {
+            val keyTitle = layoutOf("ANSWER KEY & SOLUTIONS", paint(15f, bold = true, color = NAVY))
+            blocks += Block(40, forceNewPage = true) { c, x, y ->
+                val tx = x + (CONTENT_W - keyTitle.width) / 2
+                c.save(); c.translate(tx.toFloat(), y.toFloat()); keyTitle.draw(c); c.restore()
+                val rulePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = GREEN; strokeWidth = 2f }
+                c.drawLine(x.toFloat(), (y + 30).toFloat(), (x + CONTENT_W).toFloat(), (y + 30).toFloat(), rulePaint)
+            }
+            val ansPaint = paint(11f, color = ANS_COLOR)
+            val missPaint = paint(10.5f, color = MUTED)
+            val keyPaint = paint(11.5f)
+            qHeading("سوال نمبر 1 (MCQs)")
+            val kcolW = CONTENT_W / 4
+            val entries = data.mcqs.mapIndexed { idx, q ->
+                val letter = if (q.correctAnswerIndex in q.options.indices) {
+                    ('A' + q.correctAnswerIndex).toString()
+                } else "?"
+                "${idx + 1}.  $letter"
+            }
+            entries.chunked(4).forEach { row ->
+                blocks += Block(19) { c, x, y ->
+                    row.forEachIndexed { col, text ->
+                        c.drawText(text, (x + col * kcolW).toFloat(), (y + 13).toFloat(), keyPaint)
+                    }
+                }
+            }
+            blocks += Block(10) { _, _, _ -> }
+            fun ansSection(title: String, list: List<WrittenQuestion>) {
+                qHeading(title)
+                list.forEachIndexed { i, wq ->
+                    val r = roman(i)
+                    if (wq.answer.isNotBlank()) {
+                        blocks += blocksFor(listOf(layoutOf(boldPrefix("$r  ", wq.answer), ansPaint)), gapAfter = 6)
+                    } else {
+                        blocks += blocksFor(listOf(layoutOf("$r  (Answer not available in the source data)", missPaint)), gapAfter = 6)
+                    }
+                }
+            }
+            ansSection("سوال نمبر 2 (الف) — تشریح اشعار", data.q2a)
+            ansSection("سوال نمبر 2 (ب) — تشریح اشعار", data.q2b)
+            ansSection("سوال نمبر 3 — تشریح عبارات", data.q3)
+            ansSection("سوال نمبر 4 — مختصر جوابات", data.q4)
+            ansSection("سوال نمبر 5 — خلاصہ", data.q5)
+            ansSection("سوال نمبر 6 — مرکزی خیال", data.q6)
+            ansSection("سوال نمبر 7", data.q7)
+            ansSection("سوال نمبر 8", data.q8)
+            ansSection("سوال نمبر 9 — محاورے", data.q9)
+        }
+
+        // ---------- Pagination ----------
+        val placements = mutableListOf<Placement>()
+        var page = 0
+        var y = topFor(0)
+        var pageHasContent = false
+        for (block in blocks) {
+            if (block.forceNewPage) {
+                if (pageHasContent) {
+                    page++
+                    y = topFor(page)
+                    pageHasContent = false
+                }
+                placements += Placement(block, page, y)
+                y += block.height
+                pageHasContent = true
+                continue
+            }
+            if (y + block.height > PAGE_H - MARGIN && pageHasContent) {
+                page++
+                y = topFor(page)
+                pageHasContent = false
+            }
+            placements += Placement(block, page, y)
+            y += block.height
+            pageHasContent = true
+        }
+        val totalPages = page + 1
+
+        // ---------- Render ----------
+        val doc = PdfDocument()
+        val miniPaint = paint(9f, color = MUTED)
+        val footerPaint = paint(8.5f, color = MUTED)
+        val linePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.rgb(203, 213, 225); strokeWidth = 1f }
+        for (p in 0 until totalPages) {
+            val pageInfo = PdfDocument.PageInfo.Builder(PAGE_W, PAGE_H, p + 1).create()
+            val pg = doc.startPage(pageInfo)
+            val c = pg.canvas
+            if (p > 0) {
+                c.drawText("StudyPoint — ${data.testTitle}", MARGIN.toFloat(), (MARGIN + 9).toFloat(), miniPaint)
+                c.drawLine(
+                    MARGIN.toFloat(), (MARGIN + 14).toFloat(),
+                    (MARGIN + CONTENT_W).toFloat(), (MARGIN + 14).toFloat(), linePaint
+                )
+            }
+            placements.filter { it.page == p }.forEach { it.block.draw(c, MARGIN, it.y) }
+            c.drawLine(
+                MARGIN.toFloat(), (FOOTER_Y - 10).toFloat(),
+                (MARGIN + CONTENT_W).toFloat(), (FOOTER_Y - 10).toFloat(), linePaint
+            )
+            c.drawText("StudyPoint — ${data.testTitle}", MARGIN.toFloat(), FOOTER_Y.toFloat(), footerPaint)
+            val pageText = "Page ${p + 1} of $totalPages"
+            val w = footerPaint.measureText(pageText)
+            c.drawText(pageText, (PAGE_W - MARGIN - w), FOOTER_Y.toFloat(), footerPaint)
+            doc.finishPage(pg)
+        }
+        outFile.parentFile?.mkdirs()
+        FileOutputStream(outFile).use { doc.writeTo(it) }
+        doc.close()
+        return outFile
+    }
+
     fun generateBoardPattern(context: Context, data: BoardPaperData, outFile: File): File {
+        beginPaper(data.subject)
         val blocks = mutableListOf<Block>()
 
         // ---------- Header (school banner + info grid) ----------
@@ -1518,6 +1792,7 @@ object PaperPdfGenerator {
      *  application, Q.6 story, Q.7 reference / punctuation / pairs, Q.8
      *  translation into Urdu (essay as the alternate question). */
     fun generateBoardPatternEng11(context: Context, data: Eng11BoardPaperData, outFile: File): File {
+        beginPaper(data.subject)
         val blocks = mutableListOf<Block>()
 
         // ---------- Header (school banner + info grid) ----------
@@ -1778,6 +2053,7 @@ object PaperPdfGenerator {
      *  Q.6 letter / story / dialogue (any 1 of 3); Q.7 comprehension;
      *  Q.8 translate into English (any 5 of 8); Q.9 active/passive voice (5). */
     fun generateBoardPatternEng9(context: Context, data: Eng9BoardPaperData, outFile: File): File {
+        beginPaper(data.subject)
         val blocks = mutableListOf<Block>()
 
         // ---------- Header (school banner + info grid) ----------
@@ -2033,6 +2309,7 @@ object PaperPdfGenerator {
      *  Q.4 from Chapters 19-21 (any 6 of 9); Part-III: Q.5-Q.9 detailed
      *  questions / numericals, attempt any THREE. */
     fun generateBoardPatternPhy12(context: Context, data: Phy12BoardPaperData, outFile: File): File {
+        beginPaper(data.subject)
         val blocks = mutableListOf<Block>()
 
         // ---------- Header (school banner + info grid) ----------
@@ -2235,6 +2512,7 @@ object PaperPdfGenerator {
      *  Part-II: Q.5-Q.7 detailed questions (a = 5, b = 4), attempt any TWO;
      *  pairings Q.5 = Ch 14+15, Q.6 = Ch 20+22, Q.7 = Ch 23+25. */
     fun generateBoardPatternChem10(context: Context, data: Chem10BoardPaperData, outFile: File): File {
+        beginPaper(data.subject)
         val blocks = mutableListOf<Block>()
 
         // ---------- Header (school banner + info grid) ----------
@@ -2440,6 +2718,7 @@ object PaperPdfGenerator {
      *  Q.7 = Ch 5+7; Part-III (any 1 of 2): Q.8 = Ch 6 + (8 or 11),
      *  Q.9 = Ch 10 + (9 or 12). */
     fun generateBoardPatternMath10(context: Context, data: Math10BoardPaperData, outFile: File): File {
+        beginPaper(data.subject)
         val blocks = mutableListOf<Block>()
         blocks += schoolHeaderBlocks(
             context, data.header, data.testTitle, data.subject, data.classLabel,
