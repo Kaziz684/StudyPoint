@@ -1539,13 +1539,42 @@ fun DrawerHeader(userName: String = "Student", userEmail: String = "") {
         contentAlignment = Alignment.BottomStart
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Image(
-                painter = painterResource(id = R.mipmap.ic_logo_studypoint),
-                contentDescription = null,
+            // NEVER load the launcher icon via painterResource() here:
+            // since v93 R.mipmap.ic_logo_studypoint is an <adaptive-icon>
+            // on API 26+, and Compose's painterResource() only accepts
+            // VectorDrawables and raster images (PNG/JPG/WEBP) — loading
+            // the adaptive icon throws IllegalArgumentException and
+            // crashes the whole student dashboard on open (the drawer
+            // content composes even while the drawer is closed). The
+            // launcher icon itself stays an adaptive icon (correct
+            // there); this header draws the same SP mark in pure
+            // Compose instead, so it can never throw.
+            Box(
                 modifier = Modifier
                     .size(56.dp)
                     .clip(CircleShape)
-            )
+                    .background(
+                        Brush.verticalGradient(
+                            listOf(Color(0xFF1E40AF), Color(0xFF0F172A))
+                        )
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        "SP",
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp
+                    )
+                    Box(
+                        modifier = Modifier
+                            .width(20.dp)
+                            .height(3.dp)
+                            .background(Color(0xFFF59E0B))
+                    )
+                }
+            }
             Spacer(modifier = Modifier.width(12.dp))
             Column {
                 Text("StudyPoint", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
