@@ -158,13 +158,9 @@ object SubjectStructure {
                 "9" -> listOf(
                     StudySection("gr1", "Tenses", "", "chapter"),
                     StudySection("gr2", "Active & Passive Voice", "", "chapter"),
-                    StudySection("gr3", "Direct & Indirect Speech", "", "chapter"),
-                    StudySection("gr4", "Pair of Words", "", "chapter"),
                     StudySection("gr5", "Letters & Applications", "", "chapter"),
                     StudySection("gr6", "Stories", "", "chapter"),
-                    StudySection("gr7", "Paragraphs", "", "chapter"),
                     StudySection("gr8", "Sentence Correction", "", "chapter"),
-                    StudySection("gr9", "Translation (Urdu to English)", "", "chapter")
                     StudySection("gr10", "Applications", "", "chapter")
                 )
                 else -> listOf(
