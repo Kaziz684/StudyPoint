@@ -253,6 +253,23 @@ object SubjectStructure {
             StudySection("mb2", "Glossary", "فرہنگ", "chapter"),
             StudySection("mb3", "Symbols", "علامات", "chapter")
         )
+        "11" -> listOf(
+            StudySection("m1", "Unit 1: Complex Numbers", "", "chapter"),
+            StudySection("m2", "Unit 2: Functions and Graphs", "", "chapter"),
+            StudySection("m3", "Unit 3: Theory of Quadratic Functions", "", "chapter"),
+            StudySection("m4", "Unit 4: Matrices and Determinants", "", "chapter"),
+            StudySection("m5", "Unit 5: Partial Fractions", "", "chapter"),
+            StudySection("m6", "Unit 6: Sequences and Series", "", "chapter"),
+            StudySection("m7", "Unit 7: Permutations and Combinations", "", "chapter"),
+            StudySection("m8", "Unit 8: Mathematical Inductions and Binomial Theorem", "", "chapter"),
+            StudySection("m9", "Unit 9: Division of Polynomials", "", "chapter"),
+            StudySection("m10", "Unit 10: Trigonometric Identities", "", "chapter"),
+            StudySection("m11", "Unit 11: Trigonometric Functions and their Graphs", "", "chapter"),
+            StudySection("m12", "Unit 12: Limit and Continuity", "", "chapter"),
+            StudySection("m13", "Unit 13: Differentiation", "", "chapter"),
+            StudySection("m14", "Unit 14: Vectors in Space", "", "chapter"),
+            StudySection("mb1", "Answers", "", "chapter")
+        )
         else -> (1..13).map { StudySection("m$it", "Unit $it", "", "chapter") }
     }
 
