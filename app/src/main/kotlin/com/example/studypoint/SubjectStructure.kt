@@ -176,7 +176,6 @@ object SubjectStructure {
                     StudySection("gr2", "Active & Passive Voice", "", "chapter"),
                     StudySection("gr5", "Letters & Applications", "", "chapter"),
                     StudySection("gr6", "Stories", "", "chapter"),
-                    StudySection("gr8", "Sentence Correction", "", "chapter"),
                     StudySection("gr10", "Applications", "", "chapter")
                 )
                 else -> listOf(
