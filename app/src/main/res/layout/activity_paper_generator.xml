@@ -798,35 +798,6 @@
                 android:textSize="15sp" />
 
                 </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:textColor="@color/edu_navy"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                android:text="Passing Marks" />
-            <EditText
-                    android:textColor="#1F2937"
-                    android:textColorHint="#94A3B8"
-                android:id="@+id/etPassingMarks"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:background="@drawable/input_field_bg"
-                android:inputType="number"
-                android:hint="Optional"
-                android:padding="12dp"
-                android:textSize="15sp" />
-
-                </LinearLayout>
             </LinearLayout>
             <TextView
                 android:layout_width="wrap_content"

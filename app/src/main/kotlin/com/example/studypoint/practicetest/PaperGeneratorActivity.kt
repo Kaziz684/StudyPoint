@@ -81,7 +81,6 @@ class PaperGeneratorActivity : AppCompatActivity() {
     private lateinit var etSchoolAddress: EditText
     private lateinit var etSchoolPhone: EditText
     private lateinit var etPaperCode: EditText
-    private lateinit var etPassingMarks: EditText
     private lateinit var ivSchoolLogo: ImageView
     private lateinit var btnPickLogo: Button
     private lateinit var btnRemoveLogo: Button
@@ -198,7 +197,6 @@ class PaperGeneratorActivity : AppCompatActivity() {
         etSchoolAddress = findViewById(R.id.etSchoolAddress)
         etSchoolPhone = findViewById(R.id.etSchoolPhone)
         etPaperCode = findViewById(R.id.etPaperCode)
-        etPassingMarks = findViewById(R.id.etPassingMarks)
         ivSchoolLogo = findViewById(R.id.ivSchoolLogo)
         btnPickLogo = findViewById(R.id.btnPickLogo)
         btnRemoveLogo = findViewById(R.id.btnRemoveLogo)
@@ -355,7 +353,6 @@ class PaperGeneratorActivity : AppCompatActivity() {
             if (savedPhone == null || savedPhone == "0300 5675271") "0301 23456789" else savedPhone
         )
         etPaperCode.setText(prefs.getString("paper_code", ""))
-        etPassingMarks.setText(prefs.getString("passing_marks", ""))
         refreshLogoPreview()
         btnPickLogo.setOnClickListener { logoPicker.launch("image/*") }
         btnRemoveLogo.setOnClickListener {
@@ -385,20 +382,17 @@ class PaperGeneratorActivity : AppCompatActivity() {
         val address = etSchoolAddress.text.toString().trim()
         val phone = etSchoolPhone.text.toString().trim()
         val code = etPaperCode.text.toString().trim()
-        val passing = etPassingMarks.text.toString().trim()
         headerPrefs().edit()
             .putString("school_name", name)
             .putString("address", address)
             .putString("phone", phone)
             .putString("paper_code", code)
-            .putString("passing_marks", passing)
             .apply()
         return PaperPdfGenerator.SchoolHeader(
             schoolName = name.ifBlank { "AL SAMAD ACADEMY BWP" },
             address = address,
             phone = phone,
             paperCode = code,
-            passingMarks = passing,
             logoPath = if (logoFile().exists()) logoFile().absolutePath else ""
         )
     }
@@ -1390,6 +1384,19 @@ class PaperGeneratorActivity : AppCompatActivity() {
             mcqs = mcqs.shuffled(); shorts = shorts.shuffled(); longs = longs.shuffled()
         }
         val total = mcqs.size + shorts.size + longs.size
+        // Total marks are required: block generation when the selected
+        // questions carry no marks at all (MCQs count 1 each, written
+        // questions count their sheet marks). The header always prints
+        // the computed total, never a blank.
+        val totalMarks = mcqs.size + shorts.sumOf { it.marksValue } + longs.sumOf { it.marksValue }
+        if (totalMarks <= 0) {
+            Toast.makeText(
+                this,
+                "Total marks are required: the selected questions carry no marks. Please select questions with marks.",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
         val defaultTitle = when (type) {
             PaperType.MCQS -> "MCQs Test Paper"
             PaperType.SHORT -> "Short Questions Paper"

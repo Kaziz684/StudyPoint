@@ -103,7 +103,6 @@ object PaperPdfGenerator {
         val address: String = "",
         val phone: String = "0301 23456789",
         val paperCode: String = "",
-        val passingMarks: String = "",
         val logoPath: String = ""
     )
 
@@ -148,7 +147,7 @@ object PaperPdfGenerator {
     /**
      * The classic school paper header: a boxed banner (logo + school name +
      * address + phone), the paper title, then a boxed info grid —
-     * Subject / Class / Roll No / Paper Code, Time / Total Marks / Passing
+     * Subject / Class / Roll No / Paper Code, Time / Total Marks / Obtained
      * Marks / Date, and a full-width Student Name row. Shared by all three
      * paper generators so every paper carries the same header.
      */
@@ -226,7 +225,7 @@ object PaperPdfGenerator {
             val r2y = y + rowH
             val r2 = listOf(
                 "TIME:" to timeText, "TOTAL MARKS:" to totalMarksText,
-                "PASSING MARKS:" to header.passingMarks.ifBlank { "____________" },
+                "OBTAINED MARKS:" to "____________",
                 "DATE:" to dateText
             )
             for ((i, cellData) in r2.withIndex()) { cell(cx, r2y, cols[i], cellData.first, cellData.second); cx += cols[i] }

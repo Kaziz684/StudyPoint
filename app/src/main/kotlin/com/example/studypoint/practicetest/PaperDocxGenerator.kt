@@ -301,7 +301,7 @@ object PaperDocxGenerator {
         rows += listOf(
             infoCell("TIME:", timeText, widths[0]),
             infoCell("TOTAL MARKS:", totalMarksText, widths[1]),
-            infoCell("PASSING MARKS:", header.passingMarks.ifBlank { "____________" }, widths[2]),
+            infoCell("OBTAINED MARKS:", "____________", widths[2]),
             infoCell("DATE:", dateText, widths[3])
         )
         rows += listOf(
