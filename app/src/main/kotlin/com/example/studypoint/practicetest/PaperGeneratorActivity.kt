@@ -598,12 +598,32 @@ class PaperGeneratorActivity : AppCompatActivity() {
         return out
     }
 
-    /** Removes textbook source labels (e.g. "Exercise 5.1 Q1(iii):", "Review Exercise 5 Q2(iv):") from question texts. */
-    private fun cleanPaperText(text: String): String =
-        text.replace(
-            Regex("""^\s*(Review\s+Exercise|Exercise)\s+[\d.]*\s*Q\s*\d+\s*(\([ivxlcdm]+\))?\s*[:.\-]?\s*""", RegexOption.IGNORE_CASE),
-            ""
-        ).replace(
+    /**
+     * Removes a leading textbook source label from a question text, so a paper shows only the
+     * question itself with the paper's own numbering. Covered shapes (case-insensitive):
+     * "Exercise 12.1 Q1(iv):", "Review Exercise 12 Q1(iv):", "Review Exercise Q1(iv):" (no
+     * number), "Exercise Review 1 Q2(i):", "Exercise Review 4 QR2(i):", "Exercise Review
+     * Exercise 2 Q2(i):", "Exercise 3.3 (banner ...) Q2(iii):" (a note between number and Q),
+     * "Exercise 2.1 Q(iv):" (Q without a number), multi-part "Q2(a)(i):", and bare
+     * "Exercise:". The loop re-strips if a label was doubled in the sheet. Parentheses
+     * after Q are consumed only when they are part markers (roman numerals or a single
+     * letter), so question content such as "(a + b) + c = ..." is never eaten, and anything
+     * that is not this exact label shape (e.g. "Exercise..... man happy…") is left untouched.
+     */
+    private val bookLabelRegex =
+        Regex("""^\s*(?:Review\s+)?Exercise(?:\s+Review)?(?:\s+Exercise)?\s*[\d.]*\s*(?:\([^)]*\)\s*)?Q\s*R?\s*\d*\s*(?:\((?:[ivxlcdm]+|[a-z])\)\s*)*[:.\-]?\s*""", RegexOption.IGNORE_CASE)
+    private val bareExerciseRegex =
+        Regex("""^\s*Exercise\s*:\s*""", RegexOption.IGNORE_CASE)
+
+    private fun cleanPaperText(text: String): String {
+        var s = text
+        for (i in 0 until 3) {
+            val t = bookLabelRegex.replaceFirst(s, "")
+            val t2 = if (t == s) bareExerciseRegex.replaceFirst(s, "") else t
+            if (t2 == s) break
+            s = t2
+        }
+        return s.replace(
             // Urdu grammar books prefix every question with "سوال نمبر N:" — a paper
             // must show only its own numbering, never the book's.
             Regex("""^\s*سوال\s*(نمبر)?\s*[0-9۰-۹]+\s*[:۔.\-]?\s*"""),
@@ -612,6 +632,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
             Regex("""^\s*Question\s+\d+\s*[:.\-]?\s*""", RegexOption.IGNORE_CASE),
             ""
         ).trim()
+    }
 
     private fun writtenMatches(q: WrittenQuestion, sheet: String, subject: String): Boolean {
         val classOk = q.classNum.filter { it.isDigit() } == sheet.filter { it.isDigit() }
