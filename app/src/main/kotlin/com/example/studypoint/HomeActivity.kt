@@ -1665,11 +1665,11 @@ fun AnnouncementCarousel() {
                     val list = snapshot.documents.mapNotNull { doc ->
                         doc.toObject(BoardAnnouncement::class.java)
                     }
-                    // Only the 2 latest still-valid items ride the home card;
+                    // Only the latest 4 still-valid items ride the home card (max 3-4 daily news);
                     // expired news drops off on its own, the rest lives in the bell.
                     announcements.value = AnnouncementExpiry.sortNewestFirst(
                         AnnouncementExpiry.filterUnexpired(list)
-                    ).take(2)
+                    ).take(4)
                 } else {
                     db.collection("board_announcements")
                         .whereEqualTo("is_active", true)
@@ -1680,7 +1680,7 @@ fun AnnouncementCarousel() {
                                 }
                                 announcements.value = AnnouncementExpiry.sortNewestFirst(
                                     AnnouncementExpiry.filterUnexpired(list2)
-                                ).take(2)
+                                ).take(4)
                             }
                         }
                 }
