@@ -597,6 +597,10 @@ fun HomeScreen(
                     // Dynamic Announcements Banner
                     AnnouncementCarousel()
 
+                    // Important Questions — 2027 Guess / Pairing cards (same moving-card style)
+                    SectionTitle("Important Questions (Tap a card to view)")
+                    ImportantQuestionsCard()
+
                     // Classes Curriculum Hub (9th, 10th, 11th, 12th)
                     SectionTitle("Classes (PCTB Curriculum 2026)")
                     ClassCategoriesGrid(onClassClick)
@@ -1390,9 +1394,11 @@ fun NotificationsDialog(onDismiss: () -> Unit) {
                     .whereEqualTo("is_active", true)
                     .addSnapshotListener { snapshot, _ ->
                         if (snapshot != null && !snapshot.isEmpty) {
-                            announcements.value = snapshot.documents.mapNotNull { doc ->
-                                doc.toObject(BoardAnnouncement::class.java)
-                            }
+                            announcements.value = AnnouncementExpiry.filterUnexpired(
+                                snapshot.documents.mapNotNull { doc ->
+                                    doc.toObject(BoardAnnouncement::class.java)
+                                }
+                            )
                         }
                     }
                 onDispose { listener.remove() }
@@ -1659,7 +1665,11 @@ fun AnnouncementCarousel() {
                     val list = snapshot.documents.mapNotNull { doc ->
                         doc.toObject(BoardAnnouncement::class.java)
                     }
-                    announcements.value = list
+                    // Only the 2 latest still-valid items ride the home card;
+                    // expired news drops off on its own, the rest lives in the bell.
+                    announcements.value = AnnouncementExpiry.sortNewestFirst(
+                        AnnouncementExpiry.filterUnexpired(list)
+                    ).take(2)
                 } else {
                     db.collection("board_announcements")
                         .whereEqualTo("is_active", true)
@@ -1668,7 +1678,9 @@ fun AnnouncementCarousel() {
                                 val list2 = snap2.documents.mapNotNull { doc ->
                                     doc.toObject(BoardAnnouncement::class.java)
                                 }
-                                announcements.value = list2
+                                announcements.value = AnnouncementExpiry.sortNewestFirst(
+                                    AnnouncementExpiry.filterUnexpired(list2)
+                                ).take(2)
                             }
                         }
                 }
@@ -1726,6 +1738,60 @@ fun AnnouncementCarousel() {
                     .wrapContentHeight()
             )
         }
+    }
+}
+
+@Composable
+fun ImportantQuestionsCard() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 8.dp)
+    ) {
+        AndroidView(
+            factory = { ctx ->
+                val view = LayoutInflater.from(ctx).inflate(R.layout.layout_study_card_slider, null, false)
+                val viewPager = view.findViewById<androidx.viewpager2.widget.ViewPager2>(R.id.viewPagerStudyCards)
+                val tabLayout = view.findViewById<com.google.android.material.tabs.TabLayout>(R.id.tabLayoutDotsStudy)
+
+                // 2027 Guess / Pairing cards, hosted on Drive like all other materials.
+                viewPager.adapter = StudyCardAdapter(
+                    listOf(
+                        "https://drive.google.com/uc?export=download&id=1bG32paQrHCQIJSCMmHLlCsNnOisgODwa",
+                        "https://drive.google.com/uc?export=download&id=1AkZdOxaaGJ0KkA3UwfFmEsKuepPPXYuL",
+                        "https://drive.google.com/uc?export=download&id=1zMcfOpnbkOpvNbdpDP4KWtdJgP-kMOsg",
+                        "https://drive.google.com/uc?export=download&id=1OFKI3Bqg_eIK4LIcNXIblt3y7lxwqpSw",
+                        "https://drive.google.com/uc?export=download&id=1l_Jhe3r5Fuet9MEX3nfiXqQPtsBFXG4q"
+                    )
+                )
+
+                com.google.android.material.tabs.TabLayoutMediator(tabLayout, viewPager) { _, _ -> }.attach()
+
+                viewPager.setPageTransformer { page, position ->
+                    val r = 1 - kotlin.math.abs(position)
+                    page.scaleY = (0.85f + r * 0.15f)
+                    page.alpha = (0.5f + r * 0.5f)
+                }
+
+                val handler = android.os.Handler(android.os.Looper.getMainLooper())
+                val runnable = object : Runnable {
+                    override fun run() {
+                        val count = viewPager.adapter?.itemCount ?: 0
+                        if (count > 0) {
+                            val nextItem = (viewPager.currentItem + 1) % count
+                            viewPager.currentItem = nextItem
+                        }
+                        handler.postDelayed(this, 4000)
+                    }
+                }
+                handler.postDelayed(runnable, 4000)
+
+                view
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+        )
     }
 }
 
