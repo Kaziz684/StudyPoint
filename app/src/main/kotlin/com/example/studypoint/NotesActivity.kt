@@ -730,7 +730,7 @@ class NotesActivity : AppCompatActivity() {
                     "MCQs" to "COMING_SOON",
                     "Guess Papers" to mapOf(
                         "2027" to "https://drive.google.com/uc?export=download&id=11_ENG_GP_2027",
-                        "2026" to "https://drive.google.com/uc?export=download&id=11_ENG_GP_2026"
+                        "2026" to "https://drive.google.com/uc?export=download&id=1ctSSlJGw7YF3ro0k__ugwagxtXGy8I2f"
                     )
                 ),
                 "Urdu" to mapOf(
@@ -777,7 +777,7 @@ class NotesActivity : AppCompatActivity() {
                     "MCQs" to "COMING_SOON",
                     "Guess Papers" to mapOf(
                         "2027" to "https://drive.google.com/uc?export=download&id=11_PHY_GP_2027",
-                        "2026" to "https://drive.google.com/uc?export=download&id=11_PHY_GP_2026"
+                        "2026" to "https://drive.google.com/uc?export=download&id=1PSdZEhfhYbzRRKO_BqjwGAO4Yc2xPpkp"
                     )
                 ),
                 "Chemistry" to mapOf(
@@ -794,7 +794,7 @@ class NotesActivity : AppCompatActivity() {
                     "MCQs" to "COMING_SOON",
                     "Guess Papers" to mapOf(
                         "2027" to "https://drive.google.com/uc?export=download&id=11_CHEM_GP_2027",
-                        "2026" to "https://drive.google.com/uc?export=download&id=11_CHEM_GP_2026"
+                        "2026" to "https://drive.google.com/uc?export=download&id=104I0fwaKcHZeShGuPDvyCJA7VDYB5940"
                     )
                 ),
                 "Biology" to mapOf(
@@ -823,7 +823,7 @@ class NotesActivity : AppCompatActivity() {
                     "MCQs" to "COMING_SOON",
                     "Guess Papers" to mapOf(
                         "2027" to "https://drive.google.com/uc?export=download&id=11_BIO_GP_2027",
-                        "2026" to "https://drive.google.com/uc?export=download&id=11_BIO_GP_2026"
+                        "2026" to "https://drive.google.com/uc?export=download&id=13tLhINaaHFY-3oxn9XiGJzNTlWMMoORF"
                     )
                 ),
                 "Math" to mapOf(
@@ -840,7 +840,7 @@ class NotesActivity : AppCompatActivity() {
                     "MCQs" to "COMING_SOON",
                     "Guess Papers" to mapOf(
                         "2027" to "https://drive.google.com/uc?export=download&id=11_MATH_GP_2027",
-                        "2026" to "https://drive.google.com/uc?export=download&id=11_MATH_GP_2026"
+                        "2026" to "https://drive.google.com/uc?export=download&id=1sLJ5ynsvaXyUUhYRirCf489dxEpOVhNm"
                     )
                 ),
                 "Computer" to mapOf(
@@ -860,7 +860,7 @@ class NotesActivity : AppCompatActivity() {
                     "MCQs" to "COMING_SOON",
                     "Guess Papers" to mapOf(
                         "2027" to "https://drive.google.com/uc?export=download&id=11_CS_GP_2027",
-                        "2026" to "https://drive.google.com/uc?export=download&id=11_CS_GP_2026"
+                        "2026" to "https://drive.google.com/uc?export=download&id=1QxlY1FyYyq_CmwIQYtIHV92TNqy-IHT8"
                     )
                 ),
                 "Islamiyat" to mapOf(
@@ -877,7 +877,7 @@ class NotesActivity : AppCompatActivity() {
                     "MCQs" to "COMING_SOON",
                     "Guess Papers" to mapOf(
                         "2027" to "https://drive.google.com/uc?export=download&id=11_ISL_GP_2027",
-                        "2026" to "https://drive.google.com/uc?export=download&id=11_ISL_GP_2026"
+                        "2026" to "https://drive.google.com/uc?export=download&id=19zxrcuWEZOGcJPRvt7JljuRl76qbyEJE"
                     )
                 ),
                 "Tarjuma-tul-Quran" to mapOf(
@@ -894,7 +894,7 @@ class NotesActivity : AppCompatActivity() {
                     "MCQs" to "COMING_SOON",
                     "Guess Papers" to mapOf(
                         "2027" to "https://drive.google.com/uc?export=download&id=11_TQ_GP_2027",
-                        "2026" to "https://drive.google.com/uc?export=download&id=11_TQ_GP_2026"
+                        "2026" to "https://drive.google.com/uc?export=download&id=1S1Gt-vvixvBIutk2gaF0Zwd150H0BuCt"
                     )
                 )
             ),
