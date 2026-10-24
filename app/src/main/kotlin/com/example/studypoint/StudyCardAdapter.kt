@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
-import coil.load.load
+import coil.load
 
 /**
  * Slides for the home "Important Questions" card: the 2027 pairing / guess
