@@ -1,10 +1,12 @@
 package com.example.studypoint
 
+import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.card.MaterialCardView
 
@@ -19,6 +21,7 @@ class GenericGridAdapter(
     private val items: List<GridItem>,
     private val useGlassCard: Boolean = false,
     private val useListRow: Boolean = false,
+    private val useWhiteCard: Boolean = false,
     private val onItemClick: (GridItem) -> Unit
 ) : RecyclerView.Adapter<GenericGridAdapter.GridViewHolder>() {
 
@@ -59,11 +62,20 @@ class GenericGridAdapter(
             holder.subtitle?.text = item.subtitle
             holder.subtitle?.visibility = if (item.subtitle.isNotEmpty()) View.VISIBLE else View.GONE
             holder.icon?.setImageResource(item.iconRes)
-            // No need for separate tint if we use rich icons with backgrounds
-            holder.icon?.imageTintList = null
+            // White cards need a visible icon tint: the class icons are white
+            // vectors, so tint them teal on white cards; other cards keep
+            // their untinted icons.
+            holder.icon?.imageTintList = if (useWhiteCard) {
+                ColorStateList.valueOf(
+                    ContextCompat.getColor(holder.itemView.context, R.color.edu_emerald)
+                )
+            } else {
+                null
+            }
         }
-        // Soft pastel card tint (flowchart style) for square cards only
-        if (!useGlassCard && !useListRow) {
+        // Soft pastel card tint (flowchart style) for square cards only;
+        // white-card screens keep the layout's white card background.
+        if (!useGlassCard && !useListRow && !useWhiteCard) {
             val pastel = listOf(
                 0xFFEFF6FF, 0xFFECFDF5, 0xFFF5F3FF,
                 0xFFFFF7ED, 0xFFFDF2F8, 0xFFF0FDFA

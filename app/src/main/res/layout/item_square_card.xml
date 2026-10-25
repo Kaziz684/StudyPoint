@@ -50,6 +50,17 @@
                 android:textSize="15sp"
                 android:textStyle="bold" />
 
+            <TextView
+                android:id="@+id/itemSubtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:gravity="center"
+                android:maxLines="1"
+                android:text="Subtitle"
+                android:textColor="@color/edu_text_secondary"
+                android:textSize="13sp" />
+
         </LinearLayout>
 
     </com.google.android.material.card.MaterialCardView>
