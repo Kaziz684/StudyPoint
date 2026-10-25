@@ -6,6 +6,7 @@ import android.content.res.ColorStateList
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Matrix
+import android.graphics.drawable.GradientDrawable
 import android.graphics.pdf.PdfRenderer
 import android.os.Bundle
 import android.os.ParcelFileDescriptor
@@ -237,8 +238,8 @@ class PdfViewActivity : AppCompatActivity() {
             toggleBookmark()
             dialog.dismiss()
         }
-        addSheetRow(container, android.R.drawable.ic_menu_share, "Share PDF") {
-            sharePdf()
+        addSheetRow(container, android.R.drawable.ic_menu_share, "Share App") {
+            shareApp()
             dialog.dismiss()
         }
         addSheetRow(container, android.R.drawable.ic_menu_gallery, "Save / Share Page as Image") {
@@ -257,6 +258,18 @@ class PdfViewActivity : AppCompatActivity() {
         dialog.setContentView(container)
         actionsSheet = dialog
         dialog.show()
+        // Force a light sheet background in BOTH themes: the dialog background
+        // follows the system theme, which made the dark text unreadable in dark mode.
+        val sheetBg = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            setColor(Color.WHITE)
+            cornerRadii = floatArrayOf(
+                dp(16).toFloat(), dp(16).toFloat(),
+                dp(16).toFloat(), dp(16).toFloat(),
+                0f, 0f, 0f, 0f
+            )
+        }
+        dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)?.background = sheetBg
     }
 
     private fun addSheetRow(
@@ -280,11 +293,12 @@ class PdfViewActivity : AppCompatActivity() {
             setImageResource(iconRes)
             val size = dp(24)
             layoutParams = LinearLayout.LayoutParams(size, size)
-            setColorFilter(Color.parseColor("#2563EB"))
+            setColorFilter(Color.parseColor("#10B981"))
         }
         val text = TextView(this).apply {
             text = label
             textSize = 15f
+            setTypeface(null, android.graphics.Typeface.BOLD)
             setTextColor(Color.parseColor("#1E293B"))
             setPadding(dp(16), 0, 0, 0)
         }
@@ -315,13 +329,13 @@ class PdfViewActivity : AppCompatActivity() {
         }
     }
 
-    private fun sharePdf() {
+    private fun shareApp() {
         val intent = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"
-            putExtra(Intent.EXTRA_SUBJECT, docTitle)
-            putExtra(Intent.EXTRA_TEXT, "$docTitle\n$docRawUrl")
+            putExtra(Intent.EXTRA_SUBJECT, "StudyPoint")
+            putExtra(Intent.EXTRA_TEXT, "StudyPoint \u2014 Free study app for Class 9 to 12 (Punjab Board): notes, textbooks, MCQs, solved questions and paper generator.\nhttps://studypointbwp.web.app")
         }
-        startActivity(Intent.createChooser(intent, "Share PDF"))
+        startActivity(Intent.createChooser(intent, "Share StudyPoint"))
     }
 
     private fun setLastRead() {
