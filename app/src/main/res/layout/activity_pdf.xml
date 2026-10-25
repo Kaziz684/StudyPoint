@@ -41,7 +41,7 @@
                     android:layout_centerVertical="true"
                     android:layout_marginStart="8dp"
                     android:layout_marginEnd="8dp"
-                    android:layout_toStartOf="@id/btnJumpToPage"
+                    android:layout_toStartOf="@id/btnMore"
                     android:layout_toEndOf="@id/btnBack"
                     android:orientation="vertical">
 
@@ -64,6 +64,27 @@
                         android:textColor="#94A3B8"
                         android:textSize="12sp" />
                 </LinearLayout>
+
+                <ImageButton
+                    android:id="@+id/btnMore"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_centerVertical="true"
+                    android:layout_toStartOf="@id/btnAssistant"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="More options"
+                    android:src="@android:drawable/ic_menu_more"
+                    app:tint="@color/white" />
+
+                <ImageButton
+                    android:id="@+id/btnAssistant"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_centerVertical="true"
+                    android:layout_toStartOf="@id/btnJumpToPage"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="AI Assistant"
+                    android:src="@drawable/ic_ch_chat" />
 
                 <ImageButton
                     android:id="@+id/btnJumpToPage"
@@ -134,12 +155,12 @@
 
         </FrameLayout>
 
-        <!-- PDF Rendering View -->
+        <!-- PDF Rendering View: light-gray backdrop so each white page reads as a card -->
         <com.github.barteksc.pdfviewer.PDFView
             android:id="@+id/pdfView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/edu_bg"/>
+            android:background="@color/edu_border"/>
     </LinearLayout>
 
     <!-- Progress Overlay: centered premium card -->

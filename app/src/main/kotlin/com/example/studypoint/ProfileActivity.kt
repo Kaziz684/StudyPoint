@@ -12,6 +12,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.launch
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -47,15 +48,32 @@ class ProfileActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            var themeMode by remember { mutableStateOf(AppSettings.getThemeMode(this)) }
+            val dark = themeMode == AppSettings.THEME_DARK ||
+                (themeMode == AppSettings.THEME_SYSTEM && isSystemInDarkTheme())
             MaterialTheme(
-                colorScheme = lightColorScheme(
-                    primary = Color(0xFF4F46E5),
-                    onSurface = Color(0xFF0F172A),
-                    surface = Color.White,
-                    onSurfaceVariant = Color(0xFF475569)
-                )
+                colorScheme = if (dark) {
+                    darkColorScheme(
+                        primary = Color(0xFF818CF8),
+                        onSurface = Color.White,
+                        surface = Color(0xFF1E293B),
+                        onSurfaceVariant = Color(0xFFCBD5E1)
+                    )
+                } else {
+                    lightColorScheme(
+                        primary = Color(0xFF4F46E5),
+                        onSurface = Color(0xFF0F172A),
+                        surface = Color.White,
+                        onSurfaceVariant = Color(0xFF475569)
+                    )
+                }
             ) {
                 ProfileScreen(
+                    themeMode = themeMode,
+                    onThemeModeChange = { mode ->
+                        themeMode = mode
+                        AppSettings.setThemeMode(this, mode)
+                    },
                     onBackClick = { finish() },
                     onProfileUpdated = {
                         setResult(RESULT_OK)
@@ -69,11 +87,27 @@ class ProfileActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
+    themeMode: String,
+    onThemeModeChange: (String) -> Unit,
     onBackClick: () -> Unit,
     onProfileUpdated: () -> Unit
 ) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
+
+    // Theme-aware colors (follow the Settings theme choice).
+    val dark = themeMode == AppSettings.THEME_DARK ||
+        (themeMode == AppSettings.THEME_SYSTEM && isSystemInDarkTheme())
+    val screenBg = if (dark) Color(0xFF0F172A) else Color(0xFFF8FAFC)
+    val topBarBg = if (dark) Color(0xFF1E293B) else Color.White
+    val cardBg = if (dark) Color(0xFF1E293B) else Color.White
+    val softBg = if (dark) Color(0xFF334155) else Color(0xFFF8FAFC)
+    val chipBg = if (dark) Color(0xFF334155) else Color(0xFFF1F5F9)
+    val textPrimary = if (dark) Color(0xFFF8FAFC) else Color(0xFF1E293B)
+    val textSecondary = if (dark) Color(0xFFCBD5E1) else Color(0xFF475569)
+    val textHint = if (dark) Color(0xFF94A3B8) else Color(0xFF64748B)
+    val borderColor = if (dark) Color(0xFF334155) else Color(0xFFE2E8F0)
+    var fontSize by remember { mutableStateOf(AppSettings.getFontSize(context)) }
 
     // 1. Load saved profile data
     val initialProfile = remember { ProfileManager.getProfile(context) }
@@ -141,7 +175,7 @@ fun ProfileScreen(
                 title = {
                     Column {
                         Text("Student Profile", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                        Text("Punjab Curriculum (PCTB) Student", fontSize = 12.sp, color = Color(0xFF64748B))
+                        Text("Punjab Curriculum (PCTB) Student", fontSize = 12.sp, color = textHint)
                     }
                 },
                 navigationIcon = {
@@ -204,7 +238,7 @@ fun ProfileScreen(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = topBarBg)
             )
         }
     ) { paddingValues ->
@@ -212,7 +246,7 @@ fun ProfileScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(Color(0xFFF8FAFC))
+                .background(screenBg)
                 .verticalScroll(scrollState)
                 .padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -298,7 +332,7 @@ fun ProfileScreen(
                 text = fullName,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF1E293B),
+                color = textPrimary,
                 maxLines = 1,
                 overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                 modifier = Modifier.fillMaxWidth(),
@@ -313,7 +347,7 @@ fun ProfileScreen(
                     }
                 },
                 fontSize = 13.sp,
-                color = Color(0xFF64748B),
+                color = textHint,
                 maxLines = 1,
                 overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                 modifier = Modifier.fillMaxWidth(),
@@ -328,7 +362,7 @@ fun ProfileScreen(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(18.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
+                colors = CardDefaults.cardColors(containerColor = cardBg),
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Column(modifier = Modifier.padding(18.dp)) {
@@ -337,7 +371,7 @@ fun ProfileScreen(
                         text = "Personal Details",
                         fontWeight = FontWeight.Bold,
                         fontSize = 15.sp,
-                        color = Color(0xFF1E293B)
+                        color = textPrimary
                     )
                     Spacer(modifier = Modifier.height(14.dp))
 
@@ -406,7 +440,7 @@ fun ProfileScreen(
                         text = "Enrolled Class / Grade (PCTB)",
                         fontSize = 13.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFF475569)
+                        color = textSecondary
                     )
                     Spacer(modifier = Modifier.height(8.dp))
 
@@ -425,8 +459,8 @@ fun ProfileScreen(
                                         selectedSubjectGroup = ""
                                     },
                                 shape = RoundedCornerShape(10.dp),
-                                color = if (isSelected) Color(0xFF4F46E5) else Color(0xFFF1F5F9),
-                                border = if (isSelected) null else androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE2E8F0))
+                                color = if (isSelected) Color(0xFF4F46E5) else chipBg,
+                                border = if (isSelected) null else androidx.compose.foundation.BorderStroke(1.dp, borderColor)
                             ) {
                                 Box(
                                     modifier = Modifier.padding(vertical = 10.dp),
@@ -436,7 +470,7 @@ fun ProfileScreen(
                                         text = gr.replace("Class ", ""),
                                         fontSize = 12.sp,
                                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                        color = if (isSelected) Color.White else Color(0xFF475569)
+                                        color = if (isSelected) Color.White else textSecondary
                                     )
                                 }
                             }
@@ -456,7 +490,7 @@ fun ProfileScreen(
                         text = if (isMatric) "Subject (9th/10th)" else "Group (11th/12th)",
                         fontSize = 13.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFF475569)
+                        color = textSecondary
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Column(
@@ -475,14 +509,14 @@ fun ProfileScreen(
                                             .weight(1f)
                                             .clickable(enabled = isEditMode) { selectedSubjectGroup = opt },
                                         shape = RoundedCornerShape(20.dp),
-                                        color = if (isSelected) Color(0xFF10B981) else Color(0xFFF1F5F9),
-                                        border = if (isSelected) null else androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE2E8F0))
+                                        color = if (isSelected) Color(0xFF10B981) else chipBg,
+                                        border = if (isSelected) null else androidx.compose.foundation.BorderStroke(1.dp, borderColor)
                                     ) {
                                         Text(
                                             text = opt,
                                             fontSize = 12.sp,
                                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                            color = if (isSelected) Color.White else Color(0xFF475569),
+                                            color = if (isSelected) Color.White else textSecondary,
                                             modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp)
                                         )
                                     }
@@ -502,8 +536,8 @@ fun ProfileScreen(
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
-                color = Color(0xFFF8FAFC),
-                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE2E8F0))
+                color = softBg,
+                border = androidx.compose.foundation.BorderStroke(1.dp, borderColor)
             ) {
                 Row(
                     modifier = Modifier.padding(14.dp),
@@ -512,7 +546,7 @@ fun ProfileScreen(
                     Icon(Icons.Default.School, null, tint = Color(0xFF2563EB))
                     Spacer(modifier = Modifier.width(12.dp))
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("Account Role", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF475569))
+                        Text("Account Role", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = textSecondary)
                         Text(
                             text = when (currentRole) {
                                 RoleManager.ROLE_TEACHER -> "Teacher / Educator"
@@ -521,7 +555,7 @@ fun ProfileScreen(
                             },
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF1F2937)
+                            color = textPrimary
                         )
                     }
                     TextButton(onClick = {
@@ -532,6 +566,126 @@ fun ProfileScreen(
                     }) {
                         Text("Change", fontWeight = FontWeight.Bold)
                     }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // ==========================================
+            // Settings (Theme + Font Size)
+            // ==========================================
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(18.dp),
+                colors = CardDefaults.cardColors(containerColor = cardBg),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(modifier = Modifier.padding(18.dp)) {
+                    Text(
+                        text = "Settings",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 15.sp,
+                        color = textPrimary
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Theme and reading text size for the app.",
+                        fontSize = 12.sp,
+                        color = textHint
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        text = "Theme",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = textSecondary
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        listOf(
+                            AppSettings.THEME_SYSTEM to "System",
+                            AppSettings.THEME_LIGHT to "Light",
+                            AppSettings.THEME_DARK to "Dark"
+                        ).forEach { (mode, label) ->
+                            val isSelected = themeMode == mode
+                            Surface(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clickable { onThemeModeChange(mode) },
+                                shape = RoundedCornerShape(10.dp),
+                                color = if (isSelected) Color(0xFF4F46E5) else chipBg,
+                                border = if (isSelected) null else androidx.compose.foundation.BorderStroke(1.dp, borderColor)
+                            ) {
+                                Box(
+                                    modifier = Modifier.padding(vertical = 10.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = label,
+                                        fontSize = 12.sp,
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                        color = if (isSelected) Color.White else textSecondary
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        text = "Font Size (AI Tutor chat text)",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = textSecondary
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        listOf(
+                            AppSettings.FONT_SMALL to "Small",
+                            AppSettings.FONT_MEDIUM to "Medium",
+                            AppSettings.FONT_LARGE to "Large"
+                        ).forEach { (size, label) ->
+                            val isSelected = fontSize == size
+                            Surface(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clickable {
+                                        fontSize = size
+                                        AppSettings.setFontSize(context, size)
+                                    },
+                                shape = RoundedCornerShape(10.dp),
+                                color = if (isSelected) Color(0xFF10B981) else chipBg,
+                                border = if (isSelected) null else androidx.compose.foundation.BorderStroke(1.dp, borderColor)
+                            ) {
+                                Box(
+                                    modifier = Modifier.padding(vertical = 10.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = label,
+                                        fontSize = 12.sp,
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                        color = if (isSelected) Color.White else textSecondary
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = "Theme applies to the Home screen and this Profile screen. Font size applies to AI Tutor chat text.",
+                        fontSize = 11.sp,
+                        color = textHint
+                    )
                 }
             }
 
@@ -625,7 +779,7 @@ fun ProfileScreen(
                                 }
                             },
                         shape = RoundedCornerShape(12.dp),
-                        color = Color(0xFFF8FAFC)
+                        color = softBg
                     ) {
                         Row(
                             modifier = Modifier.padding(14.dp),
@@ -646,7 +800,7 @@ fun ProfileScreen(
                                 galleryLauncher.launch("image/*")
                             },
                         shape = RoundedCornerShape(12.dp),
-                        color = Color(0xFFF8FAFC)
+                        color = softBg
                     ) {
                         Row(
                             modifier = Modifier.padding(14.dp),

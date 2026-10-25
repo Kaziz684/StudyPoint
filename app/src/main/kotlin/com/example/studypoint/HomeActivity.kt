@@ -78,6 +78,18 @@ import java.util.*
 class HomeActivity : ComponentActivity() {
 
     private lateinit var auth: FirebaseAuth
+    private var appliedThemeMode: String = ""
+
+    override fun onResume() {
+        super.onResume()
+        // If the theme was changed in Profile settings, recreate so the
+        // whole Home UI picks it up on return.
+        if (appliedThemeMode.isNotEmpty() &&
+            AppSettings.getThemeMode(this) != appliedThemeMode
+        ) {
+            recreate()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -87,6 +99,7 @@ class HomeActivity : ComponentActivity() {
             // Language must never block the dashboard.
         }
         auth = FirebaseAuth.getInstance()
+        appliedThemeMode = AppSettings.getThemeMode(this)
         try {
             setupNotifications()
         } catch (_: Throwable) {
@@ -105,7 +118,7 @@ class HomeActivity : ComponentActivity() {
         // screenshot of that screen finally reveals the root cause.
         try {
             setContent {
-                StudyPointTheme {
+                StudyPointThemeWithSettings {
                     HomeScreen(
                         userName = auth.currentUser?.displayName?.ifBlank { "Student" } ?: "Student",
                         userEmail = auth.currentUser?.email ?: "",
@@ -129,7 +142,7 @@ class HomeActivity : ComponentActivity() {
     private fun showSafeMode(error: Throwable) {
         try {
             setContent {
-                StudyPointTheme {
+                StudyPointThemeWithSettings {
                     SafeDashboardScreen(
                         errorText = error.javaClass.simpleName +
                             ": " + (error.message ?: "unknown error"),
@@ -1247,9 +1260,9 @@ fun AiChatBottomSheet(onDismiss: () -> Unit) {
                                         }
                                         Text(
                                             text = msg.text,
-                                            fontSize = 13.sp,
+                                            fontSize = AppSettings.chatTextSizeSp(LocalContext.current).sp,
                                             color = if (msg.isUser) Color.White else Color(0xFF0F172A),
-                                            lineHeight = 18.sp
+                                            lineHeight = AppSettings.chatLineHeightSp(LocalContext.current).sp
                                         )
                                         if (!msg.isUser && msg.sourceLabel != null) {
                                             Spacer(modifier = Modifier.height(4.dp))

@@ -1,22 +1,38 @@
 package com.example.studypoint
 
 import android.content.Context
+import android.content.Intent
+import android.content.res.ColorStateList
+import android.graphics.Bitmap
+import android.graphics.Color
+import android.graphics.Matrix
+import android.graphics.pdf.PdfRenderer
 import android.os.Bundle
+import android.os.ParcelFileDescriptor
 import android.util.Log
+import android.util.TypedValue
+import android.view.Gravity
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.ProgressBar
+import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import com.github.barteksc.pdfviewer.PDFView
 import com.github.barteksc.pdfviewer.scroll.DefaultScrollHandle
 import com.github.barteksc.pdfviewer.util.FitPolicy
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -37,6 +53,8 @@ class PdfViewActivity : AppCompatActivity() {
     private lateinit var headerText: TextView
     private lateinit var tvPageIndicator: TextView
     private lateinit var btnJumpToPage: ImageButton
+    private lateinit var btnMore: ImageButton
+    private lateinit var btnAssistant: ImageButton
 
     private lateinit var btnCloseSearch: ImageButton
     private lateinit var etPageNumber: EditText
@@ -47,6 +65,18 @@ class PdfViewActivity : AppCompatActivity() {
     private lateinit var tvProgressText: TextView
 
     private var totalPages: Int = 0
+
+    // Open document context (used by actions sheet + AI assistant)
+    private var docTitle: String = "PDF Document"
+    private var docGrade: String = ""
+    private var docSubject: String = ""
+    private var docRawUrl: String = ""
+    private var currentPdfFile: File? = null
+
+    private var actionsSheet: BottomSheetDialog? = null
+    private var aiSheet: BottomSheetDialog? = null
+    private var aiMessagesContainer: LinearLayout? = null
+    private var aiMessagesScroll: ScrollView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,6 +89,11 @@ class PdfViewActivity : AppCompatActivity() {
         val title = intent.getStringExtra("title") ?: "PDF Document"
         val grade = intent.getStringExtra("grade") ?: ""
         val subject = intent.getStringExtra("subject") ?: ""
+
+        docTitle = title
+        docGrade = grade
+        docSubject = subject
+        docRawUrl = rawUrl
 
         headerText.text = title
         tvPageIndicator.text = "Loading..."
@@ -86,6 +121,8 @@ class PdfViewActivity : AppCompatActivity() {
         headerText = findViewById(R.id.headerText)
         tvPageIndicator = findViewById(R.id.tvPageIndicator)
         btnJumpToPage = findViewById(R.id.btnJumpToPage)
+        btnMore = findViewById(R.id.btnMore)
+        btnAssistant = findViewById(R.id.btnAssistant)
 
         btnCloseSearch = findViewById(R.id.btnCloseSearch)
         etPageNumber = findViewById(R.id.etPageNumber)
@@ -102,6 +139,16 @@ class PdfViewActivity : AppCompatActivity() {
         // Open Jump to Page input
         btnJumpToPage.setOnClickListener {
             openJumpSearch()
+        }
+
+        // More options: Bookmark / Share / Image / Last Read / Collection
+        btnMore.setOnClickListener {
+            showActionsSheet()
+        }
+
+        // AI assistant chat sheet for this document
+        btnAssistant.setOnClickListener {
+            showAiSheet()
         }
 
         // Clicking page indicator also triggers Jump to Page
@@ -131,10 +178,14 @@ class PdfViewActivity : AppCompatActivity() {
             }
         }
 
-        // Back press handling: if search mode is open, close search first instead of finishing activity
+        // Back press handling: sheets first, then search mode, then finish
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (layoutPageSearch.visibility == View.VISIBLE) {
+                if (actionsSheet?.isShowing == true) {
+                    actionsSheet?.dismiss()
+                } else if (aiSheet?.isShowing == true) {
+                    aiSheet?.dismiss()
+                } else if (layoutPageSearch.visibility == View.VISIBLE) {
                     closeJumpSearch()
                 } else {
                     isEnabled = false
@@ -142,6 +193,403 @@ class PdfViewActivity : AppCompatActivity() {
                 }
             }
         })
+    }
+
+    private fun dp(value: Int): Int {
+        return (value * resources.displayMetrics.density).toInt()
+    }
+
+    // ================= Actions bottom sheet =================
+
+    private fun showActionsSheet() {
+        val dialog = BottomSheetDialog(this)
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(20), dp(16), dp(20), dp(24))
+        }
+
+        val titleView = TextView(this).apply {
+            text = docTitle
+            textSize = 16f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextColor(Color.parseColor("#1E293B"))
+            maxLines = 1
+            ellipsize = android.text.TextUtils.TruncateAt.END
+        }
+        container.addView(titleView)
+        container.addView(TextView(this).apply {
+            text = if (totalPages > 0) {
+                "Page ${pdfView.currentPage + 1} of $totalPages"
+            } else {
+                "Loading document..."
+            }
+            textSize = 12f
+            setTextColor(Color.parseColor("#64748B"))
+            setPadding(0, dp(2), 0, dp(12))
+        })
+
+        val bookmarked = RecentReadManager.isBookmarked(this, docRawUrl)
+        addSheetRow(
+            container,
+            R.drawable.ic_bookmark,
+            if (bookmarked) "Remove Bookmark" else "Bookmark"
+        ) {
+            toggleBookmark()
+            dialog.dismiss()
+        }
+        addSheetRow(container, android.R.drawable.ic_menu_share, "Share PDF") {
+            sharePdf()
+            dialog.dismiss()
+        }
+        addSheetRow(container, android.R.drawable.ic_menu_gallery, "Save / Share Page as Image") {
+            sharePageAsImage()
+            dialog.dismiss()
+        }
+        addSheetRow(container, android.R.drawable.ic_menu_save, "Set Last Read") {
+            setLastRead()
+            dialog.dismiss()
+        }
+        addSheetRow(container, android.R.drawable.ic_menu_add, "Add to Collection") {
+            dialog.dismiss()
+            showCollectionDialog()
+        }
+
+        dialog.setContentView(container)
+        actionsSheet = dialog
+        dialog.show()
+    }
+
+    private fun addSheetRow(
+        container: LinearLayout,
+        iconRes: Int,
+        label: String,
+        onClick: () -> Unit
+    ) {
+        val row = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(0, dp(13), 0, dp(13))
+            isClickable = true
+            isFocusable = true
+            val outValue = TypedValue()
+            theme.resolveAttribute(android.R.attr.selectableItemBackground, outValue, true)
+            setBackgroundResource(outValue.resourceId)
+            setOnClickListener { onClick() }
+        }
+        val icon = ImageView(this).apply {
+            setImageResource(iconRes)
+            val size = dp(24)
+            layoutParams = LinearLayout.LayoutParams(size, size)
+            setColorFilter(Color.parseColor("#2563EB"))
+        }
+        val text = TextView(this).apply {
+            text = label
+            textSize = 15f
+            setTextColor(Color.parseColor("#1E293B"))
+            setPadding(dp(16), 0, 0, 0)
+        }
+        row.addView(icon)
+        row.addView(text)
+        container.addView(row)
+    }
+
+    private fun currentPageNumber(): Int {
+        return if (totalPages > 0) pdfView.currentPage + 1 else 0
+    }
+
+    private fun toggleBookmark() {
+        if (RecentReadManager.isBookmarked(this, docRawUrl)) {
+            RecentReadManager.removeBookmark(this, docRawUrl)
+            Toast.makeText(this, "Bookmark removed", Toast.LENGTH_SHORT).show()
+        } else {
+            val page = currentPageNumber()
+            RecentReadManager.addBookmark(
+                this,
+                RecentItem(docTitle, docGrade, docSubject, docRawUrl, page = page)
+            )
+            if (page > 0) {
+                Toast.makeText(this, "Bookmarked — page $page", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Bookmarked", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun sharePdf() {
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_SUBJECT, docTitle)
+            putExtra(Intent.EXTRA_TEXT, "$docTitle\n$docRawUrl")
+        }
+        startActivity(Intent.createChooser(intent, "Share PDF"))
+    }
+
+    private fun setLastRead() {
+        val page = currentPageNumber()
+        if (page <= 0) {
+            Toast.makeText(this, "PDF is still loading...", Toast.LENGTH_SHORT).show()
+            return
+        }
+        RecentReadManager.saveLastPage(this, docRawUrl, page)
+        Toast.makeText(this, "Last read saved — page $page", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun showCollectionDialog() {
+        val names = RecentReadManager.getCollectionNames(this)
+        val items = (names + "Create new collection…").toTypedArray()
+        AlertDialog.Builder(this)
+            .setTitle("Add to Collection")
+            .setItems(items) { _, which ->
+                if (which < names.size) {
+                    saveToCollection(names[which])
+                } else {
+                    showNewCollectionDialog()
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun showNewCollectionDialog() {
+        val input = EditText(this).apply {
+            hint = "Collection name"
+            inputType = android.text.InputType.TYPE_CLASS_TEXT
+            setPadding(dp(16), dp(12), dp(16), dp(12))
+        }
+        AlertDialog.Builder(this)
+            .setTitle("New Collection")
+            .setView(input)
+            .setPositiveButton("Add") { _, _ ->
+                val name = input.text.toString().trim()
+                if (name.isEmpty()) {
+                    Toast.makeText(this, "Enter a collection name", Toast.LENGTH_SHORT).show()
+                } else {
+                    saveToCollection(name)
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun saveToCollection(name: String) {
+        RecentReadManager.addToCollection(
+            this,
+            CollectionItem(
+                title = docTitle,
+                grade = docGrade,
+                subject = docSubject,
+                fileName = docRawUrl,
+                page = currentPageNumber(),
+                collection = name
+            )
+        )
+        Toast.makeText(this, "Added to \"$name\"", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun sharePageAsImage() {
+        val file = currentPdfFile
+        if (file == null || totalPages <= 0) {
+            Toast.makeText(this, "PDF is still loading...", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val pageIndex = pdfView.currentPage
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val pfd = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
+                val renderer = PdfRenderer(pfd)
+                val page = renderer.openPage(pageIndex)
+                val targetWidth = 1080
+                val scale = targetWidth.toFloat() / page.width
+                val bitmap = Bitmap.createBitmap(
+                    targetWidth,
+                    (page.height * scale).toInt(),
+                    Bitmap.Config.ARGB_8888
+                )
+                bitmap.eraseColor(Color.WHITE)
+                val matrix = Matrix().apply { setScale(scale, scale) }
+                page.render(bitmap, null, matrix, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+                page.close()
+                renderer.close()
+                pfd.close()
+
+                val imagesDir = File(cacheDir, "images").apply { if (!exists()) mkdirs() }
+                val outFile = File(imagesDir, "page_${pageIndex + 1}.png")
+                FileOutputStream(outFile).use { out ->
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+                }
+                withContext(Dispatchers.Main) {
+                    val uri = FileProvider.getUriForFile(
+                        this@PdfViewActivity,
+                        "${packageName}.fileprovider",
+                        outFile
+                    )
+                    val intent = Intent(Intent.ACTION_SEND).apply {
+                        type = "image/png"
+                        putExtra(Intent.EXTRA_STREAM, uri)
+                        putExtra(Intent.EXTRA_TEXT, "$docTitle — page ${pageIndex + 1}")
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    }
+                    startActivity(Intent.createChooser(intent, "Share page image"))
+                }
+            } catch (e: Exception) {
+                Log.e("PdfViewActivity", "Page image failed: ${e.message}", e)
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        this@PdfViewActivity,
+                        "Could not create page image",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+    }
+
+    // ================= AI assistant sheet =================
+
+    private fun showAiSheet() {
+        val dialog = BottomSheetDialog(this)
+        val view = layoutInflater.inflate(R.layout.bottom_sheet_ai_chat, null)
+        val tvSubtitle = view.findViewById<TextView>(R.id.tvAiSheetSubtitle)
+        tvSubtitle.text = if (totalPages > 0) {
+            "$docTitle • Page ${pdfView.currentPage + 1} of $totalPages"
+        } else {
+            docTitle
+        }
+        val messagesContainer = view.findViewById<LinearLayout>(R.id.aiMessagesContainer)
+        val messagesScroll = view.findViewById<ScrollView>(R.id.aiMessagesScroll)
+        val etQuestion = view.findViewById<EditText>(R.id.etAiQuestion)
+        val btnSend = view.findViewById<MaterialButton>(R.id.btnAiSend)
+        view.findViewById<ImageButton>(R.id.btnAiSheetClose).setOnClickListener {
+            dialog.dismiss()
+        }
+
+        aiMessagesContainer = messagesContainer
+        aiMessagesScroll = messagesScroll
+        dialog.setContentView(view)
+        aiSheet = dialog
+        dialog.setOnDismissListener {
+            aiMessagesContainer = null
+            aiMessagesScroll = null
+        }
+        dialog.show()
+
+        addAiMessage(
+            false,
+            "Ask me about \"$docTitle\" — a topic, a concept, or say \"go to page 12\" to jump there."
+        )
+
+        val sendQuestion = {
+            val question = etQuestion.text.toString().trim()
+            if (question.isNotEmpty()) {
+                etQuestion.text?.clear()
+                hideKeyboard(etQuestion)
+                addAiMessage(true, question)
+                handleAiQuestion(question)
+            }
+        }
+        btnSend.setOnClickListener { sendQuestion() }
+        etQuestion.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_SEND) {
+                sendQuestion()
+                true
+            } else {
+                false
+            }
+        }
+    }
+
+    private fun addAiMessage(isUser: Boolean, text: String): View? {
+        val container = aiMessagesContainer ?: return null
+        val row = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = if (isUser) Gravity.END else Gravity.START
+            setPadding(0, 0, 0, dp(8))
+        }
+        val bubble = TextView(this).apply {
+            this.text = text
+            textSize = AppSettings.chatTextSizeSp(this@PdfViewActivity).toFloat()
+            setTextColor(if (isUser) Color.WHITE else Color.parseColor("#0F172A"))
+            background = ContextCompat.getDrawable(this@PdfViewActivity, R.drawable.button_background)
+            backgroundTintList = ColorStateList.valueOf(
+                if (isUser) Color.parseColor("#2563EB") else Color.parseColor("#F1F5F9")
+            )
+            setPadding(dp(12), dp(10), dp(12), dp(10))
+            maxWidth = (resources.displayMetrics.widthPixels * 0.85).toInt()
+        }
+        row.addView(bubble)
+        container.addView(row)
+        aiMessagesScroll?.post {
+            aiMessagesScroll?.fullScroll(View.FOCUS_DOWN)
+        }
+        return row
+    }
+
+    /** Returns a page number for "go to page N" / "last page" / "first page", else null. */
+    private fun parsePageJump(question: String): Int? {
+        val q = question.trim().lowercase()
+        if (q.contains("last page")) return totalPages
+        if (q.contains("first page")) return 1
+        val match = Regex("(?:page|pg\\.?|jump to|go to page|open page)\\s*(\\d+)").find(q)
+        return match?.groupValues?.get(1)?.toIntOrNull()
+    }
+
+    private fun handleAiQuestion(question: String) {
+        // Navigation answers never need the network: jump straight there.
+        val jumpPage = parsePageJump(question)
+        if (jumpPage != null) {
+            if (totalPages <= 0) {
+                addAiMessage(false, "The PDF is still loading — please try again in a moment.")
+            } else if (jumpPage in 1..totalPages) {
+                pdfView.jumpTo(jumpPage - 1, true)
+                addAiMessage(false, "Jumped to page $jumpPage.")
+            } else {
+                addAiMessage(false, "That page is out of range. This document has $totalPages pages.")
+            }
+            return
+        }
+
+        // Anything else goes to the existing tutor engine with document context.
+        // The tutor answers from its own knowledge; it never quotes document
+        // text it has not read.
+        val contextBuilder = StringBuilder()
+        contextBuilder.append("The user is reading the document \"$docTitle\"")
+        if (docSubject.isNotBlank() || docGrade.isNotBlank()) {
+            contextBuilder.append(" (")
+            if (docSubject.isNotBlank()) contextBuilder.append("subject: $docSubject")
+            if (docSubject.isNotBlank() && docGrade.isNotBlank()) contextBuilder.append(", ")
+            if (docGrade.isNotBlank()) contextBuilder.append("class: $docGrade")
+            contextBuilder.append(")")
+        }
+        if (totalPages > 0) {
+            contextBuilder.append(" and is on page ${pdfView.currentPage + 1} of $totalPages")
+        }
+        contextBuilder.append(". Their question: $question. Answer concisely for a student.")
+
+        val thinkingRow = addAiMessage(false, "Thinking…")
+        lifecycleScope.launch {
+            try {
+                val answer = AiTutorService.getAnswerRich(contextBuilder.toString())
+                // Remove only this question's "Thinking…" bubble.
+                if (thinkingRow != null) {
+                    aiMessagesContainer?.removeView(thinkingRow)
+                }
+                val display = if (!answer.sourceLabel.isNullOrBlank()) {
+                    "${answer.text}\n\nSource: ${answer.sourceLabel}"
+                } else {
+                    answer.text
+                }
+                addAiMessage(false, display)
+            } catch (e: Exception) {
+                Log.w("PdfViewActivity", "AI answer failed: ${e.message}")
+                if (thinkingRow != null) {
+                    aiMessagesContainer?.removeView(thinkingRow)
+                }
+                addAiMessage(
+                    false,
+                    "Sorry, I couldn't fetch an answer right now. Please check your internet connection and try again."
+                )
+            }
+        }
     }
 
     private fun openJumpSearch() {
@@ -332,6 +780,7 @@ class PdfViewActivity : AppCompatActivity() {
     // Optimized PDF renderer with memory caching, fast fling, and disabled heavy annotations
     private fun renderPdfFromFile(file: File) {
         layoutProgress.visibility = View.GONE
+        currentPdfFile = file
         try {
             pdfView.fromFile(file)
                 .defaultPage(0)
@@ -340,7 +789,7 @@ class PdfViewActivity : AppCompatActivity() {
                 .enableDoubletap(true)
                 .enableAnnotationRendering(false) // Major performance boost
                 .enableAntialiasing(true)
-                .spacing(12) // Clean page margin
+                .spacing(dp(16)) // Card-style gap between pages (px)
                 .pageFitPolicy(FitPolicy.WIDTH) // Responsive screen width fit
                 .pageFling(true) // Fast, smooth flick scrolling
                 .pageSnap(false) // Continuous smooth flow
@@ -350,6 +799,14 @@ class PdfViewActivity : AppCompatActivity() {
                     val current = pdfView.currentPage + 1
                     tvPageIndicator.text = "Page $current / $totalPages"
                     layoutProgress.visibility = View.GONE
+                    // Resume at the explicitly saved Last Read position, if any.
+                    val savedPage = RecentReadManager.getLastPage(this, docRawUrl)
+                    if (savedPage in 1..nbPages) {
+                        pdfView.jumpTo(savedPage - 1, false)
+                        if (savedPage > 1) {
+                            Toast.makeText(this, "Resumed at page $savedPage", Toast.LENGTH_SHORT).show()
+                        }
+                    }
                 }
                 .onPageChange { page, pageCount ->
                     totalPages = pageCount

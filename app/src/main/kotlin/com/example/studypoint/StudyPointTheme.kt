@@ -3,7 +3,9 @@ package com.example.studypoint
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
     primary = Color(0xFF10B981),
@@ -60,6 +62,23 @@ fun StudyPointTheme(
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography(),
+        content = content
+    )
+}
+
+/**
+ * Same as [StudyPointTheme] but resolves dark/light from the persisted
+ * Settings theme choice (System / Light / Dark) instead of always following
+ * the system. Screens using this wrapper follow the user's theme setting.
+ */
+@Composable
+fun StudyPointThemeWithSettings(
+    content: @Composable () -> Unit
+) {
+    val context = LocalContext.current
+    val dark = remember { AppSettings.isDarkTheme(context) }
+    StudyPointTheme(
+        darkTheme = dark,
         content = content
     )
 }
