@@ -15,6 +15,8 @@ class NotesAdapter(
 
     inner class NoteViewHolder(view: View): RecyclerView.ViewHolder(view){
         val textView: TextView = view.findViewById(R.id.textViewChapter)
+        val badge: TextView? = view.findViewById(R.id.itemBadge)
+        val subtitle: TextView? = view.findViewById(R.id.itemSubtitle)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoteViewHolder {
@@ -25,6 +27,8 @@ class NotesAdapter(
     override fun onBindViewHolder(holder: NoteViewHolder, position: Int) {
         val (chapter,link) = items[position]
         holder.textView.text = chapter
+        holder.badge?.text = (position + 1).toString()
+        holder.subtitle?.text = "Notes, MCQs and short questions"
         holder.itemView.setOnClickListener {
             onClick(chapter, link)
         }

@@ -7,6 +7,8 @@ import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.studypoint.practicetest.QuizActivity
 import com.google.android.material.button.MaterialButton
 import java.util.Locale
@@ -1231,12 +1233,20 @@ class NotesActivity : AppCompatActivity() {
             @Suppress("UNCHECKED_CAST")
             val notesMap = resolvedSubjectData["Notes"] as Map<String, String>
 
-            ids.zip(notesMap.entries.toList()).forEach { (id, entry) ->
-                val btn = findViewById<MaterialButton>(id)
-                btn.visibility = View.VISIBLE
-                btn.text = entry.key
-                btn.setOnClickListener {
-                    open(entry.value, "$displaySubject ${entry.key}", gradeKey, displaySubject)
+            // Chapter cards (approved design): one white card row per chapter
+            // with a teal number badge — same destination as the old buttons,
+            // and no 11-row cap, so chapters beyond 11 are no longer cut off.
+            findViewById<RecyclerView>(R.id.chapterCardList).apply {
+                visibility = View.VISIBLE
+                layoutManager = LinearLayoutManager(this@NotesActivity)
+                adapter = GenericGridAdapter(
+                    notesMap.entries.map { entry ->
+                        GridItem(entry.key, entry.key, 0, "")
+                    },
+                    useListRow = true
+                ) { item ->
+                    val url = notesMap[item.id] ?: ""
+                    open(url, "$displaySubject ${item.title}", gradeKey, displaySubject)
                 }
             }
         } else if (material.equals("Guess Papers", ignoreCase = true) &&

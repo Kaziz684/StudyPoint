@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Approved chapter-row design: white rounded card on a light background,
+     teal circular badge with a WHITE number, bold dark title, gray subtitle,
+     chevron on the right. Used by GenericGridAdapter with useListRow=true
+     (SectionsActivity chapter / topic / section lists). -->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingStart="16dp"
     android:paddingEnd="16dp"
-    android:paddingTop="6dp"
-    android:paddingBottom="6dp">
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp">
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardContainer"
@@ -15,12 +19,12 @@
         android:clickable="true"
         android:focusable="true"
         app:cardBackgroundColor="@color/white"
-        app:cardCornerRadius="14dp"
-        app:cardElevation="2dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="3dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:strokeColor="#E2E8F0"
+        app:strokeColor="@color/edu_border"
         app:strokeWidth="1dp">
 
         <LinearLayout
@@ -33,19 +37,22 @@
             android:paddingTop="14dp"
             android:paddingBottom="14dp">
 
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/itemIcon"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:padding="4dp"
-                android:scaleType="centerInside"
-                android:src="@drawable/ic_book"
-                app:shapeAppearanceOverlay="@style/ShapeAppearance.StudyPoint.MediumComponent" />
+            <!-- Number badge: teal circle, white number (set in adapter) -->
+            <TextView
+                android:id="@+id/itemBadge"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/badge_teal_circle"
+                android:gravity="center"
+                android:text="1"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
+                android:layout_marginStart="14dp"
                 android:layout_weight="1"
                 android:orientation="vertical">
 
@@ -56,7 +63,7 @@
                     android:ellipsize="end"
                     android:maxLines="2"
                     android:text="Title"
-                    android:textColor="#0F172A"
+                    android:textColor="@color/edu_text_primary"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
@@ -68,10 +75,18 @@
                     android:ellipsize="end"
                     android:maxLines="1"
                     android:text="Subtitle"
-                    android:textColor="#64748B"
+                    android:textColor="@color/edu_text_secondary"
                     android:textSize="13sp" />
 
             </LinearLayout>
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="8dp"
+                android:contentDescription="Open"
+                android:src="@drawable/ic_chevron_right"
+                app:tint="#94A3B8" />
 
         </LinearLayout>
 

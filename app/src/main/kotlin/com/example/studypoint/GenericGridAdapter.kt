@@ -24,7 +24,10 @@ class GenericGridAdapter(
 
     class GridViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val card: View = itemView.findViewById(R.id.cardContainer)
-        val icon: ImageView = itemView.findViewById(R.id.itemIcon)
+        // List rows (item_chapter_row) carry a number badge instead of an icon;
+        // grid/glass cards carry an icon instead of a badge — both are nullable.
+        val icon: ImageView? = itemView.findViewById(R.id.itemIcon)
+        val badge: TextView? = itemView.findViewById(R.id.itemBadge)
         val title: TextView = itemView.findViewById(R.id.itemTitle)
         val subtitle: TextView? = itemView.findViewById(R.id.itemSubtitle)
     }
@@ -43,8 +46,22 @@ class GenericGridAdapter(
     override fun onBindViewHolder(holder: GridViewHolder, position: Int) {
         val item = items[position]
         holder.title.text = item.title
-        holder.subtitle?.text = item.subtitle
-        holder.subtitle?.visibility = if (item.subtitle.isNotEmpty()) View.VISIBLE else View.GONE
+        if (useListRow) {
+            // Approved chapter-row design: teal badge with a white number
+            // (the chapter number when the id is numeric, else the row order),
+            // and a truthful generic subtitle when the item carries none.
+            holder.badge?.visibility = View.VISIBLE
+            holder.badge?.text = item.id.toIntOrNull()?.toString() ?: (position + 1).toString()
+            holder.icon?.visibility = View.GONE
+            holder.subtitle?.text = item.subtitle.ifBlank { "Notes, MCQs and short questions" }
+            holder.subtitle?.visibility = View.VISIBLE
+        } else {
+            holder.subtitle?.text = item.subtitle
+            holder.subtitle?.visibility = if (item.subtitle.isNotEmpty()) View.VISIBLE else View.GONE
+            holder.icon?.setImageResource(item.iconRes)
+            // No need for separate tint if we use rich icons with backgrounds
+            holder.icon?.imageTintList = null
+        }
         // Soft pastel card tint (flowchart style) for square cards only
         if (!useGlassCard && !useListRow) {
             val pastel = listOf(
@@ -55,9 +72,6 @@ class GenericGridAdapter(
                 pastel[position % pastel.size].toInt()
             )
         }
-        holder.icon.setImageResource(item.iconRes)
-        // No need for separate tint if we use rich icons with backgrounds
-        holder.icon.imageTintList = null 
         holder.card.setOnClickListener { onItemClick(item) }
     }
 

@@ -1,13 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/textViewChapter"
+<!-- Approved chapter-row design for the ChaptersActivity list:
+     white rounded card, teal badge with a WHITE number, bold dark title,
+     gray subtitle, chevron on the right. Bound by NotesAdapter. -->
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:maxLines="2"
-    android:ellipsize="end"
-    android:padding="16dp"
-    android:textColor="@color/black"
-    android:textSize="18sp"
-    android:background="@color/white"
-    android:layout_marginBottom="8dp"/>
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="8dp"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="3dp"
+    app:strokeColor="@color/edu_border"
+    app:strokeWidth="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/itemBadge"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/badge_teal_circle"
+            android:gravity="center"
+            android:text="1"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textViewChapter"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:text="Chapter"
+                android:textColor="@color/edu_text_primary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/itemSubtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="Notes, MCQs and short questions"
+                android:textColor="@color/edu_text_secondary"
+                android:textSize="13sp" />
+
+        </LinearLayout>
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="8dp"
+            android:contentDescription="Open"
+            android:src="@drawable/ic_chevron_right"
+            app:tint="#94A3B8" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- NotesActivity screen: option buttons restyled as white cards to match the
+     approved chapter-card language; chapter lists use the card RecyclerView
+     below (chapterCardList), shown only for the Notes chapter branch. -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="@color/white"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/edu_bg"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -21,20 +25,31 @@
             android:layout_gravity="center"
             android:padding="16dp"/>
 
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/chapterCardList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false"
+            android:clipToPadding="false"
+            android:visibility="gone" />
+
         <LinearLayout
             android:orientation="vertical"
             android:padding="16dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <!-- 9 chapter buttons -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnCh1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Chapter 1"
-                android:backgroundTint="@color/primaryVariant"
-                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:textColor="@color/edu_text_primary"
+                app:backgroundTint="@color/white"
+                app:strokeColor="@color/edu_border"
+                app:strokeWidth="1dp"
+                app:cornerRadius="16dp"
                 android:layout_marginBottom="10dp"/>
 
             <com.google.android.material.button.MaterialButton
@@ -42,8 +57,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Chapter 2"
-                android:backgroundTint="@color/primaryVariant"
-                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:textColor="@color/edu_text_primary"
+                app:backgroundTint="@color/white"
+                app:strokeColor="@color/edu_border"
+                app:strokeWidth="1dp"
+                app:cornerRadius="16dp"
                 android:layout_marginBottom="10dp"/>
 
             <com.google.android.material.button.MaterialButton
@@ -51,8 +70,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Chapter 3"
-                android:backgroundTint="@color/primaryVariant"
-                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:textColor="@color/edu_text_primary"
+                app:backgroundTint="@color/white"
+                app:strokeColor="@color/edu_border"
+                app:strokeWidth="1dp"
+                app:cornerRadius="16dp"
                 android:layout_marginBottom="10dp"/>
 
             <com.google.android.material.button.MaterialButton
@@ -60,8 +83,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Chapter 4"
-                android:backgroundTint="@color/primaryVariant"
-                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:textColor="@color/edu_text_primary"
+                app:backgroundTint="@color/white"
+                app:strokeColor="@color/edu_border"
+                app:strokeWidth="1dp"
+                app:cornerRadius="16dp"
                 android:layout_marginBottom="10dp"/>
 
             <com.google.android.material.button.MaterialButton
@@ -69,8 +96,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Chapter 5"
-                android:backgroundTint="@color/primaryVariant"
-                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:textColor="@color/edu_text_primary"
+                app:backgroundTint="@color/white"
+                app:strokeColor="@color/edu_border"
+                app:strokeWidth="1dp"
+                app:cornerRadius="16dp"
                 android:layout_marginBottom="10dp"/>
 
             <com.google.android.material.button.MaterialButton
@@ -78,8 +109,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Chapter 6"
-                android:backgroundTint="@color/primaryVariant"
-                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:textColor="@color/edu_text_primary"
+                app:backgroundTint="@color/white"
+                app:strokeColor="@color/edu_border"
+                app:strokeWidth="1dp"
+                app:cornerRadius="16dp"
                 android:layout_marginBottom="10dp"/>
 
             <com.google.android.material.button.MaterialButton
@@ -87,8 +122,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Chapter 7"
-                android:backgroundTint="@color/primaryVariant"
-                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:textColor="@color/edu_text_primary"
+                app:backgroundTint="@color/white"
+                app:strokeColor="@color/edu_border"
+                app:strokeWidth="1dp"
+                app:cornerRadius="16dp"
                 android:layout_marginBottom="10dp"/>
 
             <com.google.android.material.button.MaterialButton
@@ -96,8 +135,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Chapter 8"
-                android:backgroundTint="@color/primaryVariant"
-                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:textColor="@color/edu_text_primary"
+                app:backgroundTint="@color/white"
+                app:strokeColor="@color/edu_border"
+                app:strokeWidth="1dp"
+                app:cornerRadius="16dp"
                 android:layout_marginBottom="10dp"/>
 
             <com.google.android.material.button.MaterialButton
@@ -105,8 +148,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Chapter 9"
-                android:backgroundTint="@color/primaryVariant"
-                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:textColor="@color/edu_text_primary"
+                app:backgroundTint="@color/white"
+                app:strokeColor="@color/edu_border"
+                app:strokeWidth="1dp"
+                app:cornerRadius="16dp"
                 android:layout_marginBottom="10dp"/>
 
             <com.google.android.material.button.MaterialButton
@@ -114,8 +161,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Chapter 10"
-                android:backgroundTint="@color/primaryVariant"
-                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:textColor="@color/edu_text_primary"
+                app:backgroundTint="@color/white"
+                app:strokeColor="@color/edu_border"
+                app:strokeWidth="1dp"
+                app:cornerRadius="16dp"
                 android:layout_marginBottom="10dp"/>
 
             <com.google.android.material.button.MaterialButton
@@ -123,8 +174,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Chapter 11"
-                android:backgroundTint="@color/primaryVariant"
-                android:textColor="@color/white"/>
+                android:textStyle="bold"
+                android:textColor="@color/edu_text_primary"
+                app:backgroundTint="@color/white"
+                app:strokeColor="@color/edu_border"
+                app:strokeWidth="1dp"
+                app:cornerRadius="16dp"/>
         </LinearLayout>
     </LinearLayout>
 </ScrollView>
