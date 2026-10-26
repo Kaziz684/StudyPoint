@@ -81,9 +81,16 @@ Guidelines:
             }
         }
 
+        // The PDF viewer sends document context + question in one string
+        // ("... Their question: <question>. Answer concisely for a student.").
+        // Search engines and the keyword matcher need the bare question,
+        // not the whole context blob — otherwise every search fails and
+        // the student gets a false "check your internet" refusal.
+        val searchQuery = extractBareQuestion(trimmed)
+
         // 2. Wikipedia SEARCH (works for any study question; also returns a topic image)
         try {
-            val wikiAnswer = searchWikipedia(trimmed)
+            val wikiAnswer = searchWikipedia(searchQuery)
             if (wikiAnswer != null) {
                 return@withContext wikiAnswer
             }
@@ -93,7 +100,7 @@ Guidelines:
 
         // 3. Dynamic Real-Time Web Search Grounding (DuckDuckGo + Wikipedia REST)
         try {
-            val liveWebResult = fetchLiveWebSummary(trimmed)
+            val liveWebResult = fetchLiveWebSummary(searchQuery)
             if (!liveWebResult.isNullOrBlank()) {
                 return@withContext AiAnswer(liveWebResult)
             }
@@ -102,7 +109,22 @@ Guidelines:
         }
 
         // 4. Clean Universal Knowledge Engine (Unrestricted, direct, clean markdown)
-        return@withContext AiAnswer(generateUniversalTutorAnswer(trimmed))
+        return@withContext AiAnswer(generateUniversalTutorAnswer(searchQuery))
+    }
+
+    /**
+     * The PDF viewer calls getAnswerRich() with document context + question
+     * in one string ("... Their question: <question>. Answer concisely for
+     * a student."). Returns just the student's question, so web search and
+     * the keyword matcher receive a clean query.
+     */
+    private fun extractBareQuestion(query: String): String {
+        val marker = "Their question:"
+        val idx = query.indexOf(marker)
+        if (idx < 0) return query
+        var q = query.substring(idx + marker.length).trim()
+        q = q.replace(Regex("(?i)\\.?\\s*Answer concisely for a student\\.?\\s*$"), "").trim()
+        return q.ifBlank { query }
     }
 
     /**
@@ -399,6 +421,38 @@ Guidelines:
                 "• **Keys:** Primary Key guarantees unique row identification; Foreign Key links related tables.\n" +
                 "• **Normalization:** Standardizing tables (1NF, 2NF, 3NF) to minimize redundancy and prevent anomalies."
 
+            // 6b. Pakistan Studies — History & Constitutional Development
+            q.contains("maqasid") || q.contains("objectives resolution") ||
+                q.contains("مقاصد") ->
+                "### Objectives Resolution (Qarardad-e-Maqasid)\n\n" +
+                "The Objectives Resolution was passed on **12 March 1949** by Pakistan's first Constituent Assembly. " +
+                "It laid down that sovereignty belongs to Allah, and that the state would exercise its powers through the chosen representatives of the people, " +
+                "with democracy, freedom, equality and social justice. It later became the preamble of Pakistan's constitutions."
+            q.contains("قرارداد") || q.contains("qarardad") ||
+                q.contains("lahore resolution") || q.contains("pakistan resolution") ->
+                "### Lahore Resolution (Qarardad-e-Pakistan)\n\n" +
+                "The Lahore Resolution was passed on **23 March 1940** at Minto Park, Lahore, during the annual session of the All-India Muslim League. " +
+                "It was presented by A. K. Fazlul Huq. The resolution demanded that the Muslim-majority areas of north-western and eastern India " +
+                "be grouped into independent states — this demand became the foundation of the movement for Pakistan."
+            q.contains("two nation") || q.contains("two-nation") ||
+                q.contains("nazaria") || q.contains("دو قومی") ->
+                "### Two-Nation Theory\n\n" +
+                "The Two-Nation Theory states that the Muslims and Hindus of the Indian subcontinent were two separate nations, " +
+                "with different religions, laws, heroes and customs — and therefore the Muslims needed a separate homeland. " +
+                "It was the ideological basis of the Pakistan Movement, most famously presented by Muhammad Ali Jinnah."
+            q.contains("constitution") || q.contains("aain") || q.contains("آئین") ->
+                "### Constitutions of Pakistan\n\n" +
+                "• **1956 Constitution:** Pakistan's first constitution, enforced on 23 March 1956; Pakistan became an Islamic Republic.\n" +
+                "• **1962 Constitution:** Enforced on 8 June 1962; it introduced a presidential system.\n" +
+                "• **1973 Constitution:** Passed on 10 April 1973 and enforced on 14 August 1973; it is the current constitution, " +
+                "providing a parliamentary system with Islam as the state religion."
+            q.contains("azadi") || q.contains("independence of pakistan") ||
+                q.contains("pakistan kab bana") || q.contains("pakistan kab bani") ||
+                (q.contains("14 august") && !q.contains("1973")) || q.contains("14 اگست") ||
+                q.contains("partition") || q.contains("taqseem") ->
+                "### Independence of Pakistan\n\n" +
+                "Pakistan came into being on **14 August 1947** as a result of the partition of British India under the Indian Independence Act 1947. " +
+                "Muhammad Ali Jinnah became its first Governor-General and Liaquat Ali Khan its first Prime Minister."
             // 7. Explicit 2026-27 Syllabus / Punjab Board inquiries
             q.contains("2026") || q.contains("2027") || q.contains("new syllabus") || q.contains("pctb") || q.contains("punjab board") ->
                 "### Punjab Board (PCTB) New Syllabus 2026-27\n\n" +
@@ -408,12 +462,12 @@ Guidelines:
                 "• **Pakistan Studies (مطالعہ پاکستان):** Dedicated compulsory subject for 10th and 12th Classes (replaces Islamiyat in these grades).\n" +
                 "• **Subjects Content:** All science and arts subjects are updated to the latest single conceptual syllabus editions with SLO-based testing (Student Learning Outcomes)."
 
-            // 8. Honest fallback (no invented content)
+            // 8. Honest fallback (no invented content, no false internet blame)
             else ->
                 "### ${query.replaceFirstChar { it.uppercase() }}\n\n" +
-                "I could not fetch a detailed answer for this topic just now - the online search did not return a result. " +
-                "Please check your internet connection and try again, or ask in a simpler way, for example: \"What is photosynthesis?\"\n\n" +
-                "Tip: You can also find this topic in the app's Notes, MCQs and Paper Generator sections."
+                "I could not find a detailed answer for this topic in the search results just now. " +
+                "Please try asking in shorter, simpler words — for example, just the name of the topic — " +
+                "or check this topic in the app's Notes, MCQs and Paper Generator sections."
         }
     }
 }
