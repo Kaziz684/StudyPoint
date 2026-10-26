@@ -204,16 +204,43 @@ class PdfViewActivity : AppCompatActivity() {
 
     private fun showActionsSheet() {
         val dialog = BottomSheetDialog(this)
+        // Dark card in ALL themes with full-white text: the previous white
+        // background was overridden by the system dark theme on some devices,
+        // so the sheet now hardcodes its own dark background + white text.
+        val sheetBg = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            setColor(Color.parseColor("#1E293B"))
+            cornerRadii = floatArrayOf(
+                dp(16).toFloat(), dp(16).toFloat(),
+                dp(16).toFloat(), dp(16).toFloat(),
+                0f, 0f, 0f, 0f
+            )
+        }
         val container = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(dp(20), dp(16), dp(20), dp(24))
+            background = sheetBg
+            setPadding(dp(16), dp(12), dp(16), dp(16))
         }
+
+        // Drag handle
+        val handle = View(this).apply {
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                setColor(Color.parseColor("#64748B"))
+                cornerRadius = dp(2).toFloat()
+            }
+            layoutParams = LinearLayout.LayoutParams(dp(40), dp(4)).apply {
+                gravity = Gravity.CENTER_HORIZONTAL
+                bottomMargin = dp(12)
+            }
+        }
+        container.addView(handle)
 
         val titleView = TextView(this).apply {
             text = docTitle
-            textSize = 16f
+            textSize = 15f
             setTypeface(null, android.graphics.Typeface.BOLD)
-            setTextColor(Color.parseColor("#1E293B"))
+            setTextColor(Color.WHITE)
             maxLines = 1
             ellipsize = android.text.TextUtils.TruncateAt.END
         }
@@ -225,8 +252,8 @@ class PdfViewActivity : AppCompatActivity() {
                 "Loading document..."
             }
             textSize = 12f
-            setTextColor(Color.parseColor("#64748B"))
-            setPadding(0, dp(2), 0, dp(12))
+            setTextColor(Color.parseColor("#CBD5E1"))
+            setPadding(0, dp(2), 0, dp(10))
         })
 
         val bookmarked = RecentReadManager.isBookmarked(this, docRawUrl)
@@ -257,19 +284,12 @@ class PdfViewActivity : AppCompatActivity() {
 
         dialog.setContentView(container)
         actionsSheet = dialog
-        dialog.show()
-        // Force a light sheet background in BOTH themes: the dialog background
-        // follows the system theme, which made the dark text unreadable in dark mode.
-        val sheetBg = GradientDrawable().apply {
-            shape = GradientDrawable.RECTANGLE
-            setColor(Color.WHITE)
-            cornerRadii = floatArrayOf(
-                dp(16).toFloat(), dp(16).toFloat(),
-                dp(16).toFloat(), dp(16).toFloat(),
-                0f, 0f, 0f, 0f
-            )
+        // Apply the same dark background to the sheet frame itself (after show,
+        // so it is the last writer and the system theme cannot override it).
+        dialog.setOnShowListener {
+            dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)?.background = sheetBg
         }
-        dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)?.background = sheetBg
+        dialog.show()
     }
 
     private fun addSheetRow(
@@ -281,7 +301,7 @@ class PdfViewActivity : AppCompatActivity() {
         val row = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
-            setPadding(0, dp(13), 0, dp(13))
+            setPadding(0, dp(10), 0, dp(10))
             isClickable = true
             isFocusable = true
             val outValue = TypedValue()
@@ -291,15 +311,15 @@ class PdfViewActivity : AppCompatActivity() {
         }
         val icon = ImageView(this).apply {
             setImageResource(iconRes)
-            val size = dp(24)
+            val size = dp(22)
             layoutParams = LinearLayout.LayoutParams(size, size)
             setColorFilter(Color.parseColor("#10B981"))
         }
         val text = TextView(this).apply {
             text = label
-            textSize = 15f
+            textSize = 14f
             setTypeface(null, android.graphics.Typeface.BOLD)
-            setTextColor(Color.parseColor("#1E293B"))
+            setTextColor(Color.WHITE)
             setPadding(dp(16), 0, 0, 0)
         }
         row.addView(icon)
