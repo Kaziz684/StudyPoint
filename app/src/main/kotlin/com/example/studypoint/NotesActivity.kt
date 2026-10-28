@@ -704,8 +704,8 @@ class NotesActivity : AppCompatActivity() {
             ),
             "11" to mapOf(
                 "English" to mapOf(
-                    "Textbook" to "https://drive.google.com/uc?export=download&id=11_ENGLISH_BOOK",
-                    "Book" to "https://drive.google.com/uc?export=download&id=11_ENGLISH_BOOK",
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=1afCHfN2cVXldmsm-NqNI-LY4OqjADp-9",
+                    "Book" to "https://drive.google.com/uc?export=download&id=1afCHfN2cVXldmsm-NqNI-LY4OqjADp-9",
                     "Notes" to mapOf(
                         "Chapter 1: Khatam-un-Nabiyeen Hazrat Muhammad" to "https://drive.google.com/uc?export=download&id=1B8rTLoSTydG5ATjtksoZvy2EANhnJ3JL",
                         "Chapter 2: Responsibilities of Youth in Nation-Building" to "https://drive.google.com/uc?export=download&id=1b8eYscuFOy6SqhjdI7wPwEx31hkJyxV2",
@@ -736,8 +736,8 @@ class NotesActivity : AppCompatActivity() {
                     )
                 ),
                 "Urdu" to mapOf(
-                    "Textbook" to "https://drive.google.com/uc?export=download&id=11_URDU_BOOK",
-                    "Book" to "https://drive.google.com/uc?export=download&id=11_URDU_BOOK",
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=1aTi2KkZlVr4M6GPYzkFANFTiaZE6OgjF",
+                    "Book" to "https://drive.google.com/uc?export=download&id=1aTi2KkZlVr4M6GPYzkFANFTiaZE6OgjF",
                     "Notes" to listOf("COMING_SOON"),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=11_URDU_PP_2022",
@@ -753,8 +753,8 @@ class NotesActivity : AppCompatActivity() {
                     )
                 ),
                 "Physics" to mapOf(
-                    "Textbook" to "https://drive.google.com/uc?export=download&id=11_PHY_BOOK",
-                    "Book" to "https://drive.google.com/uc?export=download&id=11_PHY_BOOK",
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=1ab4VrP-GImvORivWM-sCPYBzkPeZ-6tk",
+                    "Book" to "https://drive.google.com/uc?export=download&id=1ab4VrP-GImvORivWM-sCPYBzkPeZ-6tk",
                     "Notes" to mapOf(
                         "Chapter 1: Measurements" to "https://drive.google.com/uc?export=download&id=1q_wbehgin6YnR3yGHZnvl2ijuiaiUTyb",
                         "Chapter 2: Force and Motion" to "https://drive.google.com/uc?export=download&id=1oT9vczT4OfbmLq8-_I_2b-jdqD-65bd3",
@@ -783,8 +783,8 @@ class NotesActivity : AppCompatActivity() {
                     )
                 ),
                 "Chemistry" to mapOf(
-                    "Textbook" to "https://drive.google.com/uc?export=download&id=11_CHEM_BOOK",
-                    "Book" to "https://drive.google.com/uc?export=download&id=11_CHEM_BOOK",
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=12PA-4aas6C44ICsKaP6BtoWUtikIgtap",
+                    "Book" to "https://drive.google.com/uc?export=download&id=12PA-4aas6C44ICsKaP6BtoWUtikIgtap",
                     "Notes" to listOf("COMING_SOON"),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=11_CHEM_PP_2022",
@@ -800,8 +800,8 @@ class NotesActivity : AppCompatActivity() {
                     )
                 ),
                 "Biology" to mapOf(
-                    "Textbook" to "https://drive.google.com/uc?export=download&id=11_BIO_BOOK",
-                    "Book" to "https://drive.google.com/uc?export=download&id=11_BIO_BOOK",
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=1awJObZJNIrMj0-m2lM-8i5mRLZhJsFe0",
+                    "Book" to "https://drive.google.com/uc?export=download&id=1awJObZJNIrMj0-m2lM-8i5mRLZhJsFe0",
                     "Notes" to mapOf(
                         "Chapter 1: Biodiversity and Classification" to "https://drive.google.com/uc?export=download&id=1m7Kig55O7g6yPLgFYDqsKKDqRytoO1PX",
                         "Chapter 2: Bacteria and Viruses" to "https://drive.google.com/uc?export=download&id=1WxygpeR0n2KUWjUhabBj4bUrE_a_q0dJ",
@@ -846,8 +846,8 @@ class NotesActivity : AppCompatActivity() {
                     )
                 ),
                 "Computer" to mapOf(
-                    "Textbook" to "https://drive.google.com/uc?export=download&id=11_CS_BOOK",
-                    "Book" to "https://drive.google.com/uc?export=download&id=11_CS_BOOK",
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=1a_YzrEd7kiFt7xC52ZMLEc3uP7aliRb3",
+                    "Book" to "https://drive.google.com/uc?export=download&id=1a_YzrEd7kiFt7xC52ZMLEc3uP7aliRb3",
                     "Notes" to mapOf(
                         "Unit 1: Introduction to Software Development" to "https://drive.google.com/uc?export=download&id=1XXZgqOoaGiGwBt3X9C0RrWsDWtnxwEVR",
                         "Unit 2: Python Programming" to "https://drive.google.com/uc?export=download&id=1P45tJl1PUk48_fN7cpjV5KP6ii1acniG"
@@ -866,8 +866,8 @@ class NotesActivity : AppCompatActivity() {
                     )
                 ),
                 "Islamiyat" to mapOf(
-                    "Textbook" to "https://drive.google.com/uc?export=download&id=11_ISL_BOOK",
-                    "Book" to "https://drive.google.com/uc?export=download&id=11_ISL_BOOK",
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=12_6Yg-5gbYju8u1yIvOnYf9XjpJiWY10",
+                    "Book" to "https://drive.google.com/uc?export=download&id=12_6Yg-5gbYju8u1yIvOnYf9XjpJiWY10",
                     "Notes" to listOf("COMING_SOON"),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=11_ISL_PP_2022",
