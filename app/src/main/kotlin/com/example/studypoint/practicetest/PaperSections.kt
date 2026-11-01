@@ -104,6 +104,39 @@ object PaperSections {
         ) WRITING else CHAPTERS
     }
 
+    /**
+     * Writing-item chapters (English composition). When the user selects
+     * these in the Paper Generator, each item becomes its OWN numbered
+     * question (Q.4, Q.5, ...) in board-pattern wording — never (i)/(ii)
+     * sub-parts bundled under a single "detailed answers" question.
+     * Board-pattern papers (with OR-alternatives) are untouched: this is
+     * only for the generic custom/manual paper path.
+     */
+    private val writingChapters = setOf(
+        "story", "stories", "letter", "letters",
+        "application", "applications", "dialogue", "dialogues"
+    )
+
+    /** True when this written question is a story / letter / application / dialogue item. */
+    fun isWritingItem(wq: WrittenQuestion): Boolean =
+        wq.chapterName.trim().lowercase() in writingChapters
+
+    /**
+     * Board-pattern wording for a writing item. Story rows store a bare title
+     * ("A FOOLISH STAG"), so print the board question; letters, applications
+     * and dialogues already carry full "Write a ..." phrasing and pass through.
+     */
+    fun writingQuestionText(wq: WrittenQuestion): String {
+        val q = wq.question.trim()
+        return if (wq.chapterName.trim().lowercase() in setOf("story", "stories") &&
+            !q.startsWith("Write a story", ignoreCase = true)
+        ) {
+            "Write a story on the topic '$q'"
+        } else {
+            wq.question
+        }
+    }
+
     /** Short display prefix for a selection row, e.g. "غزل" / "نظم" / "سبق" / "Grammar". */
     fun urduRowPrefix(portion: String): String = when (portion) {
         GHAZAL -> "غزل"

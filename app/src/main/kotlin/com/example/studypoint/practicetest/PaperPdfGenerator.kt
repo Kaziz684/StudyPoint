@@ -581,7 +581,24 @@ object PaperPdfGenerator {
             }
         }
         writtenSection(data.shorts, "Write short answers to the following questions:", true)
-        writtenSection(data.longs, "Write detailed answers to the following questions:", false)
+        // Long questions: non-writing items stay grouped under one number
+        // with (i)/(ii) parts; each writing item (story / letter /
+        // application / dialogue) becomes its OWN numbered question in
+        // board-pattern wording, never a part under "detailed answers".
+        val (writingLongs, otherLongs) = data.longs.partition { PaperSections.isWritingItem(it) }
+        writtenSection(otherLongs, "Write detailed answers to the following questions:", false)
+        // Each writing item: its own numbered question, numbered right after
+        // Q.1/Q.2/Q.3, with board-pattern wording and its own marks.
+        val writingQs: List<Pair<Int, WrittenQuestion>> = writingLongs.map { wq ->
+            qCounter++
+            val marksSuffix = if (wq.marks.isNotBlank()) "   (Marks: ${wq.marks})" else ""
+            val qLayout = layoutOf(
+                boldPrefix("Q.$qCounter  ", PaperSections.writingQuestionText(wq) + marksSuffix),
+                qPaintW
+            )
+            blocks += blocksFor(listOf(qLayout))
+            qCounter to wq
+        }
 
         // ---------- Answer key & solutions (at the end) ----------
         if (data.includeAnswers && totalQuestions > 0) {
@@ -626,7 +643,16 @@ object PaperPdfGenerator {
                 }
             }
             solutionSection(data.shorts, "Q.$shortQ  Short Questions \u2014 Answers")
-            solutionSection(data.longs, "Q.$longQ  Long Questions \u2014 Solutions")
+            solutionSection(otherLongs, "Q.$longQ  Long Questions \u2014 Solutions")
+            // Solutions for the standalone writing questions, under their own numbers.
+            writingQs.forEach { (qn, wq) ->
+                solHeading("Q.$qn  Solution")
+                if (wq.answer.isNotBlank()) {
+                    blocks += blocksFor(listOf(layoutOf(boldPrefix("", wq.answer), ansPaint)))
+                } else {
+                    blocks += blocksFor(listOf(layoutOf("(Answer not available in the source data)", missPaint)))
+                }
+            }
         }
 
         // ---------- Pagination ----------

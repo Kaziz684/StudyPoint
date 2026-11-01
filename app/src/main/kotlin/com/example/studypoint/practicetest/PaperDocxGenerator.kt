@@ -466,7 +466,21 @@ object PaperDocxGenerator {
             }
         }
         writtenSection(data.shorts, "Write short answers to the following questions:", true)
-        writtenSection(data.longs, "Write detailed answers to the following questions:", false)
+        // Long questions: non-writing items stay grouped under one number
+        // with (i)/(ii) parts; each writing item (story / letter /
+        // application / dialogue) becomes its OWN numbered question in
+        // board-pattern wording, never a part under "detailed answers".
+        val (writingLongs, otherLongs) = data.longs.partition { PaperSections.isWritingItem(it) }
+        writtenSection(otherLongs, "Write detailed answers to the following questions:", false)
+        // Each writing item: its own numbered question, numbered right after
+        // Q.1/Q.2/Q.3, with board-pattern wording and its own marks.
+        val writingQs = mutableListOf<Pair<Int, WrittenQuestion>>()
+        writingLongs.forEach { wq ->
+            qCounter++
+            val marksSuffix = if (wq.marks.isNotBlank()) "   (Marks: " + wq.marks + ")" else ""
+            sb.append(pBoldPrefix("Q." + qCounter + "  ", PaperSections.writingQuestionText(wq) + marksSuffix, after = 130))
+            writingQs += qCounter to wq
+        }
 
         if (data.includeAnswers && (data.mcqs.isNotEmpty() || data.shorts.isNotEmpty() || data.longs.isNotEmpty())) {
             sb.append(keyTitleXml("ANSWER KEY & SOLUTIONS"))
@@ -486,7 +500,16 @@ object PaperDocxGenerator {
                 }
             }
             solutionSection(data.shorts, "Q." + shortQ + "  Short Questions \u2014 Answers")
-            solutionSection(data.longs, "Q." + longQ + "  Long Questions \u2014 Solutions")
+            solutionSection(otherLongs, "Q." + longQ + "  Long Questions \u2014 Solutions")
+            // Solutions for the standalone writing questions, under their own numbers.
+            writingQs.forEach { (qn, wq) ->
+                sb.append(pText("Q." + qn + "  Solution", bold = true, size = 26, color = NAVY, after = 120))
+                if (wq.answer.isNotBlank()) {
+                    sb.append(pBoldPrefix("", wq.answer, size = 22, color = ANS, after = 130))
+                } else {
+                    sb.append(pText("(Answer not available in the source data)", size = 21, color = MUTED, after = 130))
+                }
+            }
         }
         return writeDocx(sb.toString(), data.testTitle, logo, outFile)
     }
