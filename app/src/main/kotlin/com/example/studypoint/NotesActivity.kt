@@ -1001,6 +1001,7 @@ class NotesActivity : AppCompatActivity() {
                     ),
                     "MCQs" to "COMING_SOON",
                     "Guess Papers" to mapOf(
+                        "Pairing Scheme 2027" to "https://drive.google.com/uc?export=download&id=1dUFDvYJBueaZrajJrixNDk_x0wGLBGgP",
                         "2027" to "https://drive.google.com/uc?export=download&id=12_MATH_GP_2027",
                         "2026" to "https://drive.google.com/uc?export=download&id=12_MATH_GP_2026"
                     )
