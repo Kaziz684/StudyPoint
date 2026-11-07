@@ -1775,7 +1775,8 @@ fun ImportantQuestionsCard() {
                         "https://drive.google.com/uc?export=download&id=1zMcfOpnbkOpvNbdpDP4KWtdJgP-kMOsg",
                         "https://drive.google.com/uc?export=download&id=1OFKI3Bqg_eIK4LIcNXIblt3y7lxwqpSw",
                         "https://drive.google.com/uc?export=download&id=1l_Jhe3r5Fuet9MEX3nfiXqQPtsBFXG4q",
-                        "https://drive.google.com/uc?export=download&id=1urZZ790L-llYvi_zr5vAnDjfM2ZUJX3g"
+                        "https://drive.google.com/uc?export=download&id=1urZZ790L-llYvi_zr5vAnDjfM2ZUJX3g",
+                        "https://drive.google.com/uc?export=download&id=1DP3CGeVjZSpAz00fvoiu_Xq_oaQwRJf1"
                     )
                 )
 
