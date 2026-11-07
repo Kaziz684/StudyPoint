@@ -196,6 +196,7 @@ class NotesActivity : AppCompatActivity() {
                     ),
                     "MCQs" to "COMING_SOON",
                     "Guess Papers" to mapOf(
+                            "Smart Syllabus 2027" to "https://drive.google.com/uc?export=download&id=1RiM3b2a08exibsOee_Njpw8OTB9ONlgF",
                         "2027" to "https://drive.google.com/uc?export=download&id=9_ENG_GP_2027",
                         "2026" to "https://drive.google.com/uc?export=download&id=9_ENG_GP_2026"
                     )
@@ -225,6 +226,7 @@ class NotesActivity : AppCompatActivity() {
                     ),
                     "MCQs" to "COMING_SOON",
                     "Guess Papers" to mapOf(
+                            "Smart Syllabus 2027" to "https://drive.google.com/uc?export=download&id=1yf_-wCOwhbr4rE247U9cS-oCg0Xn5Pr7",
                         "2027" to "https://drive.google.com/uc?export=download&id=9_BIO_GP_2027",
                         "2026" to "https://drive.google.com/uc?export=download&id=9_BIO_GP_2026"
                     )
@@ -258,6 +260,7 @@ class NotesActivity : AppCompatActivity() {
                     ),
                     "MCQs" to "COMING_SOON",
                     "Guess Papers" to mapOf(
+                            "Smart Syllabus 2027" to "https://drive.google.com/uc?export=download&id=1mk8aCFLjZpLcRN2TiBgJutaZuTlhxi5W",
                         "2027" to "https://drive.google.com/uc?export=download&id=9_MATH_GP_2027",
                         "2026" to "https://drive.google.com/uc?export=download&id=9_MATH_GP_2026"
                     )
@@ -290,6 +293,7 @@ class NotesActivity : AppCompatActivity() {
                     ),
                     "MCQs" to "COMING_SOON",
                     "Guess Papers" to mapOf(
+                            "Smart Syllabus 2027" to "https://drive.google.com/uc?export=download&id=1o9r17G6q_S4zlDE7X-IC0gyOD3ZnHyal",
                         "2027" to "https://drive.google.com/uc?export=download&id=9_PHY_GP_2027",
                         "2026" to "https://drive.google.com/uc?export=download&id=9_PHY_GP_2026"
                     )
@@ -320,6 +324,7 @@ class NotesActivity : AppCompatActivity() {
                     ),
                     "MCQs" to "COMING_SOON",
                     "Guess Papers" to mapOf(
+                            "Smart Syllabus 2027" to "https://drive.google.com/uc?export=download&id=1nxjWacrAUENyRvUV4x7OSQ-8Ne428oHA",
                         "2027" to "https://drive.google.com/uc?export=download&id=9_CHEM_GP_2027",
                         "2026" to "https://drive.google.com/uc?export=download&id=9_CHEM_GP_2026"
                     )
@@ -389,6 +394,7 @@ class NotesActivity : AppCompatActivity() {
                     ),
                     "MCQs" to "COMING_SOON",
                     "Guess Papers" to mapOf(
+                            "Smart Syllabus 2027" to "https://drive.google.com/uc?export=download&id=1sc2JKlbdQ-A0k45tBi59771lpzBKpL70",
                         "2027" to "https://drive.google.com/uc?export=download&id=9_URDU_GP_2027",
                         "2026" to "https://drive.google.com/uc?export=download&id=9_URDU_GP_2026"
                     )
@@ -414,6 +420,7 @@ class NotesActivity : AppCompatActivity() {
                     ),
                     "MCQs" to "COMING_SOON",
                     "Guess Papers" to mapOf(
+                            "Smart Syllabus 2027" to "https://drive.google.com/uc?export=download&id=1zt1buP_aukfkxYDXhJ53i--4TkybaaKu",
                         "2027" to "https://drive.google.com/uc?export=download&id=9_ISL_GP_2027",
                         "2026" to "https://drive.google.com/uc?export=download&id=9_ISL_GP_2026"
                     )
@@ -731,6 +738,7 @@ class NotesActivity : AppCompatActivity() {
                     ),
                     "MCQs" to "COMING_SOON",
                     "Guess Papers" to mapOf(
+                            "Smart Syllabus 2027" to "https://drive.google.com/uc?export=download&id=1OJmzMI_LvoFMG-uXE8tOW-nV6TN4R04i",
                         "2027" to "https://drive.google.com/uc?export=download&id=11_ENG_GP_2027",
                         "2026" to "https://drive.google.com/uc?export=download&id=1ctSSlJGw7YF3ro0k__ugwagxtXGy8I2f"
                     )
@@ -748,6 +756,7 @@ class NotesActivity : AppCompatActivity() {
                     ),
                     "MCQs" to "COMING_SOON",
                     "Guess Papers" to mapOf(
+                            "Smart Syllabus 2027" to "https://drive.google.com/uc?export=download&id=1OJmzMI_LvoFMG-uXE8tOW-nV6TN4R04i",
                         "2027" to "https://drive.google.com/uc?export=download&id=11_URDU_GP_2027",
                         "2026" to "https://drive.google.com/uc?export=download&id=11_URDU_GP_2026"
                     )
@@ -778,6 +787,7 @@ class NotesActivity : AppCompatActivity() {
                     ),
                     "MCQs" to "COMING_SOON",
                     "Guess Papers" to mapOf(
+                            "Smart Syllabus 2027" to "https://drive.google.com/uc?export=download&id=1OJmzMI_LvoFMG-uXE8tOW-nV6TN4R04i",
                         "2027" to "https://drive.google.com/uc?export=download&id=11_PHY_GP_2027",
                         "2026" to "https://drive.google.com/uc?export=download&id=1PSdZEhfhYbzRRKO_BqjwGAO4Yc2xPpkp"
                     )
@@ -795,6 +805,7 @@ class NotesActivity : AppCompatActivity() {
                     ),
                     "MCQs" to "COMING_SOON",
                     "Guess Papers" to mapOf(
+                            "Smart Syllabus 2027" to "https://drive.google.com/uc?export=download&id=1OJmzMI_LvoFMG-uXE8tOW-nV6TN4R04i",
                         "2027" to "https://drive.google.com/uc?export=download&id=11_CHEM_GP_2027",
                         "2026" to "https://drive.google.com/uc?export=download&id=104I0fwaKcHZeShGuPDvyCJA7VDYB5940"
                     )
@@ -824,6 +835,7 @@ class NotesActivity : AppCompatActivity() {
                     ),
                     "MCQs" to "COMING_SOON",
                     "Guess Papers" to mapOf(
+                            "Smart Syllabus 2027" to "https://drive.google.com/uc?export=download&id=1OJmzMI_LvoFMG-uXE8tOW-nV6TN4R04i",
                         "2027" to "https://drive.google.com/uc?export=download&id=11_BIO_GP_2027",
                         "2026" to "https://drive.google.com/uc?export=download&id=13tLhINaaHFY-3oxn9XiGJzNTlWMMoORF"
                     )
@@ -841,6 +853,7 @@ class NotesActivity : AppCompatActivity() {
                     ),
                     "MCQs" to "COMING_SOON",
                     "Guess Papers" to mapOf(
+                            "Smart Syllabus 2027" to "https://drive.google.com/uc?export=download&id=1OJmzMI_LvoFMG-uXE8tOW-nV6TN4R04i",
                         "2027" to "https://drive.google.com/uc?export=download&id=11_MATH_GP_2027",
                         "2026" to "https://drive.google.com/uc?export=download&id=1sLJ5ynsvaXyUUhYRirCf489dxEpOVhNm"
                     )
@@ -861,6 +874,7 @@ class NotesActivity : AppCompatActivity() {
                     ),
                     "MCQs" to "COMING_SOON",
                     "Guess Papers" to mapOf(
+                            "Smart Syllabus 2027" to "https://drive.google.com/uc?export=download&id=1OJmzMI_LvoFMG-uXE8tOW-nV6TN4R04i",
                         "2027" to "https://drive.google.com/uc?export=download&id=11_CS_GP_2027",
                         "2026" to "https://drive.google.com/uc?export=download&id=1QxlY1FyYyq_CmwIQYtIHV92TNqy-IHT8"
                     )
@@ -878,6 +892,7 @@ class NotesActivity : AppCompatActivity() {
                     ),
                     "MCQs" to "COMING_SOON",
                     "Guess Papers" to mapOf(
+                            "Smart Syllabus 2027" to "https://drive.google.com/uc?export=download&id=1OJmzMI_LvoFMG-uXE8tOW-nV6TN4R04i",
                         "2027" to "https://drive.google.com/uc?export=download&id=11_ISL_GP_2027",
                         "2026" to "https://drive.google.com/uc?export=download&id=19zxrcuWEZOGcJPRvt7JljuRl76qbyEJE"
                     )
@@ -895,6 +910,7 @@ class NotesActivity : AppCompatActivity() {
                     ),
                     "MCQs" to "COMING_SOON",
                     "Guess Papers" to mapOf(
+                            "Smart Syllabus 2027" to "https://drive.google.com/uc?export=download&id=1OJmzMI_LvoFMG-uXE8tOW-nV6TN4R04i",
                         "2027" to "https://drive.google.com/uc?export=download&id=11_TQ_GP_2027",
                         "2026" to "https://drive.google.com/uc?export=download&id=1S1Gt-vvixvBIutk2gaF0Zwd150H0BuCt"
                     )
