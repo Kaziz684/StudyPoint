@@ -70,10 +70,21 @@
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:layout_centerVertical="true"
-                    android:layout_toStartOf="@id/btnAssistant"
+                    android:layout_toStartOf="@id/btnReadingView"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="More options"
                     android:src="@android:drawable/ic_menu_more"
+                    app:tint="@color/white" />
+
+                <ImageButton
+                    android:id="@+id/btnReadingView"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_centerVertical="true"
+                    android:layout_toStartOf="@id/btnAssistant"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Reading view"
+                    android:src="@drawable/ic_text_size"
                     app:tint="@color/white" />
 
                 <ImageButton
@@ -162,6 +173,15 @@
             android:layout_height="match_parent"
             android:background="@color/edu_border"/>
     </LinearLayout>
+
+    <!-- Sepia reading theme: warm tint over the PDF area (below the 64dp toolbar) -->
+    <View
+        android:id="@+id/sepiaOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="64dp"
+        android:background="#2BF2D8A0"
+        android:visibility="gone" />
 
     <!-- Progress Overlay: centered premium card -->
     <LinearLayout
