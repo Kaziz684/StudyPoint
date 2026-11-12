@@ -9,10 +9,13 @@ import android.graphics.Matrix
 import android.graphics.drawable.GradientDrawable
 import android.graphics.pdf.PdfRenderer
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.os.ParcelFileDescriptor
 import android.util.Log
 import android.util.TypedValue
 import android.view.Gravity
+import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
@@ -22,6 +25,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.ScrollView
+import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
@@ -56,6 +60,7 @@ class PdfViewActivity : AppCompatActivity() {
     private lateinit var btnJumpToPage: ImageButton
     private lateinit var btnMore: ImageButton
     private lateinit var btnAssistant: ImageButton
+    private lateinit var btnReadingView: ImageButton
 
     private lateinit var btnCloseSearch: ImageButton
     private lateinit var etPageNumber: EditText
@@ -64,6 +69,7 @@ class PdfViewActivity : AppCompatActivity() {
     private lateinit var layoutProgress: View
     private lateinit var progressBar: ProgressBar
     private lateinit var tvProgressText: TextView
+    private lateinit var sepiaOverlay: View
 
     private var totalPages: Int = 0
 
@@ -79,11 +85,49 @@ class PdfViewActivity : AppCompatActivity() {
     private var aiMessagesContainer: LinearLayout? = null
     private var aiMessagesScroll: ScrollView? = null
 
+    // ---- Reading view settings (persisted in "pdf_reader_settings", apply to EVERY PDF) ----
+    private var zoomPercent: Int = 100
+    private var readingTheme: String = THEME_DEFAULT
+    private var pageMode: String = MODE_VERTICAL
+    private var scrollSpeed: Int = 3
+
+    private var readingSheet: BottomSheetDialog? = null
+    private var autoScrollRunning: Boolean = false
+    private val autoScrollHandler = Handler(Looper.getMainLooper())
+    private var autoScrollRunnable: Runnable? = null
+    private var autoScrollStuckTicks: Int = 0
+
+    // Views inside the open Reading view sheet (null when the sheet is closed)
+    private var sheetZoomValue: TextView? = null
+    private var sheetPlayButton: MaterialButton? = null
+    private var sheetSpeedValue: TextView? = null
+    private var themeCards: List<View> = emptyList()
+    private var modeRows: List<View> = emptyList()
+
+    companion object {
+        private const val READER_PREFS = "pdf_reader_settings"
+        private const val KEY_ZOOM = "zoom_percent"
+        private const val KEY_THEME = "theme"
+        private const val KEY_PAGE_MODE = "page_mode"
+        private const val KEY_SCROLL_SPEED = "scroll_speed"
+
+        private const val THEME_DEFAULT = "default"
+        private const val THEME_NIGHT = "night"
+        private const val THEME_SEPIA = "sepia"
+
+        private const val MODE_VERTICAL = "vertical"
+        private const val MODE_HORIZONTAL = "horizontal"
+
+        private const val ZOOM_MIN = 50
+        private const val ZOOM_MAX = 300
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_pdf)
 
         initViews()
+        loadReaderSettings()
         setupListeners()
 
         val rawUrl = intent.getStringExtra("pdfUrl") ?: ""
@@ -124,6 +168,7 @@ class PdfViewActivity : AppCompatActivity() {
         btnJumpToPage = findViewById(R.id.btnJumpToPage)
         btnMore = findViewById(R.id.btnMore)
         btnAssistant = findViewById(R.id.btnAssistant)
+        btnReadingView = findViewById(R.id.btnReadingView)
 
         btnCloseSearch = findViewById(R.id.btnCloseSearch)
         etPageNumber = findViewById(R.id.etPageNumber)
@@ -132,6 +177,26 @@ class PdfViewActivity : AppCompatActivity() {
         layoutProgress = findViewById(R.id.layoutProgress)
         progressBar = findViewById(R.id.progressBar)
         tvProgressText = findViewById(R.id.tvProgressText)
+        sepiaOverlay = findViewById(R.id.sepiaOverlay)
+    }
+
+    /** Loads the persisted Reading view settings (zoom / theme / page mode / scroll speed). */
+    private fun loadReaderSettings() {
+        val prefs = getSharedPreferences(READER_PREFS, Context.MODE_PRIVATE)
+        zoomPercent = prefs.getInt(KEY_ZOOM, 100).coerceIn(ZOOM_MIN, ZOOM_MAX)
+        readingTheme = prefs.getString(KEY_THEME, THEME_DEFAULT) ?: THEME_DEFAULT
+        pageMode = prefs.getString(KEY_PAGE_MODE, MODE_VERTICAL) ?: MODE_VERTICAL
+        scrollSpeed = prefs.getInt(KEY_SCROLL_SPEED, 3).coerceIn(1, 5)
+        sepiaOverlay.visibility = if (readingTheme == THEME_SEPIA) View.VISIBLE else View.GONE
+    }
+
+    private fun saveReaderSetting(key: String, value: Any) {
+        val editor = getSharedPreferences(READER_PREFS, Context.MODE_PRIVATE).edit()
+        when (value) {
+            is Int -> editor.putInt(key, value)
+            is String -> editor.putString(key, value)
+        }
+        editor.apply()
     }
 
     private fun setupListeners() {
@@ -150,6 +215,11 @@ class PdfViewActivity : AppCompatActivity() {
         // AI assistant chat sheet for this document
         btnAssistant.setOnClickListener {
             showAiSheet()
+        }
+
+        // Reading view: zoom / theme / page mode / auto-scroll
+        btnReadingView.setOnClickListener {
+            showReadingSheet()
         }
 
         // Clicking page indicator also triggers Jump to Page
@@ -182,7 +252,9 @@ class PdfViewActivity : AppCompatActivity() {
         // Back press handling: sheets first, then search mode, then finish
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (actionsSheet?.isShowing == true) {
+                if (readingSheet?.isShowing == true) {
+                    readingSheet?.dismiss()
+                } else if (actionsSheet?.isShowing == true) {
                     actionsSheet?.dismiss()
                 } else if (aiSheet?.isShowing == true) {
                     aiSheet?.dismiss()
@@ -194,6 +266,33 @@ class PdfViewActivity : AppCompatActivity() {
                 }
             }
         })
+    }
+
+    /** A touch on the PDF itself stops auto-scroll (touches on the sheet do not). */
+    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+        if (autoScrollRunning && readingSheet?.isShowing != true &&
+            ev.action == MotionEvent.ACTION_DOWN
+        ) {
+            val loc = IntArray(2)
+            pdfView.getLocationOnScreen(loc)
+            if (ev.rawX >= loc[0] && ev.rawX <= loc[0] + pdfView.width &&
+                ev.rawY >= loc[1] && ev.rawY <= loc[1] + pdfView.height
+            ) {
+                stopAutoScroll()
+                Toast.makeText(this, "Auto-scroll stopped", Toast.LENGTH_SHORT).show()
+            }
+        }
+        return super.dispatchTouchEvent(ev)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (autoScrollRunning) stopAutoScroll()
+    }
+
+    override fun onDestroy() {
+        autoScrollHandler.removeCallbacksAndMessages(null)
+        super.onDestroy()
     }
 
     private fun dp(value: Int): Int {
@@ -325,6 +424,507 @@ class PdfViewActivity : AppCompatActivity() {
         row.addView(icon)
         row.addView(text)
         container.addView(row)
+    }
+
+    // ================= Reading view bottom sheet =================
+    // Zoom + theme + page mode + auto-scroll for EVERY PDF in the app.
+    // NOTE: fonts inside a PDF cannot be swapped — the text is baked into
+    // the page image. Zoom is the real equivalent of a font-size control.
+
+    private fun showReadingSheet() {
+        val dialog = BottomSheetDialog(this)
+        val sheetBg = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            setColor(Color.parseColor("#1E293B"))
+            cornerRadii = floatArrayOf(
+                dp(16).toFloat(), dp(16).toFloat(),
+                dp(16).toFloat(), dp(16).toFloat(),
+                0f, 0f, 0f, 0f
+            )
+        }
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = sheetBg
+            setPadding(dp(16), dp(12), dp(16), dp(20))
+        }
+
+        // Drag handle
+        val handle = View(this).apply {
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                setColor(Color.parseColor("#64748B"))
+                cornerRadius = dp(2).toFloat()
+            }
+            layoutParams = LinearLayout.LayoutParams(dp(40), dp(4)).apply {
+                gravity = Gravity.CENTER_HORIZONTAL
+                bottomMargin = dp(12)
+            }
+        }
+        container.addView(handle)
+
+        container.addView(TextView(this).apply {
+            text = "Reading view"
+            textSize = 16f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextColor(Color.WHITE)
+        })
+        container.addView(TextView(this).apply {
+            text = "Applies to all PDFs"
+            textSize = 12f
+            setTextColor(Color.parseColor("#94A3B8"))
+            setPadding(0, dp(2), 0, dp(14))
+        })
+
+        // ---- Zoom ----
+        val zoomHeader = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+        }
+        zoomHeader.addView(TextView(this).apply {
+            text = "ZOOM"
+            textSize = 12f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextColor(Color.parseColor("#94A3B8"))
+            letterSpacing = 0.08f
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        })
+        val zoomValueView = TextView(this).apply {
+            text = "$zoomPercent%"
+            textSize = 14f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextColor(Color.parseColor("#10B981"))
+        }
+        zoomHeader.addView(zoomValueView)
+        container.addView(zoomHeader)
+        sheetZoomValue = zoomValueView
+
+        val zoomRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(0, dp(6), 0, 0)
+        }
+        val zoomSeek = SeekBar(this).apply {
+            max = ZOOM_MAX - ZOOM_MIN
+            progress = zoomPercent - ZOOM_MIN
+            progressTintList = ColorStateList.valueOf(Color.parseColor("#10B981"))
+            thumbTintList = ColorStateList.valueOf(Color.parseColor("#10B981"))
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
+                marginStart = dp(8)
+                marginEnd = dp(8)
+            }
+        }
+        val btnZoomOut = roundButton("−")
+        val btnZoomIn = roundButton("+")
+        btnZoomOut.setOnClickListener {
+            val next = (zoomPercent - 10).coerceIn(ZOOM_MIN, ZOOM_MAX)
+            zoomSeek.progress = next - ZOOM_MIN
+            applyZoom(next, animate = true)
+        }
+        btnZoomIn.setOnClickListener {
+            val next = (zoomPercent + 10).coerceIn(ZOOM_MIN, ZOOM_MAX)
+            zoomSeek.progress = next - ZOOM_MIN
+            applyZoom(next, animate = true)
+        }
+        zoomSeek.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser) sheetZoomValue?.text = "${progress + ZOOM_MIN}%"
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                applyZoom((seekBar?.progress ?: 0) + ZOOM_MIN, animate = true)
+            }
+        })
+        zoomRow.addView(btnZoomOut)
+        zoomRow.addView(zoomSeek)
+        zoomRow.addView(btnZoomIn)
+        container.addView(zoomRow)
+        container.addView(TextView(this).apply {
+            text = "PDF text is fixed — zoom makes it bigger."
+            textSize = 11f
+            setTextColor(Color.parseColor("#94A3B8"))
+            setPadding(0, dp(4), 0, dp(10))
+        })
+
+        // ---- Reading theme ----
+        addSectionLabel(container, "READING THEME")
+        val themeRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            setPadding(0, dp(6), 0, dp(10))
+        }
+        val themes = listOf(
+            Triple(THEME_DEFAULT, "Default", Color.WHITE),
+            Triple(THEME_NIGHT, "Night", Color.BLACK),
+            Triple(THEME_SEPIA, "Sepia", Color.parseColor("#F2D8A0"))
+        )
+        val cards = mutableListOf<View>()
+        for ((value, label, circleColor) in themes) {
+            val card = LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                gravity = Gravity.CENTER
+                tag = value
+                setPadding(dp(8), dp(12), dp(8), dp(10))
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
+                    marginStart = dp(4)
+                    marginEnd = dp(4)
+                }
+                isClickable = true
+                isFocusable = true
+            }
+            val circle = View(this).apply {
+                background = circleDrawable(
+                    circleColor,
+                    if (value == THEME_NIGHT) Color.parseColor("#64748B") else null
+                )
+                layoutParams = LinearLayout.LayoutParams(dp(28), dp(28))
+            }
+            val labelView = TextView(this).apply {
+                text = label
+                textSize = 12f
+                setTypeface(null, android.graphics.Typeface.BOLD)
+                setTextColor(Color.WHITE)
+                setPadding(0, dp(8), 0, 0)
+            }
+            card.addView(circle)
+            card.addView(labelView)
+            card.setOnClickListener { applyTheme(value) }
+            themeRow.addView(card)
+            cards.add(card)
+        }
+        themeCards = cards
+        container.addView(themeRow)
+
+        // ---- Page mode ----
+        addSectionLabel(container, "PAGE MODE")
+        val rows = mutableListOf<View>()
+        val modes = listOf(
+            MODE_VERTICAL to ("Vertical scroll" to "Continuous flow, page after page"),
+            MODE_HORIZONTAL to ("Horizontal swipe" to "One page at a time")
+        )
+        for ((value, texts) in modes) {
+            val row = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                tag = value
+                setPadding(dp(12), dp(10), dp(12), dp(10))
+                isClickable = true
+                isFocusable = true
+                val outValue = TypedValue()
+                theme.resolveAttribute(android.R.attr.selectableItemBackground, outValue, true)
+                setBackgroundResource(outValue.resourceId)
+            }
+            val textsLayout = LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            }
+            textsLayout.addView(TextView(this).apply {
+                text = texts.first
+                textSize = 14f
+                setTypeface(null, android.graphics.Typeface.BOLD)
+                setTextColor(Color.WHITE)
+            })
+            textsLayout.addView(TextView(this).apply {
+                text = texts.second
+                textSize = 12f
+                setTextColor(Color.parseColor("#94A3B8"))
+            })
+            val check = TextView(this).apply {
+                tag = "check"
+                text = "✓"
+                textSize = 18f
+                setTypeface(null, android.graphics.Typeface.BOLD)
+                setTextColor(Color.parseColor("#10B981"))
+            }
+            row.addView(textsLayout)
+            row.addView(check)
+            row.setOnClickListener { applyPageMode(value) }
+            container.addView(row)
+            rows.add(row)
+        }
+        modeRows = rows
+        container.addView(View(this).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, dp(10)
+            )
+        })
+
+        // ---- Auto-scroll ----
+        addSectionLabel(container, "AUTO-SCROLL")
+        val scrollRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(0, dp(6), 0, 0)
+        }
+        val playButton = MaterialButton(this).apply {
+            text = if (autoScrollRunning) "❚❚ Pause" else "▶ Play"
+            textSize = 13f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextColor(Color.WHITE)
+            backgroundTintList = ColorStateList.valueOf(Color.parseColor("#10B981"))
+            cornerRadius = dp(10)
+            minWidth = dp(96)
+            setPadding(dp(8), 0, dp(8), 0)
+        }
+        playButton.setOnClickListener { toggleAutoScroll() }
+        sheetPlayButton = playButton
+        val speedSeek = SeekBar(this).apply {
+            max = 4
+            progress = scrollSpeed - 1
+            progressTintList = ColorStateList.valueOf(Color.parseColor("#10B981"))
+            thumbTintList = ColorStateList.valueOf(Color.parseColor("#10B981"))
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
+                marginStart = dp(10)
+                marginEnd = dp(10)
+            }
+        }
+        val speedValueView = TextView(this).apply {
+            text = speedLabel()
+            textSize = 12f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextColor(Color.WHITE)
+            layoutParams = LinearLayout.LayoutParams(dp(64), LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                gravity = Gravity.END
+            }
+            gravity = Gravity.END
+        }
+        sheetSpeedValue = speedValueView
+        speedSeek.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser) sheetSpeedValue?.text = speedLabelFor(progress + 1)
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                scrollSpeed = ((seekBar?.progress ?: 0) + 1).coerceIn(1, 5)
+                saveReaderSetting(KEY_SCROLL_SPEED, scrollSpeed)
+                sheetSpeedValue?.text = speedLabel()
+            }
+        })
+        scrollRow.addView(playButton)
+        scrollRow.addView(speedSeek)
+        scrollRow.addView(speedValueView)
+        container.addView(scrollRow)
+
+        container.addView(TextView(this).apply {
+            text = "Fonts can't change inside a PDF — the text is part of the page. " +
+                "Zoom, themes, page mode and auto-scroll work on every PDF."
+            textSize = 11f
+            setTextColor(Color.parseColor("#94A3B8"))
+            setPadding(0, dp(14), 0, 0)
+        })
+
+        dialog.setContentView(container)
+        readingSheet = dialog
+        dialog.setOnShowListener {
+            dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)?.background = sheetBg
+        }
+        dialog.setOnDismissListener {
+            readingSheet = null
+            sheetZoomValue = null
+            sheetPlayButton = null
+            sheetSpeedValue = null
+            themeCards = emptyList()
+            modeRows = emptyList()
+        }
+        dialog.show()
+        refreshReadingSheetSelection()
+    }
+
+    private fun addSectionLabel(container: LinearLayout, text: String) {
+        container.addView(TextView(this).apply {
+            this.text = text
+            textSize = 12f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextColor(Color.parseColor("#94A3B8"))
+            letterSpacing = 0.08f
+            setPadding(0, dp(4), 0, 0)
+        })
+    }
+
+    private fun roundButton(label: String): MaterialButton {
+        return MaterialButton(this).apply {
+            text = label
+            textSize = 20f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextColor(Color.WHITE)
+            backgroundTintList = ColorStateList.valueOf(Color.parseColor("#334155"))
+            cornerRadius = dp(24)
+            minWidth = dp(48)
+            minimumWidth = dp(48)
+            minimumHeight = dp(48)
+            setPadding(0, 0, 0, 0)
+            insetTop = 0
+            insetBottom = 0
+        }
+    }
+
+    private fun circleDrawable(fillColor: Int, strokeColor: Int? = null): GradientDrawable {
+        return GradientDrawable().apply {
+            shape = GradientDrawable.OVAL
+            setColor(fillColor)
+            if (strokeColor != null) setStroke(dp(1), strokeColor)
+        }
+    }
+
+    private fun themeCardBg(selected: Boolean): GradientDrawable {
+        return GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            cornerRadius = dp(12).toFloat()
+            setColor(Color.parseColor(if (selected) "#134E4A" else "#0F172A"))
+            if (selected) setStroke(dp(2), Color.parseColor("#10B981"))
+        }
+    }
+
+    private fun modeRowBg(selected: Boolean): GradientDrawable? {
+        if (!selected) return null
+        return GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            cornerRadius = dp(10).toFloat()
+            setColor(Color.parseColor("#134E4A"))
+        }
+    }
+
+    private fun refreshReadingSheetSelection() {
+        for (card in themeCards) {
+            card.background = themeCardBg(card.tag as? String == readingTheme)
+        }
+        for (row in modeRows) {
+            val selected = row.tag as? String == pageMode
+            row.background = modeRowBg(selected)
+            row.findViewWithTag<TextView>("check")?.visibility =
+                if (selected) View.VISIBLE else View.INVISIBLE
+        }
+        sheetZoomValue?.text = "$zoomPercent%"
+        sheetSpeedValue?.text = speedLabel()
+        refreshAutoScrollUi()
+    }
+
+    private fun refreshAutoScrollUi() {
+        sheetPlayButton?.text = if (autoScrollRunning) "❚❚ Pause" else "▶ Play"
+    }
+
+    private fun speedLabel(): String = speedLabelFor(scrollSpeed)
+
+    private fun speedLabelFor(speed: Int): String = when (speed) {
+        1 -> "Slow"
+        2 -> "Moderate"
+        3 -> "Medium"
+        4 -> "Quick"
+        else -> "Fast"
+    }
+
+    /** Applies a reading theme live (night mode inverts the PDF; sepia is a warm tint overlay). */
+    private fun applyTheme(theme: String) {
+        readingTheme = theme
+        saveReaderSetting(KEY_THEME, theme)
+        sepiaOverlay.visibility = if (theme == THEME_SEPIA) View.VISIBLE else View.GONE
+        pdfView.setNightMode(theme == THEME_NIGHT)
+        pdfView.invalidate()
+        refreshReadingSheetSelection()
+    }
+
+    /** Applies zoom live (100% = fit to screen width). Persists for every PDF. */
+    private fun applyZoom(percent: Int, animate: Boolean) {
+        zoomPercent = percent.coerceIn(ZOOM_MIN, ZOOM_MAX)
+        saveReaderSetting(KEY_ZOOM, zoomPercent)
+        sheetZoomValue?.text = "$zoomPercent%"
+        if (totalPages > 0) {
+            // NOTE: minZoom stays at the library default (1.0) on purpose —
+            // lowering it would change double-tap reset to 50%. The slider sets
+            // zoom directly (zoomTo/zoomWithAnimation do not clamp), so 50% works.
+            pdfView.setMaxZoom(3.0f)
+            if (animate) {
+                pdfView.zoomWithAnimation(zoomPercent / 100f)
+            } else {
+                pdfView.zoomTo(zoomPercent / 100f)
+                pdfView.loadPages()
+            }
+        }
+    }
+
+    /** Applies the page mode (reloads the document at the current page). */
+    private fun applyPageMode(mode: String) {
+        if (mode == pageMode) {
+            refreshReadingSheetSelection()
+            return
+        }
+        pageMode = mode
+        saveReaderSetting(KEY_PAGE_MODE, mode)
+        refreshReadingSheetSelection()
+        val file = currentPdfFile
+        if (file != null && totalPages > 0) {
+            renderPdfFromFile(file, startPage = pdfView.currentPage)
+            Toast.makeText(
+                this,
+                if (mode == MODE_HORIZONTAL) "Horizontal swipe — page by page" else "Vertical scroll",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    private fun toggleAutoScroll() {
+        if (autoScrollRunning) {
+            stopAutoScroll()
+            return
+        }
+        if (totalPages <= 0) {
+            Toast.makeText(this, "PDF is still loading...", Toast.LENGTH_SHORT).show()
+            return
+        }
+        startAutoScroll()
+    }
+
+    private fun startAutoScroll() {
+        if (totalPages <= 0 || autoScrollRunning) return
+        autoScrollRunning = true
+        autoScrollStuckTicks = 0
+        val runnable = object : Runnable {
+            override fun run() {
+                if (!autoScrollRunning) return
+                if (pageMode == MODE_HORIZONTAL) {
+                    if (pdfView.currentPage >= totalPages - 1) {
+                        stopAutoScroll()
+                        Toast.makeText(this@PdfViewActivity, "Reached the last page", Toast.LENGTH_SHORT).show()
+                        return
+                    }
+                    pdfView.jumpTo(pdfView.currentPage + 1, true)
+                    autoScrollHandler.postDelayed(this, 8000L - scrollSpeed * 1000L)
+                } else {
+                    val before = pdfView.currentYOffset
+                    // 30..90 dp per second, in small 50 ms steps.
+                    val dpPerSecond = 15f + scrollSpeed * 15f
+                    val stepPx = dpPerSecond * 0.05f * resources.displayMetrics.density
+                    pdfView.moveRelativeTo(0f, -stepPx)
+                    val after = pdfView.currentYOffset
+                    if (pdfView.currentPage >= totalPages - 1 &&
+                        Math.abs(after - before) < 0.5f
+                    ) {
+                        autoScrollStuckTicks++
+                        if (autoScrollStuckTicks >= 3) {
+                            stopAutoScroll()
+                            Toast.makeText(this@PdfViewActivity, "Reached the end", Toast.LENGTH_SHORT).show()
+                            return
+                        }
+                    } else {
+                        autoScrollStuckTicks = 0
+                    }
+                    autoScrollHandler.postDelayed(this, 50)
+                }
+            }
+        }
+        autoScrollRunnable = runnable
+        autoScrollHandler.post(runnable)
+        refreshAutoScrollUi()
+    }
+
+    private fun stopAutoScroll() {
+        if (!autoScrollRunning) return
+        autoScrollRunning = false
+        autoScrollRunnable?.let { autoScrollHandler.removeCallbacks(it) }
+        autoScrollRunnable = null
+        refreshAutoScrollUi()
     }
 
     private fun currentPageNumber(): Int {
@@ -811,34 +1411,49 @@ class PdfViewActivity : AppCompatActivity() {
         }
     }
 
-    // Optimized PDF renderer with memory caching, fast fling, and disabled heavy annotations
-    private fun renderPdfFromFile(file: File) {
+    // Optimized PDF renderer with memory caching, fast fling, and disabled heavy annotations.
+    // Applies the persisted Reading view settings (theme / page mode / zoom).
+    // startPage >= 0 reloads at that page (page-mode switch); -1 = first open (Last Read resume).
+    private fun renderPdfFromFile(file: File, startPage: Int = -1) {
+        stopAutoScroll()
         layoutProgress.visibility = View.GONE
         currentPdfFile = file
         try {
             pdfView.fromFile(file)
-                .defaultPage(0)
+                .defaultPage(if (startPage >= 0) startPage else 0)
                 .enableSwipe(true)
-                .swipeHorizontal(false)
+                .swipeHorizontal(pageMode == MODE_HORIZONTAL)
                 .enableDoubletap(true)
                 .enableAnnotationRendering(false) // Major performance boost
                 .enableAntialiasing(true)
                 .spacing(dp(16)) // Card-style gap between pages (px)
                 .pageFitPolicy(FitPolicy.WIDTH) // Responsive screen width fit
                 .pageFling(true) // Fast, smooth flick scrolling
-                .pageSnap(false) // Continuous smooth flow
+                .pageSnap(pageMode == MODE_HORIZONTAL) // Snap per page in horizontal mode
+                .nightMode(readingTheme == THEME_NIGHT)
                 .scrollHandle(DefaultScrollHandle(this)) // Fast jump scrollbar handle
                 .onLoad { nbPages ->
                     totalPages = nbPages
                     val current = pdfView.currentPage + 1
                     tvPageIndicator.text = "Page $current / $totalPages"
                     layoutProgress.visibility = View.GONE
+                    // Restore the saved Reading view zoom (100% = fit to screen width).
+                    // NOTE: minZoom stays at the library default (1.0) so double-tap
+                    // reset is unchanged; the slider sets zoom directly (no clamp).
+                    pdfView.setMaxZoom(3.0f)
+                    if (zoomPercent != 100) {
+                        pdfView.zoomTo(zoomPercent / 100f)
+                        pdfView.loadPages()
+                    }
                     // Resume at the explicitly saved Last Read position, if any.
-                    val savedPage = RecentReadManager.getLastPage(this, docRawUrl)
-                    if (savedPage in 1..nbPages) {
-                        pdfView.jumpTo(savedPage - 1, false)
-                        if (savedPage > 1) {
-                            Toast.makeText(this, "Resumed at page $savedPage", Toast.LENGTH_SHORT).show()
+                    // (Only on first open — a page-mode reload keeps its own page.)
+                    if (startPage < 0) {
+                        val savedPage = RecentReadManager.getLastPage(this, docRawUrl)
+                        if (savedPage in 1..nbPages) {
+                            pdfView.jumpTo(savedPage - 1, false)
+                            if (savedPage > 1) {
+                                Toast.makeText(this, "Resumed at page $savedPage", Toast.LENGTH_SHORT).show()
+                            }
                         }
                     }
                 }
