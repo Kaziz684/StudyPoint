@@ -21,6 +21,8 @@ import java.util.concurrent.TimeUnit
  * 2. Unrestricted: No hardcoded board exam disclaimers or repetitive PCTB headers.
  * 3. Internet Web Search Grounding: Queries Google Search grounding via Gemini API,
  *    with dynamic web fallbacks via DuckDuckGo Instant Answer and Wikipedia REST APIs.
+ *    Urdu queries search Urdu Wikipedia first (ur.wikipedia.org), since English
+ *    Wikipedia carries no Urdu articles.
  * 4. Offline Universal Knowledge Base: Clean, structured Markdown responses across academic,
  *    scientific, technological, and general knowledge disciplines.
  */
@@ -88,7 +90,22 @@ Guidelines:
         // the student gets a false "check your internet" refusal.
         val searchQuery = extractBareQuestion(trimmed)
 
-        // 2. Wikipedia SEARCH (works for any study question; also returns a topic image)
+        // 2. Urdu queries: Urdu Wikipedia FIRST. English Wikipedia has no
+        //    Urdu articles, so 'فعل کی اقسام' found nothing there and the
+        //    student got the "could not find" fallback. ur.wikipedia.org
+        //    carries the same grammar topics in Urdu (verified 2026-11-13).
+        if (isUrduScript(searchQuery)) {
+            try {
+                val urduAnswer = searchWikipedia(searchQuery, "ur")
+                if (urduAnswer != null) {
+                    return@withContext urduAnswer
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "Urdu Wikipedia search failed: ${e.message}")
+            }
+        }
+
+        // 3. Wikipedia SEARCH (works for any study question; also returns a topic image)
         try {
             val wikiAnswer = searchWikipedia(searchQuery)
             if (wikiAnswer != null) {
@@ -98,7 +115,7 @@ Guidelines:
             Log.w(TAG, "Wikipedia search failed: ${e.message}")
         }
 
-        // 3. Dynamic Real-Time Web Search Grounding (DuckDuckGo + Wikipedia REST)
+        // 4. Dynamic Real-Time Web Search Grounding (DuckDuckGo + Wikipedia REST)
         try {
             val liveWebResult = fetchLiveWebSummary(searchQuery)
             if (!liveWebResult.isNullOrBlank()) {
@@ -108,7 +125,7 @@ Guidelines:
             Log.w(TAG, "Dynamic web search failed: ${e.message}")
         }
 
-        // 4. Clean Universal Knowledge Engine (Unrestricted, direct, clean markdown)
+        // 5. Clean Universal Knowledge Engine (Unrestricted, direct, clean markdown)
         return@withContext AiAnswer(generateUniversalTutorAnswer(searchQuery))
     }
 
@@ -127,22 +144,42 @@ Guidelines:
         return q.ifBlank { query }
     }
 
+    /** True when the query is written in Urdu/Arabic script. */
+    private fun isUrduScript(text: String): Boolean =
+        text.any {
+            it in '\u0600'..'\u06FF' || it in '\u0750'..'\u077F' ||
+            it in '\uFB50'..'\uFDFF' || it in '\uFE70'..'\uFEFF'
+        }
+
+    /**
+     * Normalizes a query for web search: strips question marks, English
+     * question openers, and Urdu question tails, so 'فعل کی اقسام کیا ہیں؟'
+     * searches as 'فعل کی اقسام' — the extra words only narrow the search
+     * and hide the article that actually answers it.
+     */
+    private fun normalizeQueryForSearch(query: String): String =
+        query
+            .replace("؟", "")
+            .replace("?", "")
+            .replace(Regex("(?i)^(what is|what are|explain|who was|who is|define|tell me about|how does|why is)\\s+"), "")
+            .replace(Regex("\\s*(کیا ہے|کیا ہیں|کیا ہوتا ہے|کیا ہوتی ہے|بتائیں|بتاؤ|بتایں|سمجھائیں|وضاحت کریں)\\s*$"), "")
+            .trim()
+
     /**
      * Searches Wikipedia properly (full-text search API instead of guessing an
      * article title) and returns the top article's intro extract together with
      * its picture, so study questions get a real answer and, when available, a
-     * real educational image/diagram.
+     * real educational image/diagram. [lang] is "en" by default; Urdu queries
+     * pass "ur" so they search ur.wikipedia.org instead.
      */
-    private fun searchWikipedia(query: String): AiAnswer? {
-        val cleanTerm = query
-            .replace(Regex("(?i)^(what is|what are|explain|who was|who is|define|tell me about|how does|why is)\\s+"), "")
+    private fun searchWikipedia(query: String, lang: String = "en"): AiAnswer? {
+        val cleanTerm = normalizeQueryForSearch(query)
             .replace(Regex("(?i)\\b(picture|image|diagram|photo|pic)\\b"), "")
-            .replace("?", "")
             .trim()
         if (cleanTerm.length < 2) return null
 
         val encoded = URLEncoder.encode(cleanTerm, StandardCharsets.UTF_8.name())
-        val url = "https://en.wikipedia.org/w/api.php?action=query&format=json&redirects=1" +
+        val url = "https://$lang.wikipedia.org/w/api.php?action=query&format=json&redirects=1" +
             "&generator=search&gsrnamespace=0&gsrlimit=3" +
             "&prop=pageimages%7Cextracts&pithumbsize=800&exintro&explaintext&exsentences=6" +
             "&gsrsearch=$encoded"
@@ -167,10 +204,17 @@ Guidelines:
             val wantsImage = query.contains(Regex("(?i)picture|image|diagram|photo|pic"))
             fun imageOf(p: JSONObject): String? =
                 p.optJSONObject("thumbnail")?.optString("source")?.takeIf { it.isNotBlank() }
+            // Prefer an article whose title contains the searched term
+            // ('بناوٹ کے لحاظ سے فعل کی اقسام' answers 'فعل کی اقسام' better
+            // than the generic 'فعل' article ranked first), unless the
+            // student asked for a picture and another hit has one.
+            val titleHit = pages.firstOrNull {
+                it.optString("title").contains(cleanTerm, ignoreCase = true)
+            }
             val hit = if (wantsImage) {
-                pages.firstOrNull { imageOf(it) != null } ?: pages.first()
+                pages.firstOrNull { imageOf(it) != null } ?: titleHit ?: pages.first()
             } else {
-                pages.first()
+                titleHit ?: pages.first()
             }
             val title = hit.optString("title")
             val extract = hit.optString("extract").trim()
@@ -178,7 +222,7 @@ Guidelines:
             return AiAnswer(
                 text = "### $title\n\n$extract",
                 imageUrl = imageOf(hit),
-                sourceLabel = "Wikipedia - $title"
+                sourceLabel = "Wikipedia${if (lang == "ur") " (Urdu)" else ""} - $title"
             )
         }
     }
@@ -235,10 +279,7 @@ Guidelines:
      */
     private fun fetchLiveWebSummary(query: String): String? {
         // Normalize search term
-        val cleanTerm = query
-            .replace(Regex("(?i)^(what is|what are|explain|who was|who is|define|tell me about|how does|why is)\\s+"), "")
-            .replace("?", "")
-            .trim()
+        val cleanTerm = normalizeQueryForSearch(query)
 
         if (cleanTerm.length < 2) return null
 
@@ -266,6 +307,34 @@ Guidelines:
                 }
             }
         } catch (_: Exception) {}
+
+        // Try Urdu Wikipedia Summary API (for Urdu queries whose article
+        // title matches the term exactly, e.g. 'فعل').
+        if (isUrduScript(query)) {
+            try {
+                val urTopic = cleanTerm.replace(" ", "_")
+                val urUrl = "https://ur.wikipedia.org/api/rest_v1/page/summary/${URLEncoder.encode(urTopic, StandardCharsets.UTF_8.name())}"
+                val urRequest = Request.Builder()
+                    .url(urUrl)
+                    .header("User-Agent", "StudyPointApp/1.0 (Android)")
+                    .build()
+
+                httpClient.newCall(urRequest).execute().use { response ->
+                    if (response.isSuccessful) {
+                        val body = response.body?.string() ?: ""
+                        val json = JSONObject(body)
+                        val title = json.optString("title")
+                        val extract = json.optString("extract")
+                        val description = json.optString("description")
+
+                        if (extract.isNotBlank() && extract.length > 35) {
+                            val header = if (description.isNotBlank()) "$title — $description" else title
+                            return "### $header\n\n$extract"
+                        }
+                    }
+                }
+            } catch (_: Exception) {}
+        }
 
         // Try Wikipedia Summary API
         try {
