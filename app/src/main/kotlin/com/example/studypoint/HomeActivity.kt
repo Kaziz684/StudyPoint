@@ -196,7 +196,7 @@ class HomeActivity : ComponentActivity() {
     private fun shareApp() {
         val intent = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"
-            putExtra(Intent.EXTRA_TEXT, "Download StudyPoint App for PCTB Notes, Past Papers & AI Tutor! https://kaziz684.github.io/StudyPoint/")
+            putExtra(Intent.EXTRA_TEXT, "Download StudyPoint App for PCTB Notes, Past Papers & AI Tutor! https://studypointbwp.web.app/")
         }
         startActivity(Intent.createChooser(intent, "Share StudyPoint"))
     }
