@@ -31,7 +31,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="English"
-            android:textColor="#0F172A"
+            android:textColor="@color/edu_text_primary"
             android:textSize="15sp"
             android:textStyle="bold" />
 
@@ -41,7 +41,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:text="No. of Questions: ..."
-            android:textColor="#64748B"
+            android:textColor="@color/edu_text_secondary"
             android:textSize="12.5sp" />
     </LinearLayout>
 
