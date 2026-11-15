@@ -210,7 +210,7 @@ object QuestionBankStats {
             for (row in rows.drop(1)) {
                 val q = if (iQuestion in row.indices) row[iQuestion].trim() else ""
                 if (q.isBlank()) continue
-                val digits = if (iClass in row.indices) classDigits(row[iClass]) else null
+                val digits = (if (iClass in row.indices) classDigits(row[iClass]) else null)
                     ?: continue
                 val subject = if (iSubject in row.indices) canonicalSubject(row[iSubject]) else null
                 if (isShort) add(digits, subject, mcq = 0, short = 1, long = 0)
