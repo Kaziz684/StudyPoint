@@ -35,13 +35,21 @@ class AnnouncementAdapter(private var items: List<BoardAnnouncement>) :
         holder.tvDescription.text = item.description
 
         val hasLink = !item.link_url.isBlank()
+        val isVideo = item.link_url.contains("youtu.be") || item.link_url.contains("youtube.com")
         holder.btnReadMore.visibility = if (hasLink) View.VISIBLE else View.GONE
+        // Recycled views keep old state, so reset the button text on every bind.
+        holder.btnReadMore.text = if (isVideo) "Watch Video" else "Read More / View Notice"
         if (hasLink) {
-            holder.btnReadMore.setOnClickListener {
-                val context = it.context
+            val openLink = View.OnClickListener {
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(item.link_url))
-                context.startActivity(intent)
+                it.context.startActivity(intent)
             }
+            holder.btnReadMore.setOnClickListener(openLink)
+            // Tapping the card itself opens the link too (e.g. the news video).
+            holder.itemView.setOnClickListener(openLink)
+        } else {
+            holder.btnReadMore.setOnClickListener(null)
+            holder.itemView.setOnClickListener(null)
         }
     }
 
