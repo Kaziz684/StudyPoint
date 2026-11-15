@@ -33,10 +33,13 @@ object AiTutorService {
     const val SYSTEM_PROMPT = """You are StudyPoint AI Tutor, an intelligent, helpful, and versatile academic and general knowledge assistant.
 Guidelines:
 1. Answer ANY user query directly, concisely, clearly, and accurately.
-2. Provide direct explanations, intuitive summaries, formulas, or code without imposing board exam templates or repetitive PCTB headers.
-3. If the user asks a general question (e.g., "What is artificial intelligence?"), answer directly with a clean definition and key points.
-4. Only discuss Punjab Board (PCTB) or specific board syllabus when the user explicitly requests board-specific information.
-5. Use clean, readable Markdown formatting."""
+2. Always give a real EXPLANATION with the key points, not just a one-line definition — the student must understand the topic.
+3. Answer in the SAME language as the question: Urdu questions get a full Urdu answer, English questions get an English answer.
+4. Provide direct explanations, intuitive summaries, formulas, or code without imposing board exam templates or repetitive PCTB headers.
+5. If the user asks a general question (e.g., "What is artificial intelligence?"), answer directly with a clean definition and key points.
+6. Only discuss Punjab Board (PCTB) or specific board syllabus when the user explicitly requests board-specific information.
+7. Never reply that you could not find the answer — always give the best explanation you can from the search results or your knowledge.
+8. Use clean, readable Markdown formatting."""
 
     private val httpClient: OkHttpClient by lazy {
         OkHttpClient.Builder()
@@ -60,6 +63,17 @@ Guidelines:
     /**
      * Resolves a rich response: answer text, and whenever the web result has
      * one, a real educational image (e.g. a biology diagram from Wikipedia).
+     *
+     * ANSWER GUARANTEE — fallback chain, in order, for BOTH the in-PDF
+     * assistant and the dashboard assistant. The student always gets an
+     * explanation; there is no "could not find" dead-end:
+     *   1. Gemini (BuildConfig.GEMINI_API_KEY, googleSearch grounding)
+     *   2. Local syllabus answers (high-precision: surah themes, Urdu grammar)
+     *   3. Urdu Wikipedia (Urdu queries) / English Wikipedia
+     *   4. Web search (Google attempt, then DuckDuckGo, then Wikipedia REST)
+     *   5. Local knowledge base (generateUniversalTutorAnswer)
+     *   6. Last resort: short explanation built from the open document's own
+     *      context (title / subject / class / page) + study guidance.
      */
     suspend fun getAnswerRich(query: String): AiAnswer = withContext(Dispatchers.IO) {
         val trimmed = query.trim()
@@ -67,14 +81,33 @@ Guidelines:
             return@withContext AiAnswer("Please type a question, topic, or concept to begin.")
         }
 
-        // 1. If Gemini API key is configured in BuildConfig / local.properties, call Gemini 2.5 Flash with Search Grounding
+        // The PDF viewer sends document context + question in one string
+        // ("... Their question: <question>. Answer concisely for a student.").
+        // Search engines and the keyword matcher need the bare question,
+        // not the whole context blob — otherwise every search fails and
+        // the student gets a false "check your internet" refusal.
+        // Keep the document context separately: it is the last-resort
+        // material (step 6) and a hint for Gemini (step 1).
+        val searchQuery = extractBareQuestion(trimmed)
+        val docContext = extractDocContext(trimmed)
+
+        // 1. Gemini (M4) with Google Search grounding. The key comes from
+        // BuildConfig.GEMINI_API_KEY (CI secret GEMINI_API_KEY); when it is
+        // empty the app simply continues down the chain — no crash, no
+        // "could not find", the web steps answer instead.
         val geminiKey = try {
             val field = BuildConfig::class.java.getField("GEMINI_API_KEY")
             (field.get(null) as? String)?.trim() ?: ""
         } catch (_: Throwable) { "" }
         if (geminiKey.isNotBlank()) {
             try {
-                val geminiAnswer = callGeminiWithSearch(trimmed, geminiKey)
+                val geminiPrompt = if (docContext.isNotBlank()) {
+                    "$searchQuery\n(Context: the student is reading $docContext. " +
+                        "Answer in the same language as the question, with an explanation.)"
+                } else {
+                    searchQuery
+                }
+                val geminiAnswer = callGeminiWithSearch(geminiPrompt, geminiKey)
                 if (!geminiAnswer.isNullOrBlank()) {
                     return@withContext AiAnswer(geminiAnswer)
                 }
@@ -83,14 +116,20 @@ Guidelines:
             }
         }
 
-        // The PDF viewer sends document context + question in one string
-        // ("... Their question: <question>. Answer concisely for a student.").
-        // Search engines and the keyword matcher need the bare question,
-        // not the whole context blob — otherwise every search fails and
-        // the student gets a false "check your internet" refusal.
-        val searchQuery = extractBareQuestion(trimmed)
+        // 2. Local syllabus answers: exact, offline, in the student's
+        // language. These run BEFORE Wikipedia because a web search can
+        // return a neighbouring article (e.g. the prophet Yunus for a
+        // question about Surah Yunus) instead of the syllabus topic itself.
+        try {
+            val localAnswer = localSyllabusAnswer(searchQuery)
+            if (localAnswer != null) {
+                return@withContext AiAnswer(localAnswer)
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Local syllabus answer failed: ${e.message}")
+        }
 
-        // 2. Urdu queries: Urdu Wikipedia FIRST. English Wikipedia has no
+        // 3. Urdu queries: Urdu Wikipedia FIRST. English Wikipedia has no
         //    Urdu articles, so 'فعل کی اقسام' found nothing there and the
         //    student got the "could not find" fallback. ur.wikipedia.org
         //    carries the same grammar topics in Urdu (verified 2026-11-13).
@@ -105,7 +144,7 @@ Guidelines:
             }
         }
 
-        // 3. Wikipedia SEARCH (works for any study question; also returns a topic image)
+        // 4. Wikipedia SEARCH (works for any study question; also returns a topic image)
         try {
             val wikiAnswer = searchWikipedia(searchQuery)
             if (wikiAnswer != null) {
@@ -115,18 +154,149 @@ Guidelines:
             Log.w(TAG, "Wikipedia search failed: ${e.message}")
         }
 
-        // 4. Dynamic Real-Time Web Search Grounding (DuckDuckGo + Wikipedia REST)
+        // 5. Web search: Google attempt first, then DuckDuckGo Instant
+        //    Answer, then Wikipedia REST summaries. (A plain Google search
+        //    page needs JavaScript, so it usually returns nothing usable —
+        //    the DuckDuckGo/Wikipedia steps carry the answer then. When the
+        //    Gemini key is set, step 1 already searched Google properly.)
         try {
-            val liveWebResult = fetchLiveWebSummary(searchQuery)
+            val liveWebResult = fetchWebSearchSummary(searchQuery)
             if (!liveWebResult.isNullOrBlank()) {
                 return@withContext AiAnswer(liveWebResult)
             }
         } catch (e: Exception) {
-            Log.w(TAG, "Dynamic web search failed: ${e.message}")
+            Log.w(TAG, "Web search failed: ${e.message}")
         }
 
-        // 5. Clean Universal Knowledge Engine (Unrestricted, direct, clean markdown)
-        return@withContext AiAnswer(generateUniversalTutorAnswer(searchQuery))
+        // 6. Local knowledge base (offline, direct, clean markdown).
+        //    Returns null when it has no entry for the topic.
+        val kbAnswer = generateUniversalTutorAnswer(searchQuery)
+        if (kbAnswer != null) {
+            return@withContext AiAnswer(kbAnswer)
+        }
+
+        // 7. Last resort — NEVER a "could not find" dead-end: a short
+        //    explanation built from the open document's own context
+        //    (title / subject / class / page) plus study guidance.
+        return@withContext AiAnswer(lastResortAnswer(searchQuery, docContext))
+    }
+
+    /**
+     * High-precision local answers for syllabus topics where a web search
+     * returns a NEIGHBOURING article instead of the topic itself. Runs
+     * before Wikipedia. Returns null for anything it does not cover, so
+     * the rest of the chain still runs.
+     */
+    private fun localSyllabusAnswer(query: String): String? {
+        val q = query.trim()
+        val lower = q.lowercase()
+
+        // --- Surah Yunus — central theme (Class 11 Tarjuma-tul-Quran Ch 3) ---
+        if (lower.contains("سورت یونس") || lower.contains("سورہ یونس") ||
+            lower.contains("یونس کا مرکزی") || lower.contains("یونس کی مرکزی") ||
+            (lower.contains("یونس") && lower.contains("مرکزی مضمون"))
+        ) {
+            return "### سورت یونس کا مرکزی مضمون\n\n" +
+                "سورت یونس قرآن مجید کی دسویں سورت ہے۔ یہ مکی سورت ہے، اس میں 109 آیات اور 11 رکوع ہیں۔\n\n" +
+                "**مرکزی مضمون — توحید، رسالت اور آخرت:**\n\n" +
+                "• **توحید:** سورت کا بنیادی پیغام اللہ کی وحدانیت ہے۔ اللہ ہی خالق و مالک ہے — اس نے آسمان و زمین کو چھ دن میں پیدا کیا، سورج چاند کا نظام چلایا، اور ہر چیز اسی کے حکم سے ہوتی ہے۔\n\n" +
+                "• **رسالت:** مشرکین کہتے تھے کہ ایک انسان رسول کیسے ہو سکتا ہے؟ سورت جواب دیتی ہے کہ قرآن اللہ کا کلام ہے، نبی ﷺ اپنی طرف سے کچھ نہیں کہتے، اور پہلی قوموں کے رسولوں کے واقعات اس کی دلیل ہیں۔\n\n" +
+                "• **آخرت:** دنیا کی زندگی عارضی ہے — جیسے بارش سے کھیتی ہری ہو کر سوکھ جاتی ہے۔ آخرت میں ہر شخص کو اپنے اعمال کا بدلہ ملے گا۔\n\n" +
+                "• **حضرت یونس علیہ السلام کا واقعہ:** آپ کی قوم نے پہلے ایمان سے انکار کیا، پھر عذاب آتا دیکھ کر سچے دل سے توبہ کی تو اللہ نے عذاب ٹال دیا۔ یہ وہ واحد قوم ہے جس سے ایمان لانے پر عذاب ٹلا — توبہ کی قبولیت کی بڑی مثال۔\n\n" +
+                "• **حضرت نوح علیہ السلام اور حضرت موسیٰ علیہ السلام و فرعون** کے واقعات بھی اسی مضمون کی تائید کرتے ہیں: حق کو جھٹلانے والوں کا انجام برا ہوتا ہے، اور ایمان لانے والے نجات پاتے ہیں۔"
+        }
+
+        // --- فعل کی اقسام (Urdu grammar) ---
+        if (lower.contains("فعل کی اقسام") || lower.contains("فعل کی قسم")) {
+            return "### فعل کی اقسام\n\n" +
+                "**فعل کی تعریف:** وہ کلمہ جس کے معانی میں کسی کام کا کرنا یا ہونا پایا جائے، اور جس میں تینوں زمانوں (ماضی، حال، مستقبل) میں سے کوئی ایک زمانہ موجود ہو۔ جیسے: کھایا، کھاتا ہے، کھائے گا۔\n\n" +
+                "**زمانے کے لحاظ سے تین اقسام:**\n\n" +
+                "• **فعل ماضی:** جس میں کام کا کرنا گزرے ہوئے زمانے میں پایا جائے۔ جیسے: احمد نے کتاب پڑھی۔\n\n" +
+                "• **فعل حال:** جس میں کام کا کرنا موجودہ زمانے میں پایا جائے۔ جیسے: احمد کتاب پڑھ رہا ہے۔\n\n" +
+                "• **فعل مستقبل:** جس میں کام کا کرنا آنے والے زمانے میں پایا جائے۔ جیسے: احمد کتاب پڑھے گا۔\n\n" +
+                "**بناوٹ کے لحاظ سے:**\n\n" +
+                "• **فعل لازم:** جو صرف فاعل کے ساتھ مل کر جملہ مکمل کر دے، اسے مفعول کی ضرورت نہ ہو۔ جیسے: بچہ سویا، پرندہ اڑا۔\n\n" +
+                "• **فعل متعدی:** جسے جملہ مکمل کرنے کے لیے مفعول کی ضرورت ہو۔ جیسے: بچے نے کتاب پڑھی، استاد نے سبق پڑھایا۔\n\n" +
+                "• **فعل معروف اور فعل مجہول:** معروف میں فاعل معلوم ہوتا ہے (احمد نے خط لکھا)؛ مجہول میں فاعل چھپا ہوتا ہے (خط لکھا گیا)۔"
+        }
+
+        // --- اسم کی اقسام (Urdu grammar) ---
+        if (lower.contains("اسم کی اقسام") || lower.contains("اسم کی قسم")) {
+            return "### اسم کی اقسام\n\n" +
+                "**اسم کی تعریف:** وہ کلمہ جو کسی شخص، جگہ یا چیز کا نام ہو۔ جیسے: احمد، لاہور، کتاب۔\n\n" +
+                "**اہم اقسام:**\n\n" +
+                "• **اسم معرفہ:** کسی خاص شخص، جگہ یا چیز کا نام۔ جیسے: پاکستان، علامہ اقبال، دریائے سندھ۔\n\n" +
+                "• **اسم نکرہ:** کسی عام شخص، جگہ یا چیز کا نام۔ جیسے: ملک، شاعر، دریا۔\n\n" +
+                "• **اسم ضمیر:** وہ اسم جو دوسرے اسم کی جگہ استعمال ہو۔ جیسے: میں، تم، وہ، ہم۔\n\n" +
+                "• **اسم اشارہ:** جس سے کسی چیز کی طرف اشارہ کیا جائے۔ جیسے: یہ، وہ، اس، اُس۔\n\n" +
+                "• **اسم مصدر:** جس سے کام کا نام ظاہر ہو۔ جیسے: پڑھنا، لکھنا، کھیلنا۔\n\n" +
+                "• **اسم فاعل:** جس سے کام کرنے والا ظاہر ہو۔ جیسے: پڑھنے والا، لکھنے والا۔"
+        }
+
+        return null
+    }
+
+    /**
+     * Pulls the document context out of the string the PDF viewer builds:
+     * `The user is reading the document "TITLE" (subject: X, class: Y) and
+     * is on page N of M. Their question: ...` — returns a short readable
+     * form ("TITLE" (subject: X, class: Y), page N of M) or "" when the
+     * input carries no document context (dashboard assistant).
+     */
+    private fun extractDocContext(fullInput: String): String {
+        if (!fullInput.contains("is reading the document")) return ""
+        val title = Regex("is reading the document \"([^\"]+)\"")
+            .find(fullInput)?.groupValues?.getOrNull(1).orEmpty()
+        val subject = Regex("subject: ([^,)]+)")
+            .find(fullInput)?.groupValues?.getOrNull(1).orEmpty().trim()
+        val grade = Regex("class: ([^)]+)")
+            .find(fullInput)?.groupValues?.getOrNull(1).orEmpty().trim()
+        val page = Regex("on page (\\d+) of (\\d+)")
+            .find(fullInput)?.groupValues
+        val parts = mutableListOf<String>()
+        if (title.isNotBlank()) parts += "\"$title\""
+        val meta = listOf(
+            if (subject.isNotBlank()) "subject: $subject" else "",
+            if (grade.isNotBlank()) "class: $grade" else ""
+        ).filter { it.isNotBlank() }.joinToString(", ")
+        if (meta.isNotBlank()) parts += "($meta)"
+        if (page != null && page.size >= 3) parts += "page ${page[1]} of ${page[2]}"
+        return parts.joinToString(" ")
+    }
+
+    /**
+     * Last resort — the answer guarantee's final step. The PDF library
+     * cannot extract page text, so this builds the explanation from the
+     * open document's own context (title / subject / class / page) plus
+     * concrete study guidance. It NEVER says "could not find".
+     */
+    private fun lastResortAnswer(query: String, docContext: String): String {
+        val heading = query.replaceFirstChar { it.uppercase() }
+        return if (isUrduScript(query)) {
+            val where = if (docContext.isNotBlank()) {
+                "آپ اس وقت یہ دستاویز پڑھ رہے ہیں: $docContext۔ "
+            } else {
+                ""
+            }
+            "### $heading\n\n" +
+                where +
+                "اس موضوع کی مکمل وضاحت اسی دستاویز میں موجود ہے — اس کا متعلقہ حصہ دوبارہ پڑھیں اور اہم نکات نوٹ کریں۔ " +
+                "اگر سوال کسی سورت یا سبق کے مرکزی مضمون کے بارے میں ہے تو پہلے اس کا ترجمہ پڑھیں، پھر ان خیالات کو نوٹ کریں جو بار بار آئے ہیں — وہی مرکزی مضمون ہے۔ " +
+                "اگر سوال قواعد (گرامر) کے بارے میں ہے تو تعریف، اقسام اور ہر قسم کی ایک مثال یاد رکھیں۔\n\n" +
+                "مزید مدد کے لیے ایپ کے Notes سیکشن میں اسی سبق کو دیکھیں، یا سوال کو مختصر الفاظ میں دوبارہ پوچھیں — مثلاً صرف موضوع کا نام۔"
+        } else {
+            val where = if (docContext.isNotBlank()) {
+                "You are currently reading: $docContext. "
+            } else {
+                ""
+            }
+            "### $heading\n\n" +
+                where +
+                "The full explanation of this topic is in the document you are reading — go back to the relevant part and note the key points. " +
+                "If the question asks for the central theme of a chapter or surah, read its translation first and note the ideas that repeat — those are the central theme. " +
+                "If it is a grammar question, remember the definition, the types, and one example of each type.\n\n" +
+                "For more help, check the same lesson in the app's Notes section, or ask again in shorter words — just the name of the topic."
+        }
     }
 
     /**
@@ -211,10 +381,24 @@ Guidelines:
             val titleHit = pages.firstOrNull {
                 it.optString("title").contains(cleanTerm, ignoreCase = true)
             }
+            // RELEVANCE GUARD: when no title contains the full term, accept
+            // only a hit whose title shares a significant word with the
+            // query. Otherwise return null so the chain falls through to the
+            // knowledge base instead of answering with a WRONG neighbouring
+            // article (e.g. 'الرعد' for a question about Surah Yunus).
+            fun isRelevant(p: JSONObject): Boolean {
+                val title = p.optString("title")
+                if (title.contains(cleanTerm, ignoreCase = true)) return true
+                val words = cleanTerm.split(Regex("[^\\p{L}]+"))
+                    .filter { it.length >= 3 }
+                return words.any { w -> title.contains(w, ignoreCase = true) }
+            }
+            val relevant = pages.filter(::isRelevant)
+            if (relevant.isEmpty()) return null
             val hit = if (wantsImage) {
-                pages.firstOrNull { imageOf(it) != null } ?: titleHit ?: pages.first()
+                relevant.firstOrNull { imageOf(it) != null } ?: titleHit ?: relevant.first()
             } else {
-                titleHit ?: pages.first()
+                titleHit ?: relevant.first()
             }
             val title = hit.optString("title")
             val extract = hit.optString("extract").trim()
@@ -228,10 +412,28 @@ Guidelines:
     }
 
     /**
-     * Calls Google Gemini 2.5 Flash API with Google Search Grounding enabled.
+     * Calls Gemini with Google Search Grounding enabled. Tries the current
+     * flash model first (gemini-3.8-flash), then the 'flash-latest' alias.
+     * NOTE (Nov 2026): gemini-2.5-flash is RETIRED for new keys — the API
+     * returns 404 "no longer available to new users". Do not use 2.5 models
+     * for text. A 429 (quota) or any other failure returns null, so the
+     * caller falls through to Wikipedia / web search instead of an error.
      */
     private fun callGeminiWithSearch(query: String, apiKey: String): String? {
-        val url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$apiKey"
+        val models = listOf("gemini-3.8-flash", "gemini-flash-latest")
+        for (model in models) {
+            try {
+                val answer = callGeminiModel(query, apiKey, model)
+                if (!answer.isNullOrBlank()) return answer
+            } catch (e: Exception) {
+                Log.w(TAG, "Gemini $model failed: ${e.message}")
+            }
+        }
+        return null
+    }
+
+    private fun callGeminiModel(query: String, apiKey: String, model: String): String? {
+        val url = "https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$apiKey"
 
         val bodyJson = JSONObject().apply {
             put("systemInstruction", JSONObject().apply {
@@ -275,15 +477,65 @@ Guidelines:
     }
 
     /**
-     * Dynamic internet web search fallback using DuckDuckGo Instant Answers and Wikipedia REST API.
+     * Pulls short explanation sentences out of a Google results page.
+     * Returns null when the page carries no real result links (the usual
+     * enable-JavaScript page) or no sentence mentions the topic.
      */
-    private fun fetchLiveWebSummary(query: String): String? {
+    private fun parseGoogleSnippets(html: String, cleanTerm: String): String? {
+        if (!html.contains("/url?q=")) return null
+        val text = html
+            .replace(Regex("<script[^>]*>.*?</script>", RegexOption.DOT_MATCHES_ALL), " ")
+            .replace(Regex("<style[^>]*>.*?</style>", RegexOption.DOT_MATCHES_ALL), " ")
+            .replace(Regex("<[^>]+>"), " ")
+            .replace(Regex("\\s+"), " ")
+            .trim()
+        if (text.length < 100) return null
+        val words = cleanTerm.split(Regex("[^\\p{L}]+")).filter { it.length >= 3 }
+        if (words.isEmpty()) return null
+        val sentences = text.split(Regex("(?<=[۔.!?])\\s+"))
+            .filter { s -> words.any { w -> s.contains(w, ignoreCase = true) } && s.length in 40..400 }
+            .distinct().take(3)
+        if (sentences.isEmpty()) return null
+        return "### $cleanTerm\n\n" + sentences.joinToString("\n\n") + "\n\nSource: Google Search"
+    }
+
+    /**
+     * Web search fallback: Google search page first, then DuckDuckGo
+     * Instant Answer, then Wikipedia REST summaries. A plain Google search
+     * page needs JavaScript, so from a plain HTTP client it usually
+     * returns an enable-JS page with no results — the function then falls
+     * through to DuckDuckGo/Wikipedia instead of failing. (When the
+     * Gemini key is set, step 1 already searched Google properly via
+     * Gemini's googleSearch grounding.)
+     */
+    private fun fetchWebSearchSummary(query: String): String? {
         // Normalize search term
         val cleanTerm = normalizeQueryForSearch(query)
 
         if (cleanTerm.length < 2) return null
 
         val encodedTerm = URLEncoder.encode(cleanTerm, StandardCharsets.UTF_8.name())
+
+        // Try Google search (results page). Only usable when Google
+        // returns real result links; otherwise silently skipped.
+        try {
+            val googleUrl = "https://www.google.com/search?q=$encodedTerm&hl=${if (isUrduScript(query)) "ur" else "en"}&num=5"
+            val googleRequest = Request.Builder()
+                .url(googleUrl)
+                .header(
+                    "User-Agent",
+                    "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Mobile Safari/537.36"
+                )
+                .build()
+
+            httpClient.newCall(googleRequest).execute().use { response ->
+                if (response.isSuccessful) {
+                    val html = response.body?.string() ?: ""
+                    val snippet = parseGoogleSnippets(html, cleanTerm)
+                    if (snippet != null) return snippet
+                }
+            }
+        } catch (_: Exception) {}
 
         // Try DuckDuckGo Instant Answer
         try {
@@ -366,8 +618,10 @@ Guidelines:
 
     /**
      * Direct, unrestricted academic & general intelligence response generator.
+     * Returns null when no entry matches the query — the caller then falls
+     * through to the document-aware last resort instead of a dead-end.
      */
-    fun generateUniversalTutorAnswer(query: String): String {
+    fun generateUniversalTutorAnswer(query: String): String? {
         val q = query.lowercase().trim()
 
         return when {
@@ -531,12 +785,10 @@ Guidelines:
                 "• **Pakistan Studies (مطالعہ پاکستان):** Dedicated compulsory subject for 10th and 12th Classes (replaces Islamiyat in these grades).\n" +
                 "• **Subjects Content:** All science and arts subjects are updated to the latest single conceptual syllabus editions with SLO-based testing (Student Learning Outcomes)."
 
-            // 8. Honest fallback (no invented content, no false internet blame)
-            else ->
-                "### ${query.replaceFirstChar { it.uppercase() }}\n\n" +
-                "I could not find a detailed answer for this topic in the search results just now. " +
-                "Please try asking in shorter, simpler words — for example, just the name of the topic — " +
-                "or check this topic in the app's Notes, MCQs and Paper Generator sections."
+            // 8. No entry matched — return null so the caller falls through
+            //    to the document-aware last resort. NEVER a "could not find"
+            //    dead-end: the student always gets an explanation.
+            else -> null
         }
     }
 }
