@@ -2,11 +2,13 @@ package com.example.studypoint.teacher
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.example.studypoint.AppUpdateInfo
 import com.example.studypoint.ProfileActivity
 import com.example.studypoint.checkForAppUpdate
@@ -14,9 +16,11 @@ import com.example.studypoint.downloadAndInstallApk
 import com.example.studypoint.R
 import com.example.studypoint.RoleSelectionActivity
 import com.example.studypoint.practicetest.PaperGeneratorActivity
+import com.example.studypoint.practicetest.QuestionBankStats
 import com.google.firebase.auth.FirebaseAuth
 import android.os.Handler
 import android.os.Looper
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -113,6 +117,57 @@ class TeacherDashboardActivity : AppCompatActivity() {
                     .putExtra(RoleSelectionActivity.EXTRA_CHANGE_MODE, true)
             )
         }
+        findViewById<LinearLayout>(R.id.cardPapers).setOnClickListener {
+            startActivity(Intent(this, MyPapersActivity::class.java))
+        }
+        TeacherBottomNav.setup(this, TeacherBottomNav.Tab.HOME)
+        loadTeacherStats()
+    }
+
+    // --- Question Bank stats + Past Activities (live) ---
+
+    private fun loadTeacherStats() {
+        // Instant paint from the last saved snapshot, then refresh live.
+        QuestionBankStats.loadCached(this)?.let { applyBankSnapshot(it) }
+        lifecycleScope.launch {
+            val snap = try {
+                QuestionBankStats.load(this@TeacherDashboardActivity)
+            } catch (e: Exception) {
+                null
+            }
+            if (snap != null) applyBankSnapshot(snap)
+        }
+        TeacherRepository.loadGeneratedPapers(
+            onOk = { list -> applyPastActivities(list) },
+            onErr = { /* keep the zero state */ }
+        )
+    }
+
+    private fun applyBankSnapshot(snap: QuestionBankStats.BankSnapshot) {
+        findViewById<TextView>(R.id.txtStatTotalQuestions).text =
+            QuestionBankStats.formatCount(snap.total.total)
+        findViewById<TextView>(R.id.txtStatMcqs).text =
+            QuestionBankStats.formatCount(snap.total.mcqs)
+        findViewById<TextView>(R.id.txtStatSubjects).text =
+            QuestionBankStats.SUBJECT_COMBOS.toString()
+        findViewById<DonutChartView>(R.id.donutQuestions).setCounts(
+            snap.total.mcqs, snap.total.shorts, snap.total.longs
+        )
+        findViewById<TextView>(R.id.txtDonutMcqs).text =
+            "● MCQs — ${QuestionBankStats.formatCount(snap.total.mcqs)}"
+        findViewById<TextView>(R.id.txtDonutShort).text =
+            "● Short — ${QuestionBankStats.formatCount(snap.total.shorts)}"
+        findViewById<TextView>(R.id.txtDonutLong).text =
+            "● Long — ${QuestionBankStats.formatCount(snap.total.longs)}"
+    }
+
+    private fun applyPastActivities(papers: List<SavedPaper>) {
+        val totalQuestions = papers.sumOf { it.totalQuestions }
+        findViewById<TextView>(R.id.txtPapersGenerated).text = papers.size.toString()
+        findViewById<TextView>(R.id.txtQuestionsUsed).text =
+            QuestionBankStats.formatCount(totalQuestions)
+        findViewById<TextView>(R.id.txtNoPapersHint).visibility =
+            if (papers.isEmpty()) View.VISIBLE else View.GONE
     }
 
     override fun onDestroy() {

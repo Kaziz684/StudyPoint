@@ -13,6 +13,11 @@ import com.google.firebase.auth.FirebaseAuth
  */
 class RoleGateActivity : AppCompatActivity() {
 
+    // Guards the one-shot board dialog: a second callback (fetchRole) must
+    // never re-route while the dialog is open, and the dialog must never
+    // be shown twice.
+    private var routed = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_role_gate)
@@ -26,14 +31,14 @@ class RoleGateActivity : AppCompatActivity() {
             }
             val cached = RoleManager.cachedRole(this)
             if (cached != null) {
-                route(cached)
+                routeWithBoardCheck(cached)
                 // Keep the cache fresh in the background.
                 RoleManager.fetchRole(this) { }
                 return
             }
             RoleManager.fetchRole(this) { role ->
                 if (role != null) {
-                    route(role)
+                    routeWithBoardCheck(role)
                 } else {
                     goTo(RoleSelectionActivity::class.java)
                 }
@@ -42,6 +47,42 @@ class RoleGateActivity : AppCompatActivity() {
             try {
                 goTo(LoginActivity::class.java)
             } catch (ignored: Throwable) {
+            }
+        }
+    }
+
+    /**
+     * First app run only: if no textbook board is saved yet, ask once
+     * ("Select Your Board") before routing. Cancel keeps Punjab for this
+     * session without saving, so the dialog asks again next launch.
+     */
+    private fun routeWithBoardCheck(role: String) {
+        if (routed) return
+        if (TextbookBoard.isBoardSaved(this)) {
+            routed = true
+            route(role)
+            return
+        }
+        try {
+            TextbookBoard.showBoardPicker(
+                this,
+                onChosen = {
+                    if (!routed) {
+                        routed = true
+                        route(role)
+                    }
+                },
+                onCancel = {
+                    if (!routed) {
+                        routed = true
+                        route(role)
+                    }
+                }
+            )
+        } catch (_: Throwable) {
+            if (!routed) {
+                routed = true
+                route(role)
             }
         }
     }

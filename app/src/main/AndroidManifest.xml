@@ -106,6 +106,10 @@
             android:exported="false" />
 
         <activity
+            android:name=".teacher.MyPapersActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".teacher.StudentDataActivity"
             android:exported="false" />
 

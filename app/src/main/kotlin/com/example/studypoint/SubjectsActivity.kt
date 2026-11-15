@@ -10,6 +10,12 @@ import androidx.recyclerview.widget.RecyclerView
 class SubjectsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Backstop: content is Punjab PCTB only — other boards show
+        // Coming Soon instead of Punjab content.
+        if (!TextbookBoard.isPunjab(this)) {
+            TextbookBoard.showComingSoon(this) { finish() }
+            return
+        }
         setContentView(R.layout.activity_grid_selection)
 
         val rawGrade = intent.getStringExtra("grade") ?: intent.getStringExtra("class") ?: "9"

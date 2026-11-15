@@ -10,6 +10,12 @@ import androidx.recyclerview.widget.RecyclerView
 class GradeSelectionActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Backstop: content is Punjab PCTB only — other boards show
+        // Coming Soon instead of Punjab content.
+        if (!TextbookBoard.isPunjab(this)) {
+            TextbookBoard.showComingSoon(this) { finish() }
+            return
+        }
         setContentView(R.layout.activity_grid_selection)
 
         // Set Header

@@ -119,19 +119,41 @@ class HomeActivity : ComponentActivity() {
         try {
             setContent {
                 StudyPointThemeWithSettings {
-                    HomeScreen(
-                        userName = auth.currentUser?.displayName?.ifBlank { "Student" } ?: "Student",
-                        userEmail = auth.currentUser?.email ?: "",
-                        onLogout = { logout() },
-                        onFeedback = { sendFeedback() },
-                        onWhatsApp = { openWhatsApp() },
-                        onShare = { shareApp() },
-                        onClassClick = { grade ->
-                            val intent = Intent(this, SubjectsActivity::class.java)
-                            intent.putExtra("grade", grade)
-                            startActivity(intent)
-                        }
-                    )
+                    if (!TextbookBoard.isPunjab(this@HomeActivity)) {
+                        // Content today is Punjab PCTB only — other boards
+                        // get a clear Coming Soon screen, never Punjab
+                        // content under another board's name.
+                        BoardComingSoonScreen(
+                            boardName = TextbookBoard.displayName(
+                                TextbookBoard.getBoard(this@HomeActivity)
+                            ),
+                            onChangeBoard = {
+                                TextbookBoard.showBoardPicker(
+                                    this@HomeActivity,
+                                    onChosen = { recreate() },
+                                    onCancel = {}
+                                )
+                            },
+                            onContinuePunjab = {
+                                TextbookBoard.setBoard(this@HomeActivity, TextbookBoard.PUNJAB)
+                                recreate()
+                            }
+                        )
+                    } else {
+                        HomeScreen(
+                            userName = auth.currentUser?.displayName?.ifBlank { "Student" } ?: "Student",
+                            userEmail = auth.currentUser?.email ?: "",
+                            onLogout = { logout() },
+                            onFeedback = { sendFeedback() },
+                            onWhatsApp = { openWhatsApp() },
+                            onShare = { shareApp() },
+                            onClassClick = { grade ->
+                                val intent = Intent(this, SubjectsActivity::class.java)
+                                intent.putExtra("grade", grade)
+                                startActivity(intent)
+                            }
+                        )
+                    }
                 }
             }
         } catch (t: Throwable) {
@@ -2516,6 +2538,54 @@ fun SafeDashboardScreen(
         Spacer(modifier = Modifier.height(8.dp))
         Button(onClick = onLogout, modifier = Modifier.fillMaxWidth()) {
             Text("Logout")
+        }
+    }
+}
+
+/**
+ * Shown when the saved textbook board is Federal, Sindh or KP.
+ * The app's content is Punjab PCTB only, so those boards get a clear
+ * Coming Soon state — never Punjab content under another board's name.
+ */
+@Composable
+fun BoardComingSoonScreen(
+    boardName: String,
+    onChangeBoard: () -> Unit,
+    onContinuePunjab: () -> Unit
+) {
+    Column(
+        modifier = Modifier.fillMaxSize().padding(24.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("📚", fontSize = 48.sp)
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            boardName,
+            fontWeight = FontWeight.Bold,
+            fontSize = 20.sp,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(
+            "Content for this board is coming soon. StudyPoint currently offers the Punjab Text Book Board syllabus only.",
+            fontSize = 14.sp,
+            color = Color(0xFF64748B),
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+        Button(
+            onClick = onContinuePunjab,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Continue with Punjab Board", fontWeight = FontWeight.Bold)
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        OutlinedButton(
+            onClick = onChangeBoard,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Change Board")
         }
     }
 }

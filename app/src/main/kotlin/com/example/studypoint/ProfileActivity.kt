@@ -108,6 +108,7 @@ fun ProfileScreen(
     val textHint = if (dark) Color(0xFF94A3B8) else Color(0xFF64748B)
     val borderColor = if (dark) Color(0xFF334155) else Color(0xFFE2E8F0)
     var fontSize by remember { mutableStateOf(AppSettings.getFontSize(context)) }
+    var board by remember { mutableStateOf(TextbookBoard.getBoard(context)) }
 
     // 1. Load saved profile data
     val initialProfile = remember { ProfileManager.getProfile(context) }
@@ -677,6 +678,53 @@ fun ProfileScreen(
                                     )
                                 }
                             }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        text = "Textbook Board",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = textSecondary
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = TextbookBoard.displayName(board),
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = textPrimary
+                            )
+                            Text(
+                                text = if (board == TextbookBoard.PUNJAB) "Full syllabus available" else "Content coming soon",
+                                fontSize = 11.sp,
+                                color = textHint
+                            )
+                        }
+                        TextButton(onClick = {
+                            val activity = context as? android.app.Activity
+                            activity?.let {
+                                TextbookBoard.showBoardPicker(
+                                    it,
+                                    onChosen = { chosen ->
+                                        board = chosen
+                                        Toast.makeText(
+                                            context,
+                                            "Board changed to ${TextbookBoard.displayName(chosen)}",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    },
+                                    onCancel = {}
+                                )
+                            }
+                        }) {
+                            Text("Change", fontWeight = FontWeight.Bold)
                         }
                     }
 

@@ -26,7 +26,12 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.studypoint.R
+import com.example.studypoint.TextbookBoard
+import com.example.studypoint.teacher.SavedPaper
+import com.example.studypoint.teacher.TeacherRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -104,6 +109,29 @@ class PaperGeneratorActivity : AppCompatActivity() {
     private val groupChecks = mutableListOf<CheckBox>()
     private var lastFile: File? = null
     private var loading = false
+
+    // --- Class / subject row pickers (vertical lists replacing the spinners) ---
+    // The spinners stay as the single source of truth for class/subject state
+    // (hidden) — every existing reader (loadData, generate, buildSummary)
+    // keeps working unchanged; the rows only drive setSelection on them.
+    private var pickerStage = 0 // 0 = class, 1 = subject, 2 = chapters
+    private var bankSnapshot: QuestionBankStats.BankSnapshot? = null
+    private var classFilter = ""
+    private var subjectFilter = ""
+    private lateinit var layoutClassStage: LinearLayout
+    private lateinit var layoutSubjectStage: LinearLayout
+    private lateinit var layoutSelectedClass: LinearLayout
+    private lateinit var layoutSelectedSubject: LinearLayout
+    private lateinit var tvSelectedClass: TextView
+    private lateinit var tvSelectedSubject: TextView
+    private lateinit var etSearchClass: EditText
+    private lateinit var etSearchSubject: EditText
+    private lateinit var rvClass: RecyclerView
+    private lateinit var rvSubject: RecyclerView
+    private lateinit var classAdapter: ClassRowAdapter
+    private lateinit var subjectAdapter: SubjectRowAdapter
+    private lateinit var pickStepCircles: List<TextView>
+    private lateinit var pickStepLabels: List<TextView>
 
     private lateinit var radioModeManual: RadioButton
     private lateinit var layoutAuto: LinearLayout
@@ -213,6 +241,59 @@ class PaperGeneratorActivity : AppCompatActivity() {
         tvStatus = findViewById(R.id.tvPaperStatus)
         layoutActions = findViewById(R.id.layoutActionsPaper)
 
+        // Class / subject row pickers (vertical lists; the spinners stay as
+        // the single source of truth, hidden — all existing logic reads them).
+        layoutClassStage = findViewById(R.id.layoutClassStagePaper)
+        layoutSubjectStage = findViewById(R.id.layoutSubjectStagePaper)
+        layoutSelectedClass = findViewById(R.id.layoutSelectedClassPaper)
+        layoutSelectedSubject = findViewById(R.id.layoutSelectedSubjectPaper)
+        tvSelectedClass = findViewById(R.id.tvSelectedClassPaper)
+        tvSelectedSubject = findViewById(R.id.tvSelectedSubjectPaper)
+        etSearchClass = findViewById(R.id.etSearchClassPaper)
+        etSearchSubject = findViewById(R.id.etSearchSubjectPaper)
+        rvClass = findViewById(R.id.rvClassPaper)
+        rvSubject = findViewById(R.id.rvSubjectPaper)
+        pickStepCircles = listOf(
+            findViewById(R.id.pickStep1Circle),
+            findViewById(R.id.pickStep2Circle),
+            findViewById(R.id.pickStep3Circle)
+        )
+        pickStepLabels = listOf(
+            findViewById(R.id.pickStep1Label),
+            findViewById(R.id.pickStep2Label),
+            findViewById(R.id.pickStep3Label)
+        )
+        spinnerClass.visibility = View.GONE
+        spinnerSubject.visibility = View.GONE
+        rvClass.layoutManager = LinearLayoutManager(this)
+        rvClass.isNestedScrollingEnabled = false
+        rvSubject.layoutManager = LinearLayoutManager(this)
+        rvSubject.isNestedScrollingEnabled = false
+        classAdapter = ClassRowAdapter(emptyList()) { row -> onClassRowSelected(row.digits) }
+        subjectAdapter = SubjectRowAdapter(emptyList()) { row -> onSubjectRowSelected(row.name) }
+        rvClass.adapter = classAdapter
+        rvSubject.adapter = subjectAdapter
+        etSearchClass.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                classFilter = s?.toString() ?: ""
+                renderClassRows()
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+        etSearchSubject.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                subjectFilter = s?.toString() ?: ""
+                renderSubjectRows()
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+        layoutSelectedClass.setOnClickListener { showClassStage() }
+        layoutSelectedSubject.setOnClickListener { showSubjectStage() }
+        renderClassRows()
+        renderSubjectRows()
+
         scrollPaper = findViewById(R.id.scrollPaper)
         stepContainers = listOf(
             findViewById(R.id.step1Paper),
@@ -309,6 +390,33 @@ class PaperGeneratorActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnRegeneratePaper).setOnClickListener { generate() }
 
         loadData()
+
+        // Live per-class / per-subject counts for the row pickers.
+        scope.launch {
+            val snap = try {
+                QuestionBankStats.load(this@PaperGeneratorActivity)
+            } catch (e: Exception) {
+                null
+            }
+            if (snap != null) {
+                bankSnapshot = snap
+                renderClassRows()
+                renderSubjectRows()
+            }
+        }
+        // Initial picker stage: a deep-linked subject jumps straight to
+        // chapters; a deep-linked class starts at subjects; otherwise the
+        // class list is shown first.
+        val incomingSubject = intent.getStringExtra("subject") ?: ""
+        val subjectMatched = incomingSubject.isNotBlank() &&
+            subjectsFor(currentSheet()).any { it.equals(incomingSubject, ignoreCase = true) }
+        val hasIncomingClass = intent.hasExtra("grade") || intent.hasExtra("class")
+        val initialStage = when {
+            subjectMatched -> 2
+            hasIncomingClass -> 1
+            else -> 0
+        }
+        updatePickerStage(initialStage)
     }
 
     override fun onDestroy() {
@@ -507,6 +615,171 @@ class PaperGeneratorActivity : AppCompatActivity() {
         return sb.toString()
     }
 
+    // --- Class / subject row pickers ---
+
+    private fun currentSheet(): String =
+        classSheets[spinnerClass.selectedItemPosition.coerceIn(0, classSheets.lastIndex)]
+
+    private fun selectedClassDigits(): String =
+        currentSheet().filter { it.isDigit() }
+
+    private fun classCountText(digits: String): String {
+        val snap = bankSnapshot ?: return "No. of Questions: ..."
+        val c = snap.perClass[digits] ?: return "No. of Questions: 0"
+        return "No. of Questions: ${QuestionBankStats.formatCount(c.total)}"
+    }
+
+    private fun subjectCountText(subject: String): String {
+        val snap = bankSnapshot ?: return "No. of Questions: ..."
+        val counts = snap.perClassSubject[selectedClassDigits()]?.get(subject)
+            ?: return "No. of Questions: 0"
+        return "No. of Questions: ${QuestionBankStats.formatCount(counts.total)}"
+    }
+
+    private fun renderClassRows() {
+        if (!::classAdapter.isInitialized) return
+        val selected = spinnerClass.selectedItemPosition
+        val rows = classSheets.mapIndexed { i, sheet ->
+            val digits = sheet.filter { it.isDigit() }
+            ClassRow(
+                digits = digits,
+                label = "CLASS $digits",
+                countText = classCountText(digits),
+                selected = i == selected
+            )
+        }.filter { row ->
+            classFilter.isBlank() ||
+                row.label.contains(classFilter, ignoreCase = true) ||
+                row.digits.contains(classFilter.trim())
+        }
+        classAdapter.updateItems(rows)
+    }
+
+    private fun renderSubjectRows() {
+        if (!::subjectAdapter.isInitialized) return
+        val selected = spinnerSubject.selectedItem?.toString() ?: ""
+        val subjects = try { subjectsFor(currentSheet()) } catch (e: Exception) { emptyList() }
+        val rows = subjects.map { name ->
+            SubjectRow(
+                name = name,
+                countText = subjectCountText(name),
+                selected = name.equals(selected, ignoreCase = true)
+            )
+        }.filter { row ->
+            subjectFilter.isBlank() || row.name.contains(subjectFilter, ignoreCase = true)
+        }
+        subjectAdapter.updateItems(rows)
+    }
+
+    private fun updatePickerStage(stage: Int) {
+        if (!::layoutClassStage.isInitialized) return
+        pickerStage = stage.coerceIn(0, 2)
+        val board = currentType() == PaperType.BOARD
+        layoutClassStage.visibility = if (pickerStage == 0) View.VISIBLE else View.GONE
+        layoutSubjectStage.visibility = if (pickerStage == 1) View.VISIBLE else View.GONE
+        layoutSelectedClass.visibility = if (pickerStage > 0) View.VISIBLE else View.GONE
+        layoutSelectedSubject.visibility = if (pickerStage > 1) View.VISIBLE else View.GONE
+        layoutChapterSection.visibility =
+            if (pickerStage == 2 && !board) View.VISIBLE else View.GONE
+        tvSelectedClass.text = "Class: ${classLabels[spinnerClass.selectedItemPosition.coerceIn(0, classLabels.lastIndex)]}  •  Change"
+        tvSelectedSubject.text = "Subject: ${spinnerSubject.selectedItem?.toString() ?: ""}  •  Change"
+        // Step strip: Class -> Subject -> Chapter.
+        for (i in 0..2) {
+            val circle = pickStepCircles[i]
+            val label = pickStepLabels[i]
+            when {
+                i < pickerStage -> {
+                    circle.text = "✓"
+                    circle.setBackgroundResource(R.drawable.bg_circle_blue)
+                    circle.setTextColor(Color.WHITE)
+                    label.setTextColor(Color.parseColor("#2563EB"))
+                    label.setTypeface(null, Typeface.NORMAL)
+                }
+                i == pickerStage -> {
+                    circle.text = "${i + 1}"
+                    circle.setBackgroundResource(R.drawable.bg_circle_blue)
+                    circle.setTextColor(Color.WHITE)
+                    label.setTextColor(Color.parseColor("#2563EB"))
+                    label.setTypeface(null, Typeface.BOLD)
+                }
+                else -> {
+                    circle.text = "${i + 1}"
+                    circle.setBackgroundResource(R.drawable.bg_circle_grey)
+                    circle.setTextColor(Color.parseColor("#475569"))
+                    label.setTextColor(Color.parseColor("#94A3B8"))
+                    label.setTypeface(null, Typeface.NORMAL)
+                }
+            }
+        }
+    }
+
+    private fun showClassStage() {
+        renderClassRows()
+        updatePickerStage(0)
+        scrollPaper.scrollTo(0, 0)
+    }
+
+    private fun showSubjectStage() {
+        renderSubjectRows()
+        updatePickerStage(1)
+        scrollPaper.scrollTo(0, 0)
+    }
+
+    private fun showChapterStage() {
+        updatePickerStage(2)
+        scrollPaper.scrollTo(0, 0)
+    }
+
+    private fun onClassRowSelected(digits: String) {
+        val pos = classSheets.indexOfFirst { it.filter { c -> c.isDigit() } == digits }
+        if (pos >= 0) spinnerClass.setSelection(pos) // listener rebuilds subjects
+        renderClassRows()
+        showSubjectStage()
+    }
+
+    private fun onSubjectRowSelected(name: String) {
+        val subjects = subjectsFor(currentSheet())
+        val idx = subjects.indexOfFirst { it.equals(name, ignoreCase = true) }
+        if (idx >= 0) spinnerSubject.setSelection(idx) // listener reloads data
+        renderSubjectRows()
+        showChapterStage()
+    }
+
+    /**
+     * Saves a generated paper to My Papers (Firestore teacher_papers) so it
+     * shows in the Papers tab and counts toward the dashboard totals.
+     * Silent on failure — a paper must never fail to generate because
+     * saving the record failed (e.g. offline).
+     */
+    private fun recordGeneratedPaper(
+        file: File,
+        classLabel: String,
+        subject: String,
+        chaptersLabel: String,
+        totalMarks: Int,
+        mcqCount: Int,
+        shortCount: Int,
+        longCount: Int,
+        paperTypeLabel: String
+    ) {
+        val paper = SavedPaper(
+            classLabel = classLabel,
+            subject = subject,
+            chaptersLabel = chaptersLabel,
+            totalMarks = totalMarks,
+            mcqCount = mcqCount,
+            shortCount = shortCount,
+            longCount = longCount,
+            totalQuestions = mcqCount + shortCount + longCount,
+            paperType = paperTypeLabel,
+            format = if (isDocx()) "Word" else "PDF",
+            solved = radioSolved.isChecked,
+            fileName = file.name,
+            board = TextbookBoard.getBoard(this)
+        )
+        TeacherRepository.saveGeneratedPaper(paper, onOk = { }, onErr = { })
+    }
+
     private fun currentType(): PaperType = when {
         radioTypeBoard.isChecked -> PaperType.BOARD
         radioTypeShort.isChecked -> PaperType.SHORT
@@ -523,9 +796,10 @@ class PaperGeneratorActivity : AppCompatActivity() {
         val board = currentType() == PaperType.BOARD
         tvBoardInfo.visibility = if (board) View.VISIBLE else View.GONE
         if (board) tvBoardInfo.text = boardInfoText()
-        layoutChapterSection.visibility = if (board) View.GONE else View.VISIBLE
         layoutModeSection.visibility = if (board) View.GONE else View.VISIBLE
         layoutOrderSection.visibility = if (board) View.GONE else View.VISIBLE
+        // Chapter visibility also depends on the picker stage — recompute it there.
+        updatePickerStage(pickerStage)
     }
 
     private fun subjectsFor(sheet: String): List<String> = when (sheet) {
@@ -1464,6 +1738,17 @@ class PaperGeneratorActivity : AppCompatActivity() {
             btnGenerate.isEnabled = true
             if (file != null && file.exists()) {
                 lastFile = file
+                recordGeneratedPaper(
+                    file, data.classLabel, data.subject, data.chaptersLabel, totalMarks,
+                    mcqs.size, shorts.size, longs.size,
+                    when (type) {
+                        PaperType.MCQS -> "MCQs Test"
+                        PaperType.SHORT -> "Short Questions"
+                        PaperType.LONG -> "Long Questions"
+                        PaperType.COMBINED -> "Mixed Paper"
+                        else -> "Board Pattern"
+                    }
+                )
                 layoutActions.visibility = View.VISIBLE
                 var msg = "Paper ready: $total questions (${mcqs.size} MCQs, ${shorts.size} Short, ${longs.size} Long) \u2022 ${file.name}"
                 if (shortfallNote.isNotBlank()) msg += " $shortfallNote"
@@ -1615,6 +1900,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
             btnGenerate.isEnabled = true
             if (file != null && file.exists()) {
                 lastFile = file
+                recordGeneratedPaper(file, "Class 10th", "English", "Full Book (All Chapters)", 75, 19, 8, 0, "Board Pattern")
                 layoutActions.visibility = View.VISIBLE
                 tvStatus.text = "Paper ready: Board Pattern Paper (Q.1: 19 MCQs, Q.2-Q.8 complete) \u2022 ${file.name}"
                 Toast.makeText(this@PaperGeneratorActivity, "Board Pattern paper generated", Toast.LENGTH_SHORT).show()
@@ -1726,6 +2012,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
             btnGenerate.isEnabled = true
             if (file != null && file.exists()) {
                 lastFile = file
+                recordGeneratedPaper(file, "Class 11th", "English", "Full Book (All Chapters)", 100, 20, 23, 0, "Board Pattern")
                 layoutActions.visibility = View.VISIBLE
                 tvStatus.text = "Paper ready: Board Pattern Paper (Q.1: 20 MCQs, Q.2-Q.8 complete) • ${file.name}"
                 Toast.makeText(this@PaperGeneratorActivity, "Board Pattern paper generated", Toast.LENGTH_SHORT).show()
@@ -1853,6 +2140,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
             btnGenerate.isEnabled = true
             if (file != null && file.exists()) {
                 lastFile = file
+                recordGeneratedPaper(file, "Class 12th", "Physics", "Full Book (All Chapters)", 85, 17, 33, 5, "Board Pattern")
                 layoutActions.visibility = View.VISIBLE
                 tvStatus.text = "Paper ready: Board Pattern Paper (Q.1: 17 MCQs, Q.2-Q.9 complete) • ${file.name}"
                 Toast.makeText(this@PaperGeneratorActivity, "Board Pattern paper generated", Toast.LENGTH_SHORT).show()
@@ -1979,6 +2267,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
             btnGenerate.isEnabled = true
             if (file != null && file.exists()) {
                 lastFile = file
+                recordGeneratedPaper(file, "Class 10th", "Chemistry", "Full Book (All Chapters)", 60, 12, 24, 3, "Board Pattern")
                 layoutActions.visibility = View.VISIBLE
                 tvStatus.text = "Paper ready: Board Pattern Paper (Q.1: 12 MCQs, Q.2-Q.7 complete) • ${file.name}"
                 Toast.makeText(this@PaperGeneratorActivity, "Board Pattern paper generated", Toast.LENGTH_SHORT).show()
@@ -2114,6 +2403,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
             btnGenerate.isEnabled = true
             if (file != null && file.exists()) {
                 lastFile = file
+                recordGeneratedPaper(file, "Class 10th", "Mathematics", "Full Book (All Chapters)", 75, 15, 27, 10, "Board Pattern")
                 layoutActions.visibility = View.VISIBLE
                 tvStatus.text = "Paper ready: Board Pattern Paper (Q.1: 15 MCQs, Q.2-Q.9 complete) \u2022 ${file.name}"
                 Toast.makeText(this@PaperGeneratorActivity, "Board Pattern paper generated", Toast.LENGTH_SHORT).show()
@@ -2185,6 +2475,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
             btnGenerate.isEnabled = true
             if (file != null && file.exists()) {
                 lastFile = file
+                recordGeneratedPaper(file, data.classLabel, "Computer Science", "Full Book (All Chapters)", 50, 10, 18, 3, "Board Pattern")
                 layoutActions.visibility = View.VISIBLE
                 tvStatus.text = "Paper ready: Board Pattern Paper (Q.1: 10 MCQs, Q.2-Q.4 Shorts, Q.5-Q.7 Longs) • ${file.name}"
                 Toast.makeText(this@PaperGeneratorActivity, "Board Pattern paper generated", Toast.LENGTH_SHORT).show()
@@ -2303,6 +2594,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
             btnGenerate.isEnabled = true
             if (file != null && file.exists()) {
                 lastFile = file
+                recordGeneratedPaper(file, classLabel, subject, "Full Book (All Chapters)", 60, 12, 24, 3, "Board Pattern")
                 layoutActions.visibility = View.VISIBLE
                 tvStatus.text = "Paper ready: Board Pattern Paper (Q.1: 12 MCQs, Q.2-Q.4 Shorts, Q.5-Q.7 Longs) • ${file.name}"
                 Toast.makeText(this@PaperGeneratorActivity, "Board Pattern paper generated", Toast.LENGTH_SHORT).show()
@@ -2447,6 +2739,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
             btnGenerate.isEnabled = true
             if (file != null && file.exists()) {
                 lastFile = file
+                recordGeneratedPaper(file, "Class 9th", "English", "Full Book (All Chapters)", 75, 19, 12, 0, "Board Pattern")
                 layoutActions.visibility = View.VISIBLE
                 tvStatus.text = "Paper ready: Board Pattern Paper (Q.1: 19 MCQs, Q.2-Q.9 complete) • ${file.name}"
                 Toast.makeText(this@PaperGeneratorActivity, "Board Pattern paper generated", Toast.LENGTH_SHORT).show()
@@ -2540,6 +2833,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
             btnGenerate.isEnabled = true
             if (file != null && file.exists()) {
                 lastFile = file
+                recordGeneratedPaper(file, data.classLabel, data.subject, "Full Book (All Chapters)", 50, 10, 8, 7, "Board Pattern")
                 layoutActions.visibility = View.VISIBLE
                 tvStatus.text = "Paper ready: Board Pattern Paper (Tarjuma: 10 MCQs, Q.2 Shorts, Q.3 Meanings, Q.4 Ayat Translation, Q.5 Detailed) • ${file.name}"
                 Toast.makeText(this@PaperGeneratorActivity, "Board Pattern paper generated", Toast.LENGTH_SHORT).show()
@@ -2648,6 +2942,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
             btnGenerate.isEnabled = true
             if (file != null && file.exists()) {
                 lastFile = file
+                recordGeneratedPaper(file, data.classLabel, data.subject, "Full Book (All Chapters)", 75, 15, 15, 15, "Board Pattern")
                 layoutActions.visibility = View.VISIBLE
                 tvStatus.text = "Paper ready: Board Pattern Paper (Urdu: 15 MCQs, Q.2 Tashreeh, Q.3 Ibarat, Q.4 Shorts, Q.5 Khulasa, Q.6 Markazi Khayal, Q.7 Khat/Darkhwast, Q.8 Kahani/Mukalma, Q.9 Muhawaray) \u2022 ${file.name}"
                 Toast.makeText(this@PaperGeneratorActivity, "Board Pattern paper generated", Toast.LENGTH_SHORT).show()

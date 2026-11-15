@@ -9,6 +9,7 @@ import android.widget.ImageView
 import android.widget.Spinner
 import androidx.appcompat.app.AppCompatActivity
 import com.example.studypoint.R
+import com.example.studypoint.TextbookBoard
 import com.google.android.material.button.MaterialButton
 
 class QuizSelectionActivity : AppCompatActivity() {
@@ -37,6 +38,12 @@ class QuizSelectionActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Backstop: content is Punjab PCTB only — other boards show
+        // Coming Soon instead of Punjab content.
+        if (!TextbookBoard.isPunjab(this)) {
+            TextbookBoard.showComingSoon(this) { finish() }
+            return
+        }
         setContentView(R.layout.activity_quiz_selection)
 
         findViewById<ImageView>(R.id.btnBack).setOnClickListener { finish() }
