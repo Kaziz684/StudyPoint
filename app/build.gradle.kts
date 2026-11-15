@@ -16,6 +16,12 @@ if (localPropertiesFile.exists()) {
 
 val youtubeApiKey: String = localProperties.getProperty("YOUTUBE_API_KEY") ?: ""
 val youtubeChannelId: String = localProperties.getProperty("YOUTUBE_CHANNEL_ID") ?: ""
+// M4 — Gemini key for the AI Tutor. CI passes it as env var GEMINI_API_KEY
+// (GitHub secret); local builds may use local.properties instead. Empty
+// when unset: the tutor then answers from Wikipedia / web search instead.
+// The key is baked into the APK (the user was told this).
+val geminiApiKey: String = System.getenv("GEMINI_API_KEY")
+    ?: localProperties.getProperty("GEMINI_API_KEY") ?: ""
 
 android {
     namespace = "com.example.studypoint"
@@ -30,6 +36,7 @@ android {
 
         buildConfigField("String", "YOUTUBE_API_KEY", "\"$youtubeApiKey\"")
         buildConfigField("String", "YOUTUBE_CHANNEL_ID", "\"$youtubeChannelId\"")
+        buildConfigField("String", "GEMINI_API_KEY", "\"$geminiApiKey\"")
     }
 
     // Release signing: uses env vars when present (CI). Local builds fall back to debug signing.
