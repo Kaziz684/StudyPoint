@@ -51,6 +51,27 @@ data class AwardListData(
     }
 }
 
+/** One generated paper saved under a teacher (collection: teacher_papers). */
+data class SavedPaper(
+    var id: String = "",
+    var paperNo: String = "",
+    var createdAt: Long = 0L,
+    var teacherUid: String = "",
+    var classLabel: String = "",
+    var subject: String = "",
+    var chaptersLabel: String = "",
+    var totalMarks: Int = 0,
+    var mcqCount: Int = 0,
+    var shortCount: Int = 0,
+    var longCount: Int = 0,
+    var totalQuestions: Int = 0,
+    var paperType: String = "", // "MCQs Test", "Short Questions", "Long Questions", "Mixed Paper", "Board Pattern"
+    var format: String = "", // "PDF" or "Word"
+    var solved: Boolean = false,
+    var fileName: String = "", // file in the app papers folder; the record survives even if the file is gone
+    var board: String = "" // textbook board at generation time ("punjab", "federal", "sindh", "kp")
+)
+
 /** The exact exam types required by the school system — do not add or remove. */
 object ExamTypes {
     val ALL: List<String> = listOf(
@@ -309,6 +330,99 @@ object TeacherRepository {
             studentIds = ids,
             marks = marks,
             createdAt = (d["createdAt"] as? Number)?.toLong() ?: 0L
+        )
+    }
+
+    // ---------------- Saved papers (My Papers) ----------------
+    // One record per generated paper. These records are ALSO the source for
+    // the dashboard "Total Generated Papers" and "Total Questions Used"
+    // counters — never count separately.
+
+    fun saveGeneratedPaper(p: SavedPaper, onOk: (String) -> Unit, onErr: (String) -> Unit) {
+        if (p.paperNo.isNotEmpty()) {
+            insertGeneratedPaper(p, onOk, onErr)
+            return
+        }
+        // Short human-readable paper number (like the award-list codes): a
+        // per-teacher counter kept on the user document, incremented
+        // atomically in a transaction.
+        val userRef = db.collection("users").document(uid)
+        db.runTransaction { tx ->
+            val snap = tx.get(userRef)
+            val current = snap.getLong("papers_counter") ?: 0L
+            val next = current + 1
+            tx.set(userRef, mapOf("papers_counter" to next), com.google.firebase.firestore.SetOptions.merge())
+            next
+        }.addOnSuccessListener { next ->
+            p.paperNo = (1000 + next).toString()
+            insertGeneratedPaper(p, onOk, onErr)
+        }.addOnFailureListener {
+            // Counter unavailable (e.g. offline): fall back to a random number.
+            p.paperNo = (1000..9999).random().toString()
+            insertGeneratedPaper(p, onOk, onErr)
+        }
+    }
+
+    private fun insertGeneratedPaper(p: SavedPaper, onOk: (String) -> Unit, onErr: (String) -> Unit) {
+        val data = mutableMapOf<String, Any>(
+            "paperNo" to p.paperNo,
+            "teacherUid" to uid,
+            "createdAt" to System.currentTimeMillis(),
+            "classLabel" to p.classLabel,
+            "subject" to p.subject,
+            "chaptersLabel" to p.chaptersLabel,
+            "totalMarks" to p.totalMarks,
+            "mcqCount" to p.mcqCount,
+            "shortCount" to p.shortCount,
+            "longCount" to p.longCount,
+            "totalQuestions" to p.totalQuestions,
+            "paperType" to p.paperType,
+            "format" to p.format,
+            "solved" to p.solved,
+            "fileName" to p.fileName,
+            "board" to p.board
+        )
+        db.collection("teacher_papers").add(data)
+            .addOnSuccessListener { ref -> onOk(ref.id) }
+            .addOnFailureListener { e -> onErr(e.message ?: "Could not save paper") }
+    }
+
+    fun loadGeneratedPapers(onOk: (List<SavedPaper>) -> Unit, onErr: (String) -> Unit) {
+        // NOTE: no server-side orderBy here — whereEqualTo + orderBy on a
+        // different field needs a composite Firestore index, and without it
+        // the whole query fails and no papers load at all. Sort client-side.
+        db.collection("teacher_papers")
+            .whereEqualTo("teacherUid", uid)
+            .get()
+            .addOnSuccessListener { snap ->
+                val list = snap.documents.map { d -> savedPaperFromDoc(d.id, d.data ?: emptyMap()) }
+                    .sortedByDescending { it.createdAt }
+                onOk(list)
+            }
+            .addOnFailureListener { e -> onErr(e.message ?: "Could not load saved papers") }
+    }
+
+    private fun savedPaperFromDoc(id: String, d: Map<String, Any>): SavedPaper {
+        fun s(k: String) = d[k]?.toString() ?: ""
+        fun n(k: String) = (d[k] as? Number)?.toInt() ?: 0
+        return SavedPaper(
+            id = id,
+            paperNo = s("paperNo"),
+            createdAt = (d["createdAt"] as? Number)?.toLong() ?: 0L,
+            teacherUid = s("teacherUid"),
+            classLabel = s("classLabel"),
+            subject = s("subject"),
+            chaptersLabel = s("chaptersLabel"),
+            totalMarks = n("totalMarks"),
+            mcqCount = n("mcqCount"),
+            shortCount = n("shortCount"),
+            longCount = n("longCount"),
+            totalQuestions = n("totalQuestions"),
+            paperType = s("paperType"),
+            format = s("format"),
+            solved = d["solved"] as? Boolean ?: false,
+            fileName = s("fileName"),
+            board = s("board")
         )
     }
 }

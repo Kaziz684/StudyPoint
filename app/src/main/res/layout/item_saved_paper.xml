@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_role_card"
+    android:elevation="2dp"
+    android:orientation="vertical"
+    android:padding="14dp">
+
+    <TextView
+        android:id="@+id/tvPaperTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#0F172A"
+        android:textSize="15sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tvPaperMeta"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:textColor="#64748B"
+        android:textSize="12.5sp" />
+
+    <TextView
+        android:id="@+id/tvPaperChapters"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:textColor="#1F2937"
+        android:textSize="13sp" />
+
+    <TextView
+        android:id="@+id/tvPaperCounts"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:textColor="#64748B"
+        android:textSize="12.5sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btnPaperView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:backgroundTint="#EFF6FF"
+            android:text="View"
+            android:textColor="#2563EB"
+            android:textSize="12.5sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btnPaperDownload"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:layout_weight="1"
+            android:backgroundTint="#ECFDF5"
+            android:text="Download"
+            android:textColor="#065F46"
+            android:textSize="12.5sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btnPaperShare"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:layout_weight="1"
+            android:backgroundTint="#FEF3C7"
+            android:text="Share"
+            android:textColor="#92400E"
+            android:textSize="12.5sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btnPaperInfo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:layout_weight="1"
+            android:backgroundTint="#F1F5F9"
+            android:text="Info"
+            android:textColor="#334155"
+            android:textSize="12.5sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+</LinearLayout>
