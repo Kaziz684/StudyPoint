@@ -16,6 +16,7 @@ import androidx.core.content.FileProvider
 import java.io.File
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.RepeatMode
@@ -246,6 +247,25 @@ fun HomeScreen(
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
 
+    // Day/Night mode (drawer toggle). The persisted mode is the source of
+    // truth; toggling writes it, applies it via AppCompatDelegate, and
+    // recreates the activity so every screen repaints in the new mode.
+    // Light stays the default. (The PDF Reading view keeps its own
+    // Default/Night/Sepia themes — this is the app-wide day/night mode.)
+    var darkModeOn by remember { mutableStateOf(AppSettings.isDarkTheme(context)) }
+    val toggleDarkMode: (Boolean) -> Unit = { checked ->
+        darkModeOn = checked
+        AppSettings.setThemeMode(
+            context,
+            if (checked) AppSettings.THEME_DARK else AppSettings.THEME_LIGHT
+        )
+        AppCompatDelegate.setDefaultNightMode(
+            if (checked) AppCompatDelegate.MODE_NIGHT_YES
+            else AppCompatDelegate.MODE_NIGHT_NO
+        )
+        (context as? android.app.Activity)?.recreate()
+    }
+
     // Navigation and interactive sheets state
     var selectedTab by remember { mutableIntStateOf(0) }
     var showAiChatSheet by remember { mutableStateOf(false) }
@@ -288,43 +308,50 @@ fun HomeScreen(
         drawerContent = {
             ModalDrawerSheet(
                 modifier = Modifier.width(300.dp),
-                drawerContainerColor = Color(0xFFF8FAFC)
+                drawerContainerColor = if (darkModeOn) Color(0xFF0F172A) else Color.White,
+                drawerShape = RoundedCornerShape(topEnd = 24.dp, bottomEnd = 24.dp)
             ) {
                 DrawerHeader(userName, userEmail)
                 Spacer(modifier = Modifier.height(12.dp))
 
                 Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                     NavigationDrawerItem(
-                        icon = { Icon(Icons.Default.Home, null) },
+                        icon = { Icon(Icons.Default.Home, null, tint = Color(0xFF2563EB)) },
                         label = { Text("Home Dashboard") },
                         selected = selectedTab == 0,
                         onClick = {
                             selectedTab = 0
                             scope.launch { drawerState.close() }
                         },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+                        shape = DrawerRowShape,
+                        colors = drawerRowColors(darkModeOn)
                     )
 
                     NavigationDrawerItem(
-                        icon = { Icon(Icons.Default.School, null) },
+                        icon = { Icon(Icons.Default.School, null, tint = Color(0xFF2563EB)) },
                         label = { Text("All Subjects & Classes") },
                         selected = false,
                         onClick = {
                             scope.launch { drawerState.close() }
                             context.startActivity(Intent(context, GradeSelectionActivity::class.java))
                         },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+                        shape = DrawerRowShape,
+                        colors = drawerRowColors(darkModeOn)
                     )
 
                     NavigationDrawerItem(
-                        icon = { Icon(Icons.Default.Quiz, null) },
+                        icon = { Icon(Icons.Default.Quiz, null, tint = Color(0xFF2563EB)) },
                         label = { Text("Practice Tests / MCQs") },
                         selected = false,
                         onClick = {
                             scope.launch { drawerState.close() }
                             context.startActivity(Intent(context, QuizSelectionActivity::class.java))
                         },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+                        shape = DrawerRowShape,
+                        colors = drawerRowColors(darkModeOn)
                     )
 
                     NavigationDrawerItem(
@@ -335,7 +362,9 @@ fun HomeScreen(
                             scope.launch { drawerState.close() }
                             context.startActivity(Intent(context, BookmarksActivity::class.java))
                         },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+                        shape = DrawerRowShape,
+                        colors = drawerRowColors(darkModeOn)
                     )
 
                     NavigationDrawerItem(
@@ -348,7 +377,9 @@ fun HomeScreen(
                             LanguageManager.toggle(ctx)
                             ctx.recreate()
                         },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+                        shape = DrawerRowShape,
+                        colors = drawerRowColors(darkModeOn)
                     )
 
                     NavigationDrawerItem(
@@ -359,18 +390,22 @@ fun HomeScreen(
                             scope.launch { drawerState.close() }
                             showAiChatSheet = true
                         },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+                        shape = DrawerRowShape,
+                        colors = drawerRowColors(darkModeOn)
                     )
 
                     NavigationDrawerItem(
-                        icon = { Icon(Icons.Default.Public, null) },
+                        icon = { Icon(Icons.Default.Public, null, tint = Color(0xFF2563EB)) },
                         label = { Text("Punjab Board Portals") },
                         selected = false,
                         onClick = {
                             scope.launch { drawerState.close() }
                             context.startActivity(Intent(context, BoardsActivity::class.java))
                         },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+                        shape = DrawerRowShape,
+                        colors = drawerRowColors(darkModeOn)
                     )
 
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp))
@@ -384,11 +419,13 @@ fun HomeScreen(
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp))
 
                     NavigationDrawerItem(
-                        icon = { Icon(Icons.Default.Share, null) },
+                        icon = { Icon(Icons.Default.Share, null, tint = Color(0xFF2563EB)) },
                         label = { Text("Share StudyPoint App") },
                         selected = false,
                         onClick = onShare,
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+                        shape = DrawerRowShape,
+                        colors = drawerRowColors(darkModeOn)
                     )
 
                     NavigationDrawerItem(
@@ -396,7 +433,30 @@ fun HomeScreen(
                         label = { Text("Join WhatsApp Channel") },
                         selected = false,
                         onClick = onWhatsApp,
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+                        shape = DrawerRowShape,
+                        colors = drawerRowColors(darkModeOn)
+                    )
+
+                    // Day/Night mode toggle — in the drawer itself, after
+                    // "Join WhatsApp Channel" and before "Logout". The
+                    // Switch is in the badge slot; tapping the row toggles
+                    // too. Persists via AppSettings + AppCompatDelegate and
+                    // recreates the activity so the whole app repaints.
+                    NavigationDrawerItem(
+                        icon = { Icon(Icons.Default.DarkMode, null, tint = Color(0xFF2563EB)) },
+                        label = { Text("Dark Mode") },
+                        selected = false,
+                        onClick = { toggleDarkMode(!darkModeOn) },
+                        badge = {
+                            Switch(
+                                checked = darkModeOn,
+                                onCheckedChange = { checked -> toggleDarkMode(checked) }
+                            )
+                        },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+                        shape = DrawerRowShape,
+                        colors = drawerRowColors(darkModeOn)
                     )
 
                     NavigationDrawerItem(
@@ -404,13 +464,16 @@ fun HomeScreen(
                         label = { Text("Logout") },
                         selected = false,
                         onClick = onLogout,
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+                        shape = DrawerRowShape,
+                        colors = drawerRowColors(darkModeOn)
                     )
                 }
             }
         }
     ) {
         Scaffold(
+            containerColor = if (darkModeOn) Color(0xFF0F172A) else Color.White,
             // AI Assistant floating button (small, like common chat FABs)
             floatingActionButton = {
                 Box(
@@ -436,12 +499,15 @@ fun HomeScreen(
             // 6. Fixed Bottom Navigation Bar
             bottomBar = {
                 Surface(
-                    color = Color.White,
+                    color = if (darkModeOn) Color(0xFF0F172A) else Color.White,
                     shadowElevation = 10.dp,
-                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE2E8F0))
+                    border = androidx.compose.foundation.BorderStroke(
+                        1.dp,
+                        if (darkModeOn) Color(0xFF334155) else Color(0xFFE2E8F0)
+                    )
                 ) {
                     NavigationBar(
-                        containerColor = Color.White,
+                        containerColor = if (darkModeOn) Color(0xFF0F172A) else Color.White,
                         tonalElevation = 0.dp,
                         modifier = Modifier.height(72.dp)
                     ) {
@@ -452,11 +518,11 @@ fun HomeScreen(
                             icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
                             label = { Text("Home", fontSize = 11.sp, fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Normal) },
                             colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor = Color(0xFF4F46E5),
-                                selectedTextColor = Color(0xFF4F46E5),
-                                indicatorColor = Color(0xFFEEF2FF),
-                                unselectedIconColor = Color(0xFF64748B),
-                                unselectedTextColor = Color(0xFF64748B)
+                                selectedIconColor = if (darkModeOn) Color(0xFF93C5FD) else Color(0xFF4F46E5),
+                                selectedTextColor = if (darkModeOn) Color(0xFF93C5FD) else Color(0xFF4F46E5),
+                                indicatorColor = if (darkModeOn) Color(0xFF1E3A8A) else Color(0xFFEEF2FF),
+                                unselectedIconColor = if (darkModeOn) Color(0xFF94A3B8) else Color(0xFF64748B),
+                                unselectedTextColor = if (darkModeOn) Color(0xFF94A3B8) else Color(0xFF64748B)
                             )
                         )
 
@@ -470,11 +536,11 @@ fun HomeScreen(
                             icon = { Icon(Icons.Default.School, contentDescription = "Subjects") },
                             label = { Text("Subjects", fontSize = 11.sp, fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Normal) },
                             colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor = Color(0xFF4F46E5),
-                                selectedTextColor = Color(0xFF4F46E5),
-                                indicatorColor = Color(0xFFEEF2FF),
-                                unselectedIconColor = Color(0xFF64748B),
-                                unselectedTextColor = Color(0xFF64748B)
+                                selectedIconColor = if (darkModeOn) Color(0xFF93C5FD) else Color(0xFF4F46E5),
+                                selectedTextColor = if (darkModeOn) Color(0xFF93C5FD) else Color(0xFF4F46E5),
+                                indicatorColor = if (darkModeOn) Color(0xFF1E3A8A) else Color(0xFFEEF2FF),
+                                unselectedIconColor = if (darkModeOn) Color(0xFF94A3B8) else Color(0xFF64748B),
+                                unselectedTextColor = if (darkModeOn) Color(0xFF94A3B8) else Color(0xFF64748B)
                             )
                         )
 
@@ -488,11 +554,11 @@ fun HomeScreen(
                             icon = { Icon(Icons.Default.AutoAwesome, contentDescription = "AI Chat") },
                             label = { Text("AI Chat", fontSize = 11.sp, fontWeight = if (selectedTab == 2) FontWeight.Bold else FontWeight.Normal) },
                             colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor = Color(0xFF7C3AED),
-                                selectedTextColor = Color(0xFF7C3AED),
-                                indicatorColor = Color(0xFFF5F3FF),
-                                unselectedIconColor = Color(0xFF64748B),
-                                unselectedTextColor = Color(0xFF64748B)
+                                selectedIconColor = if (darkModeOn) Color(0xFFC4B5FD) else Color(0xFF7C3AED),
+                                selectedTextColor = if (darkModeOn) Color(0xFFC4B5FD) else Color(0xFF7C3AED),
+                                indicatorColor = if (darkModeOn) Color(0xFF312E81) else Color(0xFFF5F3FF),
+                                unselectedIconColor = if (darkModeOn) Color(0xFF94A3B8) else Color(0xFF64748B),
+                                unselectedTextColor = if (darkModeOn) Color(0xFF94A3B8) else Color(0xFF64748B)
                             )
                         )
 
@@ -506,11 +572,11 @@ fun HomeScreen(
                             icon = { Icon(Icons.Default.Quiz, contentDescription = "MCQs") },
                             label = { Text("MCQs", fontSize = 11.sp, fontWeight = if (selectedTab == 3) FontWeight.Bold else FontWeight.Normal) },
                             colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor = Color(0xFF10B981),
-                                selectedTextColor = Color(0xFF10B981),
-                                indicatorColor = Color(0xFFECFDF5),
-                                unselectedIconColor = Color(0xFF64748B),
-                                unselectedTextColor = Color(0xFF64748B)
+                                selectedIconColor = if (darkModeOn) Color(0xFF6EE7B7) else Color(0xFF10B981),
+                                selectedTextColor = if (darkModeOn) Color(0xFF6EE7B7) else Color(0xFF10B981),
+                                indicatorColor = if (darkModeOn) Color(0xFF064E3B) else Color(0xFFECFDF5),
+                                unselectedIconColor = if (darkModeOn) Color(0xFF94A3B8) else Color(0xFF64748B),
+                                unselectedTextColor = if (darkModeOn) Color(0xFF94A3B8) else Color(0xFF64748B)
                             )
                         )
 
@@ -524,11 +590,11 @@ fun HomeScreen(
                             icon = { Icon(Icons.Default.Person, contentDescription = "Profile") },
                             label = { Text("Profile", fontSize = 11.sp, fontWeight = if (selectedTab == 4) FontWeight.Bold else FontWeight.Normal) },
                             colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor = Color(0xFF4F46E5),
-                                selectedTextColor = Color(0xFF4F46E5),
-                                indicatorColor = Color(0xFFEEF2FF),
-                                unselectedIconColor = Color(0xFF64748B),
-                                unselectedTextColor = Color(0xFF64748B)
+                                selectedIconColor = if (darkModeOn) Color(0xFF93C5FD) else Color(0xFF4F46E5),
+                                selectedTextColor = if (darkModeOn) Color(0xFF93C5FD) else Color(0xFF4F46E5),
+                                indicatorColor = if (darkModeOn) Color(0xFF1E3A8A) else Color(0xFFEEF2FF),
+                                unselectedIconColor = if (darkModeOn) Color(0xFF94A3B8) else Color(0xFF64748B),
+                                unselectedTextColor = if (darkModeOn) Color(0xFF94A3B8) else Color(0xFF64748B)
                             )
                         )
                     }
@@ -539,7 +605,7 @@ fun HomeScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .background(Color(0xFFF8FAFC))
+                    .background(if (darkModeOn) Color(0xFF0F172A) else Color(0xFFF8FAFC))
                     .verticalScroll(scrollState)
             ) {
                 // 1. Top Greeting Header
@@ -1565,15 +1631,29 @@ fun ProfileDialog(
 // ==========================================
 // PRE-EXISTING WIDGETS (MAINTAINED)
 // ==========================================
+// Drawer template (blue theme) — visual only. The drawer item set is unchanged:
+// no items added, none removed.
+private val DrawerRowShape = RoundedCornerShape(16.dp)
+
+@Composable
+private fun drawerRowColors(dark: Boolean) = NavigationDrawerItemDefaults.colors(
+    selectedContainerColor = if (dark) Color(0xFF1E3A8A) else Color(0xFFDBEAFE),
+    selectedIconColor = if (dark) Color(0xFFBFDBFE) else Color(0xFF1D4ED8),
+    selectedTextColor = if (dark) Color(0xFFDBEAFE) else Color(0xFF1E3A8A),
+    unselectedIconColor = if (dark) Color(0xFF60A5FA) else Color(0xFF2563EB),
+    unselectedTextColor = if (dark) Color(0xFFF1F5F9) else Color(0xFF1E293B)
+)
+
 @Composable
 fun DrawerHeader(userName: String = "Student", userEmail: String = "") {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(160.dp)
+            .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
             .background(
                 Brush.verticalGradient(
-                    listOf(Color(0xFF0F172A), Color(0xFF1E293B))
+                    listOf(Color(0xFF1D4ED8), Color(0xFF2563EB))
                 )
             )
             .padding(20.dp),
@@ -1600,7 +1680,7 @@ fun DrawerHeader(userName: String = "Student", userEmail: String = "") {
                     .clip(CircleShape)
                     .background(
                         Brush.verticalGradient(
-                            listOf(Color(0xFF1E40AF), Color(0xFF0F172A))
+                            listOf(Color(0xFF1E3A8A), Color(0xFF1D4ED8))
                         )
                     ),
                 contentAlignment = Alignment.Center
@@ -1616,8 +1696,8 @@ fun DrawerHeader(userName: String = "Student", userEmail: String = "") {
             Spacer(modifier = Modifier.width(12.dp))
             Column {
                 Text("StudyPoint", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                Text(userName, color = Color(0xFF60A5FA), fontSize = 12.sp, fontWeight = FontWeight.Medium)
-                Text("PCTB Official Curriculum", color = Color(0xFF94A3B8), fontSize = 10.sp)
+                Text(userName, color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                Text("PCTB Official Curriculum", color = Color(0xFFDBEAFE), fontSize = 10.sp)
             }
         }
     }
@@ -1687,9 +1767,21 @@ fun QuotesCarousel() {
     }
 }
 
+// News video pinned first on the Home slider (Unlisted YouTube video — the link works
+// for anyone with the link; the app never changes its visibility).
+private val NEWS_VIDEO_ANNOUNCEMENT = BoardAnnouncement(
+    title = "10th Class Annual Exams 2027 Dates Announced",
+    category = "News Video",
+    description = "10th Class Annual Exams 2027 begin on 16 March 2027 and the result will be announced on 20 July 2027. Tap to watch the video for the full details.",
+    link_url = "https://youtu.be/ePXlvC8MYpA",
+    date = "15 Nov 2026",
+    is_active = true
+)
+
 @Composable
 fun AnnouncementCarousel() {
-    val announcements = remember { mutableStateOf<List<BoardAnnouncement>>(emptyList()) }
+    // Pinned first on the Home slider even before Firestore loads (or if it is empty).
+    val announcements = remember { mutableStateOf(listOf(NEWS_VIDEO_ANNOUNCEMENT)) }
 
     DisposableEffect(Unit) {
         val db = FirebaseFirestore.getInstance()
@@ -1700,11 +1792,12 @@ fun AnnouncementCarousel() {
                     val list = snapshot.documents.mapNotNull { doc ->
                         doc.toObject(BoardAnnouncement::class.java)
                     }
-                    // Only the latest 4 still-valid items ride the home card (max 3-4 daily news);
-                    // expired news drops off on its own, the rest lives in the bell.
-                    announcements.value = AnnouncementExpiry.sortNewestFirst(
+                    // News video rides first on the home slider, then the latest 3 still-valid
+                    // news items (max 4 cards); expired news drops off on its own, the rest
+                    // lives in the bell.
+                    announcements.value = listOf(NEWS_VIDEO_ANNOUNCEMENT) + AnnouncementExpiry.sortNewestFirst(
                         AnnouncementExpiry.filterUnexpired(list)
-                    ).take(4)
+                    ).take(3)
                 } else {
                     db.collection("board_announcements")
                         .whereEqualTo("is_active", true)
@@ -1713,9 +1806,9 @@ fun AnnouncementCarousel() {
                                 val list2 = snap2.documents.mapNotNull { doc ->
                                     doc.toObject(BoardAnnouncement::class.java)
                                 }
-                                announcements.value = AnnouncementExpiry.sortNewestFirst(
+                                announcements.value = listOf(NEWS_VIDEO_ANNOUNCEMENT) + AnnouncementExpiry.sortNewestFirst(
                                     AnnouncementExpiry.filterUnexpired(list2)
-                                ).take(4)
+                                ).take(3)
                             }
                         }
                 }
@@ -1840,7 +1933,7 @@ fun ExpandableClassItem(title: String, subjects: List<String>, onClassClick: (St
 
     Column {
         NavigationDrawerItem(
-            icon = { Icon(Icons.Default.School, null) },
+            icon = { Icon(Icons.Default.School, null, tint = Color(0xFF2563EB)) },
             label = {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(title, modifier = Modifier.weight(1f))
@@ -1853,7 +1946,11 @@ fun ExpandableClassItem(title: String, subjects: List<String>, onClassClick: (St
             },
             selected = false,
             onClick = { expanded = !expanded },
-            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+            shape = DrawerRowShape,
+            // Top-level composable (outside HomeScreen), so it reads the
+            // persisted mode itself instead of the HomeScreen state.
+            colors = drawerRowColors(AppSettings.isDarkTheme(LocalContext.current))
         )
 
         AnimatedVisibility(visible = expanded) {
