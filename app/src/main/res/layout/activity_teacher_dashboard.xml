@@ -2,14 +2,14 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F1F5F9"
+    android:background="@color/edu_bg"
     android:orientation="vertical">
 
 <ScrollView
     android:layout_width="match_parent"
     android:layout_height="0dp"
     android:layout_weight="1"
-    android:background="#F1F5F9"
+    android:background="@color/edu_bg"
     android:fillViewport="true">
 
     <LinearLayout
@@ -25,7 +25,7 @@
             android:layout_height="wrap_content"
             android:padding="6dp"
             android:text="←"
-            android:textColor="#1E3A8A"
+            android:textColor="@color/edu_text_primary"
             android:textSize="26sp"
             android:textStyle="bold" />
 
@@ -43,7 +43,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="Welcome, Teacher! 👋"
-                android:textColor="#1E3A8A"
+                android:textColor="@color/edu_text_primary"
                 android:textSize="25sp"
                 android:textStyle="bold" />
 
@@ -53,7 +53,7 @@
                 android:layout_marginTop="4dp"
                 android:gravity="center"
                 android:text="Manage · Create · Guide"
-                android:textColor="#64748B"
+                android:textColor="@color/edu_text_secondary"
                 android:textSize="14sp" />
 
             <Button
@@ -113,7 +113,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Daily Educational Inspiration"
-                android:textColor="#4F46E5"
+                android:textColor="@color/edu_blue"
                 android:textSize="14sp"
                 android:textStyle="bold" />
 
@@ -123,7 +123,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:gravity="center"
-                android:textColor="#1F2937"
+                android:textColor="@color/edu_text_primary"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
@@ -133,7 +133,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:gravity="center"
-                android:textColor="#64748B"
+                android:textColor="@color/edu_text_secondary"
                 android:textSize="13sp" />
         </LinearLayout>
 
@@ -151,7 +151,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Question Bank"
-                android:textColor="#0F172A"
+                android:textColor="@color/edu_text_primary"
                 android:textSize="15sp"
                 android:textStyle="bold" />
 
@@ -160,7 +160,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:text="Live counts from the StudyPoint question bank."
-                android:textColor="#64748B"
+                android:textColor="@color/edu_text_secondary"
                 android:textSize="12sp" />
 
             <LinearLayout
@@ -182,7 +182,7 @@
                         android:layout_height="wrap_content"
                         android:maxLines="1"
                         android:text="..."
-                        android:textColor="#0F172A"
+                        android:textColor="@color/edu_text_primary"
                         android:textSize="20sp"
                         android:textStyle="bold" />
 
@@ -192,7 +192,7 @@
                         android:layout_marginTop="2dp"
                         android:gravity="center"
                         android:text="Total Questions"
-                        android:textColor="#64748B"
+                        android:textColor="@color/edu_text_secondary"
                         android:textSize="11sp" />
                 </LinearLayout>
 
@@ -209,7 +209,7 @@
                         android:layout_height="wrap_content"
                         android:maxLines="1"
                         android:text="..."
-                        android:textColor="#0F172A"
+                        android:textColor="@color/edu_text_primary"
                         android:textSize="20sp"
                         android:textStyle="bold" />
 
@@ -219,7 +219,7 @@
                         android:layout_marginTop="2dp"
                         android:gravity="center"
                         android:text="MCQs"
-                        android:textColor="#64748B"
+                        android:textColor="@color/edu_text_secondary"
                         android:textSize="11sp" />
                 </LinearLayout>
 
@@ -236,7 +236,7 @@
                         android:layout_height="wrap_content"
                         android:maxLines="1"
                         android:text="..."
-                        android:textColor="#0F172A"
+                        android:textColor="@color/edu_text_primary"
                         android:textSize="20sp"
                         android:textStyle="bold" />
 
@@ -246,7 +246,7 @@
                         android:layout_marginTop="2dp"
                         android:gravity="center"
                         android:text="Subjects"
-                        android:textColor="#64748B"
+                        android:textColor="@color/edu_text_secondary"
                         android:textSize="11sp" />
                 </LinearLayout>
             </LinearLayout>
@@ -276,7 +276,7 @@
                         android:layout_height="wrap_content"
                         android:maxLines="1"
                         android:text="● MCQs — ..."
-                        android:textColor="#2563EB"
+                        android:textColor="@color/edu_blue"
                         android:textSize="13sp" />
 
                     <TextView
@@ -286,7 +286,7 @@
                         android:layout_marginTop="6dp"
                         android:maxLines="1"
                         android:text="● Short — ..."
-                        android:textColor="#10B981"
+                        android:textColor="@color/edu_emerald"
                         android:textSize="13sp" />
 
                     <TextView
@@ -296,7 +296,7 @@
                         android:layout_marginTop="6dp"
                         android:maxLines="1"
                         android:text="● Long — ..."
-                        android:textColor="#F59E0B"
+                        android:textColor="@color/secondary_gold"
                         android:textSize="13sp" />
                 </LinearLayout>
             </LinearLayout>
@@ -316,7 +316,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Your Past Activities"
-                android:textColor="#0F172A"
+                android:textColor="@color/edu_text_primary"
                 android:textSize="15sp"
                 android:textStyle="bold" />
 
@@ -339,7 +339,7 @@
                         android:layout_height="wrap_content"
                         android:maxLines="1"
                         android:text="0"
-                        android:textColor="#0F172A"
+                        android:textColor="@color/edu_text_primary"
                         android:textSize="20sp"
                         android:textStyle="bold" />
 
@@ -349,7 +349,7 @@
                         android:layout_marginTop="2dp"
                         android:gravity="center"
                         android:text="Total Generated Papers"
-                        android:textColor="#64748B"
+                        android:textColor="@color/edu_text_secondary"
                         android:textSize="11sp" />
                 </LinearLayout>
 
@@ -366,7 +366,7 @@
                         android:layout_height="wrap_content"
                         android:maxLines="1"
                         android:text="0"
-                        android:textColor="#0F172A"
+                        android:textColor="@color/edu_text_primary"
                         android:textSize="20sp"
                         android:textStyle="bold" />
 
@@ -376,7 +376,7 @@
                         android:layout_marginTop="2dp"
                         android:gravity="center"
                         android:text="Total Questions Used"
-                        android:textColor="#64748B"
+                        android:textColor="@color/edu_text_secondary"
                         android:textSize="11sp" />
                 </LinearLayout>
             </LinearLayout>
@@ -583,7 +583,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="My Papers"
-                    android:textColor="#0F172A"
+                    android:textColor="@color/edu_text_primary"
                     android:textSize="15.5sp"
                     android:textStyle="bold" />
 
@@ -592,7 +592,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:text="View, download &amp; share your generated papers"
-                    android:textColor="#64748B"
+                    android:textColor="@color/edu_text_secondary"
                     android:textSize="12.5sp" />
             </LinearLayout>
 
@@ -634,7 +634,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Punjab Board Results &amp; Gazette"
-                    android:textColor="#0F172A"
+                    android:textColor="@color/edu_text_primary"
                     android:textSize="15.5sp"
                     android:textStyle="bold" />
 
@@ -643,7 +643,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:text="BISE Lahore, Gujranwala, Rawalpindi, Multan..."
-                    android:textColor="#64748B"
+                    android:textColor="@color/edu_text_secondary"
                     android:textSize="12.5sp" />
             </LinearLayout>
 
@@ -670,7 +670,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Join Our Learning Community 🌟"
-                android:textColor="#1E293B"
+                android:textColor="@color/edu_text_primary"
                 android:textSize="15.5sp"
                 android:textStyle="bold" />
 
@@ -679,7 +679,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="3dp"
                 android:text="Connect with students &amp; teachers across Punjab for syllabus alerts &amp; study support."
-                android:textColor="#64748B"
+                android:textColor="@color/edu_text_secondary"
                 android:textSize="12.5sp" />
 
             <LinearLayout
@@ -719,7 +719,7 @@
                 android:layout_marginTop="8dp"
                 android:backgroundTint="#EFF6FF"
                 android:text="Facebook — Official Page"
-                android:textColor="#1E3A8A"
+                android:textColor="@color/edu_text_primary"
                 android:textSize="12.5sp"
                 android:textStyle="bold" />
         </LinearLayout>
@@ -731,7 +731,7 @@
             android:layout_marginTop="30dp"
             android:gravity="center"
             android:text="Switch Role"
-            android:textColor="#2563EB"
+            android:textColor="@color/edu_blue"
             android:textSize="14sp"
             android:textStyle="bold" />
 
