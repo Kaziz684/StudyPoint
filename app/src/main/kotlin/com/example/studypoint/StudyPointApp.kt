@@ -11,6 +11,7 @@ class StudyPointApp : Application() {
         // like before v2.0-123. Force MODE_NIGHT_NO and reset any saved
         // Dark/System choice to Light, so values-night resources are never
         // applied and no screen can go dark.
+        // v2.0-125 release trigger: this commit runs the CI release build.
         AppSettings.setThemeMode(this, AppSettings.THEME_LIGHT)
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         // Crash recorder: any uncaught crash (including one that happens
