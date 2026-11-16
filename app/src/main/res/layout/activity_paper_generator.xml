@@ -90,36 +90,255 @@
                 <View
                     android:id="@+id/stepSeg1Paper"
                     android:layout_width="0dp"
-                    android:layout_height="4dp"
-                    android:layout_marginEnd="4dp"
+                    android:layout_height="4dp" android:layout_marginEnd="4dp"
                     android:layout_weight="1"
-                    android:background="#2563EB" />
-
+                    android:background="#E2E8F0" />
                 <View
                     android:id="@+id/stepSeg2Paper"
                     android:layout_width="0dp"
-                    android:layout_height="4dp"
-                    android:layout_marginEnd="4dp"
+                    android:layout_height="4dp" android:layout_marginEnd="4dp"
                     android:layout_weight="1"
                     android:background="#E2E8F0" />
-
                 <View
                     android:id="@+id/stepSeg3Paper"
                     android:layout_width="0dp"
-                    android:layout_height="4dp"
-                    android:layout_marginEnd="4dp"
+                    android:layout_height="4dp" android:layout_marginEnd="4dp"
                     android:layout_weight="1"
                     android:background="#E2E8F0" />
-
                 <View
                     android:id="@+id/stepSeg4Paper"
+                    android:layout_width="0dp"
+                    android:layout_height="4dp" android:layout_marginEnd="4dp"
+                    android:layout_weight="1"
+                    android:background="#E2E8F0" />
+                <View
+                    android:id="@+id/stepSeg5Paper"
+                    android:layout_width="0dp"
+                    android:layout_height="4dp" android:layout_marginEnd="4dp"
+                    android:layout_weight="1"
+                    android:background="#E2E8F0" />
+                <View
+                    android:id="@+id/stepSeg6Paper"
+                    android:layout_width="0dp"
+                    android:layout_height="4dp" android:layout_marginEnd="4dp"
+                    android:layout_weight="1"
+                    android:background="#E2E8F0" />
+                <View
+                    android:id="@+id/stepSeg7Paper"
+                    android:layout_width="0dp"
+                    android:layout_height="4dp" android:layout_marginEnd="4dp"
+                    android:layout_weight="1"
+                    android:background="#E2E8F0" />
+                <View
+                    android:id="@+id/stepSeg8Paper"
                     android:layout_width="0dp"
                     android:layout_height="4dp"
                     android:layout_weight="1"
                     android:background="#E2E8F0" />
             </LinearLayout>
 
-            <!-- ================= STEP 1: Paper Type, Class, Subject, Chapters ================= -->
+            <!-- Wizard step strip: Paper Type -> Class -> Subject -> Chapter -> Topic -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:id="@+id/pickStep1Circle"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:background="@drawable/bg_circle_blue"
+                        android:gravity="center"
+                        android:text="1"
+                        android:textColor="#FFFFFF"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                    <TextView
+                        android:id="@+id/pickStep1Label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:text="Type"
+                        android:textColor="#2563EB"
+                        android:textSize="11sp" android:textStyle="bold" />
+                </LinearLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
+                    android:text="›"
+                    android:textColor="#94A3B8"
+                    android:textSize="16sp" />
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:id="@+id/pickStep2Circle"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:background="@drawable/bg_circle_grey"
+                        android:gravity="center"
+                        android:text="2"
+                        android:textColor="#475569"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                    <TextView
+                        android:id="@+id/pickStep2Label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:text="Class"
+                        android:textColor="#94A3B8"
+                        android:textSize="11sp" />
+                </LinearLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
+                    android:text="›"
+                    android:textColor="#94A3B8"
+                    android:textSize="16sp" />
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:id="@+id/pickStep3Circle"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:background="@drawable/bg_circle_grey"
+                        android:gravity="center"
+                        android:text="3"
+                        android:textColor="#475569"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                    <TextView
+                        android:id="@+id/pickStep3Label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:text="Subject"
+                        android:textColor="#94A3B8"
+                        android:textSize="11sp" />
+                </LinearLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
+                    android:text="›"
+                    android:textColor="#94A3B8"
+                    android:textSize="16sp" />
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:id="@+id/pickStep4Circle"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:background="@drawable/bg_circle_grey"
+                        android:gravity="center"
+                        android:text="4"
+                        android:textColor="#475569"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                    <TextView
+                        android:id="@+id/pickStep4Label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:text="Chapter"
+                        android:textColor="#94A3B8"
+                        android:textSize="11sp" />
+                </LinearLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
+                    android:text="›"
+                    android:textColor="#94A3B8"
+                    android:textSize="16sp" />
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:id="@+id/pickStep5Circle"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:background="@drawable/bg_circle_grey"
+                        android:gravity="center"
+                        android:text="5"
+                        android:textColor="#475569"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                    <TextView
+                        android:id="@+id/pickStep5Label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:text="Topic"
+                        android:textColor="#94A3B8"
+                        android:textSize="11sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layoutSelectedClassPaper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/input_field_bg"
+                android:orientation="vertical"
+                android:padding="12dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/tvSelectedClassPaper"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Class: Class 9th  •  Change"
+                    android:textColor="@color/edu_navy"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layoutSelectedSubjectPaper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/input_field_bg"
+                android:orientation="vertical"
+                android:padding="12dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/tvSelectedSubjectPaper"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Subject: English  •  Change"
+                    android:textColor="@color/edu_navy"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- ================= STEP 1: Paper Type ================= -->
             <LinearLayout
                 android:id="@+id/step1Paper"
                 android:layout_width="match_parent"
@@ -216,110 +435,35 @@
                 android:textSize="13sp"
                 android:visibility="gone" />
 
-            <!-- Class / Subject / Chapter step strip -->
-            <LinearLayout
+
+
+
+
+
+            <!-- Hidden spinners: single source of truth for class/subject state -->
+            <Spinner
+                android:id="@+id/spinnerClassPaper"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="18dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:popupBackground="#FFFFFF"
+                android:visibility="gone" />
 
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:id="@+id/pickStep1Circle"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
-                        android:background="@drawable/bg_circle_blue"
-                        android:gravity="center"
-                        android:text="1"
-                        android:textColor="#FFFFFF"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-                    <TextView
-                        android:id="@+id/pickStep1Label"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="6dp"
-                        android:text="Class"
-                        android:textColor="#2563EB"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
+            <Spinner
+                android:id="@+id/spinnerSubjectPaper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:popupBackground="#FFFFFF"
+                android:visibility="gone" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
-                    android:layout_marginEnd="6dp"
-                    android:text="›"
-                    android:textColor="#94A3B8"
-                    android:textSize="18sp" />
 
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:id="@+id/pickStep2Circle"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
-                        android:background="@drawable/bg_circle_grey"
-                        android:gravity="center"
-                        android:text="2"
-                        android:textColor="#475569"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-                    <TextView
-                        android:id="@+id/pickStep2Label"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="6dp"
-                        android:text="Subject"
-                        android:textColor="#94A3B8"
-                        android:textSize="13sp" />
-                </LinearLayout>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
-                    android:layout_marginEnd="6dp"
-                    android:text="›"
-                    android:textColor="#94A3B8"
-                    android:textSize="18sp" />
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:id="@+id/pickStep3Circle"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
-                        android:background="@drawable/bg_circle_grey"
-                        android:gravity="center"
-                        android:text="3"
-                        android:textColor="#475569"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-                    <TextView
-                        android:id="@+id/pickStep3Label"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="6dp"
-                        android:text="Chapter"
-                        android:textColor="#94A3B8"
-                        android:textSize="13sp" />
-                </LinearLayout>
             </LinearLayout>
 
-            <!-- Class picker (vertical row list) -->
+            <!-- ================= STEP 2: Class ================= -->
+            <LinearLayout
+                android:id="@+id/step2Paper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" android:visibility="gone">
             <LinearLayout
                 android:id="@+id/layoutClassStagePaper"
                 android:layout_width="match_parent"
@@ -353,29 +497,14 @@
                     android:layout_marginTop="8dp"
                     android:nestedScrollingEnabled="false" />
             </LinearLayout>
-
-            <!-- Selected class (tap to change) -->
-            <LinearLayout
-                android:id="@+id/layoutSelectedClassPaper"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:background="@drawable/input_field_bg"
-                android:orientation="vertical"
-                android:padding="12dp"
-                android:visibility="gone">
-
-                <TextView
-                    android:id="@+id/tvSelectedClassPaper"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Class: Class 9th  •  Change"
-                    android:textColor="@color/edu_navy"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
             </LinearLayout>
 
-            <!-- Subject picker (vertical row list) -->
+            <!-- ================= STEP 3: Subject ================= -->
+            <LinearLayout
+                android:id="@+id/step3Paper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" android:visibility="gone">
             <LinearLayout
                 android:id="@+id/layoutSubjectStagePaper"
                 android:layout_width="match_parent"
@@ -410,44 +539,14 @@
                     android:layout_marginTop="8dp"
                     android:nestedScrollingEnabled="false" />
             </LinearLayout>
-
-            <!-- Selected subject (tap to change) -->
-            <LinearLayout
-                android:id="@+id/layoutSelectedSubjectPaper"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:background="@drawable/input_field_bg"
-                android:orientation="vertical"
-                android:padding="12dp"
-                android:visibility="gone">
-
-                <TextView
-                    android:id="@+id/tvSelectedSubjectPaper"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Subject: English  •  Change"
-                    android:textColor="@color/edu_navy"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
             </LinearLayout>
 
-            <!-- Hidden spinners: single source of truth for class/subject state -->
-            <Spinner
-                android:id="@+id/spinnerClassPaper"
+            <!-- ================= STEP 4: Chapters ================= -->
+            <LinearLayout
+                android:id="@+id/step4Paper"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:popupBackground="#FFFFFF"
-                android:visibility="gone" />
-
-            <Spinner
-                android:id="@+id/spinnerSubjectPaper"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:popupBackground="#FFFFFF"
-                android:visibility="gone" />
-
-            <!-- Chapters -->
+                android:orientation="vertical" android:visibility="gone">
             <LinearLayout
                 android:id="@+id/layoutChapterSectionPaper"
                 android:layout_width="match_parent"
@@ -497,12 +596,53 @@
                 android:orientation="vertical" />
 
             </LinearLayout>
-
             </LinearLayout>
 
-            <!-- ================= STEP 2: Questions & Counts ================= -->
+            <!-- ================= STEP 5: Topics ================= -->
             <LinearLayout
-                android:id="@+id/step2Paper"
+                android:id="@+id/step5Paper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" android:visibility="gone">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:text="Select Topics"
+                android:textColor="@color/edu_navy"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Topics group the chapters of this subject. Tick a topic to include all its chapters."
+                android:textColor="#64748B"
+                android:textSize="12.5sp" />
+
+            <CheckBox
+                android:id="@+id/checkAllTopicsPaper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="All Topics"
+                android:textColor="@color/radio_text_selector"
+                android:buttonTint="@color/radio_text_selector"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/layoutTopicsPaper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:orientation="vertical" />
+            </LinearLayout>
+
+            <!-- ================= STEP 6: Questions & Counts ================= -->
+            <LinearLayout
+                android:id="@+id/step6Paper"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -755,9 +895,9 @@
 
             </LinearLayout>
 
-            <!-- ================= STEP 3: Paper Options ================= -->
+            <!-- ================= STEP 7: Paper Options ================= -->
             <LinearLayout
-                android:id="@+id/step3Paper"
+                android:id="@+id/step7Paper"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -1033,9 +1173,9 @@
 
             </LinearLayout>
 
-            <!-- ================= STEP 4: Preview & Generate ================= -->
+            <!-- ================= STEP 8: Preview & Generate ================= -->
             <LinearLayout
-                android:id="@+id/step4Paper"
+                android:id="@+id/step8Paper"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
