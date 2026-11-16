@@ -1,7 +1,6 @@
 package com.example.studypoint
 
 import android.content.Context
-import android.content.res.Configuration
 
 /**
  * App-wide display settings, persisted in SharedPreferences (same file the
@@ -24,8 +23,10 @@ object AppSettings {
     const val FONT_LARGE = "large"
 
     fun getThemeMode(context: Context): String {
-        return context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-            .getString(KEY_THEME, THEME_SYSTEM) ?: THEME_SYSTEM
+        // Dark mode is REMOVED (v2.0-125): the theme is always Light.
+        // The stored value is ignored so a stale Dark/System choice can
+        // never bring dark back.
+        return THEME_LIGHT
     }
 
     fun setThemeMode(context: Context, mode: String) {
@@ -34,15 +35,8 @@ object AppSettings {
     }
 
     fun isDarkTheme(context: Context): Boolean {
-        return when (getThemeMode(context)) {
-            THEME_DARK -> true
-            THEME_LIGHT -> false
-            else -> {
-                val nightMask = context.resources.configuration.uiMode and
-                    Configuration.UI_MODE_NIGHT_MASK
-                nightMask == Configuration.UI_MODE_NIGHT_YES
-            }
-        }
+        // Dark mode is REMOVED (v2.0-125): never dark.
+        return false
     }
 
     fun getFontSize(context: Context): String {
