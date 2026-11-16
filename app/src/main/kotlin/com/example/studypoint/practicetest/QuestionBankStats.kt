@@ -63,7 +63,11 @@ object QuestionBankStats {
 
     private val client = OkHttpClient.Builder()
         .connectTimeout(20, TimeUnit.SECONDS)
-        .readTimeout(30, TimeUnit.SECONDS)
+        // The six gviz CSVs are large (Longs ~5.7 MB, Shorts ~4 MB) and a
+        // slow mobile connection can exceed a short read timeout, so the
+        // whole fetch fails and the dashboard stays stuck on a stale saved
+        // snapshot (e.g. MCQs 8,913 vs the live 13,618). Give it 2 minutes.
+        .readTimeout(120, TimeUnit.SECONDS)
         .build()
     private val gson = Gson()
 
@@ -122,10 +126,16 @@ object QuestionBankStats {
             val mem = cached
             if (mem != null && now - mem.fetchedAt < CACHE_TTL_MS) return mem
         }
+        // Retry once: a single dropped fetch (slow connection, large CSVs)
+        // must not leave the dashboard stuck on a stale saved snapshot.
         val fresh = try {
             fetchLive()
         } catch (e: Exception) {
-            null
+            try {
+                fetchLive()
+            } catch (e2: Exception) {
+                null
+            }
         }
         if (fresh != null) {
             cached = fresh
