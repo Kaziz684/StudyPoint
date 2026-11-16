@@ -114,10 +114,10 @@ class PaperGeneratorActivity : AppCompatActivity() {
     // The spinners stay as the single source of truth for class/subject state
     // (hidden) — every existing reader (loadData, generate, buildSummary)
     // keeps working unchanged; the rows only drive setSelection on them.
-    // Wizard steps (8): 1 Paper Type, 2 Class, 3 Subject, 4 Chapters,
-    // 5 Topics, 6 Questions & Counts, 7 Options, 8 Preview & Generate.
-    // Steps 4-5 are skipped for Board Pattern; step 5 (Topics) exists only
-    // for Urdu / English / Tarjuma / Islamiyat (PaperSections.sectionsFor).
+    // Wizard steps (7): 1 Paper Type, 2 Class, 3 Subject, 4 Chapters,
+    // 5 Questions & Counts, 6 Options, 7 Preview & Generate.
+    // Step 4 is skipped for Board Pattern. Chapters and Topics are one
+    // step: the chapter list's portion headers select whole topics.
     private var bankSnapshot: QuestionBankStats.BankSnapshot? = null
     private var classFilter = ""
     private var subjectFilter = ""
@@ -135,11 +135,8 @@ class PaperGeneratorActivity : AppCompatActivity() {
     private lateinit var subjectAdapter: SubjectRowAdapter
     private lateinit var pickStepCircles: List<TextView>
     private lateinit var pickStepLabels: List<TextView>
-    private lateinit var layoutTopics: LinearLayout
-    private lateinit var checkAllTopics: CheckBox
     // Topic (section) -> chapter tags, built in loadData; used by the
-    // Topic step to toggle whole sections, and to keep its checkboxes in
-    // sync with the chapter list's section headers.
+    // chapter list's section headers to toggle whole portions at once.
     private var sectionChapterTags: Map<String, List<String>> = emptyMap()
     private var sectionHeaderBoxes: Map<String, CheckBox> = emptyMap()
 
@@ -160,7 +157,10 @@ class PaperGeneratorActivity : AppCompatActivity() {
     private var tvShortCounter: TextView? = null
     private var tvLongCounter: TextView? = null
 
-    // --- Wizard navigation (8 steps) ---
+    // --- Wizard navigation (7 steps: Type, Class, Subject, Chapters,
+    // Questions & Counts, Options, Preview & Generate). Chapters and
+    // Topics are ONE step: the chapter list's portion headers
+    // (Ghazal / Nazm / Asbaq / Grammar) select whole topics at once. ---
     private lateinit var scrollPaper: ScrollView
     private lateinit var stepContainers: List<LinearLayout>
     private lateinit var stepSegments: List<View>
@@ -269,23 +269,14 @@ class PaperGeneratorActivity : AppCompatActivity() {
             findViewById(R.id.pickStep1Circle),
             findViewById(R.id.pickStep2Circle),
             findViewById(R.id.pickStep3Circle),
-            findViewById(R.id.pickStep4Circle),
-            findViewById(R.id.pickStep5Circle)
+            findViewById(R.id.pickStep4Circle)
         )
         pickStepLabels = listOf(
             findViewById(R.id.pickStep1Label),
             findViewById(R.id.pickStep2Label),
             findViewById(R.id.pickStep3Label),
-            findViewById(R.id.pickStep4Label),
-            findViewById(R.id.pickStep5Label)
+            findViewById(R.id.pickStep4Label)
         )
-        layoutTopics = findViewById(R.id.layoutTopicsPaper)
-        checkAllTopics = findViewById(R.id.checkAllTopicsPaper)
-        checkAllTopics.setOnCheckedChangeListener { _, checked ->
-            if (updatingTopicAll) return@setOnCheckedChangeListener
-            for (sec in sectionChapterTags.keys) setTopicChecked(sec, checked)
-            renderQuestions()
-        }
         spinnerClass.visibility = View.GONE
         spinnerSubject.visibility = View.GONE
         rvClass.layoutManager = LinearLayoutManager(this)
@@ -325,8 +316,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
             findViewById(R.id.step4Paper),
             findViewById(R.id.step5Paper),
             findViewById(R.id.step6Paper),
-            findViewById(R.id.step7Paper),
-            findViewById(R.id.step8Paper)
+            findViewById(R.id.step7Paper)
         )
         stepSegments = listOf(
             findViewById(R.id.stepSeg1Paper),
@@ -335,8 +325,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
             findViewById(R.id.stepSeg4Paper),
             findViewById(R.id.stepSeg5Paper),
             findViewById(R.id.stepSeg6Paper),
-            findViewById(R.id.stepSeg7Paper),
-            findViewById(R.id.stepSeg8Paper)
+            findViewById(R.id.stepSeg7Paper)
         )
         tvStepTitle = findViewById(R.id.tvStepTitlePaper)
         tvStepSub = findViewById(R.id.tvStepSubPaper)
@@ -541,22 +530,17 @@ class PaperGeneratorActivity : AppCompatActivity() {
     /** Current subject, from the hidden spinner (single source of truth). */
     private fun currentSubject(): String = spinnerSubject.selectedItem?.toString() ?: ""
 
-    /** True when the current subject has Topics (sections). */
-    private fun hasTopics(): Boolean =
-        PaperSections.sectionsFor(currentSubject()).isNotEmpty()
-
-    /** A wizard step applies unless it is Chapters/Topics under Board
-     *  Pattern, or Topics for a subject that has no sections. */
+    /** A wizard step applies unless it is Chapters under Board Pattern
+     *  (Board Pattern has a fixed full-book structure, no chapter pick). */
     private fun isStepApplicable(step: Int): Boolean = when (step) {
         4 -> currentType() != PaperType.BOARD
-        5 -> currentType() != PaperType.BOARD && hasTopics()
         else -> true
     }
 
     private fun nextStep(): Int {
         var n = currentStep + 1
-        while (n <= 8 && !isStepApplicable(n)) n++
-        return if (n <= 8) n else currentStep
+        while (n <= 7 && !isStepApplicable(n)) n++
+        return if (n <= 7) n else currentStep
     }
 
     private fun prevStep(): Int {
@@ -567,7 +551,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
 
     private fun showStep(n: Int) {
         // Never land on a skipped step (e.g. Chapters under Board Pattern).
-        var target = n.coerceIn(1, 8)
+        var target = n.coerceIn(1, 7)
         if (!isStepApplicable(target)) {
             target = if (target > currentStep) nextStep() else prevStep()
         }
@@ -579,21 +563,19 @@ class PaperGeneratorActivity : AppCompatActivity() {
             v.setBackgroundColor(Color.parseColor(if (i < currentStep) "#2563EB" else "#E2E8F0"))
         }
         val titles = listOf(
-            "Step 1 of 8 — Paper Type",
-            "Step 2 of 8 — Select Class",
-            "Step 3 of 8 — Select Subject",
-            "Step 4 of 8 — Select Chapters",
-            "Step 5 of 8 — Select Topics",
-            "Step 6 of 8 — Select Questions & Counts",
-            "Step 7 of 8 — Paper Options",
-            "Step 8 of 8 — Preview & Generate"
+            "Step 1 of 7 — Paper Type",
+            "Step 2 of 7 — Select Class",
+            "Step 3 of 7 — Select Subject",
+            "Step 4 of 7 — Select Chapters",
+            "Step 5 of 7 — Select Questions & Counts",
+            "Step 6 of 7 — Paper Options",
+            "Step 7 of 7 — Preview & Generate"
         )
         val subs = listOf(
             "Choose the kind of paper you want to create.",
             "Pick the class for this paper.",
             "Pick the subject for this paper.",
-            "Choose the chapters to include. Tap Select All for the full book.",
-            "Choose the topics to include. A topic selects all its chapters.",
+            "Choose the chapters to include. A portion header selects all its chapters at once. Tap Select All for the full book.",
             "Select questions yourself or set the numbers for automatic selection.",
             "Choose solved or unsolved, question order, title and time.",
             "Review your selected options before creating the test paper."
@@ -601,21 +583,20 @@ class PaperGeneratorActivity : AppCompatActivity() {
         tvStepTitle.text = titles[currentStep - 1]
         tvStepSub.text = subs[currentStep - 1]
         btnBackStep.visibility = if (currentStep > 1) View.VISIBLE else View.GONE
-        btnNextStep.visibility = if (currentStep < 8) View.VISIBLE else View.GONE
-        btnGenerate.visibility = if (currentStep == 8) View.VISIBLE else View.GONE
-        if (currentStep == 8) tvSummary.text = buildSummary()
-        if (currentStep == 5) renderTopicRows()
+        btnNextStep.visibility = if (currentStep < 7) View.VISIBLE else View.GONE
+        btnGenerate.visibility = if (currentStep == 7) View.VISIBLE else View.GONE
+        if (currentStep == 7) tvSummary.text = buildSummary()
         updatePickStrip()
         scrollPaper.scrollTo(0, 0)
     }
 
-    /** 5-item pick strip (Paper Type → Class → Subject → Chapter → Topic)
+    /** 4-item pick strip (Paper Type → Class → Subject → Chapter)
      *  in the common header, plus the Selected Class / Subject chips.
-     *  On steps 6-8 every item is done. Chips appear once their pick is
+     *  On steps 5-7 every item is done. Chips appear once their pick is
      *  made (Class from step 3, Subject from step 4) and tap back to it. */
     private fun updatePickStrip() {
         if (!::pickStepCircles.isInitialized) return
-        for (i in 0..4) {
+        for (i in 0..3) {
             val circle = pickStepCircles[i]
             val label = pickStepLabels[i]
             when {
@@ -811,10 +792,6 @@ class PaperGeneratorActivity : AppCompatActivity() {
         showStep(4)
     }
 
-    private fun showTopicStage() {
-        showStep(5)
-    }
-
     private fun onClassRowSelected(digits: String) {
         val pos = classSheets.indexOfFirst { it.filter { c -> c.isDigit() } == digits }
         if (pos >= 0) spinnerClass.setSelection(pos) // listener rebuilds subjects
@@ -829,78 +806,6 @@ class PaperGeneratorActivity : AppCompatActivity() {
         renderSubjectRows()
         showChapterStage()
     }
-
-    /** Step 5 — Topics. One small card per section (topic) with a live
-     *  question count and a checkbox. A topic checkbox toggles every chapter
-     *  in that section (the same state the chapter list's section header
-     *  controls), so generation — which reads chapterChecks — is unchanged.
-     *  Rebuilt on every entry to step 5 so the boxes always match the
-     *  chapter list. */
-    private fun renderTopicRows() {
-        if (!::layoutTopics.isInitialized) return
-        layoutTopics.removeAllViews()
-        val type = currentType()
-        val sections = PaperSections.sectionsFor(currentSubject())
-        if (sections.isEmpty()) return
-        for (sec in sections) {
-            val tags = sectionChapterTags[sec] ?: continue
-            if (tags.isEmpty()) continue
-            val total = tags.sumOf { countForChapter(it, type) }
-            val allChecked = tags.all { tag ->
-                chapterChecks.any { it.tag == tag && it.isChecked }
-            }
-            val card = layoutInflater.inflate(R.layout.item_topic_row, layoutTopics, false)
-            val tvName = card.findViewById<TextView>(R.id.tvTopicName)
-            val tvCount = card.findViewById<TextView>(R.id.tvTopicCount)
-            val box = card.findViewById<CheckBox>(R.id.checkTopic)
-            tvName.text = sec
-            tvCount.text = "No. of Questions: $total"
-            box.buttonTintList = selectColors()
-            box.isChecked = allChecked
-            box.isEnabled = !checkAllChapters.isChecked
-            val toggle = { checked: Boolean ->
-                box.isChecked = checked
-                setTopicChecked(sec, checked)
-                renderQuestions()
-            }
-            box.setOnCheckedChangeListener { _, checked ->
-                if (box.isPressed) toggle(checked)
-            }
-            card.setOnClickListener { toggle(!box.isChecked) }
-            val lp = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            lp.setMargins(0, 0, 0, (8 * resources.displayMetrics.density).toInt())
-            card.layoutParams = lp
-            layoutTopics.addView(card)
-        }
-        // "Select All" mirrors a fully-selected topic list (guarded so the
-        // programmatic set below does not re-fire its listener).
-        if (::checkAllTopics.isInitialized) {
-            val all = sections.all { sec ->
-                val tags = sectionChapterTags[sec] ?: emptyList()
-                tags.isNotEmpty() && tags.all { tag ->
-                    chapterChecks.any { it.tag == tag && it.isChecked }
-                }
-            }
-            updatingTopicAll = true
-            checkAllTopics.isChecked = all
-            updatingTopicAll = false
-        }
-    }
-
-    /** Set every chapter in one topic (section) to the same checked state,
-     *  and keep the chapter list's section header in step with it. */
-    private fun setTopicChecked(section: String, checked: Boolean) {
-        val tags = sectionChapterTags[section] ?: return
-        for (tag in tags) {
-            chapterChecks.filter { it.tag == tag }.forEach { it.isChecked = checked }
-        }
-        sectionHeaderBoxes[section]?.isChecked = checked
-    }
-
-    private var updatingTopicAll = false
 
     /**
      * Saves a generated paper to My Papers (Firestore teacher_papers) so it
@@ -955,9 +860,9 @@ class PaperGeneratorActivity : AppCompatActivity() {
         if (board) tvBoardInfo.text = boardInfoText()
         layoutModeSection.visibility = if (board) View.GONE else View.VISIBLE
         layoutOrderSection.visibility = if (board) View.GONE else View.VISIBLE
-        // Chapters / Topics visibility is driven by the wizard step — if the
+        // Chapters visibility is driven by the wizard step — if the
         // teacher is sitting on a step Board Pattern skips, move them on.
-        if (board && (currentStep == 4 || currentStep == 5)) showStep(6)
+        if (board && currentStep == 4) showStep(5)
         else updatePickStrip()
     }
 
@@ -1373,9 +1278,9 @@ class PaperGeneratorActivity : AppCompatActivity() {
                 val kids = groupChildren[key]
                 if (!kids.isNullOrEmpty() && kids.all { it.isChecked }) header.isChecked = true
             }
-            // Topic step (Step 5) reads these: section -> its chapter tags,
-            // and the section header boxes, so a topic toggle stays in step
-            // with the chapter list.
+            // The chapter list's section headers read these: section ->
+            // its chapter tags, and the section header boxes, so a portion
+            // toggle stays in step with the chapter list.
             sectionChapterTags = sections.associateWith { sec ->
                 orderedTags.filter { sectionOf(it) == sec }
             }
