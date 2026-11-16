@@ -608,9 +608,7 @@ fun ProfileScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         listOf(
-                            AppSettings.THEME_SYSTEM to "System",
-                            AppSettings.THEME_LIGHT to "Light",
-                            AppSettings.THEME_DARK to "Dark"
+                            AppSettings.THEME_LIGHT to "Light"
                         ).forEach { (mode, label) ->
                             val isSelected = themeMode == mode
                             Surface(
