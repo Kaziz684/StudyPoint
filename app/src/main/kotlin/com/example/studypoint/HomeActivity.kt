@@ -16,7 +16,6 @@ import androidx.core.content.FileProvider
 import java.io.File
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.RepeatMode
@@ -247,24 +246,11 @@ fun HomeScreen(
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
 
-    // Day/Night mode (drawer toggle). The persisted mode is the source of
-    // truth; toggling writes it, applies it via AppCompatDelegate, and
-    // recreates the activity so every screen repaints in the new mode.
-    // Light stays the default. (The PDF Reading view keeps its own
-    // Default/Night/Sepia themes — this is the app-wide day/night mode.)
-    var darkModeOn by remember { mutableStateOf(AppSettings.isDarkTheme(context)) }
-    val toggleDarkMode: (Boolean) -> Unit = { checked ->
-        darkModeOn = checked
-        AppSettings.setThemeMode(
-            context,
-            if (checked) AppSettings.THEME_DARK else AppSettings.THEME_LIGHT
-        )
-        AppCompatDelegate.setDefaultNightMode(
-            if (checked) AppCompatDelegate.MODE_NIGHT_YES
-            else AppCompatDelegate.MODE_NIGHT_NO
-        )
-        (context as? android.app.Activity)?.recreate()
-    }
+    // Dark mode is REMOVED (v2.0-125): the app is always Light, like
+    // before v2.0-123. darkModeOn stays false so every `if (darkModeOn)`
+    // branch below takes the Light colours. (The PDF Reading view keeps
+    // its own Default/Night/Sepia themes — this is the app-wide mode.)
+    val darkModeOn = false
 
     // Navigation and interactive sheets state
     var selectedTab by remember { mutableIntStateOf(0) }
@@ -300,6 +286,29 @@ fun HomeScreen(
             youTubeVideos = YouTubeRepository.fetchLatestVideos()
         } catch (_: Exception) {
             // keep the existing sample list
+        }
+    }
+
+    // First app run only: ask "Select Your Board" HERE, on the dashboard,
+    // so the dashboard is visible behind the dialog (v2.0-125). Cancel
+    // keeps Punjab for this session without saving, so it asks again
+    // next launch. Shown once per composition.
+    var boardDialogShown by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        if (!boardDialogShown && !TextbookBoard.isBoardSaved(context)) {
+            boardDialogShown = true
+            val activity = context as? android.app.Activity
+            if (activity != null) {
+                try {
+                    TextbookBoard.showBoardPicker(
+                        activity,
+                        onChosen = { },
+                        onCancel = { }
+                    )
+                } catch (_: Exception) {
+                    // Dashboard stays usable even if the dialog fails.
+                }
+            }
         }
     }
 
@@ -433,27 +442,6 @@ fun HomeScreen(
                         label = { Text("Join WhatsApp Channel") },
                         selected = false,
                         onClick = onWhatsApp,
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
-                        shape = DrawerRowShape,
-                        colors = drawerRowColors(darkModeOn)
-                    )
-
-                    // Day/Night mode toggle — in the drawer itself, after
-                    // "Join WhatsApp Channel" and before "Logout". The
-                    // Switch is in the badge slot; tapping the row toggles
-                    // too. Persists via AppSettings + AppCompatDelegate and
-                    // recreates the activity so the whole app repaints.
-                    NavigationDrawerItem(
-                        icon = { Icon(Icons.Default.DarkMode, null, tint = Color(0xFF2563EB)) },
-                        label = { Text("Dark Mode") },
-                        selected = false,
-                        onClick = { toggleDarkMode(!darkModeOn) },
-                        badge = {
-                            Switch(
-                                checked = darkModeOn,
-                                onCheckedChange = { checked -> toggleDarkMode(checked) }
-                            )
-                        },
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
                         shape = DrawerRowShape,
                         colors = drawerRowColors(darkModeOn)
@@ -1767,21 +1755,12 @@ fun QuotesCarousel() {
     }
 }
 
-// News video pinned first on the Home slider (Unlisted YouTube video — the link works
-// for anyone with the link; the app never changes its visibility).
-private val NEWS_VIDEO_ANNOUNCEMENT = BoardAnnouncement(
-    title = "10th Class Annual Exams 2027 Dates Announced",
-    category = "News Video",
-    description = "10th Class Annual Exams 2027 begin on 16 March 2027 and the result will be announced on 20 July 2027. Tap to watch the video for the full details.",
-    link_url = "https://youtu.be/ePXlvC8MYpA",
-    date = "15 Nov 2026",
-    is_active = true
-)
-
 @Composable
 fun AnnouncementCarousel() {
-    // Pinned first on the Home slider even before Firestore loads (or if it is empty).
-    val announcements = remember { mutableStateOf(listOf(NEWS_VIDEO_ANNOUNCEMENT)) }
+    // Board news from Firestore only. The news video (10th Class Annual
+    // Exams 2027) no longer rides the top slider (v2.0-125) — it lives in
+    // the Live Lecture section below (YouTubeRepository.sampleLectures).
+    val announcements = remember { mutableStateOf<List<BoardAnnouncement>>(emptyList()) }
 
     DisposableEffect(Unit) {
         val db = FirebaseFirestore.getInstance()
@@ -1792,10 +1771,10 @@ fun AnnouncementCarousel() {
                     val list = snapshot.documents.mapNotNull { doc ->
                         doc.toObject(BoardAnnouncement::class.java)
                     }
-                    // News video rides first on the home slider, then the latest 3 still-valid
-                    // news items (max 4 cards); expired news drops off on its own, the rest
-                    // lives in the bell.
-                    announcements.value = listOf(NEWS_VIDEO_ANNOUNCEMENT) + AnnouncementExpiry.sortNewestFirst(
+                    // The latest 3 still-valid news items (max 3 cards);
+                    // expired news drops off on its own, the rest lives
+                    // in the bell.
+                    announcements.value = AnnouncementExpiry.sortNewestFirst(
                         AnnouncementExpiry.filterUnexpired(list)
                     ).take(3)
                 } else {
@@ -1806,7 +1785,7 @@ fun AnnouncementCarousel() {
                                 val list2 = snap2.documents.mapNotNull { doc ->
                                     doc.toObject(BoardAnnouncement::class.java)
                                 }
-                                announcements.value = listOf(NEWS_VIDEO_ANNOUNCEMENT) + AnnouncementExpiry.sortNewestFirst(
+                                announcements.value = AnnouncementExpiry.sortNewestFirst(
                                     AnnouncementExpiry.filterUnexpired(list2)
                                 ).take(3)
                             }
@@ -2457,10 +2436,12 @@ fun SocialMediaHubSection(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Row 1: WhatsApp & YouTube
+            // One row: WhatsApp, YouTube AND Facebook together (v2.0-125).
+            // Each chip takes a third of the width so the title and the
+            // subtitle each fit on a single line.
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 SocialActionChip(
                     modifier = Modifier.weight(1f),
@@ -2481,15 +2462,7 @@ fun SocialMediaHubSection(
                     textColor = Color(0xFF991B1B),
                     onClick = onYouTubeClick
                 )
-            }
 
-            Spacer(modifier = Modifier.height(10.dp))
-
-            // Row 2: Facebook Official Page
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
                 SocialActionChip(
                     modifier = Modifier.weight(1f),
                     title = "Facebook",
@@ -2499,7 +2472,6 @@ fun SocialMediaHubSection(
                     textColor = Color(0xFF1E3A8A),
                     onClick = onFacebookClick
                 )
-                Spacer(modifier = Modifier.weight(1f))
             }
         }
     }
@@ -2521,26 +2493,28 @@ fun SocialActionChip(
         color = bgColor
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 10.dp),
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 painter = painterResource(id = iconRes),
                 contentDescription = title,
                 tint = Color.Unspecified,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(20.dp)
             )
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(6.dp))
             Column {
                 Text(
                     text = title,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 12.sp,
+                    fontSize = 11.sp,
+                    maxLines = 1,
                     color = textColor
                 )
                 Text(
                     text = subtitle,
-                    fontSize = 10.sp,
+                    fontSize = 9.sp,
+                    maxLines = 1,
                     color = textColor.copy(alpha = 0.8f)
                 )
             }
