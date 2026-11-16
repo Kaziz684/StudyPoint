@@ -1,12 +1,14 @@
 package com.example.studypoint.practicetest
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.Spinner
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.studypoint.R
 import com.example.studypoint.TextbookBoard
@@ -21,6 +23,9 @@ class QuizSelectionActivity : AppCompatActivity() {
 
     private val classes = listOf("Class_9th", "Class_10th", "Class_11th", "Class_12th")
     private val chapters = listOf("All Chapters") + (1..25).map { "Chapter $it" }
+    private val questionCounts = listOf(10, 15, 20, 25, 30)
+    private var selectedCount = 10
+    private lateinit var countChips: List<TextView>
 
     private fun getSubjectsForClass(className: String): List<String> {
         val baseSubjects = listOf("English", "Urdu", "Mathematics", "Physics", "Chemistry", "Biology", "Computer Science")
@@ -78,6 +83,22 @@ class QuizSelectionActivity : AppCompatActivity() {
         chapterAdapter.setDropDownViewResource(R.layout.spinner_item_dropdown)
         spinnerChapter.adapter = chapterAdapter
 
+        // Number of Questions chips (10 / 15 / 20 / 25 / 30, default 10).
+        countChips = listOf(
+            findViewById(R.id.chipCount10),
+            findViewById(R.id.chipCount15),
+            findViewById(R.id.chipCount20),
+            findViewById(R.id.chipCount25),
+            findViewById(R.id.chipCount30)
+        )
+        countChips.forEachIndexed { i, chip ->
+            chip.setOnClickListener {
+                selectedCount = questionCounts[i]
+                updateCountChips()
+            }
+        }
+        updateCountChips()
+
         btnStartQuiz.setOnClickListener {
             val selectedClass = spinnerClass.selectedItem?.toString() ?: "Class_9th"
             val selectedSubject = spinnerSubject.selectedItem?.toString() ?: "English"
@@ -89,8 +110,21 @@ class QuizSelectionActivity : AppCompatActivity() {
                 putExtra("sheetName", selectedClass)
                 putExtra("subject", selectedSubject)
                 putExtra("chapter", chapterParam)
+                putExtra("count", selectedCount)
             }
             startActivity(intent)
+        }
+    }
+
+    private fun updateCountChips() {
+        countChips.forEachIndexed { i, chip ->
+            val selected = questionCounts[i] == selectedCount
+            chip.setBackgroundResource(
+                if (selected) R.drawable.bg_tab_selected else R.drawable.bg_tab_unselected
+            )
+            chip.setTextColor(
+                if (selected) Color.WHITE else Color.parseColor("#475569")
+            )
         }
     }
 }
