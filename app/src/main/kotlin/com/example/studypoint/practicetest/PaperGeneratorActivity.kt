@@ -800,6 +800,14 @@ class PaperGeneratorActivity : AppCompatActivity() {
     }
 
     private fun showChapterStage() {
+        // Always reload for the CURRENT class+subject. The spinner
+        // listeners don't reliably fire when the wizard rows set the
+        // selection (setting the same position fires no event), which
+        // left Step 4 showing the stale first-load list (Class 9
+        // English: 712 MCQs / 332 Short / 212 Long) for a Class 10
+        // Urdu pick (real: 367 / 472 / 138). loadData() clears the
+        // stale list, shows Loading, then rebuilds it fresh.
+        loadData()
         showStep(4)
     }
 
