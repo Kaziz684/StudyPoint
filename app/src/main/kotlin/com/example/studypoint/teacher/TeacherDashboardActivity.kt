@@ -68,6 +68,22 @@ class TeacherDashboardActivity : AppCompatActivity() {
         title = "Teacher Dashboard"
         checkForAppUpdatePrompt()
 
+        // First app run only: ask "Select Your Board" HERE, on the
+        // dashboard, so the dashboard is visible behind the dialog
+        // (v2.0-125). Cancel keeps Punjab for this session without
+        // saving, so it asks again next launch.
+        if (!com.example.studypoint.TextbookBoard.isBoardSaved(this)) {
+            try {
+                com.example.studypoint.TextbookBoard.showBoardPicker(
+                    this,
+                    onChosen = { },
+                    onCancel = { }
+                )
+            } catch (_: Exception) {
+                // Dashboard stays usable even if the dialog fails.
+            }
+        }
+
         val user = FirebaseAuth.getInstance().currentUser
         val name = user?.displayName?.takeIf { it.isNotBlank() }
             ?: user?.email?.substringBefore("@")?.takeIf { it.isNotBlank() }
