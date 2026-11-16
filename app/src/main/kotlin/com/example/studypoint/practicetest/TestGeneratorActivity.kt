@@ -40,6 +40,11 @@ class TestGeneratorActivity : AppCompatActivity() {
 
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private var loadJob: Job? = null
+    // Monotonic token: only the NEWEST loadQuestions() call may build the
+    // chapter list. Same race as PaperGenerator: an older job already past
+    // its fetch (inside the non-cancellable UI build) used to append a
+    // second copy of the chapters. A newer load owns the UI now.
+    private var loadGeneration = 0
     private lateinit var repository: QuizRepository
 
     private lateinit var spinnerClass: Spinner
@@ -195,10 +200,11 @@ class TestGeneratorActivity : AppCompatActivity() {
         val sheet = classSheets[sheetPos]
         val subject = spinnerSubject.selectedItem?.toString() ?: return
         loadJob?.cancel()
+        // Only the newest load may build the list (see loadGeneration).
+        val gen = ++loadGeneration
         loading = true
         progressGen.visibility = View.VISIBLE
         tvChapterStatus.text = "Loading MCQs..."
-        layoutChapters.removeAllViews()
         chapterChecks.clear()
         loadJob = scope.launch {
             val fetched = try {
@@ -207,6 +213,11 @@ class TestGeneratorActivity : AppCompatActivity() {
                 emptyList()
             }
             allQuestions = fetched.filter { subjectsMatch(it.subject, subject) }
+            // Stale-load guard: a newer loadQuestions() started while this
+            // one was fetching — this job must NOT build the list.
+            if (gen != loadGeneration) return@launch
+            // Only the newest generation clears + rebuilds the list.
+            layoutChapters.removeAllViews()
             chapterNames = allQuestions.map { it.chapter }.distinct()
                 .sortedWith(compareBy({ chapterNumber(it) ?: Int.MAX_VALUE }, { it.lowercase() }))
             for (ch in chapterNames) {
