@@ -7,15 +7,12 @@ import com.google.firebase.FirebaseApp
 class StudyPointApp : Application() {
     override fun onCreate() {
         super.onCreate()
-        // Apply the persisted theme choice (Settings / drawer toggle) to the
-        // whole app — DayNight base theme + values-night resources follow it,
-        // so View screens (teacher dashboard, Paper Generator, My Papers,
-        // dialogs) go dark too. Default is System when nothing is saved.
-        when (AppSettings.getThemeMode(this)) {
-            AppSettings.THEME_DARK -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            AppSettings.THEME_LIGHT -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            else -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-        }
+        // Dark mode is REMOVED (v2.0-125): the app is always simple Light,
+        // like before v2.0-123. Force MODE_NIGHT_NO and reset any saved
+        // Dark/System choice to Light, so values-night resources are never
+        // applied and no screen can go dark.
+        AppSettings.setThemeMode(this, AppSettings.THEME_LIGHT)
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         // Crash recorder: any uncaught crash (including one that happens
         // before any screen loads) is saved to last_crash.txt first, so
         // the NEXT launch can show the exact error instead of guessing.
