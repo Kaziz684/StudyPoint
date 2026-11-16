@@ -52,39 +52,15 @@ class RoleGateActivity : AppCompatActivity() {
     }
 
     /**
-     * First app run only: if no textbook board is saved yet, ask once
-     * ("Select Your Board") before routing. Cancel keeps Punjab for this
-     * session without saving, so the dialog asks again next launch.
+     * First app run only: the textbook-board choice ("Select Your Board")
+     * is asked on the dashboard itself (Home / Teacher Dashboard), so the
+     * dashboard is visible behind the dialog (v2.0-125). This router just
+     * routes — it never shows the dialog over its own blank screen.
      */
     private fun routeWithBoardCheck(role: String) {
         if (routed) return
-        if (TextbookBoard.isBoardSaved(this)) {
-            routed = true
-            route(role)
-            return
-        }
-        try {
-            TextbookBoard.showBoardPicker(
-                this,
-                onChosen = {
-                    if (!routed) {
-                        routed = true
-                        route(role)
-                    }
-                },
-                onCancel = {
-                    if (!routed) {
-                        routed = true
-                        route(role)
-                    }
-                }
-            )
-        } catch (_: Throwable) {
-            if (!routed) {
-                routed = true
-                route(role)
-            }
-        }
+        routed = true
+        route(role)
     }
 
     private fun route(role: String) {
