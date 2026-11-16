@@ -17,12 +17,21 @@ import com.example.studypoint.R
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
+/** One entry of the end-of-test review sheet: the question plus the
+ *  student's pick (-1 = not answered / timed out). Serialized with Gson. */
+data class QuizReviewItem(val question: Question, val selected: Int)
+
 class QuizActivity : AppCompatActivity() {
 
     private val viewModel: QuizViewModel by viewModels()
 
     private lateinit var tvQuestionCount: TextView
     private lateinit var tvTimer: TextView
+    private lateinit var tvQuizSubject: TextView
+    private lateinit var tvPillTotal: TextView
+    private lateinit var tvPillCorrect: TextView
+    private lateinit var tvPillIncorrect: TextView
+    private lateinit var tvPillUnanswered: TextView
     private lateinit var quizProgressBar: ProgressBar
     private lateinit var tvQuestionText: TextView
     private lateinit var btnOptions: List<MaterialButton>
@@ -30,6 +39,8 @@ class QuizActivity : AppCompatActivity() {
     private lateinit var btnBookmark: ImageButton
 
     private var questions: List<Question> = emptyList()
+    // The student's pick per question (-1 = not answered / timed out).
+    private var selectedAnswers: MutableList<Int> = mutableListOf()
     private var currentIndex = 0
     private var score = 0
     private var incorrectCount = 0
@@ -42,6 +53,11 @@ class QuizActivity : AppCompatActivity() {
 
         tvQuestionCount = findViewById(R.id.tvQuestionCount)
         tvTimer = findViewById(R.id.tvTimer)
+        tvQuizSubject = findViewById(R.id.tvQuizSubject)
+        tvPillTotal = findViewById(R.id.tvPillTotal)
+        tvPillCorrect = findViewById(R.id.tvPillCorrect)
+        tvPillIncorrect = findViewById(R.id.tvPillIncorrect)
+        tvPillUnanswered = findViewById(R.id.tvPillUnanswered)
         quizProgressBar = findViewById(R.id.quizProgressBar)
         tvQuestionText = findViewById(R.id.tvQuestionText)
         btnNext = findViewById(R.id.btnNext)
@@ -69,6 +85,9 @@ class QuizActivity : AppCompatActivity() {
         val sheetName = intent.getStringExtra("sheetName") ?: "Class_9th"
         val subject = intent.getStringExtra("subject") ?: ""
         val chapter = intent.getStringExtra("chapter") ?: ""
+        val questionCount = intent.getIntExtra("count", 10)
+        tvQuizSubject.text = if (chapter.isBlank()) subject
+            else "$subject  •  $chapter"
 
         btnNext.setOnClickListener {
             if (questions.isEmpty() || currentIndex >= questions.size) return@setOnClickListener
@@ -98,32 +117,44 @@ class QuizActivity : AppCompatActivity() {
                 }
                 is UiState.Success -> {
                     questions = state.data
+                    selectedAnswers = MutableList(questions.size) { -1 }
                     if (questions.isNotEmpty()) {
                         currentIndex = 0
                         score = 0
                         incorrectCount = 0
+                        updatePills()
                         displayQuestion()
                     } else {
-                        showComingSoonAndDismiss()
+                        showComingSoonAndDismiss("No questions found for this selection.")
                     }
                 }
                 is UiState.Error -> {
-                    showComingSoonAndDismiss()
+                    showComingSoonAndDismiss(state.message)
                 }
             }
         }
 
-        viewModel.loadQuestions(sheetName, subject, chapter)
+        viewModel.loadQuestions(sheetName, subject, chapter, questionCount)
     }
 
-    private fun showComingSoonAndDismiss() {
-        tvQuestionText.text = "Coming Soon (عنقریب دستیاب ہوگا)\n\nMCQs for this selection are currently being prepared."
+    /** Live score pills under the header. Not answered = Total - Correct - Incorrect. */
+    private fun updatePills() {
+        val total = questions.size
+        tvPillTotal.text = "Total: $total"
+        tvPillCorrect.text = "Correct: $score"
+        tvPillIncorrect.text = "Incorrect: $incorrectCount"
+        val notAnswered = (total - score - incorrectCount).coerceAtLeast(0)
+        tvPillUnanswered.text = "Not answered: $notAnswered"
+    }
+
+    private fun showComingSoonAndDismiss(message: String) {
+        tvQuestionText.text = message
         btnNext.isEnabled = false
         btnOptions.forEach { it.visibility = View.GONE }
 
         val dialog = MaterialAlertDialogBuilder(this)
-            .setTitle("Coming Soon (عنقریب دستیاب ہوگا)")
-            .setMessage("MCQs for this selection are currently being prepared and will be available soon.")
+            .setTitle("No Questions Found")
+            .setMessage(message)
             .setPositiveButton("Go Back") { dialogInterface, _ ->
                 dialogInterface.dismiss()
                 if (!isFinishing) finish()
@@ -202,6 +233,8 @@ class QuizActivity : AppCompatActivity() {
         if (questions.isEmpty() || currentIndex >= questions.size) return
         answered = true
         incorrectCount++
+        selectedAnswers[currentIndex] = -1
+        updatePills()
         val q = questions[currentIndex]
 
         if (q.correctAnswerIndex in btnOptions.indices) {
@@ -217,6 +250,7 @@ class QuizActivity : AppCompatActivity() {
         if (questions.isEmpty() || currentIndex >= questions.size) return
         timer?.cancel()
         answered = true
+        selectedAnswers[currentIndex] = selectedIndex
         val q = questions[currentIndex]
         val correctIndex = q.correctAnswerIndex
 
@@ -235,6 +269,7 @@ class QuizActivity : AppCompatActivity() {
                 }
             }
         }
+        updatePills()
 
         btnOptions.forEach { it.isEnabled = false }
         btnNext.isEnabled = true
@@ -261,6 +296,11 @@ class QuizActivity : AppCompatActivity() {
             putExtra("total", questions.size)
             putExtra("correct", score)
             putExtra("incorrect", incorrectCount)
+            // Full review sheet: every question + the student's pick (-1 = not answered).
+            val review = questions.mapIndexed { i, q ->
+                QuizReviewItem(q, selectedAnswers.getOrElse(i) { -1 })
+            }
+            putExtra("review_json", com.google.gson.Gson().toJson(review))
         }
         startActivity(intent)
         finish()
