@@ -57,6 +57,12 @@ class PaperGeneratorActivity : AppCompatActivity() {
 
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private var loadJob: Job? = null
+    // Monotonic token: every loadData() call bumps it, and only the
+    // NEWEST call may build the chapter list. An older job already past
+    // its fetches (inside the non-cancellable UI build) used to append a
+    // second, stale copy of the list — that duplicated the section headers
+    // (Textbook Chapters + Sabaq twice) and mixed English into Urdu.
+    private var loadGeneration = 0
     private lateinit var quizRepository: QuizRepository
     private lateinit var paperRepository: PaperRepository
 
@@ -982,11 +988,12 @@ class PaperGeneratorActivity : AppCompatActivity() {
         val subject = spinnerSubject.selectedItem?.toString() ?: return
         val type = currentType()
         loadJob?.cancel()
+        // Only the newest load may build the list (see loadGeneration).
+        val gen = ++loadGeneration
         loading = true
         progress.visibility = View.VISIBLE
         tvChapterStatus.text = "Loading questions..."
         val prevChecked = chapterChecks.filter { it.isChecked }.map { it.tag as String }.toSet()
-        layoutChapters.removeAllViews()
         chapterChecks.clear()
         sectionChecks.clear()
         groupChecks.clear()
@@ -1024,6 +1031,16 @@ class PaperGeneratorActivity : AppCompatActivity() {
             mcqAll = mcqAll.map { it.copy(questionText = cleanPaperText(it.questionText)) }
             shortAll = shortAll.map { it.copy(question = cleanPaperText(it.question)) }
             longAll = longAll.map { it.copy(question = cleanPaperText(it.question)) }
+
+            // Stale-load guard: if a newer loadData() started while this
+            // one was fetching, this job must NOT build the list — the
+            // newer job owns the UI now. Without this, two overlapping
+            // loads each appended their own copy and the section headers
+            // (Textbook Chapters / Sabaq) showed twice.
+            if (gen != loadGeneration) return@launch
+            // Only the newest generation clears + rebuilds the list, so
+            // the chapter list is built exactly once per selection.
+            layoutChapters.removeAllViews()
 
             val labels = sortedSetOf(
                 compareBy<String>({ chapterNumber(it) ?: Int.MAX_VALUE }, { it.lowercase() })
