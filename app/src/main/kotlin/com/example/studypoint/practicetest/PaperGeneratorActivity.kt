@@ -114,7 +114,10 @@ class PaperGeneratorActivity : AppCompatActivity() {
     // The spinners stay as the single source of truth for class/subject state
     // (hidden) — every existing reader (loadData, generate, buildSummary)
     // keeps working unchanged; the rows only drive setSelection on them.
-    private var pickerStage = 0 // 0 = class, 1 = subject, 2 = chapters
+    // Wizard steps (8): 1 Paper Type, 2 Class, 3 Subject, 4 Chapters,
+    // 5 Topics, 6 Questions & Counts, 7 Options, 8 Preview & Generate.
+    // Steps 4-5 are skipped for Board Pattern; step 5 (Topics) exists only
+    // for Urdu / English / Tarjuma / Islamiyat (PaperSections.sectionsFor).
     private var bankSnapshot: QuestionBankStats.BankSnapshot? = null
     private var classFilter = ""
     private var subjectFilter = ""
@@ -132,6 +135,13 @@ class PaperGeneratorActivity : AppCompatActivity() {
     private lateinit var subjectAdapter: SubjectRowAdapter
     private lateinit var pickStepCircles: List<TextView>
     private lateinit var pickStepLabels: List<TextView>
+    private lateinit var layoutTopics: LinearLayout
+    private lateinit var checkAllTopics: CheckBox
+    // Topic (section) -> chapter tags, built in loadData; used by the
+    // Topic step to toggle whole sections, and to keep its checkboxes in
+    // sync with the chapter list's section headers.
+    private var sectionChapterTags: Map<String, List<String>> = emptyMap()
+    private var sectionHeaderBoxes: Map<String, CheckBox> = emptyMap()
 
     private lateinit var radioModeManual: RadioButton
     private lateinit var layoutAuto: LinearLayout
@@ -144,11 +154,13 @@ class PaperGeneratorActivity : AppCompatActivity() {
     private val selectedMcqIds = mutableSetOf<Int>()
     private val selectedShortIds = mutableSetOf<Int>()
     private val selectedLongIds = mutableSetOf<Int>()
+    // Manual question browser tab: 0 = MCQs, 1 = Short, 2 = Long.
+    private var manualTab = 0
     private var tvMcqCounter: TextView? = null
     private var tvShortCounter: TextView? = null
     private var tvLongCounter: TextView? = null
 
-    // --- Wizard navigation (4 steps) ---
+    // --- Wizard navigation (8 steps) ---
     private lateinit var scrollPaper: ScrollView
     private lateinit var stepContainers: List<LinearLayout>
     private lateinit var stepSegments: List<View>
@@ -256,13 +268,24 @@ class PaperGeneratorActivity : AppCompatActivity() {
         pickStepCircles = listOf(
             findViewById(R.id.pickStep1Circle),
             findViewById(R.id.pickStep2Circle),
-            findViewById(R.id.pickStep3Circle)
+            findViewById(R.id.pickStep3Circle),
+            findViewById(R.id.pickStep4Circle),
+            findViewById(R.id.pickStep5Circle)
         )
         pickStepLabels = listOf(
             findViewById(R.id.pickStep1Label),
             findViewById(R.id.pickStep2Label),
-            findViewById(R.id.pickStep3Label)
+            findViewById(R.id.pickStep3Label),
+            findViewById(R.id.pickStep4Label),
+            findViewById(R.id.pickStep5Label)
         )
+        layoutTopics = findViewById(R.id.layoutTopicsPaper)
+        checkAllTopics = findViewById(R.id.checkAllTopicsPaper)
+        checkAllTopics.setOnCheckedChangeListener { _, checked ->
+            if (updatingTopicAll) return@setOnCheckedChangeListener
+            for (sec in sectionChapterTags.keys) setTopicChecked(sec, checked)
+            renderQuestions()
+        }
         spinnerClass.visibility = View.GONE
         spinnerSubject.visibility = View.GONE
         rvClass.layoutManager = LinearLayoutManager(this)
@@ -299,22 +322,32 @@ class PaperGeneratorActivity : AppCompatActivity() {
             findViewById(R.id.step1Paper),
             findViewById(R.id.step2Paper),
             findViewById(R.id.step3Paper),
-            findViewById(R.id.step4Paper)
+            findViewById(R.id.step4Paper),
+            findViewById(R.id.step5Paper),
+            findViewById(R.id.step6Paper),
+            findViewById(R.id.step7Paper),
+            findViewById(R.id.step8Paper)
         )
         stepSegments = listOf(
             findViewById(R.id.stepSeg1Paper),
             findViewById(R.id.stepSeg2Paper),
             findViewById(R.id.stepSeg3Paper),
-            findViewById(R.id.stepSeg4Paper)
+            findViewById(R.id.stepSeg4Paper),
+            findViewById(R.id.stepSeg5Paper),
+            findViewById(R.id.stepSeg6Paper),
+            findViewById(R.id.stepSeg7Paper),
+            findViewById(R.id.stepSeg8Paper)
         )
         tvStepTitle = findViewById(R.id.tvStepTitlePaper)
         tvStepSub = findViewById(R.id.tvStepSubPaper)
         tvSummary = findViewById(R.id.tvSummaryPaper)
         btnBackStep = findViewById(R.id.btnBackStepPaper)
         btnNextStep = findViewById(R.id.btnNextStepPaper)
-        btnBackStep.setOnClickListener { showStep(currentStep - 1) }
+        btnBackStep.setOnClickListener { showStep(prevStep()) }
         btnNextStep.setOnClickListener {
-            if (currentStep == 1 && currentType() != PaperType.BOARD) {
+            val next = nextStep()
+            // Chapters must be loaded before the teacher picks them.
+            if (next == 4 && currentType() != PaperType.BOARD) {
                 if (loading) {
                     Toast.makeText(this, "Please wait — questions are loading", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
@@ -328,7 +361,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
                     return@setOnClickListener
                 }
             }
-            showStep(currentStep + 1)
+            showStep(next)
         }
         showStep(1)
 
@@ -404,19 +437,19 @@ class PaperGeneratorActivity : AppCompatActivity() {
                 renderSubjectRows()
             }
         }
-        // Initial picker stage: a deep-linked subject jumps straight to
-        // chapters; a deep-linked class starts at subjects; otherwise the
-        // class list is shown first.
+        // Initial wizard step: a deep-linked subject jumps straight to
+        // Chapters; a deep-linked class starts at Subjects; otherwise the
+        // wizard opens at Paper Type (Step 1).
         val incomingSubject = intent.getStringExtra("subject") ?: ""
         val subjectMatched = incomingSubject.isNotBlank() &&
             subjectsFor(currentSheet()).any { it.equals(incomingSubject, ignoreCase = true) }
         val hasIncomingClass = intent.hasExtra("grade") || intent.hasExtra("class")
-        val initialStage = when {
-            subjectMatched -> 2
-            hasIncomingClass -> 1
-            else -> 0
+        val initialStep = when {
+            subjectMatched -> 4
+            hasIncomingClass -> 3
+            else -> 1
         }
-        updatePickerStage(initialStage)
+        showStep(initialStep)
     }
 
     override fun onDestroy() {
@@ -505,8 +538,40 @@ class PaperGeneratorActivity : AppCompatActivity() {
         )
     }
 
+    /** Current subject, from the hidden spinner (single source of truth). */
+    private fun currentSubject(): String = spinnerSubject.selectedItem?.toString() ?: ""
+
+    /** True when the current subject has Topics (sections). */
+    private fun hasTopics(): Boolean =
+        PaperSections.sectionsFor(currentSubject()).isNotEmpty()
+
+    /** A wizard step applies unless it is Chapters/Topics under Board
+     *  Pattern, or Topics for a subject that has no sections. */
+    private fun isStepApplicable(step: Int): Boolean = when (step) {
+        4 -> currentType() != PaperType.BOARD
+        5 -> currentType() != PaperType.BOARD && hasTopics()
+        else -> true
+    }
+
+    private fun nextStep(): Int {
+        var n = currentStep + 1
+        while (n <= 8 && !isStepApplicable(n)) n++
+        return if (n <= 8) n else currentStep
+    }
+
+    private fun prevStep(): Int {
+        var n = currentStep - 1
+        while (n >= 1 && !isStepApplicable(n)) n--
+        return if (n >= 1) n else currentStep
+    }
+
     private fun showStep(n: Int) {
-        currentStep = n.coerceIn(1, 4)
+        // Never land on a skipped step (e.g. Chapters under Board Pattern).
+        var target = n.coerceIn(1, 8)
+        if (!isStepApplicable(target)) {
+            target = if (target > currentStep) nextStep() else prevStep()
+        }
+        currentStep = target
         stepContainers.forEachIndexed { i, v ->
             v.visibility = if (i == currentStep - 1) View.VISIBLE else View.GONE
         }
@@ -514,13 +579,21 @@ class PaperGeneratorActivity : AppCompatActivity() {
             v.setBackgroundColor(Color.parseColor(if (i < currentStep) "#2563EB" else "#E2E8F0"))
         }
         val titles = listOf(
-            "Step 1 of 4 — Paper Type, Class, Subject & Chapters",
-            "Step 2 of 4 — Select Questions & Counts",
-            "Step 3 of 4 — Paper Options",
-            "Step 4 of 4 — Preview & Generate"
+            "Step 1 of 8 — Paper Type",
+            "Step 2 of 8 — Select Class",
+            "Step 3 of 8 — Select Subject",
+            "Step 4 of 8 — Select Chapters",
+            "Step 5 of 8 — Select Topics",
+            "Step 6 of 8 — Select Questions & Counts",
+            "Step 7 of 8 — Paper Options",
+            "Step 8 of 8 — Preview & Generate"
         )
         val subs = listOf(
-            "First pick the paper type, then choose the class, subject and chapters.",
+            "Choose the kind of paper you want to create.",
+            "Pick the class for this paper.",
+            "Pick the subject for this paper.",
+            "Choose the chapters to include. Tap Select All for the full book.",
+            "Choose the topics to include. A topic selects all its chapters.",
             "Select questions yourself or set the numbers for automatic selection.",
             "Choose solved or unsolved, question order, title and time.",
             "Review your selected options before creating the test paper."
@@ -528,10 +601,55 @@ class PaperGeneratorActivity : AppCompatActivity() {
         tvStepTitle.text = titles[currentStep - 1]
         tvStepSub.text = subs[currentStep - 1]
         btnBackStep.visibility = if (currentStep > 1) View.VISIBLE else View.GONE
-        btnNextStep.visibility = if (currentStep < 4) View.VISIBLE else View.GONE
-        btnGenerate.visibility = if (currentStep == 4) View.VISIBLE else View.GONE
-        if (currentStep == 4) tvSummary.text = buildSummary()
+        btnNextStep.visibility = if (currentStep < 8) View.VISIBLE else View.GONE
+        btnGenerate.visibility = if (currentStep == 8) View.VISIBLE else View.GONE
+        if (currentStep == 8) tvSummary.text = buildSummary()
+        if (currentStep == 5) renderTopicRows()
+        updatePickStrip()
         scrollPaper.scrollTo(0, 0)
+    }
+
+    /** 5-item pick strip (Paper Type → Class → Subject → Chapter → Topic)
+     *  in the common header, plus the Selected Class / Subject chips.
+     *  On steps 6-8 every item is done. Chips appear once their pick is
+     *  made (Class from step 3, Subject from step 4) and tap back to it. */
+    private fun updatePickStrip() {
+        if (!::pickStepCircles.isInitialized) return
+        for (i in 0..4) {
+            val circle = pickStepCircles[i]
+            val label = pickStepLabels[i]
+            when {
+                i < currentStep - 1 -> {
+                    circle.text = "✓"
+                    circle.setBackgroundResource(R.drawable.bg_circle_blue)
+                    circle.setTextColor(Color.WHITE)
+                    label.setTextColor(Color.parseColor("#2563EB"))
+                    label.setTypeface(null, Typeface.NORMAL)
+                }
+                i == currentStep - 1 -> {
+                    circle.text = "${i + 1}"
+                    circle.setBackgroundResource(R.drawable.bg_circle_blue)
+                    circle.setTextColor(Color.WHITE)
+                    label.setTextColor(Color.parseColor("#2563EB"))
+                    label.setTypeface(null, Typeface.BOLD)
+                }
+                else -> {
+                    circle.text = "${i + 1}"
+                    circle.setBackgroundResource(R.drawable.bg_circle_grey)
+                    circle.setTextColor(Color.parseColor("#475569"))
+                    label.setTextColor(Color.parseColor("#94A3B8"))
+                    label.setTypeface(null, Typeface.NORMAL)
+                }
+            }
+        }
+        if (::layoutSelectedClass.isInitialized) {
+            layoutSelectedClass.visibility =
+                if (currentStep >= 3) View.VISIBLE else View.GONE
+            layoutSelectedSubject.visibility =
+                if (currentStep >= 4) View.VISIBLE else View.GONE
+            tvSelectedClass.text = "Class: ${classLabels[spinnerClass.selectedItemPosition.coerceIn(0, classLabels.lastIndex)]}  •  Change"
+            tvSelectedSubject.text = "Subject: ${currentSubject()}  •  Change"
+        }
     }
 
     private fun buildSummary(): String {
@@ -671,63 +789,22 @@ class PaperGeneratorActivity : AppCompatActivity() {
         subjectAdapter.updateItems(rows)
     }
 
-    private fun updatePickerStage(stage: Int) {
-        if (!::layoutClassStage.isInitialized) return
-        pickerStage = stage.coerceIn(0, 2)
-        val board = currentType() == PaperType.BOARD
-        layoutClassStage.visibility = if (pickerStage == 0) View.VISIBLE else View.GONE
-        layoutSubjectStage.visibility = if (pickerStage == 1) View.VISIBLE else View.GONE
-        layoutSelectedClass.visibility = if (pickerStage > 0) View.VISIBLE else View.GONE
-        layoutSelectedSubject.visibility = if (pickerStage > 1) View.VISIBLE else View.GONE
-        layoutChapterSection.visibility =
-            if (pickerStage == 2 && !board) View.VISIBLE else View.GONE
-        tvSelectedClass.text = "Class: ${classLabels[spinnerClass.selectedItemPosition.coerceIn(0, classLabels.lastIndex)]}  •  Change"
-        tvSelectedSubject.text = "Subject: ${spinnerSubject.selectedItem?.toString() ?: ""}  •  Change"
-        // Step strip: Class -> Subject -> Chapter.
-        for (i in 0..2) {
-            val circle = pickStepCircles[i]
-            val label = pickStepLabels[i]
-            when {
-                i < pickerStage -> {
-                    circle.text = "✓"
-                    circle.setBackgroundResource(R.drawable.bg_circle_blue)
-                    circle.setTextColor(Color.WHITE)
-                    label.setTextColor(Color.parseColor("#2563EB"))
-                    label.setTypeface(null, Typeface.NORMAL)
-                }
-                i == pickerStage -> {
-                    circle.text = "${i + 1}"
-                    circle.setBackgroundResource(R.drawable.bg_circle_blue)
-                    circle.setTextColor(Color.WHITE)
-                    label.setTextColor(Color.parseColor("#2563EB"))
-                    label.setTypeface(null, Typeface.BOLD)
-                }
-                else -> {
-                    circle.text = "${i + 1}"
-                    circle.setBackgroundResource(R.drawable.bg_circle_grey)
-                    circle.setTextColor(Color.parseColor("#475569"))
-                    label.setTextColor(Color.parseColor("#94A3B8"))
-                    label.setTypeface(null, Typeface.NORMAL)
-                }
-            }
-        }
-    }
-
     private fun showClassStage() {
         renderClassRows()
-        updatePickerStage(0)
-        scrollPaper.scrollTo(0, 0)
+        showStep(2)
     }
 
     private fun showSubjectStage() {
         renderSubjectRows()
-        updatePickerStage(1)
-        scrollPaper.scrollTo(0, 0)
+        showStep(3)
     }
 
     private fun showChapterStage() {
-        updatePickerStage(2)
-        scrollPaper.scrollTo(0, 0)
+        showStep(4)
+    }
+
+    private fun showTopicStage() {
+        showStep(5)
     }
 
     private fun onClassRowSelected(digits: String) {
@@ -744,6 +821,78 @@ class PaperGeneratorActivity : AppCompatActivity() {
         renderSubjectRows()
         showChapterStage()
     }
+
+    /** Step 5 — Topics. One small card per section (topic) with a live
+     *  question count and a checkbox. A topic checkbox toggles every chapter
+     *  in that section (the same state the chapter list's section header
+     *  controls), so generation — which reads chapterChecks — is unchanged.
+     *  Rebuilt on every entry to step 5 so the boxes always match the
+     *  chapter list. */
+    private fun renderTopicRows() {
+        if (!::layoutTopics.isInitialized) return
+        layoutTopics.removeAllViews()
+        val type = currentType()
+        val sections = PaperSections.sectionsFor(currentSubject())
+        if (sections.isEmpty()) return
+        for (sec in sections) {
+            val tags = sectionChapterTags[sec] ?: continue
+            if (tags.isEmpty()) continue
+            val total = tags.sumOf { countForChapter(it, type) }
+            val allChecked = tags.all { tag ->
+                chapterChecks.any { it.tag == tag && it.isChecked }
+            }
+            val card = layoutInflater.inflate(R.layout.item_topic_row, layoutTopics, false)
+            val tvName = card.findViewById<TextView>(R.id.tvTopicName)
+            val tvCount = card.findViewById<TextView>(R.id.tvTopicCount)
+            val box = card.findViewById<CheckBox>(R.id.checkTopic)
+            tvName.text = sec
+            tvCount.text = "No. of Questions: $total"
+            box.buttonTintList = selectColors()
+            box.isChecked = allChecked
+            box.isEnabled = !checkAllChapters.isChecked
+            val toggle = { checked: Boolean ->
+                box.isChecked = checked
+                setTopicChecked(sec, checked)
+                renderQuestions()
+            }
+            box.setOnCheckedChangeListener { _, checked ->
+                if (box.isPressed) toggle(checked)
+            }
+            card.setOnClickListener { toggle(!box.isChecked) }
+            val lp = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+            lp.setMargins(0, 0, 0, (8 * resources.displayMetrics.density).toInt())
+            card.layoutParams = lp
+            layoutTopics.addView(card)
+        }
+        // "Select All" mirrors a fully-selected topic list (guarded so the
+        // programmatic set below does not re-fire its listener).
+        if (::checkAllTopics.isInitialized) {
+            val all = sections.all { sec ->
+                val tags = sectionChapterTags[sec] ?: emptyList()
+                tags.isNotEmpty() && tags.all { tag ->
+                    chapterChecks.any { it.tag == tag && it.isChecked }
+                }
+            }
+            updatingTopicAll = true
+            checkAllTopics.isChecked = all
+            updatingTopicAll = false
+        }
+    }
+
+    /** Set every chapter in one topic (section) to the same checked state,
+     *  and keep the chapter list's section header in step with it. */
+    private fun setTopicChecked(section: String, checked: Boolean) {
+        val tags = sectionChapterTags[section] ?: return
+        for (tag in tags) {
+            chapterChecks.filter { it.tag == tag }.forEach { it.isChecked = checked }
+        }
+        sectionHeaderBoxes[section]?.isChecked = checked
+    }
+
+    private var updatingTopicAll = false
 
     /**
      * Saves a generated paper to My Papers (Firestore teacher_papers) so it
@@ -798,8 +947,10 @@ class PaperGeneratorActivity : AppCompatActivity() {
         if (board) tvBoardInfo.text = boardInfoText()
         layoutModeSection.visibility = if (board) View.GONE else View.VISIBLE
         layoutOrderSection.visibility = if (board) View.GONE else View.VISIBLE
-        // Chapter visibility also depends on the picker stage — recompute it there.
-        updatePickerStage(pickerStage)
+        // Chapters / Topics visibility is driven by the wizard step — if the
+        // teacher is sitting on a step Board Pattern skips, move them on.
+        if (board && (currentStep == 4 || currentStep == 5)) showStep(6)
+        else updatePickStrip()
     }
 
     private fun subjectsFor(sheet: String): List<String> = when (sheet) {
@@ -996,10 +1147,9 @@ class PaperGeneratorActivity : AppCompatActivity() {
                     else -> sections.first()
                 }
             }
-            fun displayFor(tag: String): String {
+            fun displayNameFor(tag: String): String {
                 val base = tag.substringBefore("|")
                 val name = PaperSections.nameOf(base)
-                val count = countForChapter(tag, type)
                 val kind = when {
                     tag.endsWith("|NUM") -> "Numericals"
                     tag.endsWith("|THEORY") -> "Theory"
@@ -1012,7 +1162,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
                         "باب " + (chapterNumber(base) ?: "") + ": " + name
                     else -> base
                 }
-                return main + (kind?.let { " \u2014 $it" } ?: "") + "  ($count questions)"
+                return main + (kind?.let { " \u2014 $it" } ?: "")
             }
             val orderedTags = if (sections.isEmpty()) rowTags
                 else sections.flatMap { sec -> rowTags.filter { sectionOf(it) == sec } } +
@@ -1158,23 +1308,52 @@ class PaperGeneratorActivity : AppCompatActivity() {
                         currentGroupKey = null
                     }
                 }
-                val cb = CheckBox(this@PaperGeneratorActivity).apply {
-                    text = displayFor(tag)
+                // Leaf chapter row = SMALL CARD (reference template): compact
+                // card, chapter name + live MCQs / Short / Long chips, checkbox
+                // on the right. The card's CheckBox is the real selection
+                // control — it goes into chapterChecks with the chapter tag,
+                // so generation, Select All and section parents are unchanged.
+                val card = layoutInflater.inflate(
+                    R.layout.item_chapter_small, target ?: layoutChapters, false
+                )
+                val tvChName = card.findViewById<TextView>(R.id.tvChapterNameSmall)
+                val chipMcq = card.findViewById<TextView>(R.id.chipMcqSmall)
+                val chipShort = card.findViewById<TextView>(R.id.chipShortSmall)
+                val chipLong = card.findViewById<TextView>(R.id.chipLongSmall)
+                val cb = card.findViewById<CheckBox>(R.id.checkChapterSmall)
+                tvChName.text = displayNameFor(tag)
+                val (nMcq, nShort, nLong) = countsForChapter(tag, type)
+                chipMcq.text = "MCQs $nMcq"
+                chipShort.text = "Short $nShort"
+                chipLong.text = "Long $nLong"
+                chipMcq.visibility = if (nMcq > 0) View.VISIBLE else View.GONE
+                chipShort.visibility = if (nShort > 0) View.VISIBLE else View.GONE
+                chipLong.visibility = if (nLong > 0) View.VISIBLE else View.GONE
+                cb.apply {
                     this.tag = tag
-                    textSize = 14.5f
-                    setTextColor(selectColors())
                     buttonTintList = selectColors()
                     isChecked = prevChecked.contains(tag)
                     isEnabled = !checkAllChapters.isChecked
-                    if (childPadding > 0) setPadding(childPadding, 0, 0, 0)
                     setOnCheckedChangeListener { _, _ -> renderQuestions() }
                 }
+                card.setOnClickListener { cb.isChecked = !cb.isChecked }
+                val cardLp = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+                cardLp.setMargins(
+                    childPadding,
+                    0,
+                    0,
+                    (8 * resources.displayMetrics.density).toInt()
+                )
+                card.layoutParams = cardLp
                 chapterChecks += cb
                 if (sec != null) sectionChildren.getOrPut(sec) { mutableListOf() } += cb
                 if (currentGroupKey != null) {
                     groupChildren.getOrPut(currentGroupKey!!) { mutableListOf() } += cb
                 }
-                (target ?: layoutChapters).addView(cb)
+                (target ?: layoutChapters).addView(card)
             }
             // Parent boxes reflect a fully-restored selection (programmatic
             // sets do not re-fire the isPressed-guarded listeners above).
@@ -1186,6 +1365,13 @@ class PaperGeneratorActivity : AppCompatActivity() {
                 val kids = groupChildren[key]
                 if (!kids.isNullOrEmpty() && kids.all { it.isChecked }) header.isChecked = true
             }
+            // Topic step (Step 5) reads these: section -> its chapter tags,
+            // and the section header boxes, so a topic toggle stays in step
+            // with the chapter list.
+            sectionChapterTags = sections.associateWith { sec ->
+                orderedTags.filter { sectionOf(it) == sec }
+            }
+            sectionHeaderBoxes = sectionHeaders.toMap()
             tvChapterStatus.text = statusText(type)
             tvBoardInfo.text = boardInfoText()
             progress.visibility = View.GONE
@@ -1315,6 +1501,24 @@ class PaperGeneratorActivity : AppCompatActivity() {
         return n
     }
 
+    /** Per-kind (MCQs, Short, Long) counts for one chapter label — the
+     *  chips on a chapter small card. Same rules as [countForChapter]. */
+    private fun countsForChapter(label: String, type: PaperType): Triple<Int, Int, Int> {
+        var m = 0
+        var s = 0
+        var l = 0
+        if ((type == PaperType.MCQS || type == PaperType.COMBINED) && !label.contains("|")) {
+            m = mcqAll.count { it.chapter == label }
+        }
+        if (type == PaperType.SHORT || type == PaperType.COMBINED) {
+            s = shortAll.count { writtenInChapter(it, label) }
+        }
+        if (type == PaperType.LONG || type == PaperType.COMBINED) {
+            l = longAll.count { writtenInChapter(it, label) }
+        }
+        return Triple(m, s, l)
+    }
+
 
     // --- Selection mode + manual question browser ---
 
@@ -1369,6 +1573,8 @@ class PaperGeneratorActivity : AppCompatActivity() {
             arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()),
             intArrayOf(Color.parseColor("#16A34A"), Color.parseColor("#DC2626"))
         )
+
+    private fun dp(v: Int): Int = (v * resources.displayMetrics.density).toInt()
 
     private fun divider(): View = View(this).apply {
         layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1)
@@ -1427,15 +1633,28 @@ class PaperGeneratorActivity : AppCompatActivity() {
         return row
     }
 
+    /** Manual-mode question card (reference Biology screen): chapter label
+     *  top-left, checkbox top-right, question text, options A–D, and the
+     *  correct answer shown in green when the paper is Solved. Tapping
+     *  anywhere on the card toggles the checkbox. */
     private fun mcqRow(q: Question): View {
-        val container = LinearLayout(this).apply {
+        val card = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(2, 6, 2, 6)
+            setBackgroundResource(R.drawable.bg_role_card)
+            setPadding(dp(12), dp(12), dp(12), dp(12))
+        }
+        val header = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = android.view.Gravity.CENTER_VERTICAL
+        }
+        val tvChapter = TextView(this).apply {
+            text = q.chapter
+            textSize = 11f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(Color.parseColor("#2563EB"))
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         }
         val cb = CheckBox(this).apply {
-            text = q.questionText
-            textSize = 13.5f
-            setTextColor(selectColors())
             buttonTintList = selectColors()
             isChecked = q.id in selectedMcqIds
             setOnCheckedChangeListener { _, checked ->
@@ -1443,21 +1662,23 @@ class PaperGeneratorActivity : AppCompatActivity() {
                 updateCounters()
             }
         }
-        container.addView(cb)
-        container.addView(TextView(this).apply {
-            text = q.options.mapIndexed { i, o -> "${'A' + i}) $o" }.joinToString("\n")
-            textSize = 12f
-            setTextColor(Color.parseColor("#475569"))
-            setPadding(38, 0, 0, 0)
+        header.addView(tvChapter)
+        header.addView(cb)
+        card.addView(header)
+        card.addView(TextView(this).apply {
+            text = q.questionText
+            textSize = 14f
+            setTextColor(Color.parseColor("#0F172A"))
+            setPadding(0, dp(6), 0, 0)
         })
-        container.addView(TextView(this).apply {
-            text = q.chapter
-            textSize = 10.5f
+        card.addView(TextView(this).apply {
+            text = q.options.mapIndexed { i, o -> "${'A' + i}) $o" }.joinToString("\n")
+            textSize = 12.5f
             setTextColor(Color.parseColor("#475569"))
-            setPadding(38, 2, 0, 0)
+            setPadding(0, dp(6), 0, 0)
         })
         if (radioSolved.isChecked) {
-            container.addView(TextView(this).apply {
+            card.addView(TextView(this).apply {
                 val letter = if (q.correctAnswerIndex in q.options.indices) ('A' + q.correctAnswerIndex).toString() else "?"
                 val ansText = q.options.getOrNull(q.correctAnswerIndex) ?: ""
                 var line = "\u2713 Correct answer: $letter) $ansText"
@@ -1465,22 +1686,40 @@ class PaperGeneratorActivity : AppCompatActivity() {
                 text = line
                 textSize = 12f
                 setTextColor(Color.parseColor("#047857"))
-                setPadding(38, 4, 0, 0)
+                setPadding(0, dp(6), 0, 0)
             })
         }
-        container.addView(divider())
-        return container
+        card.setOnClickListener { cb.isChecked = !cb.isChecked }
+        val lp = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+        lp.setMargins(0, 0, 0, dp(8))
+        card.layoutParams = lp
+        return card
     }
 
+    /** Manual-mode written-question card: chapter label top-left, checkbox
+     *  top-right, question text, and (when Solved) the Show/Hide Answer
+     *  toggle with the answer below it. Tapping the card toggles it. */
     private fun writtenRow(q: WrittenQuestion, selection: MutableSet<Int>): View {
-        val container = LinearLayout(this).apply {
+        val card = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(2, 6, 2, 6)
+            setBackgroundResource(R.drawable.bg_role_card)
+            setPadding(dp(12), dp(12), dp(12), dp(12))
+        }
+        val header = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = android.view.Gravity.CENTER_VERTICAL
+        }
+        val tvChapter = TextView(this).apply {
+            text = q.chapterLabel + if (q.marks.isNotBlank()) " \u2022 ${q.marks} marks" else ""
+            textSize = 11f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(Color.parseColor("#2563EB"))
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         }
         val cb = CheckBox(this).apply {
-            text = q.question
-            textSize = 13.5f
-            setTextColor(selectColors())
             buttonTintList = selectColors()
             isChecked = q.id in selection
             setOnCheckedChangeListener { _, checked ->
@@ -1488,12 +1727,14 @@ class PaperGeneratorActivity : AppCompatActivity() {
                 updateCounters()
             }
         }
-        container.addView(cb)
-        container.addView(TextView(this).apply {
-            text = q.chapterLabel + if (q.marks.isNotBlank()) " \u2022 ${q.marks} marks" else ""
-            textSize = 10.5f
-            setTextColor(Color.parseColor("#475569"))
-            setPadding(38, 2, 0, 0)
+        header.addView(tvChapter)
+        header.addView(cb)
+        card.addView(header)
+        card.addView(TextView(this).apply {
+            text = q.question
+            textSize = 14f
+            setTextColor(Color.parseColor("#0F172A"))
+            setPadding(0, dp(6), 0, 0)
         })
         if (radioSolved.isChecked) {
             val answerView = TextView(this).apply {
@@ -1501,25 +1742,31 @@ class PaperGeneratorActivity : AppCompatActivity() {
                     else "(Answer not available in the source data)"
                 textSize = 12.5f
                 setTextColor(Color.parseColor("#065F46"))
-                setPadding(38, 4, 0, 0)
+                setPadding(0, dp(6), 0, 0)
                 visibility = View.GONE
             }
             val toggle = TextView(this).apply {
                 text = "Show Answer \u25be"
                 textSize = 12f
                 setTextColor(Color.parseColor("#2563EB"))
-                setPadding(38, 4, 0, 0)
+                setPadding(0, dp(6), 0, 0)
                 setOnClickListener {
                     val show = answerView.visibility == View.GONE
                     answerView.visibility = if (show) View.VISIBLE else View.GONE
                     text = if (show) "Hide Answer \u25b4" else "Show Answer \u25be"
                 }
             }
-            container.addView(toggle)
-            container.addView(answerView)
+            card.addView(toggle)
+            card.addView(answerView)
         }
-        container.addView(divider())
-        return container
+        card.setOnClickListener { cb.isChecked = !cb.isChecked }
+        val lp = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+        lp.setMargins(0, 0, 0, dp(8))
+        card.layoutParams = lp
+        return card
     }
 
     private fun updateCounters() {
@@ -1538,6 +1785,53 @@ class PaperGeneratorActivity : AppCompatActivity() {
         }
     }
 
+    /** Top tabs for the manual question browser: MCQ / Short / Long with
+     *  LIVE eligible counts. A tab is shown only when the paper type uses
+     *  that kind. Tapping a tab shows only that kind's questions. */
+    private fun manualTabRow(type: PaperType): LinearLayout {
+        val row = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            setPadding(0, dp(4), 0, dp(8))
+        }
+        val kinds = mutableListOf<Triple<Int, String, Int>>()
+        if (type == PaperType.MCQS || type == PaperType.COMBINED) {
+            kinds += Triple(0, "MCQs", eligibleMcqs().size)
+        }
+        if (type == PaperType.SHORT || type == PaperType.COMBINED) {
+            kinds += Triple(1, "Short", eligibleShorts().size)
+        }
+        if (type == PaperType.LONG || type == PaperType.COMBINED) {
+            kinds += Triple(2, "Long", eligibleLongs().size)
+        }
+        // Keep the active tab on a visible kind (e.g. after a type change).
+        if (kinds.none { it.first == manualTab }) manualTab = kinds.firstOrNull()?.first ?: 0
+        for ((idx, label, count) in kinds) {
+            val tab = TextView(this).apply {
+                text = "$label ($count)"
+                textSize = 13f
+                setTypeface(null, if (idx == manualTab) Typeface.BOLD else Typeface.NORMAL)
+                gravity = android.view.Gravity.CENTER
+                setPadding(dp(10), dp(8), dp(10), dp(8))
+                layoutParams = LinearLayout.LayoutParams(
+                    0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f
+                ).apply { marginEnd = dp(6) }
+                if (idx == manualTab) {
+                    setBackgroundResource(R.drawable.bg_tab_selected)
+                    setTextColor(Color.WHITE)
+                } else {
+                    setBackgroundResource(R.drawable.bg_tab_unselected)
+                    setTextColor(Color.parseColor("#475569"))
+                }
+                setOnClickListener {
+                    manualTab = idx
+                    renderQuestions()
+                }
+            }
+            row.addView(tab)
+        }
+        return row
+    }
+
     private fun renderQuestions() {
         if (!::layoutQuestions.isInitialized || !::radioModeManual.isInitialized) return
         if (!isManualMode()) return
@@ -1547,7 +1841,8 @@ class PaperGeneratorActivity : AppCompatActivity() {
         tvLongCounter = null
         val type = currentType()
         val query = etSearch.text.toString().trim().lowercase()
-        if (type == PaperType.MCQS || type == PaperType.COMBINED) {
+        layoutQuestions.addView(manualTabRow(type))
+        if (manualTab == 0 && (type == PaperType.MCQS || type == PaperType.COMBINED)) {
             val eligible = eligibleMcqs()
             val visible = eligible.filter {
                 query.isBlank() || it.questionText.lowercase().contains(query) ||
@@ -1562,7 +1857,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
                 else -> visible.forEach { layoutQuestions.addView(mcqRow(it)) }
             }
         }
-        if (type == PaperType.SHORT || type == PaperType.COMBINED) {
+        if (manualTab == 1 && (type == PaperType.SHORT || type == PaperType.COMBINED)) {
             val eligible = eligibleShorts()
             val visible = eligible.filter {
                 query.isBlank() || it.question.lowercase().contains(query)
@@ -1578,7 +1873,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
                 else -> visible.forEach { layoutQuestions.addView(writtenRow(it, selectedShortIds)) }
             }
         }
-        if (type == PaperType.LONG || type == PaperType.COMBINED) {
+        if (manualTab == 2 && (type == PaperType.LONG || type == PaperType.COMBINED)) {
             val eligible = eligibleLongs()
             val visible = eligible.filter {
                 query.isBlank() || it.question.lowercase().contains(query)
