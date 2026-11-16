@@ -94,7 +94,7 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun loadQuestions(sheetName: String, subject: String, chapter: String) {
+    fun loadQuestions(sheetName: String, subject: String, chapter: String, count: Int = 10) {
         _quizState.value = UiState.Loading
         viewModelScope.launch {
             val normalizedSheet = when {
@@ -110,28 +110,39 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
             val trimmedSubject = subject.trim()
             val trimmedChapter = chapter.trim()
 
-            // Filter by subject using robust alias matching
+            // Filter by subject using robust alias matching.
+            // NEVER fall back to the unfiltered pool: when the subject has
+            // no questions here (e.g. the fetch failed and the local backup
+            // lacks this subject), serving the whole class pool is how an
+            // Islamiyat test ended up showing Urdu / Biology questions.
+            // An honest "no questions" error is better than wrong questions.
             val subjectFiltered = questions.filter { q ->
                 subjectsMatch(q.subject, trimmedSubject)
             }
+            if (subjectFiltered.isEmpty()) {
+                _quizState.value = UiState.Error(
+                    "No MCQs found for $trimmedSubject. Please check your internet connection or try another subject."
+                )
+                return@launch
+            }
 
-            // Filter by chapter if explicitly specified
+            // Filter by chapter if explicitly specified; a chapter with no
+            // MCQs falls back to the subject pool only — never to other subjects.
             val targetPool = if (trimmedChapter.isBlank() || trimmedChapter.equals("All Chapters", ignoreCase = true)) {
-                if (subjectFiltered.isNotEmpty()) subjectFiltered else questions
+                subjectFiltered
             } else {
                 val chapterFiltered = subjectFiltered.filter { q ->
                     chaptersMatch(q.chapter, trimmedChapter)
                 }
-                if (chapterFiltered.isNotEmpty()) chapterFiltered else if (subjectFiltered.isNotEmpty()) subjectFiltered else questions
+                if (chapterFiltered.isNotEmpty()) chapterFiltered else subjectFiltered
             }
 
-            // Build a 10-question dynamic quiz session (or all if <= 10)
-            val sessionQuestions = if (targetPool.size > 10) {
-                targetPool.shuffled().take(10)
-            } else if (targetPool.isNotEmpty()) {
-                targetPool.shuffled()
+            // Build a dynamic quiz session of `count` questions (or all if fewer).
+            val sessionSize = count.coerceIn(1, 30)
+            val sessionQuestions = if (targetPool.size > sessionSize) {
+                targetPool.shuffled().take(sessionSize)
             } else {
-                emptyList()
+                targetPool.shuffled()
             }
 
             if (sessionQuestions.isNotEmpty()) {
