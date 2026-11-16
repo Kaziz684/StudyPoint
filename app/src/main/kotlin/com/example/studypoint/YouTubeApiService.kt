@@ -130,6 +130,18 @@ object YouTubeRepository {
      * Guaranteed to display immediately even if offline or API key is not yet provided.
      */
     val sampleLectures: List<YouTubeVideo> = listOf(
+        // News video (v2.0-125): moved here from the top Home slider — it
+        // belongs in the Live Lecture section below. Unlisted YouTube video;
+        // the link works for anyone with the link.
+        YouTubeVideo(
+            id = "ePXlvC8MYpA",
+            title = "10th Class Annual Exams 2027 Dates Announced",
+            description = "10th Class Annual Exams 2027 begin on 16 March 2027 and the result will be announced on 20 July 2027. Tap to watch the video for the full details.",
+            thumbnailUrl = "https://i.ytimg.com/vi/ePXlvC8MYpA/hqdefault.jpg",
+            channelTitle = "StudyPoint Lectures",
+            publishedAt = "15 Nov 2026",
+            durationLabel = "News Video"
+        ),
         YouTubeVideo(
             id = "Vv3uW4eQG8E",
             title = "Class 10 Physics - Chapter 1: Simple Harmonic Motion & Waves",
