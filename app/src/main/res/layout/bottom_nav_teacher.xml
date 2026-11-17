@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Shared teacher bottom navigation: Generate, Papers, Home, Student Data, Awards. -->
+<!-- Shared teacher bottom navigation: Generate, Papers, Home, Student Data, Awards.
+     Icons are real vector drawables (no emoji): the bar keeps its full height
+     with a 24dp icon above each label, exactly like before the emoji removal. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="#FFFFFF"
     android:elevation="8dp"
     android:orientation="horizontal"
-    android:paddingTop="6dp"
-    android:paddingBottom="6dp">
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp">
 
     <LinearLayout
         android:id="@+id/navGenerate"
@@ -17,19 +19,21 @@
         android:gravity="center"
         android:orientation="vertical">
 
-        <TextView
+        <ImageView
             android:id="@+id/navGenerateIcon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            android:textSize="20sp" />
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:contentDescription="Generate"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_simple_pen"
+            android:tint="#64748B" />
 
         <TextView
             android:id="@+id/navGenerateLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Generate"
-            android:textSize="11sp" />
+            android:textSize="12sp" />
     </LinearLayout>
 
     <LinearLayout
@@ -40,19 +44,21 @@
         android:gravity="center"
         android:orientation="vertical">
 
-        <TextView
+        <ImageView
             android:id="@+id/navPapersIcon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            android:textSize="20sp" />
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:contentDescription="Papers"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_simple_book"
+            android:tint="#64748B" />
 
         <TextView
             android:id="@+id/navPapersLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Papers"
-            android:textSize="11sp" />
+            android:textSize="12sp" />
     </LinearLayout>
 
     <LinearLayout
@@ -63,19 +69,21 @@
         android:gravity="center"
         android:orientation="vertical">
 
-        <TextView
+        <ImageView
             android:id="@+id/navHomeIcon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            android:textSize="20sp" />
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:contentDescription="Home"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_home"
+            android:tint="#64748B" />
 
         <TextView
             android:id="@+id/navHomeLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Home"
-            android:textSize="11sp" />
+            android:textSize="12sp" />
     </LinearLayout>
 
     <LinearLayout
@@ -86,19 +94,21 @@
         android:gravity="center"
         android:orientation="vertical">
 
-        <TextView
+        <ImageView
             android:id="@+id/navStudentsIcon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            android:textSize="20sp" />
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:contentDescription="Student Data"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_person"
+            android:tint="#64748B" />
 
         <TextView
             android:id="@+id/navStudentsLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Student Data"
-            android:textSize="11sp" />
+            android:textSize="12sp" />
     </LinearLayout>
 
     <LinearLayout
@@ -109,18 +119,20 @@
         android:gravity="center"
         android:orientation="vertical">
 
-        <TextView
+        <ImageView
             android:id="@+id/navAwardsIcon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            android:textSize="20sp" />
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:contentDescription="Awards"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_graduation"
+            android:tint="#64748B" />
 
         <TextView
             android:id="@+id/navAwardsLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Awards"
-            android:textSize="11sp" />
+            android:textSize="12sp" />
     </LinearLayout>
 </LinearLayout>

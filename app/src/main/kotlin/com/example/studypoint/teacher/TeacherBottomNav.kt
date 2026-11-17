@@ -2,6 +2,7 @@ package com.example.studypoint.teacher
 
 import android.content.Intent
 import android.graphics.Color
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -24,10 +25,10 @@ object TeacherBottomNav {
     fun setup(activity: AppCompatActivity, current: Tab) {
         fun bind(navId: Int, iconId: Int, labelId: Int, tab: Tab, open: () -> Unit) {
             val item = activity.findViewById<LinearLayout>(navId) ?: return
-            val icon = activity.findViewById<TextView>(iconId)
+            val icon = activity.findViewById<ImageView>(iconId)
             val label = activity.findViewById<TextView>(labelId)
             val color = if (tab == current) ACTIVE else IDLE
-            icon?.setTextColor(color)
+            icon?.setColorFilter(color)
             label?.setTextColor(color)
             if (tab == current) {
                 label?.setTypeface(null, android.graphics.Typeface.BOLD)
