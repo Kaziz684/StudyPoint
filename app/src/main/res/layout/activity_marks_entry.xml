@@ -57,7 +57,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:padding="8dp"
-            android:text="💾 Update"
+            android:text="Update"
             android:textColor="#FFFFFF"
             android:textSize="16sp"
             android:textStyle="bold" />
@@ -116,7 +116,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="4dp"
-                android:text="🔽 filter"
+                android:text="Filter"
                 android:textColor="#334155"
                 android:textSize="14sp" />
         </LinearLayout>
@@ -265,7 +265,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:backgroundTint="#2563EB"
-            android:text="📄 PDF"
+            android:text="PDF"
             android:textColor="#FFFFFF"
             android:textSize="13.5sp"
             android:textStyle="bold" />
@@ -277,7 +277,7 @@
             android:layout_marginStart="8dp"
             android:layout_weight="1"
             android:backgroundTint="#7C3AED"
-            android:text="📘 Word"
+            android:text="Word"
             android:textColor="#FFFFFF"
             android:textSize="13.5sp"
             android:textStyle="bold" />

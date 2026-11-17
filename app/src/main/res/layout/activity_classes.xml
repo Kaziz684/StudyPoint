@@ -10,7 +10,7 @@
         android:id="@+id/tvClassTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="📚 Select Your Class"
+        android:text="Select Your Class"
         android:textColor="@android:color/white"
         android:textSize="22sp"
         android:gravity="center"

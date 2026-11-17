@@ -303,7 +303,7 @@ class LoginActivity : AppCompatActivity() {
                     // Google sign-in — no verification or extra steps needed.
                     val user = auth.currentUser
                     initializeSession(user)
-                    Toast.makeText(this, "Welcome ${user?.displayName ?: "Student"}! 🎉", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Welcome ${user?.displayName ?: "Student"}!", Toast.LENGTH_SHORT).show()
                     goHome()
                 } else {
                     Toast.makeText(this, "Google sign-in failed: ${task.exception?.message}", Toast.LENGTH_LONG).show()
@@ -420,7 +420,7 @@ class LoginActivity : AppCompatActivity() {
                 user?.updateProfile(profileUpdates)?.addOnCompleteListener {
                     showLoading(false)
                     initializeSession(user, name)
-                    Toast.makeText(this, "Account created! Welcome, $name 🎉", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "Account created! Welcome, $name", Toast.LENGTH_LONG).show()
                     goHome()
                 }
             } else {

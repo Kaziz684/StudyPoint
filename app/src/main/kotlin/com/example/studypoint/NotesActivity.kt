@@ -1192,10 +1192,10 @@ class NotesActivity : AppCompatActivity() {
                 findViewById<MaterialButton>(ids[index]).apply {
                     visibility = View.VISIBLE
                     text = when (mat) {
-                        "Textbook" -> "📘 Textbook"
-                        "Notes" -> "📄 Solved Notes"
-                        "Past Papers" -> "📝 Past Papers (2022-2026)"
-                        "MCQs" -> "🎯 MCQs Practice"
+                        "Textbook" -> "Textbook"
+                        "Notes" -> "Solved Notes"
+                        "Past Papers" -> "Past Papers (2022-2026)"
+                        "MCQs" -> "MCQs Practice"
                         else -> mat
                     }
                     setOnClickListener {

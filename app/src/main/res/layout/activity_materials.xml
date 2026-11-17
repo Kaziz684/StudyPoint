@@ -10,7 +10,7 @@
         android:id="@+id/tvMaterialTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="📘 Select Your Material"
+        android:text="Select Your Material"
         android:textColor="@android:color/white"
         android:textSize="22sp"
         android:gravity="center"

@@ -8,6 +8,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -26,8 +27,6 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.studypoint.R
 import com.example.studypoint.TextbookBoard
 import com.example.studypoint.teacher.SavedPaper
@@ -135,10 +134,8 @@ class PaperGeneratorActivity : AppCompatActivity() {
     private lateinit var tvSelectedSubject: TextView
     private lateinit var etSearchClass: EditText
     private lateinit var etSearchSubject: EditText
-    private lateinit var rvClass: RecyclerView
-    private lateinit var rvSubject: RecyclerView
-    private lateinit var classAdapter: ClassRowAdapter
-    private lateinit var subjectAdapter: SubjectRowAdapter
+    private lateinit var layoutClassRows: LinearLayout
+    private lateinit var layoutSubjectRows: LinearLayout
     private lateinit var pickStepCircles: List<TextView>
     private lateinit var pickStepLabels: List<TextView>
     // Topic (section) -> chapter tags, built in loadData; used by the
@@ -175,6 +172,12 @@ class PaperGeneratorActivity : AppCompatActivity() {
     private lateinit var tvSummary: TextView
     private lateinit var btnBackStep: Button
     private lateinit var btnNextStep: Button
+    // Live selection count boxes above Back/Next (Step 5, manual mode):
+    // "MCQs: N" / "Short: N" / "Long: N", updated on every checkbox tap.
+    private lateinit var layoutCountBar: LinearLayout
+    private lateinit var tvCountMcq: TextView
+    private lateinit var tvCountShort: TextView
+    private lateinit var tvCountLong: TextView
     private var currentStep = 1
 
     private val saveLauncher = registerForActivityResult(
@@ -269,8 +272,8 @@ class PaperGeneratorActivity : AppCompatActivity() {
         tvSelectedSubject = findViewById(R.id.tvSelectedSubjectPaper)
         etSearchClass = findViewById(R.id.etSearchClassPaper)
         etSearchSubject = findViewById(R.id.etSearchSubjectPaper)
-        rvClass = findViewById(R.id.rvClassPaper)
-        rvSubject = findViewById(R.id.rvSubjectPaper)
+        layoutClassRows = findViewById(R.id.layoutClassRowsPaper)
+        layoutSubjectRows = findViewById(R.id.layoutSubjectRowsPaper)
         pickStepCircles = listOf(
             findViewById(R.id.pickStep1Circle),
             findViewById(R.id.pickStep2Circle),
@@ -285,14 +288,6 @@ class PaperGeneratorActivity : AppCompatActivity() {
         )
         spinnerClass.visibility = View.GONE
         spinnerSubject.visibility = View.GONE
-        rvClass.layoutManager = LinearLayoutManager(this)
-        rvClass.isNestedScrollingEnabled = false
-        rvSubject.layoutManager = LinearLayoutManager(this)
-        rvSubject.isNestedScrollingEnabled = false
-        classAdapter = ClassRowAdapter(emptyList()) { row -> onClassRowSelected(row.digits) }
-        subjectAdapter = SubjectRowAdapter(emptyList()) { row -> onSubjectRowSelected(row.name) }
-        rvClass.adapter = classAdapter
-        rvSubject.adapter = subjectAdapter
         etSearchClass.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 classFilter = s?.toString() ?: ""
@@ -338,6 +333,10 @@ class PaperGeneratorActivity : AppCompatActivity() {
         tvSummary = findViewById(R.id.tvSummaryPaper)
         btnBackStep = findViewById(R.id.btnBackStepPaper)
         btnNextStep = findViewById(R.id.btnNextStepPaper)
+        layoutCountBar = findViewById(R.id.layoutCountBarPaper)
+        tvCountMcq = findViewById(R.id.tvCountMcqPaper)
+        tvCountShort = findViewById(R.id.tvCountShortPaper)
+        tvCountLong = findViewById(R.id.tvCountLongPaper)
         btnBackStep.setOnClickListener { showStep(prevStep()) }
         btnNextStep.setOnClickListener {
             val next = nextStep()
@@ -592,6 +591,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
         btnNextStep.visibility = if (currentStep < 7) View.VISIBLE else View.GONE
         btnGenerate.visibility = if (currentStep == 7) View.VISIBLE else View.GONE
         if (currentStep == 7) tvSummary.text = buildSummary()
+        updateCountBar()
         updatePickStrip()
         scrollPaper.scrollTo(0, 0)
     }
@@ -741,8 +741,14 @@ class PaperGeneratorActivity : AppCompatActivity() {
         return "No. of Questions: ${QuestionBankStats.formatCount(counts.total)}"
     }
 
+    // Class + subject rows are plain views in a LinearLayout (NOT a
+    // RecyclerView): a RecyclerView with wrap_content inside the wizard's
+    // ScrollView only measures the items that fit on screen, so the last
+    // subjects (Computer Science / Islamiyat / Tarjuma-tul-Quran) were cut
+    // off and unreachable by scrolling, while search still found them.
+    // A LinearLayout measures every child, so all rows show and scroll.
     private fun renderClassRows() {
-        if (!::classAdapter.isInitialized) return
+        if (!::layoutClassRows.isInitialized) return
         val selected = spinnerClass.selectedItemPosition
         val rows = classSheets.mapIndexed { i, sheet ->
             val digits = sheet.filter { it.isDigit() }
@@ -757,11 +763,24 @@ class PaperGeneratorActivity : AppCompatActivity() {
                 row.label.contains(classFilter, ignoreCase = true) ||
                 row.digits.contains(classFilter.trim())
         }
-        classAdapter.updateItems(rows)
+        layoutClassRows.removeAllViews()
+        val inflater = LayoutInflater.from(this)
+        for (row in rows) {
+            val view = inflater.inflate(R.layout.item_class_row, layoutClassRows, false)
+            view.findViewById<TextView>(R.id.tvRowCircle).text = row.digits.padStart(2, '0')
+            view.findViewById<TextView>(R.id.tvRowTitle).text = row.label
+            view.findViewById<TextView>(R.id.tvRowCount).text = row.countText
+            view.setBackgroundResource(
+                if (row.selected) R.drawable.bg_row_selected else R.drawable.bg_role_card
+            )
+            view.setOnClickListener { onClassRowSelected(row.digits) }
+            (view.layoutParams as LinearLayout.LayoutParams).bottomMargin = 24
+            layoutClassRows.addView(view)
+        }
     }
 
     private fun renderSubjectRows() {
-        if (!::subjectAdapter.isInitialized) return
+        if (!::layoutSubjectRows.isInitialized) return
         val selected = spinnerSubject.selectedItem?.toString() ?: ""
         val subjects = try { subjectsFor(currentSheet()) } catch (e: Exception) { emptyList() }
         val rows = subjects.map { name ->
@@ -773,7 +792,20 @@ class PaperGeneratorActivity : AppCompatActivity() {
         }.filter { row ->
             subjectFilter.isBlank() || row.name.contains(subjectFilter, ignoreCase = true)
         }
-        subjectAdapter.updateItems(rows)
+        layoutSubjectRows.removeAllViews()
+        val inflater = LayoutInflater.from(this)
+        for (row in rows) {
+            val view = inflater.inflate(R.layout.item_subject_row, layoutSubjectRows, false)
+            view.findViewById<TextView>(R.id.tvRowCircle).text = "▤"
+            view.findViewById<TextView>(R.id.tvRowTitle).text = row.name
+            view.findViewById<TextView>(R.id.tvRowCount).text = row.countText
+            view.setBackgroundResource(
+                if (row.selected) R.drawable.bg_row_selected else R.drawable.bg_role_card
+            )
+            view.setOnClickListener { onSubjectRowSelected(row.name) }
+            (view.layoutParams as LinearLayout.LayoutParams).bottomMargin = 24
+            layoutSubjectRows.addView(view)
+        }
     }
 
     private fun showClassStage() {
@@ -1712,6 +1744,37 @@ class PaperGeneratorActivity : AppCompatActivity() {
         if (type == PaperType.LONG || type == PaperType.COMBINED) {
             val e = eligibleLongs()
             tvLongCounter?.text = "Selected: ${e.count { it.id in selectedLongIds }} of ${e.size} Long Questions"
+        }
+        updateCountBar()
+    }
+
+    /** Bottom count boxes above Back/Next ("MCQs: N" / "Short: N" / "Long: N").
+     *  Shown only on Step 5 (Select Questions & Counts) in manual mode, where
+     *  the teacher ticks question checkboxes. Each box shows only when the
+     *  paper type uses that kind, and the numbers update live on every tap. */
+    private fun updateCountBar() {
+        if (!::layoutCountBar.isInitialized) return
+        val show = currentStep == 5 && isManualMode()
+        layoutCountBar.visibility = if (show) View.VISIBLE else View.GONE
+        if (!show) return
+        val type = currentType()
+        val showMcq = type == PaperType.MCQS || type == PaperType.COMBINED
+        val showShort = type == PaperType.SHORT || type == PaperType.COMBINED
+        val showLong = type == PaperType.LONG || type == PaperType.COMBINED
+        tvCountMcq.visibility = if (showMcq) View.VISIBLE else View.GONE
+        tvCountShort.visibility = if (showShort) View.VISIBLE else View.GONE
+        tvCountLong.visibility = if (showLong) View.VISIBLE else View.GONE
+        if (showMcq) {
+            val e = eligibleMcqs()
+            tvCountMcq.text = "MCQs: ${e.count { it.id in selectedMcqIds }}"
+        }
+        if (showShort) {
+            val e = eligibleShorts()
+            tvCountShort.text = "Short: ${e.count { it.id in selectedShortIds }}"
+        }
+        if (showLong) {
+            val e = eligibleLongs()
+            tvCountLong.text = "Long: ${e.count { it.id in selectedLongIds }}"
         }
     }
 

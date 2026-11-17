@@ -3,7 +3,7 @@ package com.example.studypoint
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import com.github.barteksc.pdfviewer.PDFView   // ✅ sahi import
+import com.github.barteksc.pdfviewer.PDFView   // sahi import
 
 class PdfActivity : AppCompatActivity() {
 

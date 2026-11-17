@@ -63,7 +63,7 @@ object SearchablePicker {
             displayed = if (allowCustom && q.isNotEmpty() &&
                 options.none { it.first.equals(q, ignoreCase = true) }
             ) {
-                listOf(q to "➕ Add \"$q\"") + filtered
+                listOf(q to "Add \"$q\"") + filtered
             } else {
                 filtered
             }

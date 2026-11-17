@@ -65,11 +65,6 @@
         <activity
             android:name=".BoardWebViewActivity"
             android:exported="false" />
-        <!-- Launcher / Welcome Activity -->
-        <activity
-            android:name=".WelcomeActivity"
-            android:exported="false" />
-
         <!-- App Activities -->
         <activity
             android:name=".GradeSelectionActivity"
@@ -133,21 +128,6 @@
             android:name=".teacher.AwardResultActivity"
             android:exported="false" />
 
-        <activity
-            android:name=".ChaptersActivity"
-            android:exported="false" />
-        <activity
-            android:name=".BookActivity"
-            android:exported="false" />
-        <activity
-            android:name=".KeyBookActivity"
-            android:exported="false" />
-        <activity
-            android:name=".StudyMaterialActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ClassSelectionActivity"
-            android:exported="false" />
         <activity
             android:name=".HandwrittenNotesActivity"
             android:exported="false" />

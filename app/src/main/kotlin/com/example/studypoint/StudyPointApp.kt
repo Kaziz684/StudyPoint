@@ -36,7 +36,7 @@ class StudyPointApp : Application() {
             }
         }
         try {
-            FirebaseApp.initializeApp(this) // ✅ Firebase Init
+            FirebaseApp.initializeApp(this) // Firebase Init
         } catch (_: Throwable) {
             // Firebase init must never kill the app at startup.
         }

@@ -55,8 +55,12 @@
             android:backgroundTint="#EFF6FF"
             android:text="View"
             android:textColor="#2563EB"
-            android:textSize="12.5sp"
-            android:textStyle="bold" />
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:maxLines="1"
+            android:minWidth="0dp"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp" />
 
         <Button
             android:id="@+id/btnPaperDownload"
@@ -67,8 +71,12 @@
             android:backgroundTint="#ECFDF5"
             android:text="Download"
             android:textColor="#065F46"
-            android:textSize="12.5sp"
-            android:textStyle="bold" />
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:maxLines="1"
+            android:minWidth="0dp"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp" />
 
         <Button
             android:id="@+id/btnPaperShare"
@@ -79,8 +87,12 @@
             android:backgroundTint="#FEF3C7"
             android:text="Share"
             android:textColor="#92400E"
-            android:textSize="12.5sp"
-            android:textStyle="bold" />
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:maxLines="1"
+            android:minWidth="0dp"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp" />
 
         <Button
             android:id="@+id/btnPaperInfo"
@@ -91,7 +103,11 @@
             android:backgroundTint="#F1F5F9"
             android:text="Info"
             android:textColor="#334155"
-            android:textSize="12.5sp"
-            android:textStyle="bold" />
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:maxLines="1"
+            android:minWidth="0dp"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp" />
     </LinearLayout>
 </LinearLayout>

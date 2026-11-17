@@ -88,7 +88,7 @@ class TeacherDashboardActivity : AppCompatActivity() {
         val name = user?.displayName?.takeIf { it.isNotBlank() }
             ?: user?.email?.substringBefore("@")?.takeIf { it.isNotBlank() }
             ?: "Teacher"
-        findViewById<TextView>(R.id.txtWelcome).text = "Welcome, $name! 👋"
+        findViewById<TextView>(R.id.txtWelcome).text = "Welcome, $name!"
 
         findViewById<LinearLayout>(R.id.cardPaper).setOnClickListener {
             startActivity(Intent(this, PaperGeneratorActivity::class.java))
@@ -219,7 +219,7 @@ class TeacherDashboardActivity : AppCompatActivity() {
         } catch (t: Throwable) {
             hijri = ""
         }
-        findViewById<TextView>(R.id.txtTime).text = "🕐 $time"
+        findViewById<TextView>(R.id.txtTime).text = "$time"
         findViewById<TextView>(R.id.txtDateHijri).text =
             if (hijri.isNotEmpty()) "$date  ·  $hijri" else date
     }
@@ -242,7 +242,7 @@ class TeacherDashboardActivity : AppCompatActivity() {
             message.append("\n\n").append(info.changelog)
         }
         val dialog = AlertDialog.Builder(this)
-            .setTitle("Update Available 🎉")
+            .setTitle("Update Available")
             .setMessage(message.toString())
             .setCancelable(!info.forceUpdate)
             .setPositiveButton("Update Now", null)

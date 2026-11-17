@@ -452,12 +452,12 @@
                     android:padding="10dp"
                     android:textSize="14sp" />
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvClassPaper"
+                <LinearLayout
+                    android:id="@+id/layoutClassRowsPaper"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:nestedScrollingEnabled="false" />
+                    android:orientation="vertical" />
             </LinearLayout>
             </LinearLayout>
 
@@ -493,12 +493,12 @@
                     android:padding="10dp"
                     android:textSize="14sp" />
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvSubjectPaper"
+                <LinearLayout
+                    android:id="@+id/layoutSubjectRowsPaper"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:nestedScrollingEnabled="false" />
+                    android:orientation="vertical" />
             </LinearLayout>
             </LinearLayout>
 
@@ -1178,6 +1178,60 @@
         android:elevation="8dp"
         android:orientation="vertical"
         android:padding="12dp">
+
+        <!-- Live selection counts (Step 5, manual mode): MCQs / Short / Long.
+             Counts update as question checkboxes are ticked. -->
+        <LinearLayout
+            android:id="@+id/layoutCountBarPaper"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/tvCountMcqPaper"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_chip_blue"
+                android:gravity="center"
+                android:padding="8dp"
+                android:text="MCQs: 0"
+                android:textColor="#1E40AF"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvCountShortPaper"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                android:layout_marginStart="4dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_chip_green"
+                android:gravity="center"
+                android:padding="8dp"
+                android:text="Short: 0"
+                android:textColor="#166534"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvCountLongPaper"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_chip_amber"
+                android:gravity="center"
+                android:padding="8dp"
+                android:text="Long: 0"
+                android:textColor="#92400E"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/layoutStepNavPaper"

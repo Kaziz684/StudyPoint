@@ -126,15 +126,23 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
                 return@launch
             }
 
-            // Filter by chapter if explicitly specified; a chapter with no
-            // MCQs falls back to the subject pool only — never to other subjects.
+            // Filter by chapter if explicitly specified. R-2 (user decision
+            // 2026-11-17: "Coming Soon"): a chapter with no MCQs shows a
+            // "Coming Soon" message instead of silently serving the whole
+            // subject pool. This matches v124's rule ("an honest 'no questions'
+            // error is better than wrong questions").
             val targetPool = if (trimmedChapter.isBlank() || trimmedChapter.equals("All Chapters", ignoreCase = true)) {
                 subjectFiltered
             } else {
                 val chapterFiltered = subjectFiltered.filter { q ->
                     chaptersMatch(q.chapter, trimmedChapter)
                 }
-                if (chapterFiltered.isNotEmpty()) chapterFiltered else subjectFiltered
+                if (chapterFiltered.isNotEmpty()) chapterFiltered else {
+                    _quizState.value = UiState.Error(
+                        "Coming Soon — No MCQs in $trimmedChapter yet."
+                    )
+                    return@launch
+                }
             }
 
             // Build a dynamic quiz session of `count` questions (or all if fewer).

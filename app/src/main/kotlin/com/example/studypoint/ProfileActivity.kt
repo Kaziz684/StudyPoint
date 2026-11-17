@@ -137,7 +137,7 @@ fun ProfileScreen(
             val savedPath = ProfileManager.saveProfileImageFromUri(context, uri)
             if (savedPath.isNotBlank()) {
                 imagePath = savedPath
-                Toast.makeText(context, "Photo selected — tap Save Changes to apply 📸", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Photo selected — tap Save Changes to apply", Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(context, "Could not save photo, please try again", Toast.LENGTH_LONG).show()
             }
@@ -152,7 +152,7 @@ fun ProfileScreen(
             val savedPath = ProfileManager.saveProfileImageBitmap(context, bitmap)
             if (savedPath.isNotBlank()) {
                 imagePath = savedPath
-                Toast.makeText(context, "Photo captured — tap Save Changes to apply 📸", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Photo captured — tap Save Changes to apply", Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(context, "Could not save photo, please try again", Toast.LENGTH_LONG).show()
             }
@@ -224,7 +224,7 @@ fun ProfileScreen(
                                     ProfileManager.saveProfile(context, updated)
                                     isEditMode = true
                                     onProfileUpdated()
-                                    Toast.makeText(context, "Profile details saved successfully! ✅", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Profile details saved successfully!", Toast.LENGTH_SHORT).show()
                                 }
                             } else {
                                 isEditMode = true
@@ -769,7 +769,7 @@ fun ProfileScreen(
                             ProfileManager.saveProfile(context, updated)
                             isEditMode = true
                             onProfileUpdated()
-                            Toast.makeText(context, "Profile details saved successfully! ✅", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Profile details saved successfully!", Toast.LENGTH_SHORT).show()
                         }
                     } else {
                         isEditMode = true

@@ -19,28 +19,28 @@
 
     <Button
         android:id="@+id/btnBook"
-        android:text="📘 Textbook"
+        android:text="Textbook"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp" />
 
     <Button
         android:id="@+id/btnNotes"
-        android:text="📄 Solved Notes"
+        android:text="Solved Notes"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp" />
 
     <Button
         android:id="@+id/btnPastPapers"
-        android:text="📝 Past Papers"
+        android:text="Past Papers"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp" />
 
     <Button
         android:id="@+id/btnMCQs"
-        android:text="🎯 MCQs Practice"
+        android:text="MCQs Practice"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 

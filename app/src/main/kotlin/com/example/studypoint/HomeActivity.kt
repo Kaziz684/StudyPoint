@@ -612,7 +612,7 @@ fun HomeScreen(
                             }
                             isYouTubeLoading = false
                         }
-                        Toast.makeText(context, "Dashboard & live lectures refreshed! 🔥", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Dashboard & live lectures refreshed!", Toast.LENGTH_SHORT).show()
                     },
                     onNotificationClick = { showNotificationDialog = true }
                 )
@@ -900,7 +900,7 @@ fun TopGreetingHeader(
             // Greeting & Subtitle
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Hello, $userName! 👋",
+                    text = "Hello, $userName!",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF0F172A),
@@ -908,7 +908,7 @@ fun TopGreetingHeader(
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = "Let's study smart today 🚀 • PCTB 2026",
+                    text = "Let's study smart today • PCTB 2026",
                     fontSize = 11.sp,
                     color = Color(0xFF64748B),
                     fontWeight = FontWeight.Medium
@@ -1020,7 +1020,7 @@ fun DateTimeHeader() {
             }
             if (hijriStr.isNotBlank()) {
                 Box(modifier = Modifier.width(1.dp).height(16.dp).background(Color(0xFFA7F3D0)))
-                Text("🌙 $hijriStr", fontSize = 11.sp, fontWeight = FontWeight.Medium, color = Color(0xFF047857), maxLines = 1)
+                Text("$hijriStr", fontSize = 11.sp, fontWeight = FontWeight.Medium, color = Color(0xFF047857), maxLines = 1)
             }
         }
     }
@@ -1182,7 +1182,7 @@ fun AiChatBottomSheet(onDismiss: () -> Unit) {
     val listState = rememberLazyListState()
     val messages = remember {
         mutableStateListOf(
-            AiChatMessage(false, "Assalam-o-Alaikum! 🎓 I'm your StudyPoint AI Tutor. Ask me any concept, formula or definition \u2014 or a topic picture, e.g. \"Diagram of a plant cell\"!", "Just now")
+            AiChatMessage(false, "Assalam-o-Alaikum! I'm your StudyPoint AI Tutor. Ask me any concept, formula or definition \u2014 or a topic picture, e.g. \"Diagram of a plant cell\"!", "Just now")
         )
     }
 
@@ -1501,7 +1501,7 @@ fun NotificationsDialog(onDismiss: () -> Unit) {
                         NotificationItem(item.title, item.description, item.date)
                     }
                 } else {
-                    NotificationItem("📢 PCTB Curriculum 2026", "Tarjuma-tul-Quran is active across 9th-12th. Pakistan Studies added for 10th & 12th.", "Info")
+                    NotificationItem("PCTB Curriculum 2026", "Tarjuma-tul-Quran is active across 9th-12th. Pakistan Studies added for 10th & 12th.", "Info")
                 }
             }
         },
@@ -1967,6 +1967,46 @@ fun SearchResultsList(query: String, onClassClick: (String) -> Unit) {
     val filteredClasses = classes.filter { it.contains(query, ignoreCase = true) }
     val filteredSubjects = subjects.filter { it.contains(query, ignoreCase = true) }
 
+    // R-3 fix: a searched subject must NOT hardcode grade "9". Tapping a
+    // subject now asks which class, then opens that class's material.
+    var pickedSubject by remember { mutableStateOf<String?>(null) }
+    pickedSubject?.let { sub ->
+        AlertDialog(
+            onDismissRequest = { pickedSubject = null },
+            title = { Text("Select Class", fontWeight = FontWeight.Bold) },
+            text = {
+                Column {
+                    Text("Which class's $sub do you want?", color = Color(0xFF64748B))
+                    Spacer(modifier = Modifier.height(12.dp))
+                    listOf("9", "10", "11", "12").forEach { grade ->
+                        Text(
+                            text = "Class $grade",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    val intent = Intent(context, MaterialSelectionActivity::class.java).apply {
+                                        putExtra("grade", grade)
+                                        putExtra("class", grade)
+                                        putExtra("subject", sub)
+                                    }
+                                    context.startActivity(intent)
+                                    pickedSubject = null
+                                }
+                                .padding(vertical = 12.dp, horizontal = 8.dp),
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color(0xFF0F172A)
+                        )
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { pickedSubject = null }) { Text("Cancel") }
+            }
+        )
+    }
+
     Column(modifier = Modifier.padding(horizontal = 20.dp)) {
         filteredClasses.forEach { cls ->
             SearchResultItem(cls, Icons.Default.School) {
@@ -1975,11 +2015,7 @@ fun SearchResultsList(query: String, onClassClick: (String) -> Unit) {
         }
         filteredSubjects.forEach { sub ->
             SearchResultItem(sub, Icons.Default.Book) {
-                val intent = Intent(context, MaterialSelectionActivity::class.java).apply {
-                    putExtra("grade", "9")
-                    putExtra("subject", sub)
-                }
-                context.startActivity(intent)
+                pickedSubject = sub
             }
         }
 
@@ -2421,7 +2457,7 @@ fun SocialMediaHubSection(
         ) {
             // Title Header
             Text(
-                text = "Join Our Learning Community 🌟",
+                text = "Join Our Learning Community",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF1E293B)
@@ -2629,8 +2665,6 @@ fun BoardComingSoonScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("📚", fontSize = 48.sp)
-        Spacer(modifier = Modifier.height(16.dp))
         Text(
             boardName,
             fontWeight = FontWeight.Bold,
