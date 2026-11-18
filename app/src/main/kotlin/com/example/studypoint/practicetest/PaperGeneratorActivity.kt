@@ -32,6 +32,7 @@ import com.example.studypoint.TextbookBoard
 import com.example.studypoint.teacher.SavedPaper
 import com.example.studypoint.teacher.TeacherRepository
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
@@ -1095,21 +1096,25 @@ class PaperGeneratorActivity : AppCompatActivity() {
             val needsMcq = type == PaperType.MCQS || type == PaperType.COMBINED || type == PaperType.BOARD
             val needsShort = (type == PaperType.SHORT || type == PaperType.COMBINED || type == PaperType.BOARD) && shortRaw.isEmpty()
             val needsLong = (type == PaperType.LONG || type == PaperType.COMBINED || type == PaperType.BOARD) && longRaw.isEmpty()
-            val mcqDeferred = if (needsMcq) async {
+            // Explicit Deferred types: without them kotlinc infers the
+            // `if … else null` as Nothing? and the build fails (v140 CI run
+            // 44364732049: "Type mismatch: inferred type is
+            // Deferred<List<Question>> but Nothing? was expected").
+            val mcqDeferred: Deferred<List<Question>>? = if (needsMcq) async {
                 try {
                     quizRepository.fetchQuestions(sheet, applicationContext)
                 } catch (e: Exception) {
                     emptyList()
                 }
             } else null
-            val shortDeferred = if (needsShort) async {
+            val shortDeferred: Deferred<List<WrittenQuestion>>? = if (needsShort) async {
                 try {
                     paperRepository.fetchWritten(PaperRepository.TAB_SHORTS)
                 } catch (e: Exception) {
                     emptyList()
                 }
             } else null
-            val longDeferred = if (needsLong) async {
+            val longDeferred: Deferred<List<WrittenQuestion>>? = if (needsLong) async {
                 try {
                     paperRepository.fetchWritten(PaperRepository.TAB_LONGS)
                 } catch (e: Exception) {
