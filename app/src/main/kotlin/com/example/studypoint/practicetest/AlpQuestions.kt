@@ -63,7 +63,11 @@ object AlpQuestions {
             // ALP paper 18 Nov 2026 (20 MCQs, no Shorts/Longs): 11 already in sheet
             4087, 2919, 2952, 2957, 2955, 2977, 2949, 2943, 2916, 2922, 2925,
             // Same paper: 6 new MCQs (keys authored; paper prints none)
-            4175, 4176, 4177, 4178, 4179, 4180
+            4175, 4176, 4177, 4178, 4179, 4180,
+            // Surah Kahf paper 18 Nov 2026 (5 MCQs, all already in sheet)
+            2950, 2951, 2952, 2953, 2954,
+            // Surah Al-An'am paper 18 Nov 2026 (5 MCQs, all already in sheet)
+            2930, 2931, 2932, 2933, 2934
         )
     )
 
@@ -111,6 +115,32 @@ object AlpQuestions {
             1748, 1749, 1750, 1751, 1752, 1753, 1754, 1755, 1756, 1759,
             // Ch8: Section-II Q1 (x) Shamshad Akhtar, new (id 11443)
             11443
+        ),
+        // Class 10th, Tarjuma-tul-Quran: Section-II paper, 18 Nov 2026
+        ("10" to "tarjuma-tul-quran") to setOf(
+            // Ch1 Surah Al Anam: (iii)-(vi) already in sheet; (vii)-(ix) new
+            1922, 1923, 1924, 1925, 11444, 11445, 11446,
+            // Ch2 Surah A'araf: (x)-(xiv) already in sheet (1919+9380 are a duplicate pair)
+            1915, 1916, 1917, 1918, 1919, 9380, 11447, 11448,
+            // Ch3 Surah Yunus: (xix)-(xxii) already in sheet; (xviii), (23), (24) new
+            1902, 1903, 1904, 1905, 11449, 11450, 11451,
+            // Ch4 Surah Hud: (25)-(29) already in sheet (1908+9384, 1909+9385 duplicate pairs)
+            1906, 1907, 1908, 9384, 1909, 9385, 1910,
+            // Ch4 Surah Hud: (30)-(35) new
+            11452, 11453, 11454, 11455, 11456, 11457,
+            // Section-II paper 3, 18 Nov 2026 (Ch4 Hud to Ch8 Nahl)
+            // Ch4: (ii) Hud end instruction, new (11458); (i)/(iii) Lut = 11457 (already above)
+            11458,
+            // Ch5 Surah Raad: (iv)-(viii) already in sheet; (ix)-(xi) new
+            1926, 1927, 1928, 1929, 1930, 11459, 11460, 11461,
+            // Ch6 Surah Ibrahim: (xii)-(xvi) already in sheet; (xvii)-(xxiii) new
+            1933, 1934, 1935, 1936, 1937, 11462, 11463, 11464, 11465, 11466, 11467, 11468,
+            // Ch7 Surah Hijr: (xxiv)-(xxviii) already in sheet; (xxix)-(xxxi), (xxxiii) new
+            1959, 1960, 1961, 1962, 1963, 11469, 11470, 11471, 11472,
+            // Ch8 Surah Nahl: (xxxiv)-(xxxv) already in sheet
+            1938, 1939,
+            // Surah Kahf paper 18 Nov 2026: (i)-(iv), (vi) already in sheet; (v), (vii)-(ix), (xi) new
+            1944, 1945, 1946, 1947, 1948, 11473, 11474, 11475, 11476, 11477
         )
     )
 
@@ -135,6 +165,20 @@ object AlpQuestions {
             463, 465, 466, 467,
             // Ch8: Section-III Q2 (a)-(e), all already in the sheet
             440, 441, 442, 443, 444
+        ),
+        // Class 10th, Tarjuma-tul-Quran: Section-II paper, 18 Nov 2026
+        ("10" to "tarjuma-tul-quran") to setOf(
+            // (i)/(ii) Al-An'am central topic: in the sheet as a Long (id 1061)
+            1061,
+            // (xvi) A'araf central topic: in the sheet as a Long (id 780)
+            780,
+            // Surah Kahf paper 18 Nov 2026: (32) intro + topics (1532, 1533);
+            // (25)-(31) verse translations (1535-1544, 1657, 1658)
+            1532, 1533, 1535, 1536, 1537, 1538, 1539, 1540, 1541, 1542, 1543, 1544,
+            1657, 1658,
+            // Surah Al-An'am paper 18 Nov 2026: (23) intro + topics (1061 already above, 1062);
+            // (xx)-(22) verses 151-153 translations (1245-1252, 1275)
+            1062, 1245, 1246, 1247, 1248, 1249, 1250, 1251, 1252, 1275
         )
     )
 
