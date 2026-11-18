@@ -35,6 +35,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -426,7 +427,14 @@ class PaperGeneratorActivity : AppCompatActivity() {
 
         loadData()
 
-        // Live per-class / per-subject counts for the row pickers.
+        // Live per-class / per-subject counts for the row pickers. Paint
+        // the saved snapshot instantly first — the full 6-tab counts fetch
+        // used to compete with the question downloads above on every open.
+        QuestionBankStats.loadCached(this@PaperGeneratorActivity)?.let {
+            bankSnapshot = it
+            renderClassRows()
+            renderSubjectRows()
+        }
         scope.launch {
             val snap = try {
                 QuestionBankStats.load(this@PaperGeneratorActivity)
@@ -1078,28 +1086,46 @@ class PaperGeneratorActivity : AppCompatActivity() {
         sectionChecks.clear()
         groupChecks.clear()
         loadJob = scope.launch {
-            if (type == PaperType.MCQS || type == PaperType.COMBINED || type == PaperType.BOARD) {
-                val fetched = try {
+            // Parallel, not sequential: the three gviz downloads used to run
+            // one after another — Class 10th ~3.4 s + Shorts ~2.4 s + Longs
+            // ~2.6 s of downloads alone (measured 2026-11-18), before any
+            // parsing, so opening took 10–12 s on mobile data. Fetched
+            // together they cost only the slowest single download (~3 s),
+            // and the repository caches below make a reopen instant.
+            val needsMcq = type == PaperType.MCQS || type == PaperType.COMBINED || type == PaperType.BOARD
+            val needsShort = (type == PaperType.SHORT || type == PaperType.COMBINED || type == PaperType.BOARD) && shortRaw.isEmpty()
+            val needsLong = (type == PaperType.LONG || type == PaperType.COMBINED || type == PaperType.BOARD) && longRaw.isEmpty()
+            val mcqDeferred = if (needsMcq) async {
+                try {
                     quizRepository.fetchQuestions(sheet, applicationContext)
                 } catch (e: Exception) {
                     emptyList()
                 }
-                mcqAll = fetched.filter { subjectsMatch(it.subject, subject) }
-            }
-            if ((type == PaperType.SHORT || type == PaperType.COMBINED || type == PaperType.BOARD) && shortRaw.isEmpty()) {
-                shortRaw = try {
+            } else null
+            val shortDeferred = if (needsShort) async {
+                try {
                     paperRepository.fetchWritten(PaperRepository.TAB_SHORTS)
                 } catch (e: Exception) {
                     emptyList()
                 }
-                shortTabLoaded = true
-            }
-            if ((type == PaperType.LONG || type == PaperType.COMBINED || type == PaperType.BOARD) && longRaw.isEmpty()) {
-                longRaw = try {
+            } else null
+            val longDeferred = if (needsLong) async {
+                try {
                     paperRepository.fetchWritten(PaperRepository.TAB_LONGS)
                 } catch (e: Exception) {
                     emptyList()
                 }
+            } else null
+            if (needsMcq) {
+                mcqAll = (mcqDeferred?.await() ?: emptyList())
+                    .filter { subjectsMatch(it.subject, subject) }
+            }
+            if (needsShort) {
+                shortRaw = shortDeferred?.await() ?: emptyList()
+                shortTabLoaded = true
+            }
+            if (needsLong) {
+                longRaw = longDeferred?.await() ?: emptyList()
                 longTabLoaded = true
             }
             shortAll = shortRaw.filter { writtenMatches(it, sheet, subject) }

@@ -21,6 +21,30 @@ class PaperRepository {
         const val SPREADSHEET_ID = "1a1VGa7mYnFBe3fbFElx3jlFKFWBdYVGSW2AoHncm4uk"
         const val TAB_SHORTS = "Shorts"
         const val TAB_LONGS = "Longs"
+
+        // Same 10-minute in-memory cache as QuizRepository: the Shorts
+        // (~4 MB) and Longs (~5.7 MB) tabs used to be re-downloaded on every
+        // Paper Generator open, even though they never change between taps.
+        private const val CACHE_TTL_MS = 10 * 60 * 1000L
+        private val cache = mutableMapOf<String, Pair<List<WrittenQuestion>, Long>>()
+        private val cacheLock = Any()
+
+        private fun cached(tab: String): List<WrittenQuestion>? {
+            synchronized(cacheLock) {
+                val (list, at) = cache[tab] ?: return null
+                if (System.currentTimeMillis() - at > CACHE_TTL_MS) {
+                    cache.remove(tab)
+                    return null
+                }
+                return list
+            }
+        }
+
+        private fun store(tab: String, list: List<WrittenQuestion>) {
+            synchronized(cacheLock) {
+                cache[tab] = list to System.currentTimeMillis()
+            }
+        }
     }
 
     private val client = OkHttpClient.Builder()
@@ -31,6 +55,7 @@ class PaperRepository {
 
     suspend fun fetchWritten(tab: String, context: Context? = null): List<WrittenQuestion> =
         withContext(Dispatchers.IO) {
+            cached(tab)?.let { return@withContext it }
             val url = "https://docs.google.com/spreadsheets/d/$SPREADSHEET_ID/gviz/tq?tqx=out:csv&sheet=$tab"
             var lastError: Exception? = null
             // The Shorts/Longs CSVs are large (1-4 MB): retry a few times so a
@@ -44,7 +69,10 @@ class PaperRepository {
                     val csv = response.body?.string()
                     if (response.isSuccessful && !csv.isNullOrBlank()) {
                         val parsed = parseWrittenCsv(csv)
-                        if (parsed.isNotEmpty()) return@withContext parsed
+                        if (parsed.isNotEmpty()) {
+                            store(tab, parsed)
+                            return@withContext parsed
+                        }
                     }
                 } catch (e: Exception) {
                     lastError = e

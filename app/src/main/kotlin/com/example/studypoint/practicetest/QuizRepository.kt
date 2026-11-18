@@ -20,6 +20,58 @@ class QuizRepository(private val context: Context? = null) {
 
     private val gson = Gson()
 
+    companion object {
+        // In-memory cache, shared by every activity (each one builds its own
+        // QuizRepository, so an instance cache would never survive a screen
+        // change). 10 minutes, same as QuestionBankStats: reopening a screen
+        // is instant, and sheet edits still show up within minutes — a fresh
+        // app start always downloads once, so nothing goes stale for long.
+        private const val CACHE_TTL_MS = 10 * 60 * 1000L
+        private val cache = mutableMapOf<String, Pair<List<Question>, Long>>()
+        private val cacheLock = Any()
+
+        private fun cached(sheetParam: String): List<Question>? {
+            synchronized(cacheLock) {
+                val (list, at) = cache[sheetParam] ?: return null
+                if (System.currentTimeMillis() - at > CACHE_TTL_MS) {
+                    cache.remove(sheetParam)
+                    return null
+                }
+                return list
+            }
+        }
+
+        private fun store(sheetParam: String, list: List<Question>) {
+            synchronized(cacheLock) {
+                cache[sheetParam] = list to System.currentTimeMillis()
+            }
+        }
+
+        /** True when the live rows already cover every subject of the class. */
+        private fun coversAllSubjects(remote: List<Question>, classNum: String): Boolean {
+            val want = if (classNum == "10th" || classNum == "12th") {
+                setOf("english", "urdu", "mathematics", "physics", "chemistry", "biology", "computer science", "pak studies", "tarjuma-tul-quran")
+            } else {
+                setOf("english", "urdu", "mathematics", "physics", "chemistry", "biology", "computer science", "islamiyat", "tarjuma-tul-quran")
+            }
+            val have = remote.map { normalizeSubject(it.subject) }.toSet()
+            return want.all { it in have }
+        }
+
+        private fun normalizeSubject(raw: String): String {
+            val s = raw.lowercase().trim()
+            return when {
+                s == "math" -> "mathematics"
+                s == "pakistan studies" || s == "pak study" -> "pak studies"
+                s == "islamiat" -> "islamiyat"
+                s == "tarjuma" || s == "quran" || s == "tarjumatulquran" -> "tarjuma-tul-quran"
+                s == "computer" || s == "cs" -> "computer science"
+                s == "bio" -> "biology"
+                else -> s
+            }
+        }
+    }
+
     /**
      * Fetches questions directly from the Google Sheet CSV stream:
      * https://docs.google.com/spreadsheets/d/1a1VGa7mYnFBe3fbFElx3jlFKFWBdYVGSW2AoHncm4uk/gviz/tq?tqx=out:csv&sheet={Class_Name}
@@ -37,6 +89,9 @@ class QuizRepository(private val context: Context? = null) {
             else -> sheetName.replace("Class_", "").trim()
         }
         val sheetParam = "Class_${classNum}"
+        // Fast path: this class tab was already downloaded minutes ago —
+        // every subject/class change used to re-download the whole tab.
+        cached(sheetParam)?.let { return@withContext it }
         val csvUrl = "https://docs.google.com/spreadsheets/d/1a1VGa7mYnFBe3fbFElx3jlFKFWBdYVGSW2AoHncm4uk/gviz/tq?tqx=out:csv&sheet=$sheetParam"
 
         var remoteQuestions: List<Question> = emptyList()
@@ -62,8 +117,14 @@ class QuizRepository(private val context: Context? = null) {
             Log.w("QuizRepository", "Google Sheet fetch failed or timed out (${e.message}), utilizing local backup.")
         }
 
-        // 2. Load Local Backup from assets/mcqs_backup.json
-        val localBackup = loadLocalBackup(appCtx, classNum)
+        // 2. Load Local Backup from assets/mcqs_backup.json — ONLY when the
+        // live sheet is empty or is missing a subject. It used to be parsed
+        // from assets on EVERY fetch even when the live sheet was complete.
+        val localBackup = if (remoteQuestions.isEmpty() || !coversAllSubjects(remoteQuestions, classNum)) {
+            loadLocalBackup(appCtx, classNum)
+        } else {
+            emptyList()
+        }
 
         // 3. Fallback / Merge strategy:
         // If remote questions are available, ensure all subjects have questions by filling any missing subjects from local backup
@@ -77,6 +138,7 @@ class QuizRepository(private val context: Context? = null) {
             localBackup
         }
 
+        if (combined.isNotEmpty()) store(sheetParam, combined)
         Log.d("QuizRepository", "Total questions ready for session: ${combined.size} ($classNum)")
         combined
     }
