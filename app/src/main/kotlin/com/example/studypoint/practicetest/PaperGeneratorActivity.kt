@@ -1676,11 +1676,14 @@ class PaperGeneratorActivity : AppCompatActivity() {
     /** Manual-mode written-question card: chapter label top-left, checkbox
      *  top-right, question text, and (when Solved) the Show/Hide Answer
      *  toggle with the answer below it. Tapping the card toggles it. */
-    private fun writtenRow(q: WrittenQuestion, selection: MutableSet<Int>): View {
+    private fun writtenRow(q: WrittenQuestion, selection: MutableSet<Int>, isLong: Boolean = false): View {
         val card = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setBackgroundResource(
                 when {
+                    isLong && !AlpQuestions.hasAlpLong(q) -> R.drawable.bg_role_card
+                    isLong && AlpQuestions.isAlpLong(q) -> R.drawable.bg_alp_card
+                    isLong -> R.drawable.bg_non_alp_card
                     !AlpQuestions.hasAlpShort(q) -> R.drawable.bg_role_card
                     AlpQuestions.isAlpShort(q) -> R.drawable.bg_alp_card
                     else -> R.drawable.bg_non_alp_card
@@ -1925,7 +1928,10 @@ class PaperGeneratorActivity : AppCompatActivity() {
         }
         if (manualTab == 2 && (type == PaperType.LONG || type == PaperType.COMBINED)) {
             val eligible = eligibleLongs()
-            val visible = eligible.filter {
+            val alpAvailable = AlpQuestions.hasAlpLong(selectedClassDigits(), currentSubject())
+            if (alpAvailable) layoutQuestions.addView(alpFilterRow())
+            val alpPool = if (alpOnly && alpAvailable) eligible.filter { AlpQuestions.isAlpLong(it) } else eligible
+            val visible = alpPool.filter {
                 query.isBlank() || it.question.lowercase().contains(query)
             }
             layoutQuestions.addView(sectionHeader("Long Questions", visible.map { it.id }, selectedLongIds))
@@ -1935,8 +1941,9 @@ class PaperGeneratorActivity : AppCompatActivity() {
                 eligible.isEmpty() && longAll.isEmpty() ->
                     layoutQuestions.addView(noteView("No Long Questions available yet for this class/subject. Add data in the 'Longs' tab of the Google Sheet."))
                 eligible.isEmpty() -> layoutQuestions.addView(noteView("No Long Questions available for the selected chapters."))
+                alpOnly && alpAvailable && alpPool.isEmpty() -> layoutQuestions.addView(noteView("No ALP Long Questions in the selected chapters. Turn ALP off to see all questions."))
                 visible.isEmpty() -> layoutQuestions.addView(noteView("No Long Questions match your search."))
-                else -> visible.forEach { layoutQuestions.addView(writtenRow(it, selectedLongIds)) }
+                else -> visible.forEach { layoutQuestions.addView(writtenRow(it, selectedLongIds, isLong = true)) }
             }
         }
         updateCounters()

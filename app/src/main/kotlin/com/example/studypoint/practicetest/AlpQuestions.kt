@@ -55,6 +55,22 @@ object AlpQuestions {
             2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019,
             // Same paper: 5 new shorts (i7, i8, i17, i-25, x/y Q22)
             11436, 11437, 11438, 11439, 11440
+        ),
+        // Class 10th, Pak Studies: Ch1 Nazriya-e-Pakistan shorts (full paper, 18 Nov 2026)
+        ("10" to "pak studies") to setOf(
+            // Section-II Q1 (i)-(xiii), all already in the sheet
+            1793, 1794, 1795, 1796, 1797, 1798, 1799, 1800, 1801, 1802,
+            1803, 1804, 1805
+        )
+    )
+
+    /** class digits -> normalised sheet subject -> ALP LONG question ids
+     *  (Longs tab; same key scheme, ids are Longs-tab ids). */
+    private val alpLongIds: Map<Pair<String, String>, Set<Int>> = mapOf(
+        // Class 10th, Pak Studies: Ch1 Nazriya-e-Pakistan longs (full paper, 18 Nov 2026)
+        ("10" to "pak studies") to setOf(
+            // Section-III Q2 (a)-(e), all already in the sheet
+            449, 450, 451, 452, 453
         )
     )
 
@@ -95,4 +111,16 @@ object AlpQuestions {
     /** True when this short question is an ALP question. */
     fun isAlpShort(q: WrittenQuestion): Boolean =
         alpShortIds[digitsOf(q.classNum) to normaliseSubject(q.subject)]?.contains(q.id) == true
+
+    /** True when ALP long questions are defined for this class + subject. */
+    fun hasAlpLong(classDigits: String, subject: String): Boolean =
+        alpLongIds.containsKey(classDigits to normaliseSubject(subject))
+
+    /** True when ALP long questions are defined for this question's class + subject. */
+    fun hasAlpLong(q: WrittenQuestion): Boolean =
+        alpLongIds.containsKey(digitsOf(q.classNum) to normaliseSubject(q.subject))
+
+    /** True when this long question is an ALP question. */
+    fun isAlpLong(q: WrittenQuestion): Boolean =
+        alpLongIds[digitsOf(q.classNum) to normaliseSubject(q.subject)]?.contains(q.id) == true
 }
