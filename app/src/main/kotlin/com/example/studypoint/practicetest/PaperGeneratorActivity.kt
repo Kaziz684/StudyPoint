@@ -381,6 +381,10 @@ class PaperGeneratorActivity : AppCompatActivity() {
         }
         spinnerSubject.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                // The item at this position is authoritative — read it from
+                // the adapter, not from selectedItem (same async trap).
+                selectedSubject = parent?.getItemAtPosition(position)?.toString()
+                    ?: currentSubject()
                 clearQuestionSelections()
                 loadData()
             }
@@ -537,7 +541,16 @@ class PaperGeneratorActivity : AppCompatActivity() {
     }
 
     /** Current subject, from the hidden spinner (single source of truth). */
-    private fun currentSubject(): String = spinnerSubject.selectedItem?.toString() ?: ""
+    private fun currentSubject(): String = selectedSubject.ifBlank { spinnerSubject.selectedItem?.toString() ?: "" }
+
+    // Explicit subject pick. The hidden subject Spinner only applies a
+    // setSelection() on the next layout pass, so reading selectedItem right
+    // after setSelection() returns the PREVIOUS subject — Step 4 once loaded
+    // Islamiyat for Class 10th (0 questions) after the teacher tapped Pak
+    // Studies. This field is the single source of truth for the subject
+    // and is kept in sync in rebuildSubjects(), onSubjectRowSelected()
+    // and the Spinner's own listener.
+    private var selectedSubject: String = ""
 
     /** A wizard step applies unless it is Chapters under Board Pattern
      *  (Board Pattern has a fixed full-book structure, no chapter pick). */
@@ -652,7 +665,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
             PaperType.BOARD -> "Board Pattern Paper"
         }
         val classLabel = classLabels[spinnerClass.selectedItemPosition.coerceIn(0, classLabels.lastIndex)]
-        val subject = spinnerSubject.selectedItem?.toString() ?: ""
+        val subject = currentSubject()
         val sb = StringBuilder()
         sb.append("Paper Type:  $typeLabel\n")
         sb.append("Class:  $classLabel\n")
@@ -785,7 +798,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
 
     private fun renderSubjectRows() {
         if (!::layoutSubjectRows.isInitialized) return
-        val selected = spinnerSubject.selectedItem?.toString() ?: ""
+        val selected = currentSubject()
         val subjects = try { subjectsFor(currentSheet()) } catch (e: Exception) { emptyList() }
         val rows = subjects.map { name ->
             SubjectRow(
@@ -830,6 +843,17 @@ class PaperGeneratorActivity : AppCompatActivity() {
         // English: 712 MCQs / 332 Short / 212 Long) for a Class 10
         // Urdu pick (real: 367 / 472 / 138). loadData() clears the
         // stale list, shows Loading, then rebuilds it fresh.
+        // Guard: never open Step 4 with a subject that does not belong
+        // to the selected class. A stale pick (e.g. Islamiyat, which
+        // Class 10th does not have) used to survive a class change and
+        // load 0 questions — "No questions found" — after the teacher
+        // had tapped Pak Studies. Fall back to the class's first subject.
+        val subjects = subjectsFor(currentSheet())
+        if (subjects.none { it.equals(selectedSubject, ignoreCase = true) }) {
+            selectedSubject = subjects.firstOrNull().orEmpty()
+            val idx = subjects.indexOfFirst { it.equals(selectedSubject, ignoreCase = true) }
+            if (idx >= 0 && spinnerSubject.selectedItemPosition != idx) spinnerSubject.setSelection(idx)
+        }
         loadData()
         showStep(4)
     }
@@ -844,7 +868,16 @@ class PaperGeneratorActivity : AppCompatActivity() {
     private fun onSubjectRowSelected(name: String) {
         val subjects = subjectsFor(currentSheet())
         val idx = subjects.indexOfFirst { it.equals(name, ignoreCase = true) }
-        if (idx >= 0) spinnerSubject.setSelection(idx) // listener reloads data
+        if (idx < 0) {
+            // The tapped row is not a subject of this class — do not open
+            // Step 4 with the previous (stale) subject.
+            Toast.makeText(this, "That subject is not in Class ${selectedClassDigits()}.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        // Set the explicit pick FIRST: setSelection() only applies on the
+        // next layout pass, so loadData() below must not read the Spinner.
+        selectedSubject = subjects[idx]
+        if (spinnerSubject.selectedItemPosition != idx) spinnerSubject.setSelection(idx) // listener reloads data
         renderSubjectRows()
         showChapterStage()
     }
@@ -925,7 +958,14 @@ class PaperGeneratorActivity : AppCompatActivity() {
         val subjects = subjectsFor(sheet)
         spinnerSubject.adapter = ArrayAdapter(this, R.layout.spinner_item_selected, subjects).apply { setDropDownViewResource(R.layout.spinner_item_dropdown) }
         val idx = subjects.indexOfFirst { it.equals(incomingSubject, ignoreCase = true) }
-        if (idx >= 0) spinnerSubject.setSelection(idx)
+        // Always land on a real subject of THIS class. setAdapter() resets
+        // the position only implicitly, and a stale pick from the previous
+        // class (e.g. Islamiyat, which Class 10th does not have) could
+        // otherwise survive into the next load. Set the explicit pick here
+        // so currentSubject() is correct even before the layout pass.
+        val pick = if (idx >= 0) idx else 0
+        selectedSubject = subjects.getOrNull(pick).orEmpty()
+        if (spinnerSubject.selectedItemPosition != pick) spinnerSubject.setSelection(pick)
     }
 
     /** English writing sections (essays, paragraphs, letters, applications,
@@ -1021,7 +1061,11 @@ class PaperGeneratorActivity : AppCompatActivity() {
 
     private fun loadData() {
         val sheet = classSheets[spinnerClass.selectedItemPosition.coerceIn(0, classSheets.lastIndex)]
-        val subject = spinnerSubject.selectedItem?.toString() ?: return
+        // Read the explicit pick, not the Spinner: setSelection() applies
+        // on the next layout pass, so selectedItem can still hold the
+        // previous subject right after a row tap (see selectedSubject).
+        val subject = currentSubject()
+        if (subject.isBlank()) return
         val type = currentType()
         loadJob?.cancel()
         // Only the newest load may build the list (see loadGeneration).
@@ -1350,7 +1394,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
     /** Board Pattern info line for the CURRENTLY selected class + subject only. */
     private fun boardInfoText(): String {
         val sheet = classSheets[spinnerClass.selectedItemPosition.coerceIn(0, classSheets.lastIndex)]
-        val subject = spinnerSubject.selectedItem?.toString() ?: ""
+        val subject = currentSubject()
         return when {
             sheet == "Class_10th" && subject.equals("English", ignoreCase = true) ->
                 "Board Pattern - Class 10 English (75 Marks, 2 Hours 30 Minutes)\n" +
@@ -2063,7 +2107,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
         val data = PaperPdfGenerator.PaperData(
             testTitle = title,
             classLabel = classLabels[spinnerClass.selectedItemPosition.coerceIn(0, classLabels.lastIndex)],
-            subject = spinnerSubject.selectedItem?.toString() ?: "",
+            subject = currentSubject(),
             header = currentHeader(),
             chaptersLabel = chaptersLabel,
             timeAllowed = time,
@@ -2116,7 +2160,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
      *  Q.1 19 MCQs, Q.2 shorts (any 5 of 8), Q.3-Q.8 from the content pack. */
     private fun generateBoardPattern() {
         val sheet = classSheets[spinnerClass.selectedItemPosition.coerceIn(0, classSheets.lastIndex)]
-        val subject = spinnerSubject.selectedItem?.toString() ?: ""
+        val subject = currentSubject()
         if ((sheet == "Class_9th" || sheet == "Class_10th") && subject.equals("Computer Science", ignoreCase = true)) {
             generateBoardPatternCs()
             return
@@ -2843,7 +2887,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
      *  contiguous chapter groups (shortfalls filled from the whole pool);
      *  Q.5-Q.7 one long each from the three groups (any 2 of 3). */
     private fun generateBoardPattern60() {
-        val subject = spinnerSubject.selectedItem?.toString() ?: ""
+        val subject = currentSubject()
         val rnd = kotlin.random.Random.Default
         fun <T> pick(list: List<T>, n: Int): List<T> = list.shuffled(rnd).take(n)
 
@@ -3159,7 +3203,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
         val data = PaperPdfGenerator.TqBoardPaperData(
             testTitle = title,
             classLabel = "Class 10th",
-            subject = spinnerSubject.selectedItem?.toString() ?: "",
+            subject = currentSubject(),
             header = currentHeader(),
             mcqs = pick(mcqAll, 10),
             shorts = pick(shortAll, 8),
@@ -3266,7 +3310,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
         val data = PaperPdfGenerator.UrduBoardPaperData(
             testTitle = title,
             classLabel = classLabel,
-            subject = spinnerSubject.selectedItem?.toString() ?: "",
+            subject = currentSubject(),
             header = currentHeader(),
             mcqs = pick(mcqAll, 15),
             q2a = q2a, q2aLabel = portion(q2a.first()),
