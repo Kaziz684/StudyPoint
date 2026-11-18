@@ -41,6 +41,8 @@ object AlpQuestions {
             2570, 2571, 2572, 2573, 2574, 2575, 2576, 2577, 2582,
             // Same paper: Q10-19, 10 new MCQs (Q9 held, key unconfirmed)
             4164, 4165, 4166, 4167, 4168, 4169, 4170, 4171, 4172, 4173,
+            // Ch1 Q9 (held, key D = جدوجہد کا), appended 18 Nov 2026 as id 4174
+            4174,
             // Ch2 paper 18 Nov 2026: 10 MCQs (already in the sheet)
             2505, 2506, 2507, 2508, 2509, 2510, 2511, 2512, 2513, 2514,
             // Ch3 paper 18 Nov 2026: 10 MCQs (already in the sheet)
@@ -55,6 +57,13 @@ object AlpQuestions {
             2685, 2686, 2687, 2688, 2689, 2690, 2691, 2692, 2693, 2694,
             // Ch8 paper 18 Nov 2026: 8 MCQs (already in the sheet)
             2455, 2456, 2457, 2458, 2459, 2460, 2461, 2462
+        ),
+        // Class 10th, Tarjuma-tul-Quran (sheet subject "Tarjuma-tul-Quran")
+        ("10" to "tarjuma-tul-quran") to setOf(
+            // ALP paper 18 Nov 2026 (20 MCQs, no Shorts/Longs): 11 already in sheet
+            4087, 2919, 2952, 2957, 2955, 2977, 2949, 2943, 2916, 2922, 2925,
+            // Same paper: 6 new MCQs (keys authored; paper prints none)
+            4175, 4176, 4177, 4178, 4179, 4180
         )
     )
 
