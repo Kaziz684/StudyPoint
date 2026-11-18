@@ -40,7 +40,13 @@ object AlpQuestions {
             // ALP paper 18 Nov 2026: Ch1 Nazriya-e-Pakistan (Q1-8, Q20 already in sheet)
             2570, 2571, 2572, 2573, 2574, 2575, 2576, 2577, 2582,
             // Same paper: Q10-19, 10 new MCQs (Q9 held, key unconfirmed)
-            4164, 4165, 4166, 4167, 4168, 4169, 4170, 4171, 4172, 4173
+            4164, 4165, 4166, 4167, 4168, 4169, 4170, 4171, 4172, 4173,
+            // Ch2 paper 18 Nov 2026: 10 MCQs (already in the sheet)
+            2505, 2506, 2507, 2508, 2509, 2510, 2511, 2512, 2513, 2514,
+            // Ch3 paper 18 Nov 2026: 10 MCQs (already in the sheet)
+            2790, 2791, 2792, 2793, 2794, 2795, 2796, 2797, 2798, 2799,
+            // Ch4 paper 18 Nov 2026: 9 MCQs (already in the sheet)
+            2610, 2611, 2612, 2613, 2614, 2615, 2616, 2617, 2618
         )
     )
 
@@ -58,9 +64,22 @@ object AlpQuestions {
         ),
         // Class 10th, Pak Studies: Ch1 Nazriya-e-Pakistan shorts (full paper, 18 Nov 2026)
         ("10" to "pak studies") to setOf(
-            // Section-II Q1 (i)-(xiii), all already in the sheet
+            // Ch1: Section-II Q1 (i)-(xiii), all already in the sheet
             1793, 1794, 1795, 1796, 1797, 1798, 1799, 1800, 1801, 1802,
-            1803, 1804, 1805
+            1803, 1804, 1805,
+            // Ch2: Section-II Q2 (i)-(xv), (xvi)-(xix) are longs (ids 445-448)
+            1768, 1769, 1770, 1771, 1772, 1773, 1775, 1776, 1777, 1778,
+            1780, 1781, 1782,
+            // Ch2: Section-II Q2 (vii) negative effects of British rule, new (id 11441)
+            11441,
+            // Ch3: Section-II Q1 (i)-(xvi); (ii) repeats (i) in the paper, both id 1874
+            1874, 1875, 1876, 1877, 1878, 1879, 1880, 1881, 1882, 1883,
+            1884, 1885, 1886, 1887, 1888,
+            // Ch4: Section-II Q1 (i)-(xix); (iii) repeats (i) in the paper, both id 1816
+            1816, 1817, 1818, 1819, 1820, 1821, 1822, 1823, 1824, 1825,
+            1826, 1827, 1828, 1829, 1830, 1832, 1833,
+            // Ch4: Section-II Q1 (xvii) global warming effects, new (id 11442)
+            11442
         )
     )
 
@@ -69,8 +88,14 @@ object AlpQuestions {
     private val alpLongIds: Map<Pair<String, String>, Set<Int>> = mapOf(
         // Class 10th, Pak Studies: Ch1 Nazriya-e-Pakistan longs (full paper, 18 Nov 2026)
         ("10" to "pak studies") to setOf(
-            // Section-III Q2 (a)-(e), all already in the sheet
-            449, 450, 451, 452, 453
+            // Ch1: Section-III Q2 (a)-(e), all already in the sheet
+            449, 450, 451, 452, 453,
+            // Ch2: Section-II Q2 (xvi)-(xix), all already in the sheet
+            445, 446, 447, 448,
+            // Ch3: Section-III Q2 (a)-(i), all already in the sheet
+            468, 469, 470, 471, 472, 473, 474, 475, 476,
+            // Ch4: Section-III Q2 (a)-(i), all already in the sheet
+            454, 455, 456, 457, 458, 459, 460, 461, 462
         )
     )
 
