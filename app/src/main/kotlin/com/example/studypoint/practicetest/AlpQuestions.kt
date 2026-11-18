@@ -50,7 +50,11 @@ object AlpQuestions {
             // Ch5 paper 18 Nov 2026: 8 MCQs (already in the sheet)
             2410, 2411, 2412, 2413, 2414, 2415, 2416, 2417,
             // Ch6 paper 18 Nov 2026: 8 MCQs (already in the sheet)
-            2385, 2386, 2387, 2388, 2389, 2390, 2391, 2392
+            2385, 2386, 2387, 2388, 2389, 2390, 2391, 2392,
+            // Ch7 paper 18 Nov 2026: 10 MCQs (already in the sheet)
+            2685, 2686, 2687, 2688, 2689, 2690, 2691, 2692, 2693, 2694,
+            // Ch8 paper 18 Nov 2026: 8 MCQs (already in the sheet)
+            2455, 2456, 2457, 2458, 2459, 2460, 2461, 2462
         )
     )
 
@@ -90,7 +94,14 @@ object AlpQuestions {
             // Ch6: Section-II Q2 (i)-(vii), (ix), (x), all already in the sheet
             1703, 1704, 1705, 1706, 1707, 1708, 1709, 1711, 1712,
             // Ch6: Section-II Q2 (viii) health problems = sheet Ch7 short id 1870
-            1870
+            1870,
+            // Ch7: Section-II Q2 (i)-(xvii), all already in the sheet
+            1844, 1845, 1846, 1847, 1848, 1850, 1851, 1852, 1853, 1854,
+            1855, 1857, 1859, 1860, 1861, 1862, 1863,
+            // Ch8: Section-II Q1 (i)-(ix), (xi), (xiii); (ii) repeats (i), both id 1748
+            1748, 1749, 1750, 1751, 1752, 1753, 1754, 1755, 1756, 1759,
+            // Ch8: Section-II Q1 (x) Shamshad Akhtar, new (id 11443)
+            11443
         )
     )
 
@@ -110,7 +121,11 @@ object AlpQuestions {
             // Ch5: Section-III Q2 (a)-(d), all already in the sheet
             435, 436, 437, 438,
             // Ch6: Section-II Q2 (xi)-(xiv), all already in the sheet
-            431, 432, 433, 434
+            431, 432, 433, 434,
+            // Ch7: Section-II Q2 (xviii)-(xx), (21), all already in the sheet
+            463, 465, 466, 467,
+            // Ch8: Section-III Q2 (a)-(e), all already in the sheet
+            440, 441, 442, 443, 444
         )
     )
 
