@@ -46,7 +46,11 @@ object AlpQuestions {
             // Ch3 paper 18 Nov 2026: 10 MCQs (already in the sheet)
             2790, 2791, 2792, 2793, 2794, 2795, 2796, 2797, 2798, 2799,
             // Ch4 paper 18 Nov 2026: 9 MCQs (already in the sheet)
-            2610, 2611, 2612, 2613, 2614, 2615, 2616, 2617, 2618
+            2610, 2611, 2612, 2613, 2614, 2615, 2616, 2617, 2618,
+            // Ch5 paper 18 Nov 2026: 8 MCQs (already in the sheet)
+            2410, 2411, 2412, 2413, 2414, 2415, 2416, 2417,
+            // Ch6 paper 18 Nov 2026: 8 MCQs (already in the sheet)
+            2385, 2386, 2387, 2388, 2389, 2390, 2391, 2392
         )
     )
 
@@ -79,7 +83,14 @@ object AlpQuestions {
             1816, 1817, 1818, 1819, 1820, 1821, 1822, 1823, 1824, 1825,
             1826, 1827, 1828, 1829, 1830, 1832, 1833,
             // Ch4: Section-II Q1 (xvii) global warming effects, new (id 11442)
-            11442
+            11442,
+            // Ch5: Section-II Q1 (i)-(xv), all already in the sheet
+            1723, 1724, 1725, 1726, 1727, 1728, 1729, 1730, 1731, 1732,
+            1733, 1734, 1735, 1736, 1737,
+            // Ch6: Section-II Q2 (i)-(vii), (ix), (x), all already in the sheet
+            1703, 1704, 1705, 1706, 1707, 1708, 1709, 1711, 1712,
+            // Ch6: Section-II Q2 (viii) health problems = sheet Ch7 short id 1870
+            1870
         )
     )
 
@@ -95,7 +106,11 @@ object AlpQuestions {
             // Ch3: Section-III Q2 (a)-(i), all already in the sheet
             468, 469, 470, 471, 472, 473, 474, 475, 476,
             // Ch4: Section-III Q2 (a)-(i), all already in the sheet
-            454, 455, 456, 457, 458, 459, 460, 461, 462
+            454, 455, 456, 457, 458, 459, 460, 461, 462,
+            // Ch5: Section-III Q2 (a)-(d), all already in the sheet
+            435, 436, 437, 438,
+            // Ch6: Section-II Q2 (xi)-(xiv), all already in the sheet
+            431, 432, 433, 434
         )
     )
 
