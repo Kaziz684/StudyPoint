@@ -537,7 +537,10 @@ class NotesActivity : AppCompatActivity() {
                 "Physics" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=137liQcICrTidgolg0HrVAvmNzadI7n4y",
                     "Book" to "https://drive.google.com/uc?export=download&id=137liQcICrTidgolg0HrVAvmNzadI7n4y",
-                    "Notes" to listOf("COMING_SOON"),
+                    "Notes" to mapOf(
+                        "Solved Exercise (Urdu Medium) - Wisdom" to "https://drive.google.com/uc?export=download&id=1FAANlgd_w4zveyKCT02cthGq_AThjzBe",
+                        "Solved Exercise - Al Haseeb" to "https://drive.google.com/uc?export=download&id=1ITSA0EosqCKHJ4VqR8UNagYy6v-9Mfll"
+                    ),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=10_PHY_PP_2022",
                         "2023" to "https://drive.google.com/uc?export=download&id=10_PHY_PP_2023",
@@ -548,7 +551,8 @@ class NotesActivity : AppCompatActivity() {
                     "MCQs" to "COMING_SOON",
                     "Guess Papers" to mapOf(
                         "2027" to "https://drive.google.com/uc?export=download&id=10_PHY_GP_2027",
-                        "2026" to "https://drive.google.com/uc?export=download&id=10_PHY_GP_2026"
+                        "2026" to "https://drive.google.com/uc?export=download&id=10_PHY_GP_2026",
+                        "Practicals" to "https://drive.google.com/uc?export=download&id=1HLLxJ6j9dP09eq4Vbkxg7ymlWuc0R6w7"
                     )
                 ),
                 "Chemistry" to mapOf(
@@ -1277,9 +1281,9 @@ class NotesActivity : AppCompatActivity() {
                 val btn = findViewById<MaterialButton>(id)
                 val url = guessPapersMap[year] ?: ""
                 btn.visibility = View.VISIBLE
-                btn.text = "Guess Paper $year"
+                btn.text = if (year == "Practicals") "Practicals" else "Guess Paper $year"
                 btn.setOnClickListener {
-                    open(url, "$displaySubject Guess Paper $year", gradeKey, displaySubject)
+                    open(url, if (year == "Practicals") "$displaySubject Practicals" else "$displaySubject Guess Paper $year", gradeKey, displaySubject)
                 }
             }
         } else {
