@@ -7,6 +7,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.CheckBox
+import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -39,6 +42,14 @@ class MyPapersActivity : AppCompatActivity() {
     private lateinit var rvPapers: RecyclerView
     private lateinit var tvEmpty: TextView
     private lateinit var tvLoading: TextView
+    private lateinit var tvTitlePapers: TextView
+    private lateinit var btnDeletePapers: ImageView
+    private lateinit var btnCancelSelectPapers: TextView
+    private lateinit var layoutDeleteBarPapers: LinearLayout
+    private lateinit var tvSelectedCountPapers: TextView
+    private lateinit var btnDeleteSelectedPapers: Button
+    private var selecting = false
+    private val selectedIds = mutableSetOf<String>()
     private var pendingSaveFile: File? = null
 
     private val saveLauncher = registerForActivityResult(
@@ -78,12 +89,24 @@ class MyPapersActivity : AppCompatActivity() {
         rvPapers = findViewById(R.id.rvPapers)
         tvEmpty = findViewById(R.id.tvEmptyPapers)
         tvLoading = findViewById(R.id.tvLoadingPapers)
+        tvTitlePapers = findViewById(R.id.tvTitlePapers)
+        btnDeletePapers = findViewById(R.id.btnDeletePapers)
+        btnCancelSelectPapers = findViewById(R.id.btnCancelSelectPapers)
+        layoutDeleteBarPapers = findViewById(R.id.layoutDeleteBarPapers)
+        tvSelectedCountPapers = findViewById(R.id.tvSelectedCountPapers)
+        btnDeleteSelectedPapers = findViewById(R.id.btnDeleteSelectedPapers)
+        btnDeletePapers.setOnClickListener { enterSelectionMode() }
+        btnCancelSelectPapers.setOnClickListener { exitSelectionMode() }
+        btnDeleteSelectedPapers.setOnClickListener { confirmDelete() }
         rvPapers.layoutManager = LinearLayoutManager(this)
         adapter = PapersAdapter(
             onView = { paper -> viewPaper(paper) },
             onDownload = { paper -> downloadPaper(paper) },
             onShare = { paper -> sharePaper(paper) },
-            onInfo = { paper -> showPaperInfo(paper) }
+            onInfo = { paper -> showPaperInfo(paper) },
+            isSelecting = { selecting },
+            isSelected = { paper -> selectedIds.contains(paper.id) },
+            onToggleSelect = { paper, position -> toggleSelect(paper, position) }
         )
         rvPapers.adapter = adapter
         TeacherBottomNav.setup(this, TeacherBottomNav.Tab.PAPERS)
@@ -103,6 +126,7 @@ class MyPapersActivity : AppCompatActivity() {
                 tvLoading.visibility = View.GONE
                 adapter.submit(list)
                 tvEmpty.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
+                updateDeleteIcon()
             },
             onErr = { msg ->
                 tvLoading.visibility = View.GONE
@@ -110,6 +134,110 @@ class MyPapersActivity : AppCompatActivity() {
                 tvEmpty.text = "Could not load saved papers. $msg"
             }
         )
+    }
+
+    override fun onBackPressed() {
+        if (selecting) {
+            exitSelectionMode()
+        } else {
+            super.onBackPressed()
+        }
+    }
+
+    /** Trash icon (top right) — only when there is at least one paper. */
+    private fun updateDeleteIcon() {
+        btnDeletePapers.visibility =
+            if (!selecting && adapter.itemCount > 0) View.VISIBLE else View.GONE
+    }
+
+    private fun enterSelectionMode() {
+        selecting = true
+        selectedIds.clear()
+        tvTitlePapers.text = "Select papers"
+        btnDeletePapers.visibility = View.GONE
+        btnCancelSelectPapers.visibility = View.VISIBLE
+        layoutDeleteBarPapers.visibility = View.VISIBLE
+        updateDeleteBar()
+        adapter.notifyDataSetChanged()
+    }
+
+    private fun exitSelectionMode() {
+        selecting = false
+        selectedIds.clear()
+        tvTitlePapers.text = "My Papers"
+        btnCancelSelectPapers.visibility = View.GONE
+        layoutDeleteBarPapers.visibility = View.GONE
+        updateDeleteIcon()
+        adapter.notifyDataSetChanged()
+    }
+
+    private fun updateDeleteBar() {
+        tvSelectedCountPapers.text = "${selectedIds.size} selected"
+        btnDeleteSelectedPapers.isEnabled = selectedIds.isNotEmpty()
+    }
+
+    private fun toggleSelect(paper: SavedPaper, position: Int) {
+        if (selectedIds.contains(paper.id)) {
+            selectedIds.remove(paper.id)
+        } else {
+            selectedIds.add(paper.id)
+        }
+        updateDeleteBar()
+        adapter.notifyItemChanged(position)
+    }
+
+    private fun confirmDelete() {
+        if (selectedIds.isEmpty()) return
+        val n = selectedIds.size
+        AlertDialog.Builder(this)
+            .setTitle("Delete papers?")
+            .setMessage(
+                "Delete $n selected paper${if (n == 1) "" else "s"}? " +
+                    "The saved record and the file on this device will be removed. " +
+                    "This cannot be undone."
+            )
+            .setPositiveButton("Delete") { _, _ -> deleteSelected() }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun deleteSelected() {
+        val ids = selectedIds.toList()
+        if (ids.isEmpty()) return
+        val papers = adapter.currentItems().filter { ids.contains(it.id) }
+        var done = 0
+        var failed = 0
+        val finish = {
+            done++
+            if (done >= ids.size) {
+                val deleted = ids.size - failed
+                exitSelectionMode()
+                loadPapers()
+                Toast.makeText(
+                    this,
+                    if (failed == 0) "Deleted $deleted paper${if (deleted == 1) "" else "s"}"
+                    else "Deleted $deleted, $failed failed",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+        for (paper in papers) {
+            // Local file first — this is what frees space on the device.
+            if (paper.fileName.isNotBlank()) {
+                try {
+                    File(papersDir(), paper.fileName).delete()
+                } catch (e: Exception) {
+                    // File already gone — the record can still be deleted.
+                }
+            }
+            TeacherRepository.deleteGeneratedPaper(
+                paper.id,
+                onOk = { finish() },
+                onErr = { failed++; finish() }
+            )
+        }
+        // Stale ids with no paper in the current list still count toward done.
+        repeat(ids.size - papers.size) { finish() }
     }
 
     /** App-private external papers folder — same place the generator writes. */
@@ -221,7 +349,10 @@ class MyPapersActivity : AppCompatActivity() {
         private val onView: (SavedPaper) -> Unit,
         private val onDownload: (SavedPaper) -> Unit,
         private val onShare: (SavedPaper) -> Unit,
-        private val onInfo: (SavedPaper) -> Unit
+        private val onInfo: (SavedPaper) -> Unit,
+        private val isSelecting: () -> Boolean,
+        private val isSelected: (SavedPaper) -> Boolean,
+        private val onToggleSelect: (SavedPaper, Int) -> Unit
     ) : RecyclerView.Adapter<PapersAdapter.Holder>() {
 
         private var items: List<SavedPaper> = emptyList()
@@ -231,11 +362,14 @@ class MyPapersActivity : AppCompatActivity() {
             notifyDataSetChanged()
         }
 
+        fun currentItems(): List<SavedPaper> = items
+
         class Holder(view: View) : RecyclerView.ViewHolder(view) {
             val tvTitle: TextView = view.findViewById(R.id.tvPaperTitle)
             val tvMeta: TextView = view.findViewById(R.id.tvPaperMeta)
             val tvChapters: TextView = view.findViewById(R.id.tvPaperChapters)
             val tvCounts: TextView = view.findViewById(R.id.tvPaperCounts)
+            val cbSelect: CheckBox = view.findViewById(R.id.cbPaperSelect)
             val btnView: Button = view.findViewById(R.id.btnPaperView)
             val btnDownload: Button = view.findViewById(R.id.btnPaperDownload)
             val btnShare: Button = view.findViewById(R.id.btnPaperShare)
@@ -268,6 +402,25 @@ class MyPapersActivity : AppCompatActivity() {
             holder.tvCounts.text = "${paper.totalQuestions} questions  •  " +
                 "${paper.mcqCount} MCQs, ${paper.shortCount} Short, ${paper.longCount} Long  •  " +
                 "${paper.totalMarks} marks"
+            val inSelection = isSelecting()
+            holder.cbSelect.visibility = if (inSelection) View.VISIBLE else View.GONE
+            holder.cbSelect.isChecked = isSelected(paper)
+            // In selection mode the four action buttons are inert and dimmed.
+            holder.btnView.isEnabled = !inSelection
+            holder.btnDownload.isEnabled = !inSelection
+            holder.btnShare.isEnabled = !inSelection
+            holder.btnInfo.isEnabled = !inSelection
+            val dim = if (inSelection) 0.5f else 1.0f
+            holder.btnView.alpha = dim
+            holder.btnDownload.alpha = dim
+            holder.btnShare.alpha = dim
+            holder.btnInfo.alpha = dim
+            holder.itemView.setOnClickListener {
+                if (isSelecting()) {
+                    val pos = holder.bindingAdapterPosition
+                    if (pos != RecyclerView.NO_POSITION) onToggleSelect(paper, pos)
+                }
+            }
             holder.btnView.setOnClickListener { onView(paper) }
             holder.btnDownload.setOnClickListener { onDownload(paper) }
             holder.btnShare.setOnClickListener { onShare(paper) }

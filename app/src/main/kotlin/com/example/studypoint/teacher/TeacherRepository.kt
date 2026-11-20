@@ -402,6 +402,14 @@ object TeacherRepository {
             .addOnFailureListener { e -> onErr(e.message ?: "Could not load saved papers") }
     }
 
+    /** Delete one saved paper record (collection: teacher_papers). The local
+     *  file itself is deleted by the caller (MyPapersActivity). */
+    fun deleteGeneratedPaper(id: String, onOk: () -> Unit, onErr: (String) -> Unit) {
+        db.collection("teacher_papers").document(id).delete()
+            .addOnSuccessListener { onOk() }
+            .addOnFailureListener { e -> onErr(e.message ?: "Could not delete paper") }
+    }
+
     private fun savedPaperFromDoc(id: String, d: Map<String, Any>): SavedPaper {
         fun s(k: String) = d[k]?.toString() ?: ""
         fun n(k: String) = (d[k] as? Number)?.toInt() ?: 0
