@@ -519,7 +519,8 @@ class NotesActivity : AppCompatActivity() {
                         "Chapter 7: Inheritance" to "https://drive.google.com/uc?export=download&id=14YSKylhTBUhlJ8JaE5iwbTmNQQO3JSWr",
                         "Chapter 8: Biotechnology" to "https://drive.google.com/uc?export=download&id=1Y18NoI9-RHzbo8suJmfGT6n9b8Uca3Rx",
                         "Chapter 9: Diseases and Immunity" to "https://drive.google.com/uc?export=download&id=1Km3skwuXcUrUYe0Oee1ozhpwQdYDUW7Q",
-                        "Chapter 10: Evolution" to "https://drive.google.com/uc?export=download&id=1F2hqH7ptmRQT08Xak7yLv2ZzJxXlKNcK"
+                        "Chapter 10: Evolution" to "https://drive.google.com/uc?export=download&id=1F2hqH7ptmRQT08Xak7yLv2ZzJxXlKNcK",
+                        "Solved Exercise - Al Haseeb" to "https://drive.google.com/uc?export=download&id=14Jjz1hsRb-YwGB7xHZdPQXLN-7Fhrjto"
                     ),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=10_BIO_PP_2022",
@@ -531,7 +532,10 @@ class NotesActivity : AppCompatActivity() {
                     "MCQs" to "COMING_SOON",
                     "Guess Papers" to mapOf(
                         "2027" to "https://drive.google.com/uc?export=download&id=10_BIO_GP_2027",
-                        "2026" to "https://drive.google.com/uc?export=download&id=10_BIO_GP_2026"
+                        "2026" to "https://drive.google.com/uc?export=download&id=10_BIO_GP_2026",
+                        "Test Series" to "https://drive.google.com/uc?export=download&id=1YecHCLRh64a42BhTjAYKoWUKzene6_Lw",
+                        "Practicals" to "https://drive.google.com/uc?export=download&id=1OMFbi74qKSu12niZteuOZ66Xcc-OJRx5",
+                        "Practicals (Urdu)" to "https://drive.google.com/uc?export=download&id=1rUmFDLq1vbGSQs6iUh0G2PDV6w6K0iE2"
                     )
                 ),
                 "Physics" to mapOf(
@@ -1283,9 +1287,19 @@ class NotesActivity : AppCompatActivity() {
                 val btn = findViewById<MaterialButton>(id)
                 val url = guessPapersMap[year] ?: ""
                 btn.visibility = View.VISIBLE
-                btn.text = if (year == "Practicals") "Practicals" else "Guess Paper $year"
+                btn.text = when (year) {
+                    "Practicals" -> "Practicals"
+                    "Test Series" -> "Test Series"
+                    "Practicals (Urdu)" -> "Practicals (Urdu)"
+                    else -> "Guess Paper $year"
+                }
                 btn.setOnClickListener {
-                    open(url, if (year == "Practicals") "$displaySubject Practicals" else "$displaySubject Guess Paper $year", gradeKey, displaySubject)
+                    open(url, when (year) {
+                        "Practicals" -> "$displaySubject Practicals"
+                        "Test Series" -> "$displaySubject Test Series"
+                        "Practicals (Urdu)" -> "$displaySubject Practicals (Urdu)"
+                        else -> "$displaySubject Guess Paper $year"
+                    }, gradeKey, displaySubject)
                 }
             }
         } else {
