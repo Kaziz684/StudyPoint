@@ -571,7 +571,8 @@ class NotesActivity : AppCompatActivity() {
                         "Chapter 23: Monohydroxy Alkanes or Alcohols" to "https://drive.google.com/uc?export=download&id=1FKJ0XE-ZKyXVuTMO3MATsu6vupaUmNp4",
                         "Chapter 24: Carboxylic Acids" to "https://drive.google.com/uc?export=download&id=1RjLvA5UJCVE5kcXL_ddh2gjvzClyF7VD",
                         "Chapter 25" to "COMING_SOON",
-                        "Chapter 26: Polymers" to "https://drive.google.com/uc?export=download&id=1GUCWIAEMCi1yMrvsTIlfeZveOShTvOo8"
+                        "Chapter 26: Polymers" to "https://drive.google.com/uc?export=download&id=1GUCWIAEMCi1yMrvsTIlfeZveOShTvOo8",
+                        "Solved Exercise - Al Haseeb" to "https://drive.google.com/uc?export=download&id=1RlfF9wSBPv3xYK0J-lQMRGzcP0UtmEPX"
                     ),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=10_CHEM_PP_2022",
@@ -583,7 +584,8 @@ class NotesActivity : AppCompatActivity() {
                     "MCQs" to "COMING_SOON",
                     "Guess Papers" to mapOf(
                         "2027" to "https://drive.google.com/uc?export=download&id=10_CHEM_GP_2027",
-                        "2026" to "https://drive.google.com/uc?export=download&id=10_CHEM_GP_2026"
+                        "2026" to "https://drive.google.com/uc?export=download&id=10_CHEM_GP_2026",
+                        "Practicals" to "https://drive.google.com/uc?export=download&id=16_yRe4GEDDMzEFq_CqA8A09QUjYSqcAM"
                     )
                 ),
                 "Urdu" to mapOf(
