@@ -646,7 +646,10 @@ class NotesActivity : AppCompatActivity() {
                         "Answers" to "https://drive.google.com/uc?export=download&id=1FRbrsJ3oYSvHRlaEIcIMw2XPPUnTKw6C",
                         "Glossary" to "https://drive.google.com/uc?export=download&id=1GJp_VgcRuA1CroNmvWUxIqzIycSfAlNp",
                         "Symbols" to "https://drive.google.com/uc?export=download&id=1zEg8kXuqfzYFu6Iz2I6_ufE2yAJh0vU1",
-                        "Symbols and Notations" to "https://drive.google.com/uc?export=download&id=1zEg8kXuqfzYFu6Iz2I6_ufE2yAJh0vU1"
+                        "Symbols and Notations" to "https://drive.google.com/uc?export=download&id=1zEg8kXuqfzYFu6Iz2I6_ufE2yAJh0vU1",
+                        "Full Book Short Questions - Ferozi" to "https://drive.google.com/uc?export=download&id=1SMvVQfHPDM7ZphfhnaEXZV4dyIyr4hEQ",
+                        "Solved Exercise (Units 1-4) - Al Haseeb" to "https://drive.google.com/uc?export=download&id=1Idtz3mXmeGRLkSADuiLxcL7d7WcI7oDY",
+                        "Solved Exercise (Units 1-4) - Urdu (Handwritten)" to "https://drive.google.com/uc?export=download&id=1mCDK-PH-6yrfxDetMrVUCfyaQiKVTAV4"
                     ),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=10_MATH_PP_2022",
