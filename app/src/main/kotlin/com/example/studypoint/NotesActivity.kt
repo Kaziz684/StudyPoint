@@ -491,7 +491,10 @@ class NotesActivity : AppCompatActivity() {
                         "Chapter 5: Introduction to Data Science" to "https://drive.google.com/uc?export=download&id=14bMnFujS3Pif_h63hG8Cf7FqPIDptqxI",
                         "Chapter 6: Introduction to Artificial Intelligence (AI) & Machine Learning (ML)" to "https://drive.google.com/uc?export=download&id=1HcGg59koH5JtqIkn3npEgUKFaRGmQtOv",
                         "Chapter 7: Application of AI" to "https://drive.google.com/uc?export=download&id=1zNqNoJlUlEcZeJXAtdHKuQDNCYqCzy2V",
-                        "Chapter 8: Digital Entrepreneurship" to "https://drive.google.com/uc?export=download&id=18vnLKldICo7PYwxXFtmP4Oey3Zk5Jx0o"
+                        "Chapter 8: Digital Entrepreneurship" to "https://drive.google.com/uc?export=download&id=18vnLKldICo7PYwxXFtmP4Oey3Zk5Jx0o",
+                        "Solved Exercise - Wisdom" to "https://drive.google.com/uc?export=download&id=1eh1f6yf-G1cIW-zr_B1y9S7-XCa-cdjh",
+                        "Solved Exercise (Urdu Medium) - Wisdom" to "https://drive.google.com/uc?export=download&id=1lkrw08N1eE-LhJMfS_Z-PDilh5jVolM6",
+                        "Solved Notes (Urdu Medium) - Wisdom" to "https://drive.google.com/uc?export=download&id=19GXA8NDCyVn7WyORIs_zbt3V51c6eC3f"
                     ),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=10_CS_PP_2022",
