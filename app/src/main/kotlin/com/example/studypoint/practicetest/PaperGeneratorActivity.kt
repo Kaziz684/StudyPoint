@@ -132,6 +132,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
     private lateinit var layoutSubjectStage: LinearLayout
     private lateinit var layoutSelectedClass: LinearLayout
     private lateinit var layoutSelectedSubject: LinearLayout
+    private lateinit var layoutSelectedSummary: LinearLayout
     private lateinit var tvSelectedClass: TextView
     private lateinit var tvSelectedSubject: TextView
     private lateinit var etSearchClass: EditText
@@ -274,6 +275,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
         layoutSubjectStage = findViewById(R.id.layoutSubjectStagePaper)
         layoutSelectedClass = findViewById(R.id.layoutSelectedClassPaper)
         layoutSelectedSubject = findViewById(R.id.layoutSelectedSubjectPaper)
+        layoutSelectedSummary = findViewById(R.id.layoutSelectedSummaryPaper)
         tvSelectedClass = findViewById(R.id.tvSelectedClassPaper)
         tvSelectedSubject = findViewById(R.id.tvSelectedSubjectPaper)
         etSearchClass = findViewById(R.id.etSearchClassPaper)
@@ -656,12 +658,14 @@ class PaperGeneratorActivity : AppCompatActivity() {
             }
         }
         if (::layoutSelectedClass.isInitialized) {
+            layoutSelectedSummary.visibility =
+                if (currentStep >= 3) View.VISIBLE else View.GONE
             layoutSelectedClass.visibility =
                 if (currentStep >= 3) View.VISIBLE else View.GONE
             layoutSelectedSubject.visibility =
                 if (currentStep >= 4) View.VISIBLE else View.GONE
-            tvSelectedClass.text = "Class: ${classLabels[spinnerClass.selectedItemPosition.coerceIn(0, classLabels.lastIndex)]}  •  Change"
-            tvSelectedSubject.text = "Subject: ${currentSubject()}  •  Change"
+            tvSelectedClass.text = "${classLabels[spinnerClass.selectedItemPosition.coerceIn(0, classLabels.lastIndex)]}  •  Change"
+            tvSelectedSubject.text = "${currentSubject()}  •  Change"
         }
     }
 
