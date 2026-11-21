@@ -159,10 +159,10 @@ class PaperGeneratorActivity : AppCompatActivity() {
     private val selectedLongIds = mutableSetOf<Int>()
     // Manual question browser tab: 0 = MCQs, 1 = Short, 2 = Long.
     private var manualTab = 0
-    // ALP filter (Step 5, manual mode): when on, only ALP questions are
-    // listed, so an ALP (Smart Syllabus) paper can be built. ALP questions
-    // are green, the rest red — see AlpQuestions.kt for the id set.
-    private var alpOnly = false
+    // Question mode (Step 5, manual mode): 0 = Mixed (everything),
+    // 1 = ALP only, 2 = Exercise only. ALP questions are green, the rest
+    // red — see AlpQuestions.kt. Mixed is the default: nothing is hidden.
+    private var questionMode = 0
     private var tvMcqCounter: TextView? = null
     private var tvShortCounter: TextView? = null
     private var tvLongCounter: TextView? = null
@@ -1881,35 +1881,58 @@ class PaperGeneratorActivity : AppCompatActivity() {
     /** Top tabs for the manual question browser: MCQ / Short / Long with
      *  LIVE eligible counts. A tab is shown only when the paper type uses
      *  that kind. Tapping a tab shows only that kind's questions. */
-    /** ALP filter row (Step 5, manual mode, MCQ tab): a checkbox that, when
-     *  on, lists only ALP questions. Green = ALP, red = other questions. */
-    private fun alpFilterRow(): LinearLayout {
-        val row = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = android.view.Gravity.CENTER_VERTICAL
+    /** Mode selector (Step 5, manual mode): three options — ALP, Exercise,
+     *  Mixed. Only the options with data for this class + subject + tab are
+     *  shown; Mixed is always shown. Green = ALP, red = other questions.
+     *  A mode with no questions in the selected chapters shows the
+     *  "No ... questions" note instead of a list (see renderQuestions). */
+    private fun modeFilterRow(alpAvailable: Boolean, exerciseAvailable: Boolean): LinearLayout {
+        val col = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
             setPadding(0, dp(4), 0, dp(8))
         }
-        val cb = CheckBox(this).apply {
-            text = "ALP only"
-            textSize = 13f
-            setTypeface(null, Typeface.BOLD)
-            setTextColor(Color.parseColor("#047857"))
-            buttonTintList = selectColors()
-            isChecked = alpOnly
-            setOnCheckedChangeListener { _, checked ->
-                alpOnly = checked
-                renderQuestions()
+        val row = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+        }
+        val modes = mutableListOf<Pair<Int, String>>()
+        if (alpAvailable) modes += 1 to "ALP"
+        if (exerciseAvailable) modes += 2 to "Exercise"
+        modes += 0 to "Mixed"
+        // Keep the active mode on a visible option (e.g. after a subject change).
+        if (modes.none { it.first == questionMode }) questionMode = 0
+        for ((mode, label) in modes) {
+            val tab = TextView(this).apply {
+                text = label
+                textSize = 13f
+                setTypeface(null, if (mode == questionMode) Typeface.BOLD else Typeface.NORMAL)
+                gravity = android.view.Gravity.CENTER
+                setPadding(dp(10), dp(8), dp(10), dp(8))
+                layoutParams = LinearLayout.LayoutParams(
+                    0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f
+                ).apply { marginEnd = dp(6) }
+                if (mode == questionMode) {
+                    setBackgroundResource(R.drawable.bg_tab_selected)
+                    setTextColor(Color.WHITE)
+                } else {
+                    setBackgroundResource(R.drawable.bg_tab_unselected)
+                    setTextColor(Color.parseColor("#475569"))
+                }
+                setOnClickListener {
+                    questionMode = mode
+                    renderQuestions()
+                }
             }
+            row.addView(tab)
         }
         val hint = TextView(this).apply {
             text = "Green = ALP, red = other"
             textSize = 12f
             setTextColor(Color.parseColor("#64748B"))
-            setPadding(dp(8), 0, 0, 0)
+            setPadding(dp(2), dp(6), 0, 0)
         }
-        row.addView(cb)
-        row.addView(hint)
-        return row
+        col.addView(row)
+        col.addView(hint)
+        return col
     }
 
     private fun manualTabRow(type: PaperType): LinearLayout {
@@ -1969,9 +1992,15 @@ class PaperGeneratorActivity : AppCompatActivity() {
         if (manualTab == 0 && (type == PaperType.MCQS || type == PaperType.COMBINED)) {
             val eligible = eligibleMcqs()
             val alpAvailable = AlpQuestions.hasAlp(selectedClassDigits(), currentSubject())
-            if (alpAvailable) layoutQuestions.addView(alpFilterRow())
-            val alpPool = if (alpOnly && alpAvailable) eligible.filter { AlpQuestions.isAlp(it) } else eligible
-            val visible = alpPool.filter {
+            val exerciseAvailable = AlpQuestions.hasExerciseMcq(selectedClassDigits(), currentSubject()) ||
+                eligible.any { AlpQuestions.isExerciseMcq(it) }
+            if (alpAvailable || exerciseAvailable) layoutQuestions.addView(modeFilterRow(alpAvailable, exerciseAvailable))
+            val pool = when {
+                questionMode == 1 && alpAvailable -> eligible.filter { AlpQuestions.isAlp(it) }
+                questionMode == 2 && exerciseAvailable -> eligible.filter { AlpQuestions.isExerciseMcq(it) }
+                else -> eligible
+            }
+            val visible = pool.filter {
                 query.isBlank() || it.questionText.lowercase().contains(query) ||
                     it.options.any { o -> o.lowercase().contains(query) }
             }
@@ -1980,7 +2009,8 @@ class PaperGeneratorActivity : AppCompatActivity() {
             layoutQuestions.addView(tvMcqCounter)
             when {
                 eligible.isEmpty() -> layoutQuestions.addView(noteView("No MCQs available for the selected chapters."))
-                alpOnly && alpAvailable && alpPool.isEmpty() -> layoutQuestions.addView(noteView("No ALP MCQs in the selected chapters. Turn ALP off to see all questions."))
+                questionMode == 1 && alpAvailable && pool.isEmpty() -> layoutQuestions.addView(noteView("No ALP MCQs in the selected chapters. Switch to Mixed to see all questions."))
+                questionMode == 2 && exerciseAvailable && pool.isEmpty() -> layoutQuestions.addView(noteView("No Exercise MCQs in the selected chapters. Switch to Mixed to see all questions."))
                 visible.isEmpty() -> layoutQuestions.addView(noteView("No MCQs match your search."))
                 else -> visible.forEach { layoutQuestions.addView(mcqRow(it)) }
             }
@@ -1988,9 +2018,14 @@ class PaperGeneratorActivity : AppCompatActivity() {
         if (manualTab == 1 && (type == PaperType.SHORT || type == PaperType.COMBINED)) {
             val eligible = eligibleShorts()
             val alpAvailable = AlpQuestions.hasAlpShort(selectedClassDigits(), currentSubject())
-            if (alpAvailable) layoutQuestions.addView(alpFilterRow())
-            val alpPool = if (alpOnly && alpAvailable) eligible.filter { AlpQuestions.isAlpShort(it) } else eligible
-            val visible = alpPool.filter {
+            val exerciseAvailable = eligible.any { AlpQuestions.isExerciseShort(it) }
+            if (alpAvailable || exerciseAvailable) layoutQuestions.addView(modeFilterRow(alpAvailable, exerciseAvailable))
+            val pool = when {
+                questionMode == 1 && alpAvailable -> eligible.filter { AlpQuestions.isAlpShort(it) }
+                questionMode == 2 && exerciseAvailable -> eligible.filter { AlpQuestions.isExerciseShort(it) }
+                else -> eligible
+            }
+            val visible = pool.filter {
                 query.isBlank() || it.question.lowercase().contains(query)
             }
             layoutQuestions.addView(sectionHeader("Short Questions", visible.map { it.id }, selectedShortIds))
@@ -2000,7 +2035,8 @@ class PaperGeneratorActivity : AppCompatActivity() {
                 eligible.isEmpty() && shortAll.isEmpty() ->
                     layoutQuestions.addView(noteView("No Short Questions available yet for this class/subject. Add data in the 'Shorts' tab of the Google Sheet."))
                 eligible.isEmpty() -> layoutQuestions.addView(noteView("No Short Questions available for the selected chapters."))
-                alpOnly && alpAvailable && alpPool.isEmpty() -> layoutQuestions.addView(noteView("No ALP Short Questions in the selected chapters. Turn ALP off to see all questions."))
+                questionMode == 1 && alpAvailable && pool.isEmpty() -> layoutQuestions.addView(noteView("No ALP Short Questions in the selected chapters. Switch to Mixed to see all questions."))
+                questionMode == 2 && exerciseAvailable && pool.isEmpty() -> layoutQuestions.addView(noteView("No Exercise Short Questions in the selected chapters. Switch to Mixed to see all questions."))
                 visible.isEmpty() -> layoutQuestions.addView(noteView("No Short Questions match your search."))
                 else -> visible.forEach { layoutQuestions.addView(writtenRow(it, selectedShortIds)) }
             }
@@ -2008,9 +2044,14 @@ class PaperGeneratorActivity : AppCompatActivity() {
         if (manualTab == 2 && (type == PaperType.LONG || type == PaperType.COMBINED)) {
             val eligible = eligibleLongs()
             val alpAvailable = AlpQuestions.hasAlpLong(selectedClassDigits(), currentSubject())
-            if (alpAvailable) layoutQuestions.addView(alpFilterRow())
-            val alpPool = if (alpOnly && alpAvailable) eligible.filter { AlpQuestions.isAlpLong(it) } else eligible
-            val visible = alpPool.filter {
+            val exerciseAvailable = eligible.any { AlpQuestions.isExerciseLong(it) }
+            if (alpAvailable || exerciseAvailable) layoutQuestions.addView(modeFilterRow(alpAvailable, exerciseAvailable))
+            val pool = when {
+                questionMode == 1 && alpAvailable -> eligible.filter { AlpQuestions.isAlpLong(it) }
+                questionMode == 2 && exerciseAvailable -> eligible.filter { AlpQuestions.isExerciseLong(it) }
+                else -> eligible
+            }
+            val visible = pool.filter {
                 query.isBlank() || it.question.lowercase().contains(query)
             }
             layoutQuestions.addView(sectionHeader("Long Questions", visible.map { it.id }, selectedLongIds))
@@ -2020,7 +2061,8 @@ class PaperGeneratorActivity : AppCompatActivity() {
                 eligible.isEmpty() && longAll.isEmpty() ->
                     layoutQuestions.addView(noteView("No Long Questions available yet for this class/subject. Add data in the 'Longs' tab of the Google Sheet."))
                 eligible.isEmpty() -> layoutQuestions.addView(noteView("No Long Questions available for the selected chapters."))
-                alpOnly && alpAvailable && alpPool.isEmpty() -> layoutQuestions.addView(noteView("No ALP Long Questions in the selected chapters. Turn ALP off to see all questions."))
+                questionMode == 1 && alpAvailable && pool.isEmpty() -> layoutQuestions.addView(noteView("No ALP Long Questions in the selected chapters. Switch to Mixed to see all questions."))
+                questionMode == 2 && exerciseAvailable && pool.isEmpty() -> layoutQuestions.addView(noteView("No Exercise Long Questions in the selected chapters. Switch to Mixed to see all questions."))
                 visible.isEmpty() -> layoutQuestions.addView(noteView("No Long Questions match your search."))
                 else -> visible.forEach { layoutQuestions.addView(writtenRow(it, selectedLongIds, isLong = true)) }
             }

@@ -1,7 +1,9 @@
 package com.example.studypoint.practicetest
 
 /**
- * ALP (Accelerated Learning Programme / Smart Syllabus 2027) question ids.
+ * ALP (Accelerated Learning Programme / Smart Syllabus 2027) question ids,
+ * plus the Exercise-question detector used by the three-mode selector
+ * (ALP / Exercise / Mixed) in the Paper Generator.
  *
  * The ids are the questions from the ALP test papers the teacher sends
  * (Rising Star, 18 Nov 2026): Mathematics 10th (MCQs + Shorts) and
@@ -11,8 +13,25 @@ package com.example.studypoint.practicetest
  * alpIds, Shorts-tab ids in alpShortIds.
  *
  * Add one entry per subject as its ALP paper arrives. The Paper Generator
- * colours ALP questions green and the rest red in manual mode, and the ALP
- * toggle shows only ALP questions so an ALP paper can be built.
+ * colours ALP questions green and the rest red in manual mode, and the mode
+ * selector shows only ALP questions (ALP), only textbook exercise questions
+ * (Exercise), or everything (Mixed) so any of the three papers can be built.
+ *
+ * Exercise questions are recognised by the leading textbook label in the
+ * raw sheet text ("Exercise 1.1 Q1(i):", "Review Exercise 12 Q1(iv):") —
+ * the same shape the paper generator strips at render time. That is why
+ * the detector works for Shorts/Longs (labels kept in the sheet) but the
+ * MCQ tab carries no labels (stripped at append), so MCQ exercise
+ * questions are tagged by id in exerciseMcqIds once matched against the
+ * textbook exercises.
+ *
+ * NOTE (21 Nov 2026): the PECTAA Grade-12/11 ALP tables are transcribed in
+ * ~/workspace/alp12/alp_data.json, but they are NOT applied here yet — the
+ * sheet's Class-12 chapters do not match the new book's units (English-12
+ * rows are filed under "Unit 1-5, 12-15" + "Mr. Chips", Pak Studies-12
+ * under "2nd Half Book" with no chapter number), so a chapter-exclusion
+ * rule would mislabel questions. Apply them only after the Class-12
+ * chapters are mapped to the book's units by content.
  */
 object AlpQuestions {
 
@@ -181,6 +200,49 @@ object AlpQuestions {
             1062, 1245, 1246, 1247, 1248, 1249, 1250, 1251, 1252, 1275
         )
     )
+
+    /**
+     * Exercise-question label in the raw sheet text. Same shape as the
+     * render-time strip regex in PaperGeneratorActivity.cleanPaperText:
+     * "Exercise 12.1 Q1(iv):", "Review Exercise 12 Q1(iv):",
+     * "Exercise Review 1 Q2(i):", multi-part "Q2(a)(i):", and bare
+     * "Exercise:". A question that merely mentions the word "exercise"
+     * (e.g. "effect of exercise on breathing") does NOT match.
+     * Verified live 21 Nov 2026: matches all 1,182 exercise-labelled
+     * Shorts rows (9th Math 653, 10th Math 528, 10th Computer Science 1)
+     * and all 454 Longs rows (9th Math 268, 10th Math 186).
+     */
+    private val exerciseLabelRegex =
+        Regex("""^\s*(?:Review\s+)?Exercise(?:\s+Review)?(?:\s+Exercise)?\s*[\d.]*\s*(?:\([^)]*\)\s*)?Q\s*R?\s*\d*\s*(?:\((?:[ivxlcdm]+|[a-z])\)\s*)*[:.\-]?\s*""", RegexOption.IGNORE_CASE)
+    private val bareExerciseRegex =
+        Regex("""^\s*Exercise\s*:\s*""", RegexOption.IGNORE_CASE)
+
+    /** True when this written question is a textbook exercise question
+     *  (its raw sheet text starts with an "Exercise ..." label). */
+    fun isExerciseShort(q: WrittenQuestion): Boolean =
+        exerciseLabelRegex.containsMatchIn(q.question) ||
+            bareExerciseRegex.containsMatchIn(q.question)
+
+    /** True when this long question is a textbook exercise question. */
+    fun isExerciseLong(q: WrittenQuestion): Boolean = isExerciseShort(q)
+
+    /**
+     * MCQ exercise ids, scoped by class + subject (same key scheme as
+     * alpIds). The MCQ tab strips the exercise label at append time, so
+     * MCQs carry no label to match — exercise MCQs are tagged by id once
+     * matched against the textbook exercises. EMPTY for now; populated as
+     * textbooks are matched. Until then the Exercise option shows no MCQs
+     * (the "No Exercise MCQs" note) — it never guesses.
+     */
+    private val exerciseMcqIds: Map<Pair<String, String>, Set<Int>> = mapOf()
+
+    /** True when exercise MCQs are tagged for this class + subject. */
+    fun hasExerciseMcq(classDigits: String, subject: String): Boolean =
+        exerciseMcqIds.containsKey(classDigits to normaliseSubject(subject))
+
+    /** True when this MCQ is a tagged textbook exercise question. */
+    fun isExerciseMcq(q: Question): Boolean =
+        exerciseMcqIds[digitsOf(q.class_num) to normaliseSubject(q.subject)]?.contains(q.id) == true
 
     /** Normalise a subject name to the sheet's spelling ("Mathematics" -> "math"). */
     private fun normaliseSubject(subject: String): String {
