@@ -697,6 +697,9 @@ class NotesActivity : AppCompatActivity() {
                     ),
                     "MCQs" to "COMING_SOON",
                     "Guess Papers" to mapOf(
+                        "Test Series" to "https://drive.google.com/uc?export=download&id=104UtF9EkJMK6IlpRvvAOQ4u5gddxZq5f",
+                        "Short Test Series" to "https://drive.google.com/uc?export=download&id=1AwYsxS_Ix2hJ76jxOE55s5rA8wLAdO4d",
+                        "Chapter-wise Papers" to "https://drive.google.com/uc?export=download&id=1udu5BWU5hzFJzF9LGEkcQQm_oEw4Z92K",
                         "2027" to "https://drive.google.com/uc?export=download&id=10_PS_GP_2027",
                         "2026" to "https://drive.google.com/uc?export=download&id=10_PS_GP_2026"
                     )
@@ -1310,6 +1313,8 @@ class NotesActivity : AppCompatActivity() {
                 btn.text = when (year) {
                     "Practicals" -> "Practicals"
                     "Test Series" -> "Test Series"
+                    "Short Test Series" -> "Short Test Series"
+                    "Chapter-wise Papers" -> "Chapter-wise Papers"
                     "Practicals (Urdu)" -> "Practicals (Urdu)"
                     else -> "Guess Paper $year"
                 }
@@ -1317,6 +1322,8 @@ class NotesActivity : AppCompatActivity() {
                     open(url, when (year) {
                         "Practicals" -> "$displaySubject Practicals"
                         "Test Series" -> "$displaySubject Test Series"
+                        "Short Test Series" -> "$displaySubject Short Test Series"
+                        "Chapter-wise Papers" -> "$displaySubject Chapter-wise Papers"
                         "Practicals (Urdu)" -> "$displaySubject Practicals (Urdu)"
                         else -> "$displaySubject Guess Paper $year"
                     }, gradeKey, displaySubject)
