@@ -705,8 +705,8 @@ class NotesActivity : AppCompatActivity() {
                     )
                 ),
                 "Tarjuma-tul-Quran" to mapOf(
-                    "Textbook" to "https://drive.google.com/uc?export=download&id=10_TQ_BOOK",
-                    "Book" to "https://drive.google.com/uc?export=download&id=10_TQ_BOOK",
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=1wIYQp54VQSlq5T3KZS5_MmriIdsS_be7",
+                    "Book" to "https://drive.google.com/uc?export=download&id=1wIYQp54VQSlq5T3KZS5_MmriIdsS_be7",
                     "Notes" to mapOf(
                         "Chapter 1: Surah Al Anam" to "https://drive.google.com/uc?export=download&id=1HaDYHKpxLLVCwU1nfWDMxCzZ13Bv0md9",
                         "Chapter 2: Surah A'araf" to "https://drive.google.com/uc?export=download&id=122oAbTsS7uBqjftGxGHJ24lQiE9Ij_yY",
@@ -716,7 +716,7 @@ class NotesActivity : AppCompatActivity() {
                         "Chapter 6: Surah Ibrahim" to "https://drive.google.com/uc?export=download&id=1N_g0P7UtUpO_ET6vjP_Lctl-XW9Jn9-U",
                         "Chapter 7: Surah Hijr" to "https://drive.google.com/uc?export=download&id=1HO-EoKxXujN7dxc6KCxo67psCYqQQVTd",
                         "Chapter 8: Surah Nahl" to "https://drive.google.com/uc?export=download&id=14sMF7FVN3HywvvwmpA4E-yIc_3Xnzldd",
-                        "Chapter 9: Surah Isra / Bani Israel" to "COMING_SOON",
+                        "Chapter 9: Surah Isra / Bani Israel" to "https://drive.google.com/uc?export=download&id=1I7v2U725BaQ8Dpv4Ihs9cJJte6dg6heE",
                         "Chapter 10: Surah Kahf" to "https://drive.google.com/uc?export=download&id=1S3oPh8aXYprP4jGBU7CNijkhHZ-s9khw",
                         "Chapter 11: Surah Mominoon" to "https://drive.google.com/uc?export=download&id=1i3nVnuRuV5YbWxkstnUbDPp5rJnANk8-",
                         "Chapter 12: Surah Zumar" to "https://drive.google.com/uc?export=download&id=13vUYFbZddEZpfSjoFexUASQ35dG5g9Uz",
@@ -733,6 +733,7 @@ class NotesActivity : AppCompatActivity() {
                     ),
                     "MCQs" to "COMING_SOON",
                     "Guess Papers" to mapOf(
+                        "Test Series" to "https://drive.google.com/uc?export=download&id=1Ud3f6EjQe4Z5aXq1v2iqOxOggh96CXSs",
                         "2027" to "https://drive.google.com/uc?export=download&id=10_TQ_GP_2027",
                         "2026" to "https://drive.google.com/uc?export=download&id=10_TQ_GP_2026"
                     )
