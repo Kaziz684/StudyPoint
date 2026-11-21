@@ -614,6 +614,12 @@ class NotesActivity : AppCompatActivity() {
                         "Chapter 10: بابل کے کھنڈر" to "https://drive.google.com/uc?export=download&id=1EZqqpimhtPTyApMvD51vN8VD_pqrjRWX",
                         "Chapter 11: اولڈ ایج ہوم" to "https://drive.google.com/uc?export=download&id=1E1NQurJMLk0Y6FlSHme4qqfqn-5ZadgX",
                         "Chapter 12: کچھ ذریعہ تعلیم کے باب میں" to "https://drive.google.com/uc?export=download&id=15vwBmYcna5RKMXFCcyeus431nylAWSqV",
+                        "Chapter 13: آدمی نامہ" to "https://drive.google.com/uc?export=download&id=17iXff2MptbQidJ4LGsitzxRvk36aXCDo",
+                        "Chapter 15: خطاب بہ جوانانِ اسلام" to "https://drive.google.com/uc?export=download&id=1oIro4WTTku6S2LIeXhebwB9d9qpGFwlS",
+                        "Chapter 17: بازیچۂ اطفال ہے دنیا مرے آگے" to "https://drive.google.com/uc?export=download&id=1XO7ejIeHm8VSE3jBmzleSSrktcuHlzl-",
+                        "Chapter 18: اثر اس کو ذرا نہیں ہوتا" to "https://drive.google.com/uc?export=download&id=188obO70Q-5tz0oWLH_0ZkwMsnT8GuVB3",
+                        "Chapter 19: ہے مشتاق جاری، چنگی کی مشقت بھی" to "https://drive.google.com/uc?export=download&id=1LVEMWWcu6LEXO2eId2E3kGuyZ_iqHQJn",
+                        "Chapter 20: یوں کہنے کو بیرایۂ اظہار بہت ہے" to "https://drive.google.com/uc?export=download&id=19QYjwXKEyhLtuMcxtWOpPK1_-vNIrcSN",
                         "Grammar: Mazameen (Essays)" to "https://drive.google.com/uc?export=download&id=1VeXu73tvcAVU8zcZCAyoekmEou4Fz7sR",
                         "Grammar: Tafheem-e-Ebaraat (Comprehension)" to "https://drive.google.com/uc?export=download&id=1-Q8WndJqYY8Nf36yJLehlOCXaKS3MwKy"
                     ),
@@ -626,6 +632,7 @@ class NotesActivity : AppCompatActivity() {
                     ),
                     "MCQs" to "COMING_SOON",
                     "Guess Papers" to mapOf(
+                        "Test Series" to "https://drive.google.com/uc?export=download&id=1Gh_ugamkgol29t4BdLE5cM9sER9kmJ5Z",
                         "2027" to "https://drive.google.com/uc?export=download&id=10_URDU_GP_2027",
                         "2026" to "https://drive.google.com/uc?export=download&id=10_URDU_GP_2026"
                     )

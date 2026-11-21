@@ -50,6 +50,12 @@ object SubjectStructure {
                     StudySection("g3", "غم ہے یا خوشی ہے تُو", "غزل — ناصر کاظمی", "chapter"),
                     StudySection("g4", "کاش طوفاں میں سفینے کو اتارا ہوتا", "غزل — پروین شاکر", "chapter")
                 )
+                "10" -> listOf(
+                    StudySection("g1", "Chapter 17: بازیچۂ اطفال ہے دنیا مرے آگے", "غزل — مرزا اسد اللہ خاں غالب", "chapter"),
+                    StudySection("g2", "Chapter 18: اثر اس کو ذرا نہیں ہوتا", "غزل — مومن خاں مومن", "chapter"),
+                    StudySection("g3", "Chapter 19: ہے مشتاق جاری، چنگی کی مشقت بھی", "غزل — مولانا حسرت موہانی", "chapter"),
+                    StudySection("g4", "Chapter 20: یوں کہنے کو بیرایۂ اظہار بہت ہے", "غزل — زہرا نگاہ", "chapter")
+                )
                 else -> listOf(
                     StudySection("g1", "Ghazal 1", "غزل ۱", "chapter"),
                     StudySection("g2", "Ghazal 2", "غزل ۲", "chapter"),
@@ -68,7 +74,9 @@ object SubjectStructure {
                 )
                 "10" -> listOf(
                     StudySection("n1", "Chapter 1: حمد", "نظم — امیر مینائی", "chapter"),
-                    StudySection("n2", "Chapter 2: نعت", "نظم", "chapter")
+                    StudySection("n2", "Chapter 2: نعت", "نظم", "chapter"),
+                    StudySection("n3", "Chapter 13: آدمی نامہ", "نظم — نظیر اکبر آبادی", "chapter"),
+                    StudySection("n4", "Chapter 15: خطاب بہ جوانانِ اسلام", "نظم — علامہ محمد اقبال", "chapter")
                 )
                 else -> listOf(
                     StudySection("n1", "Nazm 1", "نظم ۱", "chapter"),
@@ -96,7 +104,7 @@ object SubjectStructure {
                     StudySection("s4", "Chapter 4: سرسید کا بچپن", "سبق", "chapter"),
                     StudySection("s5", "Chapter 5: محسن محلہ", "سبق", "chapter"),
                     StudySection("s6", "Chapter 6: کفارہ", "سبق", "chapter"),
-                    StudySection("s7", "Chapter 7: سویرے جو کل آنکھ میری کھلی", "سبق — پیٹرن بخاری", "chapter"),
+                    StudySection("s7", "Chapter 7: سویرے جو کل آنکھ میری کھلی", "سبق — پطرس بخاری", "chapter"),
                     StudySection("s8", "Chapter 8: دوستی کا پھل", "سبق — شیخ عقیل", "chapter"),
                     StudySection("s9", "Chapter 9: میرا گاؤں", "سبق — سید غلام التقلین نقوی", "chapter"),
                     StudySection("s10", "Chapter 10: بابل کے کھنڈر", "سبق — جمیل الدین عالی", "chapter"),
