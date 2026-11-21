@@ -466,7 +466,10 @@ class NotesActivity : AppCompatActivity() {
                 "English" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=1rwPlvnVuSlaMwCvmq7WPEFqsLFg2xSgi",
                     "Book" to "https://drive.google.com/uc?export=download&id=1rwPlvnVuSlaMwCvmq7WPEFqsLFg2xSgi",
-                    "Notes" to listOf("https://drive.google.com/uc?export=download&id=1PmSzp3xmU88z597id2SQbEy0ftAbQ9K_"),
+                    "Notes" to mapOf(
+                        "Notes - Rizwan" to "https://drive.google.com/uc?export=download&id=1PmSzp3xmU88z597id2SQbEy0ftAbQ9K_",
+                        "Essays" to "https://drive.google.com/uc?export=download&id=1Axp2RO7O8LFKdHCgdKgCu5p_FaPpZRmR"
+                    ),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=10_ENG_PP_2022",
                         "2023" to "https://drive.google.com/uc?export=download&id=10_ENG_PP_2023",
@@ -1153,12 +1156,16 @@ class NotesActivity : AppCompatActivity() {
                 is Map<*, *> -> {
                     @Suppress("UNCHECKED_CAST")
                     val nMap = notesAny as Map<String, String>
-                    nMap.entries.firstOrNull { e ->
-                        val keyNum = Regex("""(?:Chapter|Ch\.?|Unit)\s*(\d+)""", RegexOption.IGNORE_CASE)
-                            .find(e.key)?.groupValues?.get(1)?.toIntOrNull()
+                    val chapterRegex = Regex("""(?:Chapter|Ch\.?|Unit)\s*(\d+)""", RegexOption.IGNORE_CASE)
+                    val direct = nMap.entries.firstOrNull { e ->
+                        val keyNum = chapterRegex.find(e.key)?.groupValues?.get(1)?.toIntOrNull()
                         (chapterNum != null && keyNum == chapterNum) ||
                             e.key.equals(chapterTitle, ignoreCase = true)
                     }?.value
+                    // Collection-style Notes map (no "Chapter/Unit N" keys, e.g. Class 10
+                    // English whole-book notes + Essays): a chapter tap opens the first
+                    // file instead of showing Coming Soon.
+                    direct ?: if (nMap.keys.none { chapterRegex.containsMatchIn(it) }) nMap.values.firstOrNull() else null
                 }
                 is List<*> -> notesAny.filterIsInstance<String>().firstOrNull()
                 is String -> notesAny
