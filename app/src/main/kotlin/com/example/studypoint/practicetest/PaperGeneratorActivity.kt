@@ -27,6 +27,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import com.example.studypoint.MathText
 import com.example.studypoint.R
 import com.example.studypoint.TextbookBoard
 import com.example.studypoint.teacher.SavedPaper
@@ -1719,13 +1720,13 @@ class PaperGeneratorActivity : AppCompatActivity() {
         header.addView(cb)
         card.addView(header)
         card.addView(TextView(this).apply {
-            text = q.questionText
+            text = MathText.render(q.questionText)
             textSize = 14f
             setTextColor(Color.parseColor("#0F172A"))
             setPadding(0, dp(6), 0, 0)
         })
         card.addView(TextView(this).apply {
-            text = q.options.mapIndexed { i, o -> "${'A' + i}) $o" }.joinToString("\n")
+            text = MathText.render(q.options.mapIndexed { i, o -> "${'A' + i}) $o" }.joinToString("\n"))
             textSize = 12.5f
             setTextColor(Color.parseColor("#475569"))
             setPadding(0, dp(6), 0, 0)
@@ -1736,7 +1737,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
                 val ansText = q.options.getOrNull(q.correctAnswerIndex) ?: ""
                 var line = "\u2713 Correct answer: $letter) $ansText"
                 if (q.explanation.isNotBlank()) line += "\n" + q.explanation
-                text = line
+                text = MathText.render(line)
                 textSize = 12f
                 setTextColor(Color.parseColor("#047857"))
                 setPadding(0, dp(6), 0, 0)
@@ -1793,14 +1794,14 @@ class PaperGeneratorActivity : AppCompatActivity() {
         header.addView(cb)
         card.addView(header)
         card.addView(TextView(this).apply {
-            text = q.question
+            text = MathText.render(q.question)
             textSize = 14f
             setTextColor(Color.parseColor("#0F172A"))
             setPadding(0, dp(6), 0, 0)
         })
         if (radioSolved.isChecked) {
             val answerView = TextView(this).apply {
-                text = if (q.answer.isNotBlank()) "Answer: ${q.answer}"
+                text = if (q.answer.isNotBlank()) MathText.render("Answer: ${q.answer}")
                     else "(Answer not available in the source data)"
                 textSize = 12.5f
                 setTextColor(Color.parseColor("#065F46"))

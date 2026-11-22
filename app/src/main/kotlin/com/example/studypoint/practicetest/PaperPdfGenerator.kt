@@ -15,6 +15,7 @@ import android.text.TextDirectionHeuristics
 import android.text.TextPaint
 import android.text.style.StyleSpan
 import android.graphics.BitmapFactory
+import com.example.studypoint.MathText
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -328,7 +329,7 @@ object PaperPdfGenerator {
         return blocks
     }
 
-    private fun boldPrefix(prefix: String, body: String): SpannableStringBuilder {
+    private fun boldPrefix(prefix: String, body: CharSequence): SpannableStringBuilder {
         val sb = SpannableStringBuilder()
         val start = sb.length
         sb.append(prefix)
@@ -386,8 +387,8 @@ object PaperPdfGenerator {
 
     private fun mcqRow(q: Question, index: Int): McqRow {
         val numLayout = centeredLayout("${index + 1}", paint(11.5f, bold = true, color = NAVY), TBL_NUM_W - 8)
-        val qLayout = layoutOf(q.questionText, paint(11f), TBL_Q_W - 12)
-        val optLayouts = q.options.map { layoutOf(it, paint(10.5f), TBL_OPT_W - 24) }
+        val qLayout = layoutOf(MathText.render(q.questionText), paint(11f), TBL_Q_W - 12)
+        val optLayouts = q.options.map { layoutOf(MathText.render(it), paint(10.5f), TBL_OPT_W - 24) }
         val h = maxOf(numLayout.height, qLayout.height, optLayouts.maxOfOrNull { it.height } ?: 0) + 14
         return McqRow(numLayout, qLayout, optLayouts, h)
     }
@@ -490,9 +491,9 @@ object PaperPdfGenerator {
         mcqs.forEachIndexed { idx, q ->
             val row = mcqRow(q, idx)
             if (q.options.size != 4 || row.height > pageContentHeight() - TBL_HEAD_H) {
-                val qL = layoutOf("${idx + 1}.  ${q.questionText}", paint(11.5f))
+                val qL = layoutOf(MathText.render("${idx + 1}.  ${q.questionText}"), paint(11.5f))
                 val oL = q.options.mapIndexed { oi, opt ->
-                    layoutOf("        ${'A' + oi})   $opt", paint(11f))
+                    layoutOf(MathText.render("        ${'A' + oi})   $opt"), paint(11f))
                 }
                 blocks += blocksFor(listOf(qL) + oL)
                 end = simulateEnd(blocks)
@@ -576,7 +577,7 @@ object PaperPdfGenerator {
             qHeading("Q.$qCounter  $heading")
             questions.forEachIndexed { idx, wq ->
                 val marksSuffix = if (wq.marks.isNotBlank()) "   (Marks: ${wq.marks})" else ""
-                val qLayout = layoutOf(boldPrefix("${roman(idx)}  ", wq.question + marksSuffix), qPaintW)
+                val qLayout = layoutOf(boldPrefix("${roman(idx)}  ", MathText.render(wq.question + marksSuffix)), qPaintW)
                 blocks += blocksFor(listOf(qLayout))
             }
         }
@@ -593,7 +594,7 @@ object PaperPdfGenerator {
             qCounter++
             val marksSuffix = if (wq.marks.isNotBlank()) "   (Marks: ${wq.marks})" else ""
             val qLayout = layoutOf(
-                boldPrefix("Q.$qCounter  ", PaperSections.writingQuestionText(wq) + marksSuffix),
+                boldPrefix("Q.$qCounter  ", MathText.render(PaperSections.writingQuestionText(wq) + marksSuffix)),
                 qPaintW
             )
             blocks += blocksFor(listOf(qLayout))
@@ -636,7 +637,7 @@ object PaperPdfGenerator {
                 solHeading(title)
                 questions.forEachIndexed { idx, wq ->
                     if (wq.answer.isNotBlank()) {
-                        blocks += blocksFor(listOf(layoutOf(boldPrefix("${roman(idx)}  ", wq.answer), ansPaint)))
+                        blocks += blocksFor(listOf(layoutOf(boldPrefix("${roman(idx)}  ", MathText.render(wq.answer)), ansPaint)))
                     } else {
                         blocks += blocksFor(listOf(layoutOf("${roman(idx)}  (Answer not available in the source data)", missPaint)))
                     }
@@ -648,7 +649,7 @@ object PaperPdfGenerator {
             writingQs.forEach { (qn, wq) ->
                 solHeading("Q.$qn  Solution")
                 if (wq.answer.isNotBlank()) {
-                    blocks += blocksFor(listOf(layoutOf(boldPrefix("", wq.answer), ansPaint)))
+                    blocks += blocksFor(listOf(layoutOf(boldPrefix("", MathText.render(wq.answer)), ansPaint)))
                 } else {
                     blocks += blocksFor(listOf(layoutOf("(Answer not available in the source data)", missPaint)))
                 }

@@ -10,6 +10,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.example.studypoint.HomeActivity
+import com.example.studypoint.MathText
 import com.example.studypoint.R
 import com.google.android.material.button.MaterialButton
 import com.google.gson.Gson
@@ -106,7 +107,7 @@ class QuizResultActivity : AppCompatActivity() {
                 setPadding(dp(12), dp(12), dp(12), dp(12))
             }
             card.addView(TextView(this).apply {
-                text = "Q${index + 1}. ${q.questionText}"
+                text = MathText.render("Q${index + 1}. ${q.questionText}")
                 textSize = 14f
                 setTypeface(null, Typeface.BOLD)
                 setTextColor(Color.parseColor("#0F172A"))
@@ -133,7 +134,7 @@ class QuizResultActivity : AppCompatActivity() {
                     else -> ""
                 }
                 card.addView(TextView(this).apply {
-                    text = "$mark$letter) ${q.options[i]}$suffix"
+                    text = MathText.render("$mark$letter) ${q.options[i]}$suffix")
                     textSize = 13f
                     setTextColor(
                         when {
@@ -156,7 +157,7 @@ class QuizResultActivity : AppCompatActivity() {
             }
             if (q.explanation.isNotBlank()) {
                 card.addView(TextView(this).apply {
-                    text = "Explanation: ${q.explanation}"
+                    text = MathText.render("Explanation: ${q.explanation}")
                     textSize = 12f
                     setTextColor(Color.parseColor("#475569"))
                     setPadding(0, dp(6), 0, 0)

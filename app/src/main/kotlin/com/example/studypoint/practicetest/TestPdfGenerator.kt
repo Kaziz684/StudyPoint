@@ -11,6 +11,7 @@ import android.graphics.pdf.PdfDocument
 import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
+import com.example.studypoint.MathText
 import java.io.File
 import java.io.FileOutputStream
 
@@ -54,7 +55,7 @@ object TestPdfGenerator {
         return p
     }
 
-    private fun layoutOf(text: String, p: TextPaint, width: Int = CONTENT_W): StaticLayout =
+    private fun layoutOf(text: CharSequence, p: TextPaint, width: Int = CONTENT_W): StaticLayout =
         StaticLayout.Builder.obtain(text, 0, text.length, p, width).build()
 
     /** A drawable block with a fixed height, placed by the pagination pass. */
@@ -141,8 +142,8 @@ object TestPdfGenerator {
 
     private fun mcqRow(q: Question, index: Int): McqRow {
         val numLayout = centeredLayout("${index + 1}", paint(11.5f, bold = true, color = NAVY), TBL_NUM_W - 8)
-        val qLayout = layoutOf(q.questionText, paint(11f), TBL_Q_W - 12)
-        val optLayouts = q.options.map { layoutOf(it, paint(10.5f), TBL_OPT_W - 24) }
+        val qLayout = layoutOf(MathText.render(q.questionText), paint(11f), TBL_Q_W - 12)
+        val optLayouts = q.options.map { layoutOf(MathText.render(it), paint(10.5f), TBL_OPT_W - 24) }
         val h = maxOf(numLayout.height, qLayout.height, optLayouts.maxOfOrNull { it.height } ?: 0) + 14
         return McqRow(numLayout, qLayout, optLayouts, h)
     }
@@ -211,9 +212,9 @@ object TestPdfGenerator {
     /** Classic stacked layout, kept as the fallback for MCQs that cannot be tabled. */
     private fun addStackedFallback(units: MutableList<Block>, q: Question, index: Int) {
         val n = index + 1
-        val qLayout = layoutOf("$n.  ${q.questionText}", paint(11.5f))
+        val qLayout = layoutOf(MathText.render("$n.  ${q.questionText}"), paint(11.5f))
         val optLayouts = q.options.mapIndexed { oi, opt ->
-            layoutOf("        ${'A' + oi})   $opt", paint(11f))
+            layoutOf(MathText.render("        ${'A' + oi})   $opt"), paint(11f))
         }
         val all = listOf(qLayout) + optLayouts
         val totalH = all.sumOf { it.height } + 10

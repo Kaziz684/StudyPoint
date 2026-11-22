@@ -13,6 +13,7 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.example.studypoint.MathText
 import com.example.studypoint.R
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -183,14 +184,14 @@ class QuizActivity : AppCompatActivity() {
         val q = questions[currentIndex]
         tvQuestionCount.text = "Question ${currentIndex + 1} / ${questions.size}"
         quizProgressBar.progress = ((currentIndex + 1) * 100) / questions.size
-        tvQuestionText.text = q.questionText
+        tvQuestionText.text = MathText.render(q.questionText)
         updateBookmarkIcon()
 
         val options = q.options
         btnOptions.forEachIndexed { i, button ->
             if (i < options.size) {
                 button.visibility = View.VISIBLE
-                button.text = options[i]
+                button.text = MathText.render(options[i])
                 button.strokeColor = ContextCompat.getColorStateList(this, R.color.edu_border)
                 button.backgroundTintList = ContextCompat.getColorStateList(this, R.color.edu_card_bg)
                 button.setTextColor(ContextCompat.getColor(this, R.color.edu_text_primary))
