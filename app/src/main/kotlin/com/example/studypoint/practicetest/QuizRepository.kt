@@ -74,7 +74,14 @@ class QuizRepository(private val context: Context? = null) {
 
     /**
      * Fetches questions directly from the Google Sheet CSV stream:
-     * https://docs.google.com/spreadsheets/d/1a1VGa7mYnFBe3fbFElx3jlFKFWBdYVGSW2AoHncm4uk/gviz/tq?tqx=out:csv&sheet={Class_Name}
+     * https://docs.google.com/spreadsheets/d/1a1VGa7mYnFBe3fbFElx3jlFKFWBdYVGSW2AoHncm4uk/gviz/tq?tqx=out:csv&sheet={Class_Name}&headers=1
+     *
+     * NOTE (v156): headers=1 is REQUIRED, not cosmetic. Without it the
+     * Class_11th feed collapses whole columns into single mega-cells
+     * (Nov 2026: one row came back with a 132,106-char chapter field and a
+     * 30,689-char subject field), which rendered as one giant chapter card
+     * in every Class 11 subject and swallowed ~350 Physics + ~23 Math MCQs.
+     * With headers=1 the same feed parses cleanly (6,632 questions).
      *
      * If network is slow, offline, or if the sheet is missing rows for a specific subject,
      * seamlessly combines or falls back to local assets/mcqs_backup.json.
@@ -92,7 +99,7 @@ class QuizRepository(private val context: Context? = null) {
         // Fast path: this class tab was already downloaded minutes ago —
         // every subject/class change used to re-download the whole tab.
         cached(sheetParam)?.let { return@withContext it }
-        val csvUrl = "https://docs.google.com/spreadsheets/d/1a1VGa7mYnFBe3fbFElx3jlFKFWBdYVGSW2AoHncm4uk/gviz/tq?tqx=out:csv&sheet=$sheetParam"
+        val csvUrl = "https://docs.google.com/spreadsheets/d/1a1VGa7mYnFBe3fbFElx3jlFKFWBdYVGSW2AoHncm4uk/gviz/tq?tqx=out:csv&sheet=$sheetParam&headers=1"
 
         var remoteQuestions: List<Question> = emptyList()
 
@@ -180,6 +187,12 @@ class QuizRepository(private val context: Context? = null) {
             val subject = row.getOrNull(2) ?: ""
             val chapter = row.getOrNull(3) ?: ""
             val questionText = row.getOrNull(4) ?: ""
+
+            // Guard against a malformed gviz mega-row (see the headers=1 note
+            // above): a real chapter/subject name is short, so drop any row
+            // whose chapter or subject is absurdly long instead of letting a
+            // collapsed feed render as one giant chapter card.
+            if (chapter.length > 200 || subject.length > 100) continue
 
             if (questionText.isBlank()) continue
 

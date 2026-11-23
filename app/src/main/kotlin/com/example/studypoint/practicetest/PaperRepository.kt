@@ -56,7 +56,7 @@ class PaperRepository {
     suspend fun fetchWritten(tab: String, context: Context? = null): List<WrittenQuestion> =
         withContext(Dispatchers.IO) {
             cached(tab)?.let { return@withContext it }
-            val url = "https://docs.google.com/spreadsheets/d/$SPREADSHEET_ID/gviz/tq?tqx=out:csv&sheet=$tab"
+            val url = "https://docs.google.com/spreadsheets/d/$SPREADSHEET_ID/gviz/tq?tqx=out:csv&sheet=$tab&headers=1"
             var lastError: Exception? = null
             // The Shorts/Longs CSVs are large (1-4 MB): retry a few times so a
             // slow connection does not leave the Paper Generator empty.

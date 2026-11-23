@@ -1171,7 +1171,9 @@ class PaperGeneratorActivity : AppCompatActivity() {
             if (type == PaperType.MCQS || type == PaperType.COMBINED || type == PaperType.BOARD) labels += mcqAll.map { it.chapter }
             if (type == PaperType.SHORT || type == PaperType.COMBINED || type == PaperType.BOARD) labels += shortAll.map { it.chapterLabel }
             if (type == PaperType.LONG || type == PaperType.COMBINED) labels += longAll.map { it.chapterLabel }
-            chapterNames = labels.toList()
+            // Drop any absurdly long label (malformed feed mega-row, v156) so
+            // it can never render as a giant chapter card.
+            chapterNames = labels.filter { it.length <= 200 }
 
             // Selection rows mirror the printed book: Urdu buckets group under
             // portion headers (حصہ غزل / حصہ نظم / اسباق / Grammar), Islamiyat under
