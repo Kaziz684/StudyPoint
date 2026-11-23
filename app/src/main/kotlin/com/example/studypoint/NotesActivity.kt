@@ -950,7 +950,10 @@ class NotesActivity : AppCompatActivity() {
                 "English" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=12_ENGLISH_BOOK",
                     "Book" to "https://drive.google.com/uc?export=download&id=12_ENGLISH_BOOK",
-                    "Notes" to listOf("https://drive.google.com/uc?export=download&id=12_ENGLISH_NOTES"),
+                    "Notes" to mapOf(
+                        "Chapter 13: The Pearl" to "https://drive.google.com/uc?export=download&id=1dsr69d668saW_EmBkNGxkvQn5DULrF3I",
+                        "Essays" to "https://drive.google.com/uc?export=download&id=1B17KDIQiPjzx82iFrworJH3km8pN6I-S"
+                    ),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=12_ENG_PP_2022",
                         "2023" to "https://drive.google.com/uc?export=download&id=12_ENG_PP_2023",
@@ -960,6 +963,7 @@ class NotesActivity : AppCompatActivity() {
                     ),
                     "MCQs" to "COMING_SOON",
                     "Guess Papers" to mapOf(
+                        "Smart Syllabus 2027" to "https://drive.google.com/uc?export=download&id=1PFkhysBq7uMhAj_KXa1zT_hmMM5XGbCT",
                         "2027" to "https://drive.google.com/uc?export=download&id=12_ENG_GP_2027",
                         "2026" to "https://drive.google.com/uc?export=download&id=12_ENG_GP_2026"
                     )
@@ -967,7 +971,16 @@ class NotesActivity : AppCompatActivity() {
                 "Urdu" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=12_URDU_BOOK",
                     "Book" to "https://drive.google.com/uc?export=download&id=12_URDU_BOOK",
-                    "Notes" to listOf("COMING_SOON"),
+                    "Notes" to mapOf(
+                        "مضمون: تعلیم نسواں" to "https://drive.google.com/uc?export=download&id=1QFrxjaRnFASJZGLdSA0OU-HZk8ON_IQP",
+                        "مضمون: زراعت اور صنعت" to "https://drive.google.com/uc?export=download&id=1MMuRIDfr9S41Ldcos_RGcM70UpM_5a_n",
+                        "مضمون: پاکستان کا قومی کھیل (ہاکی)" to "https://drive.google.com/uc?export=download&id=1qmiz5AEYlxbx121J3bLqXu6gaEotypSu",
+                        "مضمون: پاکستان میں آبادی کے مسائل" to "https://drive.google.com/uc?export=download&id=1W7kZyaG8uPMCpXaeL00Eq2zaBCfaDYGu",
+                        "مضمون: سیرت نبوی ﷺ" to "https://drive.google.com/uc?export=download&id=1CNMaCFanGp_qRJmGYq1cfjSmA82eDpPF",
+                        "مضمون: قائد اعظم اور دو قومی نظریہ" to "https://drive.google.com/uc?export=download&id=1TMgaW6QeMHI7vLLO63Ea2OG32bzs8UJc",
+                        "خطوط (Letters 1-10)" to "https://drive.google.com/uc?export=download&id=1byLlLbDdYIKlO-ulffI3tHH0iKeNKYar",
+                        "نظم: اشعار" to "https://drive.google.com/uc?export=download&id=1ZfNEQFPIGUeY7LyMNPIWStkFODuKW7oS"
+                    ),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=12_URDU_PP_2022",
                         "2023" to "https://drive.google.com/uc?export=download&id=12_URDU_PP_2023",
@@ -977,6 +990,7 @@ class NotesActivity : AppCompatActivity() {
                     ),
                     "MCQs" to "COMING_SOON",
                     "Guess Papers" to mapOf(
+                        "Smart Syllabus 2027" to "https://drive.google.com/uc?export=download&id=1PFkhysBq7uMhAj_KXa1zT_hmMM5XGbCT",
                         "2027" to "https://drive.google.com/uc?export=download&id=12_URDU_GP_2027",
                         "2026" to "https://drive.google.com/uc?export=download&id=12_URDU_GP_2026"
                     )
@@ -985,7 +999,12 @@ class NotesActivity : AppCompatActivity() {
                     "Textbook" to "https://drive.google.com/uc?export=download&id=12_PHY_BOOK",
                     "Book" to "https://drive.google.com/uc?export=download&id=12_PHY_BOOK",
                     "Notes" to mapOf(
-                        "Chapter 13: Thermal Physics" to "https://drive.google.com/uc?export=download&id=1Oy9DnC_ItnZYnUt47AnhJkU63Dy4WNxR"
+                        "Chapter 13: Thermal Physics" to "https://drive.google.com/uc?export=download&id=1Oy9DnC_ItnZYnUt47AnhJkU63Dy4WNxR",
+                        "Chapter 14: Simple Harmonic Motion" to "https://drive.google.com/uc?export=download&id=1EP-W9vMQS-MNkwl_RXqGjlICSwC7YjF2",
+                        "Chapter 15: Physical Optics" to "https://drive.google.com/uc?export=download&id=1h-QipQUg7VRc4OYo6CJv_S6ZfVaNWHuT",
+                        "Chapter 16: Electrostatics" to "https://drive.google.com/uc?export=download&id=1Od_QmJZg6uIOIj0Ox7Ohw_4vloTsTNwo",
+                        "Chapter 17: Alternating Current" to "https://drive.google.com/uc?export=download&id=1Pz6WnitQ4nSsd_NDsCUPgTYuSfva2yw1",
+                        "Chapter 18: Quantum Physics" to "https://drive.google.com/uc?export=download&id=1yOdJOB4S_MxYiafg3othRqqhPVhVJFAx"
                     ),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=12_PHY_PP_2022",
@@ -996,6 +1015,7 @@ class NotesActivity : AppCompatActivity() {
                     ),
                     "MCQs" to "COMING_SOON",
                     "Guess Papers" to mapOf(
+                        "Smart Syllabus 2027" to "https://drive.google.com/uc?export=download&id=1PFkhysBq7uMhAj_KXa1zT_hmMM5XGbCT",
                         "2027" to "https://drive.google.com/uc?export=download&id=12_PHY_GP_2027",
                         "2026" to "https://drive.google.com/uc?export=download&id=12_PHY_GP_2026"
                     )
@@ -1003,7 +1023,13 @@ class NotesActivity : AppCompatActivity() {
                 "Chemistry" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=12_CHEM_BOOK",
                     "Book" to "https://drive.google.com/uc?export=download&id=12_CHEM_BOOK",
-                    "Notes" to listOf("COMING_SOON"),
+                    "Notes" to mapOf(
+                        "Chapter 17: Group 2 Elements" to "https://drive.google.com/uc?export=download&id=1rr5-XCMxXu6xAnc8Pz5EcFtaBQw57ob3",
+                        "Chapter 18: Transition Metals" to "https://drive.google.com/uc?export=download&id=1AH-lAkKSqLDByn0eJstRacglOQuSkImT",
+                        "Chapter 19: Basics of Organic Chemistry" to "https://drive.google.com/uc?export=download&id=137hQGQiqDQrII5C-P9o5dYqhZ7uKqtdM",
+                        "Chapter 20: Aromatic Hydrocarbons" to "https://drive.google.com/uc?export=download&id=1xr2O0BzhaA3yWycjyA2xr4Rogs_zCnqm",
+                        "Chapter 21: Haloalkanes" to "https://drive.google.com/uc?export=download&id=14N9zzmyP3eQZDzsZRNM-BF5IAIlIR6Uo"
+                    ),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=12_CHEM_PP_2022",
                         "2023" to "https://drive.google.com/uc?export=download&id=12_CHEM_PP_2023",
@@ -1013,6 +1039,7 @@ class NotesActivity : AppCompatActivity() {
                     ),
                     "MCQs" to "COMING_SOON",
                     "Guess Papers" to mapOf(
+                        "Smart Syllabus 2027" to "https://drive.google.com/uc?export=download&id=1PFkhysBq7uMhAj_KXa1zT_hmMM5XGbCT",
                         "2027" to "https://drive.google.com/uc?export=download&id=12_CHEM_GP_2027",
                         "2026" to "https://drive.google.com/uc?export=download&id=12_CHEM_GP_2026"
                     )
@@ -1020,7 +1047,9 @@ class NotesActivity : AppCompatActivity() {
                 "Biology" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=12_BIO_BOOK",
                     "Book" to "https://drive.google.com/uc?export=download&id=12_BIO_BOOK",
-                    "Notes" to listOf("COMING_SOON"),
+                    "Notes" to mapOf(
+                        "Chapter 13: Thermoregulation & Osmoregulation" to "https://drive.google.com/uc?export=download&id=17FaTM-x760IEHWHcS-PZvham37iGE9XG"
+                    ),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=12_BIO_PP_2022",
                         "2023" to "https://drive.google.com/uc?export=download&id=12_BIO_PP_2023",
@@ -1030,6 +1059,7 @@ class NotesActivity : AppCompatActivity() {
                     ),
                     "MCQs" to "COMING_SOON",
                     "Guess Papers" to mapOf(
+                        "Smart Syllabus 2027" to "https://drive.google.com/uc?export=download&id=1PFkhysBq7uMhAj_KXa1zT_hmMM5XGbCT",
                         "2027" to "https://drive.google.com/uc?export=download&id=12_BIO_GP_2027",
                         "2026" to "https://drive.google.com/uc?export=download&id=12_BIO_GP_2026"
                     )
@@ -1037,7 +1067,10 @@ class NotesActivity : AppCompatActivity() {
                 "Math" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=12_MATH_BOOK",
                     "Book" to "https://drive.google.com/uc?export=download&id=12_MATH_BOOK",
-                    "Notes" to listOf("COMING_SOON"),
+                    "Notes" to mapOf(
+                        "Unit 1: Graphical Representation of Functions" to "https://drive.google.com/uc?export=download&id=14jxnbLEoTWUiuk3FaOrsiEaPRNHmPDAq",
+                        "Unit 2: Further Differentiation" to "https://drive.google.com/uc?export=download&id=1O5vfBRnbhtwL3zJJlM2urO1cjNEcygBT"
+                    ),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=12_MATH_PP_2022",
                         "2023" to "https://drive.google.com/uc?export=download&id=12_MATH_PP_2023",
@@ -1048,6 +1081,7 @@ class NotesActivity : AppCompatActivity() {
                     "MCQs" to "COMING_SOON",
                     "Guess Papers" to mapOf(
                         "Pairing Scheme 2027" to "https://drive.google.com/uc?export=download&id=1dUFDvYJBueaZrajJrixNDk_x0wGLBGgP",
+                        "Smart Syllabus 2027" to "https://drive.google.com/uc?export=download&id=1PFkhysBq7uMhAj_KXa1zT_hmMM5XGbCT",
                         "2027" to "https://drive.google.com/uc?export=download&id=12_MATH_GP_2027",
                         "2026" to "https://drive.google.com/uc?export=download&id=12_MATH_GP_2026"
                     )
@@ -1055,7 +1089,11 @@ class NotesActivity : AppCompatActivity() {
                 "Computer" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=12_CS_BOOK",
                     "Book" to "https://drive.google.com/uc?export=download&id=12_CS_BOOK",
-                    "Notes" to listOf("COMING_SOON"),
+                    "Notes" to mapOf(
+                        "Unit 1: Computer Networks" to "https://drive.google.com/uc?export=download&id=1aF4ic_2bH_16oy3QLO9fbEfKRG5RFYL4",
+                        "Unit 2: Computational Thinking and Algorithms" to "https://drive.google.com/uc?export=download&id=1GrSxQxJLd8vByB9c_4eMVdvwhbqXn4Rb",
+                        "Unit 3: Object-Oriented Programming using Python" to "https://drive.google.com/uc?export=download&id=1yoXBAqVz3v11E2lAkcVoc0nb2_lFgplZ"
+                    ),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=12_CS_PP_2022",
                         "2023" to "https://drive.google.com/uc?export=download&id=12_CS_PP_2023",
@@ -1065,15 +1103,41 @@ class NotesActivity : AppCompatActivity() {
                     ),
                     "MCQs" to "COMING_SOON",
                     "Guess Papers" to mapOf(
+                        "Smart Syllabus 2027" to "https://drive.google.com/uc?export=download&id=1PFkhysBq7uMhAj_KXa1zT_hmMM5XGbCT",
                         "2027" to "https://drive.google.com/uc?export=download&id=12_CS_GP_2027",
                         "2026" to "https://drive.google.com/uc?export=download&id=12_CS_GP_2026"
                     )
                 ),
                 // Pak Studies replaces Islamiyat in Class 12 (Islamiyat completely removed)
+                "Statistics" to mapOf(
+                    "Textbook" to "https://drive.google.com/uc?export=download&id=1BcwONVmiPqToUfd2VXkRgdGk7T5A299h",
+                    "Book" to "https://drive.google.com/uc?export=download&id=1BcwONVmiPqToUfd2VXkRgdGk7T5A299h",
+                    "Notes" to mapOf(
+                        "Short Questions Bank" to "https://drive.google.com/uc?export=download&id=1XzMrKPjEvjHeSQ8B6CT_1YOngXsm9j3v",
+                        "Definitions & Formulae" to "https://drive.google.com/uc?export=download&id=1wsmTkEGLY_yrr1_Pp058P_SnxKTSglm6"
+                    ),
+                    "Past Papers" to mapOf(
+                        "2022" to "https://drive.google.com/uc?export=download&id=12_STAT_PP_2022",
+                        "2023" to "https://drive.google.com/uc?export=download&id=12_STAT_PP_2023",
+                        "2024" to "https://drive.google.com/uc?export=download&id=12_STAT_PP_2024",
+                        "2025" to "https://drive.google.com/uc?export=download&id=12_STAT_PP_2025",
+                        "2026" to "https://drive.google.com/uc?export=download&id=12_STAT_PP_2026"
+                    ),
+                    "MCQs" to "COMING_SOON",
+                    "Guess Papers" to mapOf(
+                        "Smart Syllabus 2027" to "https://drive.google.com/uc?export=download&id=1PFkhysBq7uMhAj_KXa1zT_hmMM5XGbCT",
+                        "Practicals" to "https://drive.google.com/uc?export=download&id=1iyHln9s60IQKZpVTYM82djmNHhYtu_R5",
+                        "2027" to "https://drive.google.com/uc?export=download&id=12_STAT_GP_2027",
+                        "2026" to "https://drive.google.com/uc?export=download&id=12_STAT_GP_2026"
+                    )
+                ),
                 "Pak Studies" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=12_PS_BOOK",
                     "Book" to "https://drive.google.com/uc?export=download&id=12_PS_BOOK",
-                    "Notes" to listOf("COMING_SOON"),
+                    "Notes" to mapOf(
+                        "Chapter 1: Islam and Pakistan" to "https://drive.google.com/uc?export=download&id=12cO0o906SyDeZ0_q9bWxJW4JXRFPZNv_",
+                        "Chapter 2: Constitutional and Political Developments in Pakistan" to "https://drive.google.com/uc?export=download&id=1Y1zKLyekFc82pgh-RIjg_dxXUW7hvdb8"
+                    ),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=12_PS_PP_2022",
                         "2023" to "https://drive.google.com/uc?export=download&id=12_PS_PP_2023",
@@ -1083,6 +1147,7 @@ class NotesActivity : AppCompatActivity() {
                     ),
                     "MCQs" to "COMING_SOON",
                     "Guess Papers" to mapOf(
+                        "Smart Syllabus 2027" to "https://drive.google.com/uc?export=download&id=1PFkhysBq7uMhAj_KXa1zT_hmMM5XGbCT",
                         "2027" to "https://drive.google.com/uc?export=download&id=12_PS_GP_2027",
                         "2026" to "https://drive.google.com/uc?export=download&id=12_PS_GP_2026"
                     )
@@ -1090,7 +1155,9 @@ class NotesActivity : AppCompatActivity() {
                 "Tarjuma-tul-Quran" to mapOf(
                     "Textbook" to "https://drive.google.com/uc?export=download&id=12_TQ_BOOK",
                     "Book" to "https://drive.google.com/uc?export=download&id=12_TQ_BOOK",
-                    "Notes" to listOf("COMING_SOON"),
+                    "Notes" to mapOf(
+                        "Complete Notes (All Surahs)" to "https://drive.google.com/uc?export=download&id=1Jru68a4A8pzfvZ9Bs2nVxVAL4TEz38tY"
+                    ),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=12_TQ_PP_2022",
                         "2023" to "https://drive.google.com/uc?export=download&id=12_TQ_PP_2023",
@@ -1100,6 +1167,7 @@ class NotesActivity : AppCompatActivity() {
                     ),
                     "MCQs" to "COMING_SOON",
                     "Guess Papers" to mapOf(
+                        "Smart Syllabus 2027" to "https://drive.google.com/uc?export=download&id=1PFkhysBq7uMhAj_KXa1zT_hmMM5XGbCT",
                         "2027" to "https://drive.google.com/uc?export=download&id=12_TQ_GP_2027",
                         "2026" to "https://drive.google.com/uc?export=download&id=12_TQ_GP_2026"
                     )

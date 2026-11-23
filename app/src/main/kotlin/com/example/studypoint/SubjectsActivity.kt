@@ -38,7 +38,8 @@ class SubjectsActivity : AppCompatActivity() {
             GridItem("Physics", "Physics", R.drawable.ic_sub_physics),
             GridItem("Chemistry", "Chemistry", R.drawable.ic_sub_chemistry),
             GridItem("Biology", "Biology", R.drawable.ic_sub_biology),
-            GridItem("Computer Science", "Computer Science", R.drawable.ic_sub_computer)
+            GridItem("Computer Science", "Computer Science", R.drawable.ic_sub_computer),
+            GridItem("Statistics", "Statistics", R.drawable.ic_sub_statistics)
         )
 
         if (isMatricOrInterSecondYear) {

@@ -961,6 +961,13 @@ class PaperGeneratorActivity : AppCompatActivity() {
             "Computer Science", "Islamiyat", "Tarjuma-tul-Quran"
         )
 
+        // Class 12th: Statistics is a Science-group subject with a full
+        // question bank (783 rows) — it must appear in the Paper Generator.
+        "Class_12th" -> listOf(
+            "English", "Urdu", "Mathematics", "Physics", "Chemistry", "Biology",
+            "Computer Science", "Statistics", "Pak Studies", "Tarjuma-tul-Quran"
+        )
+
         else -> listOf(
             "English", "Urdu", "Mathematics", "Physics", "Chemistry", "Biology",
             "Computer Science", "Pak Studies", "Tarjuma-tul-Quran"
