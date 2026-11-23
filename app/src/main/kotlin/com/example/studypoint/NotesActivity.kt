@@ -757,7 +757,12 @@ class NotesActivity : AppCompatActivity() {
                         "Chapter 11: Those Winter Sundays" to "https://drive.google.com/uc?export=download&id=1wj1MXxQz-O_NdxFy00Tq-srFbx42jiQu",
                         "Chapter 12: The Impact of AI on Society, Human Relationships, and Ethics" to "https://drive.google.com/uc?export=download&id=1m6Yplr3cjpyWF0U3tBbhO1C9EG74BJDD",
                         "Chapter 13: Rubaiyat" to "https://drive.google.com/uc?export=download&id=1ZjgFaks66AccELJf2C-YAqwn82duXvMl",
-                        "Chapter 14: The End of the Beginning" to "https://drive.google.com/uc?export=download&id=1rN8_fUR0chHGFrzKPqk9Q9XrypzbaAut"
+                        "Chapter 14: The End of the Beginning" to "https://drive.google.com/uc?export=download&id=1rN8_fUR0chHGFrzKPqk9Q9XrypzbaAut",
+                        "Grammar" to "https://drive.google.com/uc?export=download&id=1yZbYmia88_gZxFaZjCGYou_39bqzGJV8",
+                        "Letter or Application" to "https://drive.google.com/uc?export=download&id=1qdxh8UlcBOI1Zs0s-LeI406dwTpMKCSa",
+                        "Stories" to "https://drive.google.com/uc?export=download&id=1zI_bf-4iPSVEV0L6KBwZGLbk8Z_BVbKL",
+                        "Punctuations" to "https://drive.google.com/uc?export=download&id=1aqXzcCebnZxHobMReSgxAQYErT0bWIac",
+                        "Pair of Words" to "https://drive.google.com/uc?export=download&id=1A_S6O-5bHRzc_VdjsyEdQYFJp-12gN1P"
                     ),
                     "Past Papers" to mapOf(
                         "2022" to "https://drive.google.com/uc?export=download&id=11_ENG_PP_2022",
