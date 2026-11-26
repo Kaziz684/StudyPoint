@@ -164,7 +164,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
     // 1 = ALP only, 2 = Exercise only. ALP questions are green, the rest
     // red — see AlpQuestions.kt. Mixed is the default: nothing is hidden.
     private var questionMode = 0
-    // Topic-wise pilot (Milestone 5, v158): Physics-9 Chapter 1 only.
+    // Topic-wise (Milestone 6 Phase 1, v159): Physics-9 Chapters 1-9.
     // Expanded topic number ("1.5") or null = Table of Contents only;
     // expanded sub-topic name within that topic, or null = whole topic.
     private var expandedTopic: String? = null
@@ -1997,30 +1997,33 @@ class PaperGeneratorActivity : AppCompatActivity() {
         return row
     }
 
-    /** Topic-wise pilot (Milestone 5, v158): true only for Class 9 Physics
-     *  Chapter 1 with that chapter alone selected. Everything else keeps
-     *  the flat chapter-level question list. */
+    /** Topic-wise (Milestone 5 pilot Ch1, v158; Milestone 6 Phase 1
+     *  Ch1-Ch9, v159): true only for Class 9 Physics Chapters 1-9 with
+     *  that chapter alone selected. Everything else keeps the flat
+     *  chapter-level question list. */
     private fun isTopicView(): Boolean {
         if (!isManualMode()) return false
         if (selectedClassDigits() != "9") return false
         if (!currentSubject().trim().equals("Physics", ignoreCase = true)) return false
         val sel = selectedChapterLabels()
         if (sel.size != 1) return false
-        if (chapterNumber(sel[0]) != 1) return false
-        return TopicQuestions.topicsFor("9", currentSubject(), 1) != null
+        val chNum = chapterNumber(sel[0]) ?: return false
+        if (chNum !in 1..9) return false
+        return TopicQuestions.topicsFor("9", currentSubject(), chNum) != null
     }
 
-    /** Topic-wise question browser (Milestone 5 pilot, Physics-9 Ch1):
+    /** Topic-wise question browser (Milestone 6 Phase 1, Physics-9 Ch1-Ch9):
      *  Table of Contents — one collapsible section per topic with live
      *  per-type counts for the current mode; an open topic shows its
      *  questions grouped by type (MCQs, then Shorts, then Longs), with
-     *  sub-topic chips where the topic has them (1.5). Questions that
+     *  sub-topic chips where the topic has them. Questions that
      *  belong to no topic sit in "Chapter Questions" at the end.
      *  Selection, colours and counters work exactly as in the flat view. */
     private fun renderTopicQuestions() {
         val type = currentType()
         val query = etSearch.text.toString().trim().lowercase()
-        val topics = TopicQuestions.topicsFor("9", currentSubject(), 1) ?: return
+        val chNum = chapterNumber(selectedChapterLabels().firstOrNull() ?: "") ?: return
+        val topics = TopicQuestions.topicsFor("9", currentSubject(), chNum) ?: return
         val showMcq = type == PaperType.MCQS || type == PaperType.COMBINED
         val showShort = type == PaperType.SHORT || type == PaperType.COMBINED
         val showLong = type == PaperType.LONG || type == PaperType.COMBINED
@@ -2089,7 +2092,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
             if (tMcqs.none(mcqVisible) && tShorts.none(writtenVisible) && tLongs.none(writtenVisible)) continue
             anyVisible = true
             val open = expandedTopic == topic.number
-            // Sub-topic filter (topic 1.5 only): narrows the open topic's lists.
+            // Sub-topic filter (any topic with sub-topics): narrows the open topic's lists.
             val sub = if (open) topic.subtopics.firstOrNull { it.name == expandedSubtopic } else null
             val dMcqs = if (sub != null) tMcqs.filter { it.id in sub.mcqIds } else tMcqs
             val dShorts = if (sub != null) tShorts.filter { it.id in sub.shortIds } else tShorts
@@ -2201,10 +2204,21 @@ class PaperGeneratorActivity : AppCompatActivity() {
                 vLongs.forEach { layoutQuestions.addView(writtenRow(it, selectedLongIds, isLong = true)) }
             }
         }
-        // Questions that belong to no topic (ambiguous Longs) sit at the end.
-        val chapterLongs = if (showLong) {
-            longs.filter { it.id in TopicQuestions.chapterLevelLongIds("9", currentSubject(), 1) }
+        // Questions that belong to no topic (ambiguous Shorts/Longs) sit at the end.
+        val chapterShorts = if (showShort) {
+            shorts.filter { it.id in TopicQuestions.chapterLevelShortIds("9", currentSubject(), chNum) }
         } else emptyList()
+        val chapterLongs = if (showLong) {
+            longs.filter { it.id in TopicQuestions.chapterLevelLongIds("9", currentSubject(), chNum) }
+        } else emptyList()
+        val vChapterShorts = chapterShorts.filter(writtenVisible)
+        if (vChapterShorts.isNotEmpty()) {
+            anyVisible = true
+            layoutQuestions.addView(
+                sectionHeader("Chapter Questions", vChapterShorts.map { it.id }, selectedShortIds)
+            )
+            vChapterShorts.forEach { layoutQuestions.addView(writtenRow(it, selectedShortIds)) }
+        }
         val vChapterLongs = chapterLongs.filter(writtenVisible)
         if (vChapterLongs.isNotEmpty()) {
             anyVisible = true

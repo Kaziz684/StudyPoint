@@ -145,7 +145,7 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
                 }
             }
 
-            // Topic filter (Milestone 5 pilot: Physics-9 Ch1 only). A topic
+            // Topic filter (Milestone 6 Phase 1: Physics-9 Ch1-Ch9). A topic
             // with no MCQs shows "Coming Soon" instead of the chapter pool
             // (same R-2 rule as an empty chapter).
             val trimmedTopic = topicNumber.trim()

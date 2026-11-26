@@ -29,27 +29,38 @@ class QuizSelectionActivity : AppCompatActivity() {
     private var selectedCount = 10
     private lateinit var countChips: List<TextView>
 
-    // Topic-wise pilot (Milestone 5, v158): Physics-9 Chapter 1 only.
-    // "All Topics" (value "") keeps the chapter-level quiz.
-    private val topicLabels: List<String>
-        get() = listOf("All Topics") +
-            TopicQuestions.phy9Ch1Topics.map { "${it.number} ${it.title}" }
+    // Topic-wise (Milestone 5 pilot Ch1, v158; Milestone 6 Phase 1 Ch1-Ch9, v159):
+    // Physics-9 Chapters 1-9. "All Topics" (value "") keeps the chapter-level quiz.
+    private fun selectedChapterNumber(): Int? =
+        spinnerChapter.selectedItem?.toString()?.let {
+            Regex("""(\d+)""").find(it)?.groupValues?.get(1)?.toIntOrNull()
+        }
+
+    private fun topicLabelsFor(chapterNumber: Int?): List<String> =
+        listOf("All Topics") +
+            (TopicQuestions.topicsFor("9", "Physics", chapterNumber).orEmpty()
+                .map { "${it.number} ${it.title}" })
 
     private fun topicNumberOf(label: String?): String {
         if (label.isNullOrBlank() || label == "All Topics") return ""
         return label.substringBefore(" ").trim()
     }
 
-    private fun isPilotTopicChapter(): Boolean {
+    private fun isTopicChapter(): Boolean {
         val cls = spinnerClass.selectedItem?.toString() ?: ""
         val subj = spinnerSubject.selectedItem?.toString() ?: ""
-        val ch = spinnerChapter.selectedItem?.toString() ?: ""
+        val chNum = selectedChapterNumber()
         return cls == "Class_9th" && subj.trim().equals("Physics", ignoreCase = true) &&
-            ch.trim() == "Chapter 1"
+            chNum != null && chNum in 1..9
     }
 
     private fun updateTopicVisibility() {
-        val show = isPilotTopicChapter()
+        val show = isTopicChapter()
+        if (show) {
+            val adapter = ArrayAdapter(this, R.layout.spinner_item_selected, topicLabelsFor(selectedChapterNumber()))
+            adapter.setDropDownViewResource(R.layout.spinner_item_dropdown)
+            spinnerTopic.adapter = adapter
+        }
         tvTopicLabel.visibility = if (show) View.VISIBLE else View.GONE
         spinnerTopic.visibility = if (show) View.VISIBLE else View.GONE
         if (!show) spinnerTopic.setSelection(0)
@@ -88,7 +99,7 @@ class QuizSelectionActivity : AppCompatActivity() {
         tvTopicLabel = findViewById(R.id.tvTopicLabel)
         btnStartQuiz = findViewById(R.id.btnStartQuiz)
 
-        val topicAdapter = ArrayAdapter(this, R.layout.spinner_item_selected, topicLabels)
+        val topicAdapter = ArrayAdapter(this, R.layout.spinner_item_selected, topicLabelsFor(1))
         topicAdapter.setDropDownViewResource(R.layout.spinner_item_dropdown)
         spinnerTopic.adapter = topicAdapter
 
@@ -155,7 +166,7 @@ class QuizSelectionActivity : AppCompatActivity() {
             val selectedClass = spinnerClass.selectedItem?.toString() ?: "Class_9th"
             val selectedSubject = spinnerSubject.selectedItem?.toString() ?: "English"
             val selectedChapter = spinnerChapter.selectedItem?.toString() ?: ""
-            val selectedTopic = if (isPilotTopicChapter()) {
+            val selectedTopic = if (isTopicChapter()) {
                 topicNumberOf(spinnerTopic.selectedItem?.toString())
             } else ""
 

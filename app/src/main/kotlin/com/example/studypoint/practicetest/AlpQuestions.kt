@@ -394,7 +394,7 @@ object AlpQuestions {
      * Populated (Milestone 5, v158): Physics-9, Chapters 1-6, matched
      * against the PCTB textbook exercises (Milestone 3, Nov 2026):
      * Ch1 149-159, Ch2 160-169, Ch3 170-178, Ch4 179-188, Ch5 189-197,
-     * Ch6 198-205. Sources:
+     * Ch6 198-205, Ch7 5725-5735, Ch8 206-211, Ch9 5736-5746. Sources:
      * ~/workspace/topic_mockups/exercise_mcq_ids_phy9_ch*.txt
      * (keys verified against the published book keys; Ch1 id 149 key =
      * Vernier Callipers per the user's final decision, 25 Nov 2026).
@@ -408,7 +408,10 @@ object AlpQuestions {
             170, 171, 172, 173, 174, 175, 176, 177, 178,
             179, 180, 181, 182, 183, 184, 185, 186, 187, 188,
             189, 190, 191, 192, 193, 194, 195, 196, 197,
-            198, 199, 200, 201, 202, 203, 204, 205
+            198, 199, 200, 201, 202, 203, 204, 205,
+            206, 207, 208, 209, 210, 211,
+            5725, 5726, 5727, 5728, 5729, 5730, 5731, 5732, 5733, 5734, 5735,
+            5736, 5737, 5738, 5739, 5740, 5741, 5742, 5743, 5744, 5745, 5746
         )
     )
 

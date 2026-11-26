@@ -88,8 +88,12 @@ class QuizActivity : AppCompatActivity() {
         val chapter = intent.getStringExtra("chapter") ?: ""
         val topic = intent.getStringExtra("topic") ?: ""
         val questionCount = intent.getIntExtra("count", 10)
-        val topicTitle = if (topic.isBlank()) null else
-            TopicQuestions.phy9Ch1Topics.firstOrNull { it.number == topic }?.let { "$topic ${it.title}" }
+        val topicTitle = if (topic.isBlank()) null else {
+            val chNum = Regex("""\d+""").find(chapter)?.value?.toIntOrNull()
+            val classDigits = Regex("""\d+""").find(sheetName)?.value ?: ""
+            TopicQuestions.topicsFor(classDigits, subject, chNum)
+                ?.firstOrNull { it.number == topic }?.let { "$topic ${it.title}" }
+        }
         tvQuizSubject.text = when {
             topicTitle != null -> "$subject  •  $chapter  •  $topicTitle"
             chapter.isBlank() -> subject
