@@ -24,21 +24,25 @@ class QuizSelectionActivity : AppCompatActivity() {
     private lateinit var btnStartQuiz: MaterialButton
 
     private val classes = listOf("Class_9th", "Class_10th", "Class_11th", "Class_12th")
-    private val chapters = listOf("All Chapters") + (1..25).map { "Chapter $it" }
+    private val chapters = listOf("All Chapters", "Chapter 0") + (1..28).map { "Chapter $it" }
     private val questionCounts = listOf(10, 15, 20, 25, 30)
     private var selectedCount = 10
     private lateinit var countChips: List<TextView>
 
-    // Topic-wise (Milestone 5 pilot Ch1, v158; Milestone 6 Phase 1 Ch1-Ch9, v159):
-    // Physics-9 Chapters 1-9. "All Topics" (value "") keeps the chapter-level quiz.
+    // Topic-wise (Milestone 6 final bundle, v160): Classes 9-12, all
+    // mapped subjects. "All Topics" (value "") keeps the chapter-level quiz.
     private fun selectedChapterNumber(): Int? =
         spinnerChapter.selectedItem?.toString()?.let {
             Regex("""(\d+)""").find(it)?.groupValues?.get(1)?.toIntOrNull()
         }
 
-    private fun topicLabelsFor(chapterNumber: Int?): List<String> =
+    private fun selectedClassDigits(): String =
+        Regex("""(\d+)""").find(spinnerClass.selectedItem?.toString() ?: "")
+            ?.groupValues?.get(1) ?: "9"
+
+    private fun topicLabelsFor(classDigits: String, subject: String, chapterNumber: Int?): List<String> =
         listOf("All Topics") +
-            (TopicQuestions.topicsFor("9", "Physics", chapterNumber).orEmpty()
+            (TopicQuestions.topicsFor(classDigits, subject, chapterNumber).orEmpty()
                 .map { "${it.number} ${it.title}" })
 
     private fun topicNumberOf(label: String?): String {
@@ -47,17 +51,16 @@ class QuizSelectionActivity : AppCompatActivity() {
     }
 
     private fun isTopicChapter(): Boolean {
-        val cls = spinnerClass.selectedItem?.toString() ?: ""
         val subj = spinnerSubject.selectedItem?.toString() ?: ""
         val chNum = selectedChapterNumber()
-        return cls == "Class_9th" && subj.trim().equals("Physics", ignoreCase = true) &&
-            chNum != null && chNum in 1..9
+        return chNum != null &&
+            TopicQuestions.topicsFor(selectedClassDigits(), subj, chNum) != null
     }
 
     private fun updateTopicVisibility() {
         val show = isTopicChapter()
         if (show) {
-            val adapter = ArrayAdapter(this, R.layout.spinner_item_selected, topicLabelsFor(selectedChapterNumber()))
+            val adapter = ArrayAdapter(this, R.layout.spinner_item_selected, topicLabelsFor(selectedClassDigits(), spinnerSubject.selectedItem?.toString() ?: "", selectedChapterNumber()))
             adapter.setDropDownViewResource(R.layout.spinner_item_dropdown)
             spinnerTopic.adapter = adapter
         }
@@ -69,8 +72,13 @@ class QuizSelectionActivity : AppCompatActivity() {
     private fun getSubjectsForClass(className: String): List<String> {
         val baseSubjects = listOf("English", "Urdu", "Mathematics", "Physics", "Chemistry", "Biology", "Computer Science")
         return when {
-            className.contains("10") || className.contains("12") -> {
-                // 10th & 12th Classes: Pak Studies replaces Islamiyat; Tarjuma-tul-Quran included
+            className.contains("12") -> {
+                // 12th Class: Statistics is a Science-group subject (v155);
+                // Pak Studies replaces Islamiyat; Tarjuma-tul-Quran included
+                baseSubjects + listOf("Pak Studies", "Tarjuma-tul-Quran", "Statistics")
+            }
+            className.contains("10") -> {
+                // 10th Class: Pak Studies replaces Islamiyat; Tarjuma-tul-Quran included
                 baseSubjects + listOf("Pak Studies", "Tarjuma-tul-Quran")
             }
             else -> {
@@ -99,7 +107,7 @@ class QuizSelectionActivity : AppCompatActivity() {
         tvTopicLabel = findViewById(R.id.tvTopicLabel)
         btnStartQuiz = findViewById(R.id.btnStartQuiz)
 
-        val topicAdapter = ArrayAdapter(this, R.layout.spinner_item_selected, topicLabelsFor(1))
+        val topicAdapter = ArrayAdapter(this, R.layout.spinner_item_selected, topicLabelsFor("9", "Physics", 1))
         topicAdapter.setDropDownViewResource(R.layout.spinner_item_dropdown)
         spinnerTopic.adapter = topicAdapter
 
