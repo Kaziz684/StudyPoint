@@ -389,11 +389,28 @@ object AlpQuestions {
      * MCQ exercise ids, scoped by class + subject (same key scheme as
      * alpIds). The MCQ tab strips the exercise label at append time, so
      * MCQs carry no label to match — exercise MCQs are tagged by id once
-     * matched against the textbook exercises. EMPTY for now; populated as
-     * textbooks are matched. Until then the Exercise option shows no MCQs
+     * matched against the textbook exercises.
+     *
+     * Populated (Milestone 5, v158): Physics-9, Chapters 1-6, matched
+     * against the PCTB textbook exercises (Milestone 3, Nov 2026):
+     * Ch1 149-159, Ch2 160-169, Ch3 170-178, Ch4 179-188, Ch5 189-197,
+     * Ch6 198-205. Sources:
+     * ~/workspace/topic_mockups/exercise_mcq_ids_phy9_ch*.txt
+     * (keys verified against the published book keys; Ch1 id 149 key =
+     * Vernier Callipers per the user's final decision, 25 Nov 2026).
+     * Until a subject is tagged here, its Exercise mode shows no MCQs
      * (the "No Exercise MCQs" note) — it never guesses.
      */
-    private val exerciseMcqIds: Map<Pair<String, String>, Set<Int>> = mapOf()
+    private val exerciseMcqIds: Map<Pair<String, String>, Set<Int>> = mapOf(
+        "9" to "physics" to setOf(
+            149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159,
+            160, 161, 162, 163, 164, 165, 166, 167, 168, 169,
+            170, 171, 172, 173, 174, 175, 176, 177, 178,
+            179, 180, 181, 182, 183, 184, 185, 186, 187, 188,
+            189, 190, 191, 192, 193, 194, 195, 196, 197,
+            198, 199, 200, 201, 202, 203, 204, 205
+        )
+    )
 
     /** True when exercise MCQs are tagged for this class + subject. */
     fun hasExerciseMcq(classDigits: String, subject: String): Boolean =

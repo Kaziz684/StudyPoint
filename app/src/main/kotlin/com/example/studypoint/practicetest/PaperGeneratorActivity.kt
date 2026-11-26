@@ -164,6 +164,11 @@ class PaperGeneratorActivity : AppCompatActivity() {
     // 1 = ALP only, 2 = Exercise only. ALP questions are green, the rest
     // red — see AlpQuestions.kt. Mixed is the default: nothing is hidden.
     private var questionMode = 0
+    // Topic-wise pilot (Milestone 5, v158): Physics-9 Chapter 1 only.
+    // Expanded topic number ("1.5") or null = Table of Contents only;
+    // expanded sub-topic name within that topic, or null = whole topic.
+    private var expandedTopic: String? = null
+    private var expandedSubtopic: String? = null
     private var tvMcqCounter: TextView? = null
     private var tvShortCounter: TextView? = null
     private var tvLongCounter: TextView? = null
@@ -1992,6 +1997,228 @@ class PaperGeneratorActivity : AppCompatActivity() {
         return row
     }
 
+    /** Topic-wise pilot (Milestone 5, v158): true only for Class 9 Physics
+     *  Chapter 1 with that chapter alone selected. Everything else keeps
+     *  the flat chapter-level question list. */
+    private fun isTopicView(): Boolean {
+        if (!isManualMode()) return false
+        if (selectedClassDigits() != "9") return false
+        if (!currentSubject().trim().equals("Physics", ignoreCase = true)) return false
+        val sel = selectedChapterLabels()
+        if (sel.size != 1) return false
+        if (chapterNumber(sel[0]) != 1) return false
+        return TopicQuestions.topicsFor("9", currentSubject(), 1) != null
+    }
+
+    /** Topic-wise question browser (Milestone 5 pilot, Physics-9 Ch1):
+     *  Table of Contents — one collapsible section per topic with live
+     *  per-type counts for the current mode; an open topic shows its
+     *  questions grouped by type (MCQs, then Shorts, then Longs), with
+     *  sub-topic chips where the topic has them (1.5). Questions that
+     *  belong to no topic sit in "Chapter Questions" at the end.
+     *  Selection, colours and counters work exactly as in the flat view. */
+    private fun renderTopicQuestions() {
+        val type = currentType()
+        val query = etSearch.text.toString().trim().lowercase()
+        val topics = TopicQuestions.topicsFor("9", currentSubject(), 1) ?: return
+        val showMcq = type == PaperType.MCQS || type == PaperType.COMBINED
+        val showShort = type == PaperType.SHORT || type == PaperType.COMBINED
+        val showLong = type == PaperType.LONG || type == PaperType.COMBINED
+        // Mode-filtered pools (same predicates as the flat view).
+        val mcqs = when (questionMode) {
+            1 -> eligibleMcqs().filter { AlpQuestions.isAlp(it) }
+            2 -> eligibleMcqs().filter { AlpQuestions.isExerciseMcq(it) }
+            else -> eligibleMcqs()
+        }
+        val shorts = when (questionMode) {
+            1 -> eligibleShorts().filter { AlpQuestions.isAlpShort(it) }
+            2 -> eligibleShorts().filter { AlpQuestions.isExerciseShort(it) }
+            else -> eligibleShorts()
+        }
+        val longs = when (questionMode) {
+            1 -> eligibleLongs().filter { AlpQuestions.isAlpLong(it) }
+            2 -> eligibleLongs().filter { AlpQuestions.isExerciseLong(it) }
+            else -> eligibleLongs()
+        }
+        // Mode pills (same row as the flat view).
+        val alpAvailable = AlpQuestions.hasAlp(selectedClassDigits(), currentSubject()) ||
+            AlpQuestions.hasAlpShort(selectedClassDigits(), currentSubject()) ||
+            AlpQuestions.hasAlpLong(selectedClassDigits(), currentSubject())
+        val exerciseAvailable = AlpQuestions.hasExerciseMcq(selectedClassDigits(), currentSubject()) ||
+            eligibleMcqs().any { AlpQuestions.isExerciseMcq(it) } ||
+            eligibleShorts().any { AlpQuestions.isExerciseShort(it) } ||
+            eligibleLongs().any { AlpQuestions.isExerciseLong(it) }
+        val showAllModes = selectedClassDigits() == "9" || selectedClassDigits() == "10"
+        if (showAllModes || alpAvailable || exerciseAvailable) {
+            layoutQuestions.addView(modeFilterRow(alpAvailable, exerciseAvailable, showAllModes))
+        }
+        // Counters (same as the flat view).
+        if (showMcq) { tvMcqCounter = counterView(); layoutQuestions.addView(tvMcqCounter) }
+        if (showShort) { tvShortCounter = counterView(); layoutQuestions.addView(tvShortCounter) }
+        if (showLong) { tvLongCounter = counterView(); layoutQuestions.addView(tvLongCounter) }
+        val eligibleTotal = eligibleMcqs().size + eligibleShorts().size + eligibleLongs().size
+        val poolTotal = (if (showMcq) mcqs.size else 0) +
+            (if (showShort) shorts.size else 0) + (if (showLong) longs.size else 0)
+        if (eligibleTotal == 0) {
+            layoutQuestions.addView(noteView("No questions available for the selected chapter."))
+            updateCounters()
+            return
+        }
+        if (questionMode != 0 && poolTotal == 0) {
+            layoutQuestions.addView(
+                noteView(
+                    "No ${if (questionMode == 1) "ALP" else "Exercise"} questions in this chapter. " +
+                        "Switch to Mixed to see all questions."
+                )
+            )
+            updateCounters()
+            return
+        }
+        val mcqVisible: (Question) -> Boolean = {
+            query.isBlank() || it.questionText.lowercase().contains(query) ||
+                it.options.any { o -> o.lowercase().contains(query) }
+        }
+        val writtenVisible: (WrittenQuestion) -> Boolean = {
+            query.isBlank() || it.question.lowercase().contains(query)
+        }
+        var anyVisible = false
+        for (topic in topics) {
+            val tMcqs = if (showMcq) mcqs.filter { it.id in topic.mcqIds } else emptyList()
+            val tShorts = if (showShort) shorts.filter { it.id in topic.shortIds } else emptyList()
+            val tLongs = if (showLong) longs.filter { it.id in topic.longIds } else emptyList()
+            if (tMcqs.none(mcqVisible) && tShorts.none(writtenVisible) && tLongs.none(writtenVisible)) continue
+            anyVisible = true
+            val open = expandedTopic == topic.number
+            // Sub-topic filter (topic 1.5 only): narrows the open topic's lists.
+            val sub = if (open) topic.subtopics.firstOrNull { it.name == expandedSubtopic } else null
+            val dMcqs = if (sub != null) tMcqs.filter { it.id in sub.mcqIds } else tMcqs
+            val dShorts = if (sub != null) tShorts.filter { it.id in sub.shortIds } else tShorts
+            val dLongs = if (sub != null) tLongs.filter { it.id in sub.longIds } else tLongs
+            val vMcqs = dMcqs.filter(mcqVisible)
+            val vShorts = dShorts.filter(writtenVisible)
+            val vLongs = dLongs.filter(writtenVisible)
+            // Header counts use the mode-filtered (pre-search) totals.
+            val counts = listOf(
+                if (showMcq) "MCQ ${dMcqs.size}" else null,
+                if (showShort) "Short ${dShorts.size}" else null,
+                if (showLong) "Long ${dLongs.size}" else null
+            ).filterNotNull().joinToString("  •  ")
+            val head = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = android.view.Gravity.CENTER_VERTICAL
+                setBackgroundResource(R.drawable.bg_role_card)
+                setPadding(dp(12), dp(12), dp(12), dp(12))
+            }
+            val tvTitle = TextView(this).apply {
+                text = "${topic.number}  ${topic.title}"
+                textSize = 15f
+                setTypeface(null, Typeface.BOLD)
+                setTextColor(Color.parseColor("#1F2937"))
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            }
+            val tvCounts = TextView(this).apply {
+                text = counts
+                textSize = 12f
+                setTextColor(Color.parseColor("#475569"))
+                setPadding(dp(8), 0, dp(8), 0)
+            }
+            val tvChevron = TextView(this).apply {
+                text = if (open) "▲" else "▼"
+                textSize = 13f
+                setTextColor(Color.parseColor("#475569"))
+            }
+            head.addView(tvTitle)
+            head.addView(tvCounts)
+            head.addView(tvChevron)
+            head.setOnClickListener {
+                expandedTopic = if (open) null else topic.number
+                expandedSubtopic = null
+                renderQuestions()
+            }
+            val headWrap = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply { setMargins(0, 0, 0, dp(8)) }
+            head.layoutParams = headWrap
+            layoutQuestions.addView(head)
+            if (!open) continue
+            if (topic.subtopics.isNotEmpty()) {
+                val chips = LinearLayout(this).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    setPadding(0, 0, 0, dp(8))
+                }
+                fun chip(label: String, selected: Boolean, onClick: () -> Unit): TextView =
+                    TextView(this).apply {
+                        text = label
+                        textSize = 12.5f
+                        setTypeface(null, if (selected) Typeface.BOLD else Typeface.NORMAL)
+                        gravity = android.view.Gravity.CENTER
+                        setPadding(dp(10), dp(6), dp(10), dp(6))
+                        layoutParams = LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.WRAP_CONTENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                        ).apply { marginEnd = dp(6) }
+                        if (selected) {
+                            setBackgroundResource(R.drawable.bg_tab_selected)
+                            setTextColor(Color.WHITE)
+                        } else {
+                            setBackgroundResource(R.drawable.bg_tab_unselected)
+                            setTextColor(Color.parseColor("#475569"))
+                        }
+                        setOnClickListener { onClick() }
+                    }
+                chips.addView(chip("All", expandedSubtopic == null) {
+                    expandedSubtopic = null
+                    renderQuestions()
+                })
+                for (st in topic.subtopics) {
+                    chips.addView(chip(st.name, expandedSubtopic == st.name) {
+                        expandedSubtopic = st.name
+                        renderQuestions()
+                    })
+                }
+                layoutQuestions.addView(chips)
+            }
+            if (vMcqs.isEmpty() && vShorts.isEmpty() && vLongs.isEmpty()) {
+                layoutQuestions.addView(
+                    noteView(
+                        if (sub != null) "No questions in this sub-topic yet."
+                        else "No questions match your search."
+                    )
+                )
+                continue
+            }
+            if (vMcqs.isNotEmpty()) {
+                layoutQuestions.addView(sectionHeader("MCQs", vMcqs.map { it.id }, selectedMcqIds))
+                vMcqs.forEach { layoutQuestions.addView(mcqRow(it)) }
+            }
+            if (vShorts.isNotEmpty()) {
+                layoutQuestions.addView(sectionHeader("Short Questions", vShorts.map { it.id }, selectedShortIds))
+                vShorts.forEach { layoutQuestions.addView(writtenRow(it, selectedShortIds)) }
+            }
+            if (vLongs.isNotEmpty()) {
+                layoutQuestions.addView(sectionHeader("Long Questions", vLongs.map { it.id }, selectedLongIds))
+                vLongs.forEach { layoutQuestions.addView(writtenRow(it, selectedLongIds, isLong = true)) }
+            }
+        }
+        // Questions that belong to no topic (ambiguous Longs) sit at the end.
+        val chapterLongs = if (showLong) {
+            longs.filter { it.id in TopicQuestions.chapterLevelLongIds("9", currentSubject(), 1) }
+        } else emptyList()
+        val vChapterLongs = chapterLongs.filter(writtenVisible)
+        if (vChapterLongs.isNotEmpty()) {
+            anyVisible = true
+            layoutQuestions.addView(
+                sectionHeader("Chapter Questions", vChapterLongs.map { it.id }, selectedLongIds)
+            )
+            vChapterLongs.forEach { layoutQuestions.addView(writtenRow(it, selectedLongIds, isLong = true)) }
+        }
+        if (!anyVisible) {
+            layoutQuestions.addView(noteView("No questions match your search."))
+        }
+        updateCounters()
+    }
+
     private fun renderQuestions() {
         if (!::layoutQuestions.isInitialized || !::radioModeManual.isInitialized) return
         if (!isManualMode()) return
@@ -1999,6 +2226,13 @@ class PaperGeneratorActivity : AppCompatActivity() {
         tvMcqCounter = null
         tvShortCounter = null
         tvLongCounter = null
+        if (!isTopicView()) {
+            expandedTopic = null
+            expandedSubtopic = null
+        } else {
+            renderTopicQuestions()
+            return
+        }
         val type = currentType()
         val query = etSearch.text.toString().trim().lowercase()
         layoutQuestions.addView(manualTabRow(type))

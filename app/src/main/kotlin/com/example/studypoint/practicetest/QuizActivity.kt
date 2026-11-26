@@ -86,9 +86,15 @@ class QuizActivity : AppCompatActivity() {
         val sheetName = intent.getStringExtra("sheetName") ?: "Class_9th"
         val subject = intent.getStringExtra("subject") ?: ""
         val chapter = intent.getStringExtra("chapter") ?: ""
+        val topic = intent.getStringExtra("topic") ?: ""
         val questionCount = intent.getIntExtra("count", 10)
-        tvQuizSubject.text = if (chapter.isBlank()) subject
-            else "$subject  •  $chapter"
+        val topicTitle = if (topic.isBlank()) null else
+            TopicQuestions.phy9Ch1Topics.firstOrNull { it.number == topic }?.let { "$topic ${it.title}" }
+        tvQuizSubject.text = when {
+            topicTitle != null -> "$subject  •  $chapter  •  $topicTitle"
+            chapter.isBlank() -> subject
+            else -> "$subject  •  $chapter"
+        }
 
         btnNext.setOnClickListener {
             if (questions.isEmpty() || currentIndex >= questions.size) return@setOnClickListener
@@ -135,7 +141,7 @@ class QuizActivity : AppCompatActivity() {
             }
         }
 
-        viewModel.loadQuestions(sheetName, subject, chapter, questionCount)
+        viewModel.loadQuestions(sheetName, subject, chapter, questionCount, topic)
     }
 
     /** Live score pills under the header. Not answered = Total - Correct - Incorrect. */

@@ -19,6 +19,8 @@ class QuizSelectionActivity : AppCompatActivity() {
     private lateinit var spinnerClass: Spinner
     private lateinit var spinnerSubject: Spinner
     private lateinit var spinnerChapter: Spinner
+    private lateinit var spinnerTopic: Spinner
+    private lateinit var tvTopicLabel: TextView
     private lateinit var btnStartQuiz: MaterialButton
 
     private val classes = listOf("Class_9th", "Class_10th", "Class_11th", "Class_12th")
@@ -26,6 +28,32 @@ class QuizSelectionActivity : AppCompatActivity() {
     private val questionCounts = listOf(10, 15, 20, 25, 30)
     private var selectedCount = 10
     private lateinit var countChips: List<TextView>
+
+    // Topic-wise pilot (Milestone 5, v158): Physics-9 Chapter 1 only.
+    // "All Topics" (value "") keeps the chapter-level quiz.
+    private val topicLabels: List<String>
+        get() = listOf("All Topics") +
+            TopicQuestions.phy9Ch1Topics.map { "${it.number} ${it.title}" }
+
+    private fun topicNumberOf(label: String?): String {
+        if (label.isNullOrBlank() || label == "All Topics") return ""
+        return label.substringBefore(" ").trim()
+    }
+
+    private fun isPilotTopicChapter(): Boolean {
+        val cls = spinnerClass.selectedItem?.toString() ?: ""
+        val subj = spinnerSubject.selectedItem?.toString() ?: ""
+        val ch = spinnerChapter.selectedItem?.toString() ?: ""
+        return cls == "Class_9th" && subj.trim().equals("Physics", ignoreCase = true) &&
+            ch.trim() == "Chapter 1"
+    }
+
+    private fun updateTopicVisibility() {
+        val show = isPilotTopicChapter()
+        tvTopicLabel.visibility = if (show) View.VISIBLE else View.GONE
+        spinnerTopic.visibility = if (show) View.VISIBLE else View.GONE
+        if (!show) spinnerTopic.setSelection(0)
+    }
 
     private fun getSubjectsForClass(className: String): List<String> {
         val baseSubjects = listOf("English", "Urdu", "Mathematics", "Physics", "Chemistry", "Biology", "Computer Science")
@@ -56,7 +84,13 @@ class QuizSelectionActivity : AppCompatActivity() {
         spinnerClass = findViewById(R.id.spinnerClass)
         spinnerSubject = findViewById(R.id.spinnerSubject)
         spinnerChapter = findViewById(R.id.spinnerChapter)
+        spinnerTopic = findViewById(R.id.spinnerTopic)
+        tvTopicLabel = findViewById(R.id.tvTopicLabel)
         btnStartQuiz = findViewById(R.id.btnStartQuiz)
+
+        val topicAdapter = ArrayAdapter(this, R.layout.spinner_item_selected, topicLabels)
+        topicAdapter.setDropDownViewResource(R.layout.spinner_item_dropdown)
+        spinnerTopic.adapter = topicAdapter
 
         val classAdapter = ArrayAdapter(this, R.layout.spinner_item_selected, classes)
         classAdapter.setDropDownViewResource(R.layout.spinner_item_dropdown)
@@ -74,6 +108,15 @@ class QuizSelectionActivity : AppCompatActivity() {
                 val newSubjectAdapter = ArrayAdapter(this@QuizSelectionActivity, R.layout.spinner_item_selected, subjectsForSelectedClass)
                 newSubjectAdapter.setDropDownViewResource(R.layout.spinner_item_dropdown)
                 spinnerSubject.adapter = newSubjectAdapter
+                updateTopicVisibility()
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+
+        spinnerSubject.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                updateTopicVisibility()
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {}
@@ -82,6 +125,15 @@ class QuizSelectionActivity : AppCompatActivity() {
         val chapterAdapter = ArrayAdapter(this, R.layout.spinner_item_selected, chapters)
         chapterAdapter.setDropDownViewResource(R.layout.spinner_item_dropdown)
         spinnerChapter.adapter = chapterAdapter
+
+        spinnerChapter.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                updateTopicVisibility()
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+        updateTopicVisibility()
 
         // Number of Questions chips (10 / 15 / 20 / 25 / 30, default 10).
         countChips = listOf(
@@ -103,6 +155,9 @@ class QuizSelectionActivity : AppCompatActivity() {
             val selectedClass = spinnerClass.selectedItem?.toString() ?: "Class_9th"
             val selectedSubject = spinnerSubject.selectedItem?.toString() ?: "English"
             val selectedChapter = spinnerChapter.selectedItem?.toString() ?: ""
+            val selectedTopic = if (isPilotTopicChapter()) {
+                topicNumberOf(spinnerTopic.selectedItem?.toString())
+            } else ""
 
             val chapterParam = if (selectedChapter.isBlank() || selectedChapter == "All Chapters") "" else selectedChapter
 
@@ -110,6 +165,7 @@ class QuizSelectionActivity : AppCompatActivity() {
                 putExtra("sheetName", selectedClass)
                 putExtra("subject", selectedSubject)
                 putExtra("chapter", chapterParam)
+                putExtra("topic", selectedTopic)
                 putExtra("count", selectedCount)
             }
             startActivity(intent)

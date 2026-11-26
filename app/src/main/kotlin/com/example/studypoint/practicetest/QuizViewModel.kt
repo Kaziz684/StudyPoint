@@ -94,7 +94,7 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun loadQuestions(sheetName: String, subject: String, chapter: String, count: Int = 10) {
+    fun loadQuestions(sheetName: String, subject: String, chapter: String, count: Int = 10, topicNumber: String = "") {
         _quizState.value = UiState.Loading
         viewModelScope.launch {
             val normalizedSheet = when {
@@ -145,12 +145,37 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
                 }
             }
 
+            // Topic filter (Milestone 5 pilot: Physics-9 Ch1 only). A topic
+            // with no MCQs shows "Coming Soon" instead of the chapter pool
+            // (same R-2 rule as an empty chapter).
+            val trimmedTopic = topicNumber.trim()
+            val topicPool = if (trimmedTopic.isBlank()) {
+                targetPool
+            } else {
+                val chapterNum = Regex("""\d+""").find(trimmedChapter)?.value?.toIntOrNull()
+                val classDigits = when {
+                    normalizedSheet.contains("9") -> "9"
+                    normalizedSheet.contains("10") -> "10"
+                    normalizedSheet.contains("11") -> "11"
+                    normalizedSheet.contains("12") -> "12"
+                    else -> ""
+                }
+                val ids = TopicQuestions.mcqIdsForTopic(classDigits, trimmedSubject, chapterNum, trimmedTopic)
+                val filtered = targetPool.filter { it.id in ids }
+                if (filtered.isNotEmpty()) filtered else {
+                    _quizState.value = UiState.Error(
+                        "Coming Soon — No MCQs in topic $trimmedTopic yet."
+                    )
+                    return@launch
+                }
+            }
+
             // Build a dynamic quiz session of `count` questions (or all if fewer).
             val sessionSize = count.coerceIn(1, 30)
-            val sessionQuestions = if (targetPool.size > sessionSize) {
-                targetPool.shuffled().take(sessionSize)
+            val sessionQuestions = if (topicPool.size > sessionSize) {
+                topicPool.shuffled().take(sessionSize)
             } else {
-                targetPool.shuffled()
+                topicPool.shuffled()
             }
 
             if (sessionQuestions.isNotEmpty()) {
