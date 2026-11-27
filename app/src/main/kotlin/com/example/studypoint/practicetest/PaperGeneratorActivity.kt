@@ -122,8 +122,10 @@ class PaperGeneratorActivity : AppCompatActivity() {
     // The spinners stay as the single source of truth for class/subject state
     // (hidden) — every existing reader (loadData, generate, buildSummary)
     // keeps working unchanged; the rows only drive setSelection on them.
-    // Wizard steps (7): 1 Paper Type, 2 Class, 3 Subject, 4 Chapters,
+    // Wizard steps (7): 1 Class, 2 Paper Type, 3 Subject, 4 Chapters,
     // 5 Questions & Counts, 6 Options, 7 Preview & Generate.
+    // (Step order changed 2026-11-27 at the user's request: Class first,
+    // then Paper Type.)
     // Step 4 is skipped for Board Pattern. Chapters and Topics are one
     // step: the chapter list's portion headers select whole topics.
     private var bankSnapshot: QuestionBankStats.BankSnapshot? = null
@@ -323,9 +325,12 @@ class PaperGeneratorActivity : AppCompatActivity() {
         renderSubjectRows()
 
         scrollPaper = findViewById(R.id.scrollPaper)
+        // Step order: Class first, then Paper Type (user, 2026-11-27).
+        // step2Paper holds the Class picker, step1Paper the Paper Type
+        // picker — the list is indexed by wizard step, not by layout id.
         stepContainers = listOf(
-            findViewById(R.id.step1Paper),
             findViewById(R.id.step2Paper),
+            findViewById(R.id.step1Paper),
             findViewById(R.id.step3Paper),
             findViewById(R.id.step4Paper),
             findViewById(R.id.step5Paper),
@@ -457,7 +462,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
         }
         // Initial wizard step: a deep-linked subject jumps straight to
         // Chapters; a deep-linked class starts at Subjects; otherwise the
-        // wizard opens at Paper Type (Step 1).
+        // wizard opens at Class (Step 1).
         val incomingSubject = intent.getStringExtra("subject") ?: ""
         val subjectMatched = incomingSubject.isNotBlank() &&
             subjectsFor(currentSheet()).any { it.equals(incomingSubject, ignoreCase = true) }
@@ -601,8 +606,8 @@ class PaperGeneratorActivity : AppCompatActivity() {
             v.setBackgroundColor(Color.parseColor(if (i < currentStep) "#2563EB" else "#E2E8F0"))
         }
         val titles = listOf(
-            "Step 1 of 7 — Paper Type",
-            "Step 2 of 7 — Select Class",
+            "Step 1 of 7 — Select Class",
+            "Step 2 of 7 — Paper Type",
             "Step 3 of 7 — Select Subject",
             "Step 4 of 7 — Select Chapters",
             "Step 5 of 7 — Select Questions & Counts",
@@ -610,8 +615,8 @@ class PaperGeneratorActivity : AppCompatActivity() {
             "Step 7 of 7 — Preview & Generate"
         )
         val subs = listOf(
-            "Choose the kind of paper you want to create.",
             "Pick the class for this paper.",
+            "Choose the kind of paper you want to create.",
             "Pick the subject for this paper.",
             "Choose the chapters to include. A portion header selects all its chapters at once. Tap Select All for the full book.",
             "Select questions yourself or set the numbers for automatic selection.",
@@ -629,10 +634,10 @@ class PaperGeneratorActivity : AppCompatActivity() {
         scrollPaper.scrollTo(0, 0)
     }
 
-    /** 4-item pick strip (Paper Type → Class → Subject → Chapter)
+    /** 4-item pick strip (Class → Paper Type → Subject → Chapter)
      *  in the common header, plus the Selected Class / Subject chips.
      *  On steps 5-7 every item is done. Chips appear once their pick is
-     *  made (Class from step 3, Subject from step 4) and tap back to it. */
+     *  made (Class from step 2, Subject from step 4) and tap back to it. */
     private fun updatePickStrip() {
         if (!::pickStepCircles.isInitialized) return
         for (i in 0..3) {
@@ -664,9 +669,9 @@ class PaperGeneratorActivity : AppCompatActivity() {
         }
         if (::layoutSelectedClass.isInitialized) {
             layoutSelectedSummary.visibility =
-                if (currentStep >= 3) View.VISIBLE else View.GONE
+                if (currentStep >= 2) View.VISIBLE else View.GONE
             layoutSelectedClass.visibility =
-                if (currentStep >= 3) View.VISIBLE else View.GONE
+                if (currentStep >= 2) View.VISIBLE else View.GONE
             layoutSelectedSubject.visibility =
                 if (currentStep >= 4) View.VISIBLE else View.GONE
             tvSelectedClass.text = "${classLabels[spinnerClass.selectedItemPosition.coerceIn(0, classLabels.lastIndex)]}  •  Change"
@@ -845,7 +850,7 @@ class PaperGeneratorActivity : AppCompatActivity() {
 
     private fun showClassStage() {
         renderClassRows()
-        showStep(2)
+        showStep(1)
     }
 
     private fun showSubjectStage() {
@@ -880,7 +885,8 @@ class PaperGeneratorActivity : AppCompatActivity() {
         val pos = classSheets.indexOfFirst { it.filter { c -> c.isDigit() } == digits }
         if (pos >= 0) spinnerClass.setSelection(pos) // listener rebuilds subjects
         renderClassRows()
-        showSubjectStage()
+        // Class picked — the next step is Paper Type (step 2).
+        showStep(2)
     }
 
     private fun onSubjectRowSelected(name: String) {
