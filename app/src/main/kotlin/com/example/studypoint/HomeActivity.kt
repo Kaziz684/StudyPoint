@@ -1862,6 +1862,7 @@ fun ImportantQuestionsCard() {
                 val tabLayout = view.findViewById<com.google.android.material.tabs.TabLayout>(R.id.tabLayoutDotsStudy)
 
                 // 2027 Guess / Pairing cards, hosted on Drive like all other materials.
+                // Physics-11 Important Questions covers added 26 Nov 2026 (MCQs / Shorts / Longs).
                 viewPager.adapter = StudyCardAdapter(
                     listOf(
                         "https://drive.google.com/uc?export=download&id=1bG32paQrHCQIJSCMmHLlCsNnOisgODwa",
@@ -1870,7 +1871,10 @@ fun ImportantQuestionsCard() {
                         "https://drive.google.com/uc?export=download&id=1OFKI3Bqg_eIK4LIcNXIblt3y7lxwqpSw",
                         "https://drive.google.com/uc?export=download&id=1l_Jhe3r5Fuet9MEX3nfiXqQPtsBFXG4q",
                         "https://drive.google.com/uc?export=download&id=1urZZ790L-llYvi_zr5vAnDjfM2ZUJX3g",
-                        "https://drive.google.com/uc?export=download&id=1DP3CGeVjZSpAz00fvoiu_Xq_oaQwRJf1"
+                        "https://drive.google.com/uc?export=download&id=1DP3CGeVjZSpAz00fvoiu_Xq_oaQwRJf1",
+                        "https://drive.google.com/uc?export=download&id=1U7ZgCkY2CiJFf1vZY4UYyzRsbQjw1XdQ",
+                        "https://drive.google.com/uc?export=download&id=16GOqFofP7x5PZqXaIynBZoyLZDrPWsks",
+                        "https://drive.google.com/uc?export=download&id=1W8EhtTIkVQakKbseasXFFTP-NpXXfNKP"
                     )
                 )
 
