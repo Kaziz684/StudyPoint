@@ -168,7 +168,6 @@ class PaperGeneratorActivity : AppCompatActivity() {
     // Expanded topic number ("1.5") or null = Table of Contents only;
     // expanded sub-topic name within that topic, or null = whole topic.
     private var expandedTopic: String? = null
-    private var expandedSubtopic: String? = null
     private var tvMcqCounter: TextView? = null
     private var tvShortCounter: TextView? = null
     private var tvLongCounter: TextView? = null
@@ -2090,19 +2089,17 @@ class PaperGeneratorActivity : AppCompatActivity() {
             if (tMcqs.none(mcqVisible) && tShorts.none(writtenVisible) && tLongs.none(writtenVisible)) continue
             anyVisible = true
             val open = expandedTopic == topic.number
-            // Sub-topic filter (any topic with sub-topics): narrows the open topic's lists.
-            val sub = if (open) topic.subtopics.firstOrNull { it.name == expandedSubtopic } else null
-            val dMcqs = if (sub != null) tMcqs.filter { it.id in sub.mcqIds } else tMcqs
-            val dShorts = if (sub != null) tShorts.filter { it.id in sub.shortIds } else tShorts
-            val dLongs = if (sub != null) tLongs.filter { it.id in sub.longIds } else tLongs
-            val vMcqs = dMcqs.filter(mcqVisible)
-            val vShorts = dShorts.filter(writtenVisible)
-            val vLongs = dLongs.filter(writtenVisible)
+            // Table of contents: the whole topic's questions are shown, grouped
+            // under their sub-topic. No chip filter — a chip could hide every
+            // question and leave a big empty gap.
+            val vMcqs = tMcqs.filter(mcqVisible)
+            val vShorts = tShorts.filter(writtenVisible)
+            val vLongs = tLongs.filter(writtenVisible)
             // Header counts use the mode-filtered (pre-search) totals.
             val counts = listOf(
-                if (showMcq) "MCQ ${dMcqs.size}" else null,
-                if (showShort) "Short ${dShorts.size}" else null,
-                if (showLong) "Long ${dLongs.size}" else null
+                if (showMcq) "MCQ ${tMcqs.size}" else null,
+                if (showShort) "Short ${tShorts.size}" else null,
+                if (showLong) "Long ${tLongs.size}" else null
             ).filterNotNull().joinToString("  •  ")
             val head = LinearLayout(this).apply {
                 orientation = LinearLayout.HORIZONTAL
@@ -2133,7 +2130,6 @@ class PaperGeneratorActivity : AppCompatActivity() {
             head.addView(tvChevron)
             head.setOnClickListener {
                 expandedTopic = if (open) null else topic.number
-                expandedSubtopic = null
                 renderQuestions()
             }
             val headWrap = LinearLayout.LayoutParams(
@@ -2143,63 +2139,21 @@ class PaperGeneratorActivity : AppCompatActivity() {
             head.layoutParams = headWrap
             layoutQuestions.addView(head)
             if (!open) continue
-            if (topic.subtopics.isNotEmpty()) {
-                val chips = LinearLayout(this).apply {
-                    orientation = LinearLayout.HORIZONTAL
-                    setPadding(0, 0, 0, dp(8))
-                }
-                fun chip(label: String, selected: Boolean, onClick: () -> Unit): TextView =
-                    TextView(this).apply {
-                        text = label
-                        textSize = 12.5f
-                        setTypeface(null, if (selected) Typeface.BOLD else Typeface.NORMAL)
-                        gravity = android.view.Gravity.CENTER
-                        setPadding(dp(10), dp(6), dp(10), dp(6))
-                        layoutParams = LinearLayout.LayoutParams(
-                            LinearLayout.LayoutParams.WRAP_CONTENT,
-                            LinearLayout.LayoutParams.WRAP_CONTENT
-                        ).apply { marginEnd = dp(6) }
-                        if (selected) {
-                            setBackgroundResource(R.drawable.bg_tab_selected)
-                            setTextColor(Color.WHITE)
-                        } else {
-                            setBackgroundResource(R.drawable.bg_tab_unselected)
-                            setTextColor(Color.parseColor("#475569"))
-                        }
-                        setOnClickListener { onClick() }
-                    }
-                chips.addView(chip("All", expandedSubtopic == null) {
-                    expandedSubtopic = null
-                    renderQuestions()
-                })
-                for (st in topic.subtopics) {
-                    chips.addView(chip(st.name, expandedSubtopic == st.name) {
-                        expandedSubtopic = st.name
-                        renderQuestions()
-                    })
-                }
-                layoutQuestions.addView(chips)
-            }
             if (vMcqs.isEmpty() && vShorts.isEmpty() && vLongs.isEmpty()) {
-                layoutQuestions.addView(
-                    noteView(
-                        if (sub != null) "No questions in this sub-topic yet."
-                        else "No questions match your search."
-                    )
-                )
+                layoutQuestions.addView(noteView("No questions match your search."))
                 continue
             }
             if (vMcqs.isNotEmpty()) {
                 layoutQuestions.addView(sectionHeader("MCQs", vMcqs.map { it.id }, selectedMcqIds))
-                vMcqs.forEach { layoutQuestions.addView(mcqRow(it)) }
+                renderGrouped(vMcqs, { it.id }, topic, { it.mcqIds }) { layoutQuestions.addView(mcqRow(it)) }
             }
             if (vShorts.isNotEmpty()) {
                 layoutQuestions.addView(sectionHeader("Short Questions", vShorts.map { it.id }, selectedShortIds))
-                vShorts.forEach { layoutQuestions.addView(writtenRow(it, selectedShortIds)) }
+                renderGrouped(vShorts, { it.id }, topic, { it.shortIds }) { layoutQuestions.addView(writtenRow(it, selectedShortIds)) }
             }
             if (vLongs.isNotEmpty()) {
                 layoutQuestions.addView(sectionHeader("Long Questions", vLongs.map { it.id }, selectedLongIds))
-                vLongs.forEach { layoutQuestions.addView(writtenRow(it, selectedLongIds, isLong = true)) }
+                renderGrouped(vLongs, { it.id }, topic, { it.longIds }) { layoutQuestions.addView(writtenRow(it, selectedLongIds, isLong = true)) }
             }
         }
         // Questions that belong to no topic (ambiguous MCQs/Shorts/Longs) sit at the end.
@@ -2242,6 +2196,45 @@ class PaperGeneratorActivity : AppCompatActivity() {
         updateCounters()
     }
 
+    /** Table of contents: render one question type's visible rows grouped
+     *  under their sub-topic (indented sub-header, then the questions).
+     *  Questions that belong to no sub-topic come last under
+     *  "Other questions". A sub-topic with no visible question is omitted,
+     *  so the list never shows an empty group. `idsOf` picks the
+     *  sub-topic's id set for this question type. */
+    private fun <T> renderGrouped(
+        visible: List<T>,
+        idOf: (T) -> Int,
+        topic: TopicDef,
+        idsOf: (SubtopicDef) -> Set<Int>,
+        row: (T) -> Unit
+    ) {
+        var groupedAny = false
+        for (st in topic.subtopics) {
+            val ids = idsOf(st)
+            val inGroup = visible.filter { idOf(it) in ids }
+            if (inGroup.isEmpty()) continue
+            groupedAny = true
+            layoutQuestions.addView(subtopicHeader(st.name))
+            inGroup.forEach { row(it) }
+        }
+        val groupedIds = topic.subtopics.flatMap { idsOf(it) }.toSet()
+        val rest = visible.filter { idOf(it) !in groupedIds }
+        if (rest.isNotEmpty()) {
+            if (groupedAny) layoutQuestions.addView(subtopicHeader("Other questions"))
+            rest.forEach { row(it) }
+        }
+    }
+
+    /** Small indented sub-header for one sub-topic inside an open topic. */
+    private fun subtopicHeader(name: String): TextView = TextView(this).apply {
+        text = "▸ $name"
+        textSize = 13f
+        setTypeface(null, Typeface.BOLD)
+        setTextColor(Color.parseColor("#334155"))
+        setPadding(dp(12), dp(10), dp(4), dp(2))
+    }
+
     private fun renderQuestions() {
         if (!::layoutQuestions.isInitialized || !::radioModeManual.isInitialized) return
         if (!isManualMode()) return
@@ -2251,7 +2244,6 @@ class PaperGeneratorActivity : AppCompatActivity() {
         tvLongCounter = null
         if (!isTopicView()) {
             expandedTopic = null
-            expandedSubtopic = null
         } else {
             renderTopicQuestions()
             return
